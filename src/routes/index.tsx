@@ -180,11 +180,16 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [pitchType, setPitchType] = useState<PitchType>("full");
+  const [teamId, setTeamId] = useState<string>("");
+  const { memberships } = useAccount();
+  const coachTeams = memberships.filter(
+    (item) => item.role === "coach" && item.status === "approved",
+  );
 
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
 
   const create = useMutation({
-    mutationFn: () => createTactic(userId, name.trim() || "Ny taktik", pitchType),
+    mutationFn: () => createTactic(userId, name.trim() || "Ny taktik", pitchType, teamId || null),
     onSuccess: (id) => {
       setOpen(false);
       setName("");
@@ -266,6 +271,38 @@ function TacticsDashboard({ userId }: { userId: string }) {
                 </button>
               ))}
             </div>
+            {coachTeams.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Koppla till lag (spelarbank)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTeamId("")}
+                    className={`rounded-lg border px-3 py-2 text-sm ${
+                      teamId === "" ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    Utan lag
+                  </button>
+                  {coachTeams.map((item) => (
+                    <button
+                      key={item.team_id}
+                      type="button"
+                      onClick={() => setTeamId(item.team_id)}
+                      className={`rounded-lg border px-3 py-2 text-sm ${
+                        teamId === item.team_id
+                          ? "border-primary bg-primary/15"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      {item.team?.name ?? "Lag"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <DialogFooter>
               <Button onClick={() => create.mutate()} disabled={create.isPending}>
                 Skapa
