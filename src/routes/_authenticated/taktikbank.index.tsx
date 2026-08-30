@@ -47,14 +47,14 @@ export const Route = createFileRoute("/_authenticated/taktikbank/")({
   component: TaktikbankPage,
 });
 
-const TABS = ["Taktikkort", "Målvakt", "Övningar", "Pass", "Regler"] as const;
+const TABS = ["Taktikkort"] as const;
 type Tab = (typeof TABS)[number];
 
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<Tab>("Taktikkort");
+  const [tab] = useState<Tab>("Taktikkort");
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<string>("all");
   const [moment, setMoment] = useState<string>("all");
@@ -68,19 +68,7 @@ function TaktikbankPage() {
 
   const tactics = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
   const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
-  const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed && tab === "Målvakt" });
-  const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: allowed && tab === "Övningar" });
-  const sessions = useQuery({
-    queryKey: ["tb-sessions"],
-    queryFn: fetchTrainingSessions,
-    enabled: allowed && tab === "Pass",
-  });
-  const rulesets = useQuery({ queryKey: ["tb-rules"], queryFn: fetchRulesets, enabled: allowed && tab === "Regler" });
-  const districts = useQuery({
-    queryKey: ["tb-districts"],
-    queryFn: fetchDistrictProfiles,
-    enabled: allowed && tab === "Regler",
-  });
+
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
