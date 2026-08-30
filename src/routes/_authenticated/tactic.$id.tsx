@@ -72,7 +72,32 @@ function TacticEditor() {
   const queryClient = useQueryClient();
 
   const tactic = useQuery({ queryKey: ["tactic", id], queryFn: () => fetchTactic(id) });
-  const players = useQuery({ queryKey: ["players"], queryFn: fetchPlayers });
+  const teamId = tactic.data?.team_id ?? null;
+  const squad = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId as string),
+    enabled: !!teamId,
+  });
+  const personal = useQuery({ queryKey: ["players"], queryFn: fetchPlayers, enabled: !teamId });
+
+  const bank: BankPlayer[] = useMemo(() => {
+    if (teamId) {
+      return (squad.data ?? []).map((player) => ({
+        id: player.id,
+        name: player.name,
+        number: player.number,
+        photoUrl: player.photoUrl,
+        gk: player.is_goalkeeper,
+      }));
+    }
+    return (personal.data ?? []).map((player) => ({
+      id: player.id,
+      name: player.name,
+      number: player.number,
+      photoUrl: player.photoUrl,
+      gk: false,
+    }));
+  }, [teamId, squad.data, personal.data]);
 
   const [frames, setFrames] = useState<Frame[]>([]);
   const [current, setCurrent] = useState(0);
@@ -83,7 +108,9 @@ function TacticEditor() {
   const [loop, setLoop] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [hideNames, setHideNames] = useState(false);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
+
   const pastRef = useRef<Frame[][]>([]);
   const futureRef = useRef<Frame[][]>([]);
   const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
