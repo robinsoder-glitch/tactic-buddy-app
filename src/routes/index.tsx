@@ -74,7 +74,6 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { confirm, confirmDialog } = useConfirm();
   const { user, loading } = useAuth();
   const account = useAccount();
   const navigate = useNavigate();
@@ -185,6 +184,7 @@ function Landing() {
 type SortKey = "updated" | "name";
 
 function TacticsDashboard({ userId }: { userId: string }) {
+  const { confirm, confirmDialog } = useConfirm();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { memberships, profile, isAdmin, isCoach } = useAccount();
