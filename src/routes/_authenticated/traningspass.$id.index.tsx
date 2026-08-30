@@ -93,6 +93,18 @@ function SessionBuilder() {
     onError: (error: Error) => toast.error(error.message || "Det gick inte att spara träningspasset."),
   });
 
+  const setStatus = useMutation({
+    mutationFn: (status: string) => updateCoachSession(id, { status }),
+    onSuccess: (_data, status) => {
+      queryClient.invalidateQueries({ queryKey: ["coach-session", id] });
+      queryClient.invalidateQueries({ queryKey: ["coach-sessions"] });
+      toast.success(
+        status === "done" ? "Träningspasset är markerat som genomfört" : "Träningspasset är markerat som utkast",
+      );
+    },
+    onError: () => toast.error("Det gick inte att ändra status."),
+  });
+
   const saveOrder = useMutation({
     mutationFn: (next: CoachSessionItem[]) => saveItemOrder(next),
     onSuccess: invalidate,
