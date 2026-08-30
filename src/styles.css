@@ -39,6 +39,10 @@
   --color-team-home-foreground: var(--team-home-foreground);
   --color-team-away: var(--team-away);
   --color-team-away-foreground: var(--team-away-foreground);
+  --color-team-gk: var(--team-gk);
+  --color-team-gk-foreground: var(--team-gk-foreground);
+  --color-team-gk-away: var(--team-gk-away);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -81,6 +85,10 @@
   --team-home-foreground: oklch(0.2 0.05 140);
   --team-away: oklch(0.72 0.18 25);
   --team-away-foreground: oklch(0.99 0.01 90);
+  --team-gk: oklch(0.78 0.17 310);
+  --team-gk-foreground: oklch(0.2 0.05 300);
+  --team-gk-away: oklch(0.72 0.13 235);
+
   --chart-1: oklch(0.86 0.21 128);
   --chart-2: oklch(0.72 0.18 25);
   --chart-3: oklch(0.8 0.15 80);
