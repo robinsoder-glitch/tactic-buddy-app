@@ -319,7 +319,7 @@ function TaktikbankPage() {
               <p className="text-sm text-muted-foreground">{card.purpose}</p>
               {card.data.trigger && (
                 <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Trigger: </span>
+                  <span className="text-muted-foreground">Startsignal: </span>
                   {card.data.trigger}
                 </p>
               )}

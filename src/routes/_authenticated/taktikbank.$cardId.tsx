@@ -28,6 +28,7 @@ import {
   label,
   removeFavorite,
 } from "@/lib/taktikbank";
+import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchMyTeams, saveEvent } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
@@ -177,7 +178,7 @@ function TaktikbankCard() {
         </Button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-xs uppercase tracking-[0.25em] text-primary">
-            {data.format} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
+            {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
           </p>
           <h1 className="truncate font-display text-2xl font-bold uppercase">{data.title}</h1>
         </div>
@@ -249,7 +250,7 @@ function TaktikbankCard() {
           <Button
             variant={loop ? "default" : "ghost"}
             size="icon"
-            aria-label="Loopa"
+            aria-label="Upprepa"
             onClick={() => setLoop((v) => !v)}
           >
             <Repeat className="size-5" />
@@ -279,7 +280,7 @@ function TaktikbankCard() {
             />
           </label>
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="w-24 shrink-0">Looppaus {loopPause.toFixed(1)}s</span>
+            <span className="w-24 shrink-0">Paus vid upprepning {loopPause.toFixed(1)} s</span>
             <input
               type="range"
               className="h-2 flex-1 accent-primary"
@@ -316,7 +317,7 @@ function TaktikbankCard() {
 
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Info title="Trigger" body={data.trigger} />
+        <Info title="Startsignal" body={data.trigger} />
         <Info title="Barnfras" body={data.childCue} />
         <Info title="Coachfråga" body={data.coachQuestion} />
         <Info title="Beslutsregel" body={data.decisionRule} />
