@@ -36,6 +36,12 @@ import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
 import { interpolateFrames, uid } from "@/lib/tactics";
+import {
+  entry as historyEntry,
+  loadHistory,
+  saveHistory,
+  type HistoryEntry,
+} from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
@@ -70,6 +76,22 @@ const STEP_MS = 1400;
 const GRID_FALLBACK = 0.05;
 const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
+
+function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
+  return {
+    past: past.length,
+    future: future.length,
+    undoLabel: past[past.length - 1]?.label ?? "",
+    redoLabel: future[0]?.label ?? "",
+  };
+}
+
+function formatTime(seconds: number) {
+  const safe = Math.max(0, seconds);
+  const mins = Math.floor(safe / 60);
+  const rest = safe - mins * 60;
+  return `${mins}:${rest.toFixed(1).padStart(4, "0")}`;
+}
 
 type BankPlayer = {
   id: string;
@@ -128,9 +150,10 @@ function TacticEditor() {
   const [snap, setSnap] = useState(true);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
-  const pastRef = useRef<Frame[][]>([]);
-  const futureRef = useRef<Frame[][]>([]);
-  const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
+  const pastRef = useRef<HistoryEntry[]>([]);
+  const futureRef = useRef<HistoryEntry[]>([]);
+  const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
+
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video">(null);
   const framesRef = useRef<Frame[]>([]);
@@ -156,12 +179,13 @@ function TacticEditor() {
       setCurrent(0);
       setProgress(0);
       setDirty(false);
-      pastRef.current = [];
-      futureRef.current = [];
-      setHistorySize({ past: 0, future: 0 });
+      const stored = loadHistory(id);
+      pastRef.current = stored.past;
+      futureRef.current = stored.future;
+      setHistorySize(historyMeta(stored.past, stored.future));
       setIsPublic(Boolean(tactic.data.is_public));
     }
-  }, [tactic.data]);
+  }, [tactic.data, id]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -185,15 +209,23 @@ function TacticEditor() {
     return () => clearTimeout(timeout);
   }, [dirty, frames]);
 
-  const pushHistory = useCallback(() => {
-    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
-    futureRef.current = [];
-    setHistorySize({ past: pastRef.current.length, future: 0 });
-  }, []);
+  const persistHistory = useCallback(() => {
+    saveHistory(id, { past: pastRef.current, future: futureRef.current });
+    setHistorySize(historyMeta(pastRef.current, futureRef.current));
+  }, [id]);
+
+  const pushHistory = useCallback(
+    (label = "Ändring") => {
+      pastRef.current = [...pastRef.current.slice(-29), historyEntry(label, framesRef.current)];
+      futureRef.current = [];
+      persistHistory();
+    },
+    [persistHistory],
+  );
 
   const commit = useCallback(
-    (updater: (frames: Frame[]) => Frame[]) => {
-      pushHistory();
+    (updater: (frames: Frame[]) => Frame[], label = "Ändring") => {
+      pushHistory(label);
       setFrames((prev) => updater(prev));
       setDirty(true);
     },
@@ -260,12 +292,16 @@ function TacticEditor() {
 
 
   function addObject(object: FieldObject) {
-    commit((prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })));
+    commit(
+      (prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })),
+      "Lade till objekt",
+    );
   }
 
   function removeObject(objectId: string) {
     commit((prev) =>
       prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
+      "Tog bort objekt",
     );
     setSelectedId(null);
   }
@@ -290,7 +326,7 @@ function TacticEditor() {
     const y = snapValue(rawY);
     if (!dragSession.current) {
       dragSession.current = true;
-      pushHistory();
+      pushHistory("Flyttade objekt");
     }
     setDirty(true);
     setFrames((prev) =>
@@ -336,6 +372,7 @@ function TacticEditor() {
       prev.map((item, index) =>
         index === current ? { ...item, drawings: [...item.drawings, { ...drawing, id: uid() }] } : item,
       ),
+      "Ritade markering",
     );
   }
 
@@ -346,6 +383,7 @@ function TacticEditor() {
           ? { ...item, drawings: item.drawings.filter((d) => d.id !== drawingId) }
           : item,
       ),
+      "Tog bort markering",
     );
   }
 
@@ -362,7 +400,7 @@ function TacticEditor() {
       const next = [...prev];
       next.splice(current + 1, 0, copy);
       return renumber(next);
-    });
+    }, "Nytt steg");
     setCurrent((value) => value + 1);
     setProgress(current + 1);
   }
@@ -377,10 +415,43 @@ function TacticEditor() {
   function deleteFrame(index: number) {
     if (frames.length <= 1) return;
     if (prefs.confirmDelete && !window.confirm("Ta bort det här steget?")) return;
-    commit((prev) => renumber(prev.filter((_, i) => i !== index)));
+    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort steg");
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
+
+  const stepSeconds = STEP_MS / 1000 / speed;
+  const totalSeconds = Math.max(frames.length - 1, 0) * stepSeconds;
+  const currentSeconds = progress * stepSeconds;
+
+  const seekTo = useCallback(
+    (value: number) => {
+      const max = Math.max(frames.length - 1, 0);
+      const clamped = Math.min(max, Math.max(0, value));
+      setPlaying(false);
+      setProgress(clamped);
+      setCurrent(Math.round(clamped));
+    },
+    [frames.length],
+  );
+
+  const seekSeconds = useCallback(
+    (seconds: number) => seekTo(seconds / stepSeconds),
+    [seekTo, stepSeconds],
+  );
+
+  const seekRef = useRef<(sign: number, whole: boolean) => void>(() => {});
+  seekRef.current = (sign, whole) => {
+    if (!Number.isFinite(sign)) {
+      seekTo(sign < 0 ? 0 : frames.length - 1);
+      return;
+    }
+    if (whole) {
+      seekTo(Math.round(progress) + sign);
+      return;
+    }
+    seekTo(progress + (sign * 0.1) / stepSeconds);
+  };
 
   function goToStep(index: number) {
     const next = Math.max(0, Math.min(index, frames.length - 1));
@@ -393,30 +464,33 @@ function TacticEditor() {
     const previous = pastRef.current[pastRef.current.length - 1];
     if (!previous) return;
     pastRef.current = pastRef.current.slice(0, -1);
-    futureRef.current = [framesRef.current, ...futureRef.current.slice(0, 49)];
-    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
-    setFrames(previous);
-    setCurrent((value) => Math.min(value, previous.length - 1));
-    setProgress((value) => Math.min(value, previous.length - 1));
+    futureRef.current = [
+      historyEntry(previous.label, framesRef.current),
+      ...futureRef.current.slice(0, 29),
+    ];
+    persistHistory();
+    setFrames(previous.frames);
+    setCurrent((value) => Math.min(value, previous.frames.length - 1));
+    setProgress((value) => Math.min(value, previous.frames.length - 1));
     setDirty(true);
-  }, []);
+  }, [persistHistory]);
 
   const redo = useCallback(() => {
     const next = futureRef.current[0];
     if (!next) return;
     futureRef.current = futureRef.current.slice(1);
-    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
-    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
-    setFrames(next);
-    setCurrent((value) => Math.min(value, next.length - 1));
-    setProgress((value) => Math.min(value, next.length - 1));
+    pastRef.current = [...pastRef.current.slice(-29), historyEntry(next.label, framesRef.current)];
+    persistHistory();
+    setFrames(next.frames);
+    setCurrent((value) => Math.min(value, next.frames.length - 1));
+    setProgress((value) => Math.min(value, next.frames.length - 1));
     setDirty(true);
-  }, []);
+  }, [persistHistory]);
 
   const nudge = useCallback(
     (dx: number, dy: number) => {
       if (!selectedId) return;
-      pushHistory();
+      pushHistory("Finjusterade position");
       setDirty(true);
       setFrames((prev) =>
         prev.map((item, index) =>
@@ -448,13 +522,26 @@ function TacticEditor() {
       ArrowDown: [0, 1],
     };
     function onArrow(event: KeyboardEvent) {
-      const direction = arrows[event.key];
-      if (!direction || !selectedId) return;
       const target = event.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
-      event.preventDefault();
-      const step = event.shiftKey ? gridStep : FINE_STEP;
-      nudge(direction[0] * step, direction[1] * step);
+      const direction = arrows[event.key];
+      if (direction && selectedId) {
+        event.preventDefault();
+        const step = event.shiftKey ? gridStep : FINE_STEP;
+        nudge(direction[0] * step, direction[1] * step);
+        return;
+      }
+      // No object selected: arrows scrub the timeline
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        const sign = event.key === "ArrowRight" ? 1 : -1;
+        seekRef.current(sign, event.shiftKey);
+        return;
+      }
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        seekRef.current(event.key === "Home" ? -Infinity : Infinity, true);
+      }
     }
     window.addEventListener("keydown", onArrow);
     return () => window.removeEventListener("keydown", onArrow);
@@ -719,10 +806,24 @@ function TacticEditor() {
         )}
 
         <div className="ml-auto flex gap-1">
-          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo} disabled={historySize.past === 0}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Ångra"
+            title={historySize.undoLabel ? `Ångra: ${historySize.undoLabel}` : "Ångra"}
+            onClick={undo}
+            disabled={historySize.past === 0}
+          >
             <Undo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Gör om"
+            title={historySize.redoLabel ? `Gör om: ${historySize.redoLabel}` : "Gör om"}
+            onClick={redo}
+            disabled={historySize.future === 0}
+          >
             <Redo2 className="size-4" />
           </Button>
           <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
@@ -1005,22 +1106,54 @@ function TacticEditor() {
           <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
         </div>
 
-        <input
-          type="range"
-          aria-label="Tidslinje"
-          min={0}
-          max={Math.max(frames.length - 1, 0)}
-          step={0.01}
-          value={progress}
-          disabled={frames.length < 2}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            setPlaying(false);
-            setProgress(value);
-            setCurrent(Math.round(value));
-          }}
-          className="mt-3 w-full accent-[var(--color-primary)]"
-        />
+        <div className="relative mt-3">
+          <input
+            type="range"
+            aria-label="Tidslinje"
+            min={0}
+            max={Math.max(frames.length - 1, 0)}
+            step={0.01}
+            value={progress}
+            disabled={frames.length < 2}
+            onChange={(event) => seekTo(Number(event.target.value))}
+            className="w-full accent-[var(--color-primary)]"
+          />
+          <div className="pointer-events-none mt-1 flex justify-between px-1">
+            {frames.map((item, index) => (
+              <span
+                key={item.id}
+                className={`h-1.5 w-1.5 rounded-full ${
+                  Math.round(progress) === index ? "bg-primary" : "bg-muted-foreground/40"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-mono tabular-nums text-foreground">{formatTime(currentSeconds)}</span>
+          <span>/ {formatTime(totalSeconds)}</span>
+          <label className="ml-auto flex items-center gap-1">
+            <span>Sök till</span>
+            <input
+              type="number"
+              aria-label="Hoppa till tid (sekunder)"
+              min={0}
+              max={Number(totalSeconds.toFixed(1))}
+              step={0.1}
+              value={Number(currentSeconds.toFixed(1))}
+              disabled={frames.length < 2}
+              onChange={(event) => seekSeconds(Number(event.target.value))}
+              className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
+            />
+            <span>s</span>
+          </label>
+        </div>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Piltangenter ← → spolar 0,1 s (Skift = helt steg), Home/End hoppar till start/slut.
+        </p>
+
+
 
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
