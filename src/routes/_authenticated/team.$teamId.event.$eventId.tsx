@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { EventResources } from "@/components/EventResources";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Ban, Bell, CalendarDays, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
