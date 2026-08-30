@@ -233,40 +233,29 @@ export function Pitch({
           <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
         </g>
 
-        {drawings.map((drawing) => (
-          <line
-            key={drawing.id}
-            x1={drawing.x1 * w}
-            y1={drawing.y1 * h}
-            x2={drawing.x2 * w}
-            y2={drawing.y2 * h}
-            stroke={drawing.type === "run" ? markLine : "oklch(0.9 0.16 90)"}
-            strokeWidth={w * 0.005}
-            strokeLinecap="round"
-            strokeDasharray={drawing.type === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
-            markerEnd={drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"}
-            style={{ cursor: tool === "erase" ? "pointer" : "default" }}
-            onPointerDown={(event) => {
-              if (tool === "erase") {
-                event.stopPropagation();
-                onRemoveDrawing?.(drawing.id);
-              }
-            }}
-          />
+        {drawings
+          .filter((drawing) => drawing.type === "zone" || drawing.type === "circle")
+          .map((drawing) => renderShape(drawing, drawing.id))}
+
+        {drawings
+          .filter((drawing) => drawing.type === "run" || drawing.type === "pass")
+          .map((drawing) => renderShape(drawing, drawing.id))}
+
+        {pending &&
+          isShapeTool &&
+          renderShape(
+            { id: "pending", type: tool as Drawing["type"], color: drawColor ?? null, ...pending },
+            "pending",
+            true,
+          )}
+
+        {passBalls.map((ball) => (
+          <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
+            <circle r={tokenR * 0.55} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
+            <circle r={tokenR * 0.22} fill="oklch(0.2 0 0)" />
+          </g>
         ))}
 
-        {pending && (
-          <line
-            x1={pending.x1 * w}
-            y1={pending.y1 * h}
-            x2={pending.x2 * w}
-            y2={pending.y2 * h}
-            stroke={tool === "run" ? markLine : "oklch(0.9 0.16 90)"}
-            strokeWidth={w * 0.005}
-            strokeLinecap="round"
-            strokeDasharray={tool === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
-          />
-        )}
 
         {objects.map((object) => {
           const cx = object.x * w;
