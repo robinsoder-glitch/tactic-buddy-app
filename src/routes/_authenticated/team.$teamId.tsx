@@ -1,6 +1,18 @@
 import { createFileRoute, Link, Outlet, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, Dumbbell, Images, Info, Shield, ShieldCheck, Trophy, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  CalendarCheck,
+  CalendarDays,
+  Dumbbell,
+  Images,
+  Info,
+  Shield,
+  ShieldCheck,
+  Trophy,
+  Users,
+} from "lucide-react";
 import { fetchTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { useTeamRole } from "@/hooks/useTeamRole";
 
@@ -24,6 +36,8 @@ const TABS = [
   { to: "/team/$teamId/calendar", label: "Kalender", icon: CalendarDays, exact: false },
   { to: "/team/$teamId/training", label: "Träning", icon: Dumbbell, exact: false },
   { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy, exact: false },
+  { to: "/team/$teamId/narvaro", label: "Närvaro", icon: CalendarCheck, exact: false },
+  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3, exact: false },
   { to: "/team/$teamId/photos", label: "Bilder", icon: Images, exact: false },
   { to: "/team/$teamId/leaders", label: "Ledare", icon: ShieldCheck, exact: false },
 ] as const;
