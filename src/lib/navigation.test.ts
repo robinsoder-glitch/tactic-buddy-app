@@ -10,7 +10,7 @@ describe("huvudmenyn", () => {
       "Taktik",
       "Kunskap",
       "Träningsbank",
-      "Mina kallelser",
+      "Kalender",
       "Mina lag",
       "Inställningar",
     ]);
@@ -31,6 +31,7 @@ describe("huvudmenyn", () => {
   it("leder gamla adresser till rätt ny sida", () => {
     expect(LEGACY_REDIRECTS["/skapa"]).toBe("/taktik");
     expect(LEGACY_REDIRECTS["/taktikbank"]).toBe("/taktik");
+    expect(LEGACY_REDIRECTS["/mina-kallelser"]).toBe("/kalender/kallelser");
   });
 
   it("har inga dubbla länkar till samma sida", () => {

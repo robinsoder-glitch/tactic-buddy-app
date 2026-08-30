@@ -12,7 +12,7 @@ export const MAIN_TABS: MainTab[] = [
   { to: "/taktik", label: "Taktik", exact: false },
   { to: "/kunskapsbank", label: "Kunskap", exact: false },
   { to: "/ovningsbank", label: "Träningsbank", exact: false },
-  { to: "/mina-kallelser", label: "Mina kallelser", exact: false },
+  { to: "/kalender", label: "Kalender", exact: false },
   { to: "/teams", label: "Mina lag", exact: false },
   { to: "/installningar", label: "Inställningar", exact: false },
 ];
@@ -25,6 +25,7 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   "/skapa": "/taktik",
   "/taktikbank": "/taktik",
   "/bank": "/teams",
+  "/mina-kallelser": "/kalender/kallelser",
 };
 
 export function isTabActive(pathname: string, tab: MainTab): boolean {
