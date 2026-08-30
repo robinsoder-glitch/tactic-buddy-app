@@ -14,6 +14,7 @@ import {
   label,
   PHASE_LABELS,
   type FavoriteKind,
+  type Drill,
 } from "@/lib/taktikbank";
 import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
@@ -597,5 +598,24 @@ function FilterGroup({
         </button>
       ))}
     </div>
+  );
+}
+
+function DrillKeyFacts({ drill }: { drill: Drill }) {
+  const facts: Array<[string, string]> = [];
+  if (drill.data.players) facts.push(["Spelare", drill.data.players]);
+  if (drill.data.area) facts.push(["Yta", drill.data.area]);
+  if (drill.default_minutes) facts.push(["Tid", `${drill.default_minutes} min`]);
+  if (drill.data.equipment?.length) facts.push(["Utrustning", drill.data.equipment.join(", ")]);
+  if (!facts.length) return null;
+  return (
+    <dl className="mt-2 flex flex-wrap gap-1.5 text-xs">
+      {facts.map(([term, value]) => (
+        <div key={term} className="rounded-full bg-secondary/70 px-3 py-1">
+          <dt className="inline text-muted-foreground">{term}: </dt>
+          <dd className="inline font-medium text-foreground">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
