@@ -22,6 +22,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RulesView } from "@/components/rules/RulesView";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
@@ -448,50 +449,4 @@ function FilterGroup({
       ))}
     </div>
   );
-}
-
-function RuleCard({
-  format,
-  season,
-  data,
-}: {
-  format: string;
-  season: string | null;
-  data: Record<string, unknown>;
-}) {
-  const sources = (data["sources"] as { title: string; url?: string }[] | undefined) ?? [];
-  return (
-    <article className="rounded-xl border border-border bg-card p-4">
-      <h2 className="font-display text-lg font-semibold">
-        Spelform {format} {season ? `· ${season}` : ""}
-      </h2>
-      <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-muted-foreground">
-        {readable({ ...data, sources: undefined })}
-      </pre>
-      {sources.length > 0 && (
-        <ul className="mt-2 space-y-1 text-xs">
-          {sources.map((source) => (
-            <li key={source.title}>
-              {source.url ? (
-                <a href={source.url} target="_blank" rel="noreferrer" className="text-primary underline">
-                  {source.title}
-                </a>
-              ) : (
-                source.title
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
-  );
-}
-
-function readable(value: unknown) {
-  return JSON.stringify(value, (_key, item) => (item === undefined ? undefined : item), 2)
-    .replace(/[{}"[\]]/g, "")
-    .split("\n")
-    .map((line) => line.replace(/,$/, "").trimEnd())
-    .filter((line) => line.trim().length > 0)
-    .join("\n");
 }
