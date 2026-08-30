@@ -323,6 +323,22 @@ function TacticEditor() {
           <Eraser className="size-4" />
         </ToolButton>
 
+        {(tool === "zone" || tool === "circle") && (
+          <div className="flex items-center gap-1" role="group" aria-label="Färg på markering">
+            {MARK_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                aria-label={`Färg ${color}`}
+                onClick={() => setDrawColor(color)}
+                className={`size-6 rounded-full border-2 ${
+                  drawColor === color ? "border-foreground" : "border-transparent"
+                }`}
+                style={{ background: color }}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="ml-auto flex gap-1">
           <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo}>
