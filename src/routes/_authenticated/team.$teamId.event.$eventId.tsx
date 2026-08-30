@@ -116,7 +116,7 @@ function EventPage() {
     },
   });
 
-  });
+
 
 
   const respond = useMutation({
