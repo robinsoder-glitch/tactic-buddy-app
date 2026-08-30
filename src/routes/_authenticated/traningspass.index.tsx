@@ -261,17 +261,15 @@ function CreateSessionDialog({
   onCreated: (id: string) => void;
 }) {
   const { user } = useAuth();
-  const account = useAccount();
   const [mode, setMode] = useState<StartMode>("blank");
   const [draft, setDraft] = useState<SessionDraft>(emptyDraft);
-  const [templateId, setTemplateId] = useState("");
-  const [sourceId, setSourceId] = useState("");
+  const [drillIds, setDrillIds] = useState<string[]>([]);
   const [eventId, setEventId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const templates = useQuery({
-    queryKey: ["tb-training-sessions"],
-    queryFn: fetchTrainingSessions,
+  const drills = useQuery({
+    queryKey: ["tb-drills"],
+    queryFn: fetchDrills,
     enabled: open && mode === "bank",
   });
 
@@ -287,23 +285,25 @@ function CreateSessionDialog({
   const save = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Du måste vara inloggad.");
+      if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
 
-      let id: string;
+      const id = await createCoachSession(
+        { ...draft, team_id: draft.team_id ?? selectedEvent?.team_id ?? null },
+        user.id,
+      );
+
       if (mode === "bank") {
-        const list = templates.data ?? [];
-        const template = list.find((item) => item.id === templateId) ?? list[0];
-        if (!template) throw new Error("Välj ett färdigt pass i Träningsbanken.");
-        id = await createFromTemplate(template, user.id);
-      } else if (mode === "mine") {
-        const source = mySessions.find((item) => item.id === sourceId) ?? mySessions[0];
-        if (!source) throw new Error("Du har ingen tidigare träning att utgå från.");
-        id = await duplicateCoachSession(source, user.id);
-      } else {
-        if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
-        id = await createCoachSession(
-          { ...draft, team_id: draft.team_id ?? selectedEvent?.team_id ?? null },
-          user.id,
-        );
+        const list = drills.data ?? [];
+        for (const drillId of drillIds) {
+          const drill = list.find((item) => item.id === drillId);
+          if (!drill) continue;
+          await addSessionItem(id, user.id, {
+            kind: "drill",
+            title: drill.title,
+            resource_id: drill.id,
+            minutes: drill.default_minutes ?? 10,
+          });
+        }
       }
 
       if (selectedEvent) {
@@ -321,6 +321,7 @@ function CreateSessionDialog({
     },
     onSuccess: (id) => {
       setDraft(emptyDraft);
+      setDrillIds([]);
       setEventId("");
       setError(null);
       toast.success(
