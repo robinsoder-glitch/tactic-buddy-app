@@ -343,8 +343,13 @@ function TacticsDashboard({ userId }: { userId: string }) {
       )}
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
-        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Börja med tom plan eller mall" primary />
-        <QuickCard to="/taktikbank" icon={<BookOpen className="size-5" />} title="Övningsbank" text="Färdiga övningar att köra" />
+        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom plan eller färdig mall" primary />
+        <QuickCard
+          to="/ovningsbank"
+          icon={<BookOpen className="size-5" />}
+          title="Övningsbank"
+          text="Färdiga övningar med organisation och coachpunkter"
+        />
         {isCoach ? (
           <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mitt lag" text="Trupp, kalender och närvaro" />
         ) : (
