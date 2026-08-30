@@ -4,13 +4,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
-  Circle,
   CircleDot,
   Grid3x3,
   ChevronLeft,
   ChevronRight,
   Download,
-  Eraser,
   Eye,
   EyeOff,
   FlipHorizontal2,
@@ -642,7 +640,7 @@ function TacticEditor() {
           tool={tool}
           selectedId={selectedId}
           interactive={!playing}
-          drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+          drawColor={tool === "zone" ? drawColor : undefined}
           hideNames={hideNames}
           gridStep={snap && !playing ? GRID : null}
           passT={passT}
@@ -671,14 +669,8 @@ function TacticEditor() {
         <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
           <Square className="size-4" />
         </ToolButton>
-        <ToolButton active={tool === "circle"} onClick={() => setTool("circle")} label="Markering">
-          <Circle className="size-4" />
-        </ToolButton>
-        <ToolButton active={tool === "erase"} onClick={() => setTool("erase")} label="Radera linjer">
-          <Eraser className="size-4" />
-        </ToolButton>
 
-        {(tool === "zone" || tool === "circle") && (
+        {tool === "zone" && (
           <div className="flex items-center gap-1" role="group" aria-label="Färg på markering">
             {MARK_COLORS.map((color) => (
               <button
