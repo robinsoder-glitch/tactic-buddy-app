@@ -21,13 +21,13 @@ import { Input } from "@/components/ui/input";
 export const Route = createFileRoute("/_authenticated/skapa")({
   head: () => ({
     meta: [
-      { title: "Ny taktik – välj mall eller börja från tom plan" },
+      { title: "Ny övning – välj mall eller börja från tom plan" },
       {
         name: "description",
         content:
           "Starta en ny taktik: utgå från en färdig mall ur taktikbanken eller bygg din egen från en tom plan.",
       },
-      { property: "og:title", content: "Ny taktik – välj mall eller börja från tom plan" },
+      { property: "og:title", content: "Ny övning – välj mall eller börja från tom plan" },
       {
         property: "og:description",
         content: "Färdiga taktikmallar eller en tom plan – välj hur du vill börja.",
@@ -72,7 +72,7 @@ function CreatePage() {
     mutationFn: () =>
       createTactic(
         user!.id,
-        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
+        name.trim() || `Ny övning ${gameFormatLabel(format)}`,
         pitchTypeForFormat(format),
         teamId || null,
       ),
@@ -112,7 +112,7 @@ function CreatePage() {
         </Button>
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="font-display text-3xl font-bold">Ny taktik</h1>
+          <h1 className="font-display text-3xl font-bold">Ny övning</h1>
         </div>
       </header>
 
