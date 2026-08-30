@@ -326,8 +326,8 @@ export function Pitch({
                   onSelectObject?.(object.id);
                 }}
               >
-                <circle r={tokenR * 0.5} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
-                <circle r={tokenR * 0.2} fill="oklch(0.2 0 0)" />
+                <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
+
               </g>
             );
           }
