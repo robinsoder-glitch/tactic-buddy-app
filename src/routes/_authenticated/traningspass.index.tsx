@@ -266,6 +266,7 @@ function CreateSessionDialog({
   const [draft, setDraft] = useState<SessionDraft>(emptyDraft);
   const [templateId, setTemplateId] = useState("");
   const [sourceId, setSourceId] = useState("");
+  const [eventId, setEventId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const templates = useQuery({
@@ -274,34 +275,57 @@ function CreateSessionDialog({
     enabled: open && mode === "bank",
   });
 
-  const coachTeams = account.memberships.filter(
-    (item) => item.role === "coach" && item.status === "approved",
-  );
+  const events = useQuery({
+    queryKey: ["plannable-events"],
+    queryFn: () => fetchUpcomingEvents(),
+    enabled: open,
+  });
+
+  const trainingEvents = (events.data ?? []).filter((item) => item.type === "training");
+  const selectedEvent = trainingEvents.find((item) => item.id === eventId) ?? null;
 
   const save = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Du måste vara inloggad.");
 
+      let id: string;
       if (mode === "bank") {
         const list = templates.data ?? [];
         const template = list.find((item) => item.id === templateId) ?? list[0];
         if (!template) throw new Error("Välj ett färdigt pass i Träningsbanken.");
-        return createFromTemplate(template, user.id);
-      }
-
-      if (mode === "mine") {
+        id = await createFromTemplate(template, user.id);
+      } else if (mode === "mine") {
         const source = mySessions.find((item) => item.id === sourceId) ?? mySessions[0];
         if (!source) throw new Error("Du har ingen tidigare träning att utgå från.");
-        return duplicateCoachSession(source, user.id);
+        id = await duplicateCoachSession(source, user.id);
+      } else {
+        if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
+        id = await createCoachSession(
+          { ...draft, team_id: draft.team_id ?? selectedEvent?.team_id ?? null },
+          user.id,
+        );
       }
 
-      if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
-      return createCoachSession(draft, user.id);
+      if (selectedEvent) {
+        await addResourceToEvent({
+          eventId: selectedEvent.id,
+          teamId: selectedEvent.team_id,
+          userId: user.id,
+          kind: "session",
+          resourceId: id,
+          minutes: null,
+        });
+      }
+
+      return id;
     },
     onSuccess: (id) => {
       setDraft(emptyDraft);
+      setEventId("");
       setError(null);
-      toast.success("Träningen sparades som utkast");
+      toast.success(
+        selectedEvent ? "Träningen skapades och kopplades till kalendern" : "Träningen sparades som utkast",
+      );
       onCreated(id);
     },
     onError: (err: Error) => setError(err.message || "Det gick inte att spara träningen."),
