@@ -19,10 +19,10 @@
 - [x] Systemtypsnitt i stället för kondenserad display, meningsform i rubriker (inga versaler)
 
 ## Etapp 3: Navigation
-- [ ] Mobil: Hem, Taktik, Träning, Kunskap, Mer
-- [ ] Dator: toppnavigation i stället för bottenmeny
-- [ ] Lagets nio flikar → Översikt, Aktiviteter, Trupp, Närvaro, Laginställningar
-- [ ] Tillbaka-länk till föregående nivå
+- [x] Mobil: Hem, Taktik, Träning, Kunskap, Mer
+- [x] Dator: toppnavigation i stället för bottenmeny
+- [x] Lagets nio flikar → Översikt, Aktiviteter, Trupp, Närvaro, Laginställningar
+- [x] Tillbaka-länk till föregående nivå
 
 ## Etapp 4: Sidor
 - [ ] Startsida: hälsning med visningsnamn, rätt undertitel på Taktikbanken, tre huvudvägar, "Aktivt lag"-etikett, max 3 senaste taktiker

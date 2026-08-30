@@ -30,22 +30,26 @@ export const Route = createFileRoute("/_authenticated/team/$teamId")({
   component: TeamLayout,
 });
 
+/** Fem huvudflikar. Övriga sidor ligger som underlänkar. */
 const TABS = [
-  { to: "/team/$teamId", label: "Truppen", icon: Users, exact: true },
-  { to: "/team/$teamId/about", label: "Om laget", icon: Info, exact: false },
-  { to: "/team/$teamId/calendar", label: "Kalender", icon: CalendarDays, exact: false },
-  { to: "/team/$teamId/training", label: "Träning", icon: Dumbbell, exact: false },
-  { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy, exact: false },
+  { to: "/team/$teamId/about", label: "Översikt", icon: Info, exact: false },
+  { to: "/team/$teamId/calendar", label: "Aktiviteter", icon: CalendarDays, exact: false },
+  { to: "/team/$teamId", label: "Trupp", icon: Users, exact: true },
   { to: "/team/$teamId/narvaro", label: "Närvaro", icon: CalendarCheck, exact: false },
-  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3, exact: false },
-  { to: "/team/$teamId/photos", label: "Bilder", icon: Images, exact: false },
-  { to: "/team/$teamId/leaders", label: "Ledare", icon: ShieldCheck, exact: false },
+  { to: "/team/$teamId/leaders", label: "Laginställningar", icon: ShieldCheck, exact: false },
+] as const;
+
+const SUB_LINKS = [
+  { to: "/team/$teamId/training", label: "Träning", icon: Dumbbell },
+  { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy },
+  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3 },
+  { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
 ] as const;
 
 
 function TeamLayout() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId" });
-  const { status, isApproved, loading } = useTeamRole(teamId);
+  const { status, isApproved, loading, isCoach: isCoachRole } = useTeamRole(teamId);
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   if (!loading && status === "pending") {
@@ -73,8 +77,11 @@ function TeamLayout() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
-      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <ArrowLeft className="size-4" /> Tillbaka
+      <Link
+        to={isCoachRole ? "/teams" : "/"}
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" aria-hidden /> {isCoachRole ? "Mina lag" : "Tillbaka"}
       </Link>
 
       <header className="mt-3 flex items-center gap-3">
@@ -109,6 +116,21 @@ function TeamLayout() {
           </Link>
         ))}
       </nav>
+
+      <nav aria-label="Fler lagsidor" className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+        {SUB_LINKS.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            params={{ teamId }}
+            className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline data-[status=active]:text-primary"
+          >
+            <link.icon className="size-3.5" aria-hidden />
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+
 
       <div className="mt-5">
         <Outlet />

@@ -213,7 +213,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
-      <div className="min-h-screen pb-[76px]">
+      <div className="min-h-screen pb-[76px] md:pb-8 md:pt-16">
         <Outlet />
       </div>
       <AppNav />

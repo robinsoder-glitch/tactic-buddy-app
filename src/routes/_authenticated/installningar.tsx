@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
+import { ArrowLeft, KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
@@ -78,7 +78,10 @@ function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <h1 className="font-display text-3xl font-bold">Inställningar</h1>
+      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden /> Tillbaka
+      </Link>
+      <h1 className="mt-3 font-display text-3xl font-bold">Inställningar</h1>
       <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
 
       <section className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4">
