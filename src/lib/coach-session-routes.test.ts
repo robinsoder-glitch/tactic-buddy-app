@@ -40,7 +40,7 @@ describe("mina träningspass – rutter och presentationsläge", () => {
   });
 
   it("kan lägga till innehåll i träningspass direkt från listvyerna", () => {
-    expect(read("src/routes/_authenticated/taktikbank.index.tsx")).toContain("AddToSessionButton");
-    expect(read("src/components/KnowledgeLibrary.tsx")).toContain("AddToSessionButton");
+    expect(read("src/routes/_authenticated/taktikbank.index.tsx")).toContain("AddToTrainingButton");
+    expect(read("src/components/KnowledgeLibrary.tsx")).toContain("AddToTrainingButton");
   });
 });
