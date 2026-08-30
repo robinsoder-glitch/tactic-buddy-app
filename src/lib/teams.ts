@@ -633,3 +633,69 @@ export async function regenerateJoinCode(teamId: string): Promise<string> {
   if (error) throw error;
   return code;
 }
+
+/* ---------------- lagägare ---------------- */
+
+/**
+ * Ser till att den som skapade laget alltid finns som godkänd ledare.
+ * Rättar äldre lag där medlemsraden saknas och som därför visade "Inga ledare ännu".
+ */
+export async function ensureOwnerMembership(teamId: string, userId: string) {
+  const { data } = await supabase
+    .from("team_members")
+    .select("id, role, status")
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!data) {
+    const { error } = await supabase
+      .from("team_members")
+      .insert({ team_id: teamId, user_id: userId, role: "coach", status: "approved" });
+    if (error) throw error;
+    return;
+  }
+  if (data.role !== "coach" || data.status !== "approved") {
+    const { error } = await supabase
+      .from("team_members")
+      .update({ role: "coach", status: "approved" })
+      .eq("id", data.id);
+    if (error) throw error;
+  }
+}
+
+/** Överlåt lagägarskapet till en annan godkänd ledare. */
+export async function transferTeamOwnership(teamId: string, newOwnerUserId: string) {
+  await ensureOwnerMembership(teamId, newOwnerUserId);
+  const { error } = await supabase.from("teams").update({ created_by: newOwnerUserId }).eq("id", teamId);
+  if (error) throw error;
+}
+
+export type TeamImpact = {
+  players: number;
+  events: number;
+  photos: number;
+  attendance: number;
+  stats: number;
+  members: number;
+};
+
+/** Räknar vad som försvinner om laget raderas permanent. */
+export async function fetchTeamImpact(teamId: string): Promise<TeamImpact> {
+  const count = async (table: "players" | "events" | "team_photos" | "event_attendance" | "player_stats" | "team_members") => {
+    const { count: rows } = await supabase
+      .from(table)
+      .select("id", { count: "exact", head: true })
+      .eq("team_id", teamId);
+    return rows ?? 0;
+  };
+  const [players, events, photos, attendance, stats, members] = await Promise.all([
+    count("players"),
+    count("events"),
+    count("team_photos"),
+    count("event_attendance"),
+    count("player_stats"),
+    count("team_members"),
+  ]);
+  return { players, events, photos, attendance, stats, members };
+}
