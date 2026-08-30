@@ -9,6 +9,8 @@ import {
   ChevronRight,
   Download,
   Eraser,
+  Eye,
+  EyeOff,
   FlipHorizontal2,
   MoveRight,
   Pause,
@@ -18,14 +20,17 @@ import {
   Save,
   Redo2,
   Share2,
+  Shield,
   Square,
   Trash2,
   Undo2,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
+import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo } from "@/lib/export-clip";
 import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
@@ -33,6 +38,7 @@ import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+
 
 export const Route = createFileRoute("/_authenticated/tactic/$id")({
   head: () => ({
