@@ -230,6 +230,16 @@ function TacticEditor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, speed, loop, frames.length]);
 
+  // Autostart playback when the user has enabled it in settings
+  const autoplayed = useRef(false);
+  useEffect(() => {
+    if (autoplayed.current || !prefs.autoplay || frames.length < 2) return;
+    autoplayed.current = true;
+    setProgress(0);
+    setCurrent(0);
+    setPlaying(true);
+  }, [prefs.autoplay, frames.length]);
+
   const frame = frames[current];
   const hasBall = (frame?.objects ?? []).some((object) => object.kind === "ball");
   const scrubbing = Math.abs(progress - current) > 0.001;
