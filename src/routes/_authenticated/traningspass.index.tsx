@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, Copy, ListChecks, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
+  addSessionItem,
   createCoachSession,
-  createFromTemplate,
   deleteCoachSession,
   duplicateCoachSession,
   emptyDraft,
@@ -18,10 +18,15 @@ import {
   type CoachSession,
   type SessionDraft,
 } from "@/lib/coach-sessions";
-import { fetchTrainingSessions } from "@/lib/taktikbank";
-import { fetchSessionLinks, linkLabel } from "@/lib/event-planning";
+import { fetchDrills } from "@/lib/taktikbank";
+import {
+  addResourceToEvent,
+  eventOptionLabel,
+  fetchSessionLinks,
+  fetchUpcomingEvents,
+  linkLabel,
+} from "@/lib/event-planning";
 import { useAuth } from "@/hooks/useAuth";
-import { useAccount } from "@/hooks/useAccount";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -228,7 +233,6 @@ function MySessionsPage() {
       <CreateSessionDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        mySessions={mine}
         onCreated={(id) => {
           setCreateOpen(false);
           queryClient.invalidateQueries({ queryKey: ["coach-sessions"] });
@@ -241,61 +245,84 @@ function MySessionsPage() {
   );
 }
 
-type StartMode = "blank" | "bank" | "mine";
+type StartMode = "blank" | "bank";
 
 function CreateSessionDialog({
   open,
   onOpenChange,
-  mySessions,
   onCreated,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  mySessions: CoachSession[];
   onCreated: (id: string) => void;
 }) {
   const { user } = useAuth();
-  const account = useAccount();
   const [mode, setMode] = useState<StartMode>("blank");
   const [draft, setDraft] = useState<SessionDraft>(emptyDraft);
-  const [templateId, setTemplateId] = useState("");
-  const [sourceId, setSourceId] = useState("");
+  const [drillIds, setDrillIds] = useState<string[]>([]);
+  const [eventId, setEventId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const templates = useQuery({
-    queryKey: ["tb-training-sessions"],
-    queryFn: fetchTrainingSessions,
+  const drills = useQuery({
+    queryKey: ["tb-drills"],
+    queryFn: fetchDrills,
     enabled: open && mode === "bank",
   });
 
-  const coachTeams = account.memberships.filter(
-    (item) => item.role === "coach" && item.status === "approved",
-  );
+  const events = useQuery({
+    queryKey: ["plannable-events"],
+    queryFn: () => fetchUpcomingEvents(),
+    enabled: open,
+  });
+
+  const trainingEvents = (events.data ?? []).filter((item) => item.type === "training");
+  const selectedEvent = trainingEvents.find((item) => item.id === eventId) ?? null;
 
   const save = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Du måste vara inloggad.");
+      if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
+
+      const id = await createCoachSession(
+        { ...draft, team_id: draft.team_id ?? selectedEvent?.team_id ?? null },
+        user.id,
+      );
 
       if (mode === "bank") {
-        const list = templates.data ?? [];
-        const template = list.find((item) => item.id === templateId) ?? list[0];
-        if (!template) throw new Error("Välj ett färdigt pass i Träningsbanken.");
-        return createFromTemplate(template, user.id);
+        const list = drills.data ?? [];
+        for (const drillId of drillIds) {
+          const drill = list.find((item) => item.id === drillId);
+          if (!drill) continue;
+          await addSessionItem(id, user.id, {
+            kind: "drill",
+            title: drill.title,
+            resource_id: drill.id,
+            minutes: drill.default_minutes ?? 10,
+          });
+        }
       }
 
-      if (mode === "mine") {
-        const source = mySessions.find((item) => item.id === sourceId) ?? mySessions[0];
-        if (!source) throw new Error("Du har ingen tidigare träning att utgå från.");
-        return duplicateCoachSession(source, user.id);
+      if (selectedEvent) {
+        await addResourceToEvent({
+          eventId: selectedEvent.id,
+          teamId: selectedEvent.team_id,
+          userId: user.id,
+          kind: "session",
+          resourceId: id,
+          minutes: null,
+        });
       }
 
-      if (!draft.title.trim()) throw new Error("Ange en titel för träningen.");
-      return createCoachSession(draft, user.id);
+      return id;
     },
     onSuccess: (id) => {
       setDraft(emptyDraft);
+      setDrillIds([]);
+      setEventId("");
       setError(null);
-      toast.success("Träningen sparades som utkast");
+      toast.success(
+        selectedEvent ? "Träningen skapades och kopplades till kalendern" : "Träningen sparades som utkast",
+      );
       onCreated(id);
     },
     onError: (err: Error) => setError(err.message || "Det gick inte att spara träningen."),
@@ -312,20 +339,13 @@ function CreateSessionDialog({
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">Välj hur du vill börja.</p>
 
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2">
             <ModeCard
               active={mode === "bank"}
               onClick={() => setMode("bank")}
               icon={<Sparkles className="size-4 text-primary" />}
-              title="Färdigt pass"
-              hint="Från Träningsbanken"
-            />
-            <ModeCard
-              active={mode === "mine"}
-              onClick={() => setMode("mine")}
-              icon={<Copy className="size-4 text-primary" />}
-              title="Tidigare träning"
-              hint="Kopiera en av mina"
+              title="Från Träningsbanken"
+              hint="Välj övningar"
             />
             <ModeCard
               active={mode === "blank"}
@@ -336,123 +356,109 @@ function CreateSessionDialog({
             />
           </div>
 
+          <div className="space-y-1">
+            <Label htmlFor="new-title">Titel (obligatorisk)</Label>
+            <Input
+              id="new-title"
+              value={draft.title}
+              placeholder="T.ex. Tisdagsträning – press"
+              onChange={(event) => set({ title: event.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="new-date">Datum (frivilligt)</Label>
+            <Input
+              id="new-date"
+              type="date"
+              value={draft.session_date ?? ""}
+              onChange={(event) => set({ session_date: event.target.value || null })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="new-theme">Träningens tema</Label>
+            <Input
+              id="new-theme"
+              value={draft.theme ?? ""}
+              placeholder="T.ex. Press och återerövring"
+              onChange={(event) => set({ theme: event.target.value || null })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="new-goal">Målsättning</Label>
+            <Textarea
+              id="new-goal"
+              rows={2}
+              value={draft.goal ?? ""}
+              placeholder="Vad ska spelarna kunna efter passet?"
+              onChange={(event) => set({ goal: event.target.value || null })}
+            />
+          </div>
+
           {mode === "bank" && (
             <div className="space-y-1">
-              <Label htmlFor="template-select">Färdigt pass</Label>
-              {templates.isLoading ? (
-                <p className="text-sm text-muted-foreground">Hämtar färdiga pass…</p>
-              ) : (templates.data ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Det finns inga färdiga pass i Träningsbanken ännu.</p>
+              <Label>Övningar från Träningsbanken</Label>
+              {drills.isLoading ? (
+                <p className="text-sm text-muted-foreground">Hämtar övningar…</p>
+              ) : (drills.data ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Det finns inga övningar i Träningsbanken ännu.</p>
               ) : (
-                <select
-                  id="template-select"
-                  className={selectClass}
-                  value={templateId || (templates.data ?? [])[0]?.id || ""}
-                  onChange={(event) => setTemplateId(event.target.value)}
-                >
-                  {(templates.data ?? []).map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.title}
-                      {template.total_minutes ? ` · ${template.total_minutes} min` : ""}
-                    </option>
+                <div className="max-h-56 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+                  {(drills.data ?? []).map((drill) => (
+                    <label key={drill.id} className="flex items-start gap-2 rounded p-1 text-sm hover:bg-muted/50">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={drillIds.includes(drill.id)}
+                        onChange={() =>
+                          setDrillIds((prev) =>
+                            prev.includes(drill.id)
+                              ? prev.filter((id) => id !== drill.id)
+                              : [...prev, drill.id],
+                          )
+                        }
+                      />
+                      <span>
+                        <span className="block font-medium">{drill.title}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {drill.default_minutes ? `${drill.default_minutes} min · ` : ""}
+                          {drill.purpose ?? "Övning"}
+                        </span>
+                      </span>
+                    </label>
                   ))}
-                </select>
+                </div>
               )}
+              <p className="text-xs text-muted-foreground">
+                {drillIds.length} valda övningar läggs in i träningen.
+              </p>
             </div>
           )}
 
-          {mode === "mine" && (
-            <div className="space-y-1">
-              <Label htmlFor="source-select">Tidigare träning</Label>
-              {mySessions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Du har ingen tidigare träning att utgå från ännu.</p>
-              ) : (
-                <select
-                  id="source-select"
-                  className={selectClass}
-                  value={sourceId || mySessions[0]?.id || ""}
-                  onChange={(event) => setSourceId(event.target.value)}
-                >
-                  {mySessions.map((session) => (
-                    <option key={session.id} value={session.id}>
-                      {session.title}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          )}
 
-          {mode === "blank" && (
-            <>
-              <div className="space-y-1">
-                <Label htmlFor="new-title">Titel (obligatorisk)</Label>
-                <Input
-                  id="new-title"
-                  value={draft.title}
-                  placeholder="T.ex. Tisdagsträning – press"
-                  onChange={(event) => set({ title: event.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label htmlFor="new-date">Datum (frivilligt)</Label>
-                  <Input
-                    id="new-date"
-                    type="date"
-                    value={draft.session_date ?? ""}
-                    onChange={(event) => set({ session_date: event.target.value || null })}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="new-age">Åldersgrupp</Label>
-                  <Input
-                    id="new-age"
-                    value={draft.age_group ?? ""}
-                    placeholder="T.ex. 8–9 år"
-                    onChange={(event) => set({ age_group: event.target.value || null })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="new-theme">Träningens tema</Label>
-                <Input
-                  id="new-theme"
-                  value={draft.theme ?? ""}
-                  placeholder="T.ex. Press och återerövring"
-                  onChange={(event) => set({ theme: event.target.value || null })}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="new-goal">Målsättning</Label>
-                <Textarea
-                  id="new-goal"
-                  rows={2}
-                  value={draft.goal ?? ""}
-                  placeholder="Vad ska spelarna kunna efter passet?"
-                  onChange={(event) => set({ goal: event.target.value || null })}
-                />
-              </div>
-              {coachTeams.length > 0 && (
-                <div className="space-y-1">
-                  <Label htmlFor="new-team">Dela med lag (frivilligt)</Label>
-                  <select
-                    id="new-team"
-                    className={selectClass}
-                    value={draft.team_id ?? ""}
-                    onChange={(event) => set({ team_id: event.target.value || null })}
-                  >
-                    <option value="">Bara jag</option>
-                    {coachTeams.map((item) => (
-                      <option key={item.team_id} value={item.team_id}>
-                        {item.team?.name ?? "Lag"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </>
-          )}
+          <div className="space-y-1">
+            <Label htmlFor="new-event">Koppla till träning i kalendern (frivilligt)</Label>
+            {events.isLoading ? (
+              <p className="text-sm text-muted-foreground">Hämtar kommande träningar…</p>
+            ) : trainingEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Det finns inga kommande träningar i kalendern att koppla till.
+              </p>
+            ) : (
+              <select
+                id="new-event"
+                className={selectClass}
+                value={eventId}
+                onChange={(event) => setEventId(event.target.value)}
+              >
+                <option value="">Ingen koppling</option>
+                {trainingEvents.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {eventOptionLabel(item)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
