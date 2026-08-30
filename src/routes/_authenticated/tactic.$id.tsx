@@ -66,6 +66,15 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 const STEP_MS = 1400;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
+type BankPlayer = {
+  id: string;
+  name: string;
+  number: number | null;
+  photoUrl: string | null;
+  gk: boolean;
+};
+
+
 function TacticEditor() {
   const { id } = Route.useParams();
   const { user } = useAuth();
