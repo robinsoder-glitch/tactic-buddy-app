@@ -88,7 +88,7 @@ export type GoalkeeperCardData = {
 
 export type GoalkeeperCard = { id: string; title: string; purpose: string | null; data: GoalkeeperCardData };
 
-/** Full mall för en övning i Övningsbanken. */
+/** Full mall för en övning i Träningsbanken. */
 export type DrillData = {
   id: string;
   title: string;

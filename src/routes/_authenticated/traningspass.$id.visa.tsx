@@ -57,7 +57,7 @@ function SourceLink({ item }: { item: CoachSessionItem }) {
         search={{ flik: item.kind === "drill" ? "ovningar" : "malvakt", markera: item.resource_id }}
         className={className}
       >
-        {label}: Övningsbanken
+        {label}: Träningsbanken
       </Link>
     );
   }
@@ -78,7 +78,7 @@ function SessionView() {
       <main className="mx-auto max-w-3xl px-4 py-10">
         <p className="text-sm text-muted-foreground">Träningspasset kunde inte hittas.</p>
         <Button asChild className="mt-4" variant="outline">
-          <Link to="/traningspass">Tillbaka till Mina träningspass</Link>
+          <Link to="/traningspass">Tillbaka till Mina träningar</Link>
         </Button>
       </main>
     );
@@ -90,7 +90,7 @@ function SessionView() {
   return (
     <main className="print-area mx-auto max-w-3xl px-4 pb-32 pt-6 print:pt-0">
       <header className="flex items-center gap-2 print:hidden">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningspass">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningar">
           <Link to="/traningspass">
             <ArrowLeft className="size-5" />
           </Link>

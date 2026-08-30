@@ -25,13 +25,13 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/_authenticated/traningspass/")({
   head: () => ({
     meta: [
-      { title: "Mina träningspass – planera träningen" },
+      { title: "Mina träningar – planera träningen" },
       {
         name: "description",
         content:
           "Skapa egna träningspass av taktiker, övningar, målvaktsövningar och kunskapsartiklar. Planera tid, ordning och anteckningar.",
       },
-      { property: "og:title", content: "Mina träningspass" },
+      { property: "og:title", content: "Mina träningar" },
       { property: "og:description", content: "Bygg ditt eget träningspass av innehållet i bankerna." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -80,14 +80,14 @@ function MySessionsPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Övningsbanken">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Träningsbanken">
           <Link to="/ovningsbank">
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Planera träningen</p>
-          <h1 className="font-display text-3xl font-bold">Mina träningspass</h1>
+          <h1 className="font-display text-3xl font-bold">Mina träningar</h1>
         </div>
         <Button onClick={() => setCreateOpen(true)} aria-label="Skapa träningspass">
           <Plus className="size-4" /> Skapa träningspass

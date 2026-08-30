@@ -321,7 +321,7 @@ function TaktikbankPage() {
         <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
         <div className="mt-2 flex flex-wrap gap-2 text-sm">
           <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
-            Övningsbank
+            Träningsbank
           </Link>
           <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
             Kunskapsbank

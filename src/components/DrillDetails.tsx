@@ -37,7 +37,7 @@ function List({ title, items }: { title: string; items: string[] | undefined }) 
   );
 }
 
-/** Visar hela övningsmallen för en övning i Övningsbanken. */
+/** Visar hela övningsmallen för en övning i Träningsbanken. */
 export function DrillDetails({ drill, showGaps = false }: { drill: Drill; showGaps?: boolean }) {
   const missing = missingDrillFields(drill);
   const data = drill.data;

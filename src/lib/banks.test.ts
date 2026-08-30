@@ -67,7 +67,7 @@ const article = (over: Partial<KbArticle> = {}): KbArticle => ({
   ...over,
 });
 
-describe("Övningsbanken", () => {
+describe("Träningsbanken", () => {
   it("härleder metadata från kopplade taktikkort", () => {
     const meta = drillMeta(drill(), [card()]);
     expect(meta.formats).toEqual(["5v5"]);
