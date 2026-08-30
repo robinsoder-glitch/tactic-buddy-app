@@ -34,6 +34,7 @@ export const SESSION_STATUS_LABELS: Record<string, string> = {
 
 export type CoachSession = {
   id: string;
+  user_id: string;
   title: string;
   session_date: string | null;
   age_group: string | null;
@@ -82,7 +83,7 @@ export const emptyDraft: SessionDraft = {
 };
 
 const SESSION_COLUMNS =
-  "id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, created_at, updated_at";
+  "id, user_id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, created_at, updated_at";
 const ITEM_COLUMNS = "id, session_id, kind, title, resource_id, minutes, note, sort_order";
 
 export async function fetchCoachSessions(): Promise<CoachSession[]> {
@@ -310,4 +311,14 @@ export async function duplicateCoachSession(session: CoachSession, userId: strin
 /** Kort svensk beskrivning av ett fel, aldrig rå teknisk text. */
 export function friendlyError(fallback = "Något gick fel. Försök igen."): string {
   return fallback;
+}
+
+/** Egna träningar (skapade av användaren). */
+export function ownSessions(list: CoachSession[], userId: string | null): CoachSession[] {
+  return list.filter((session) => session.user_id === userId);
+}
+
+/** Lagets delade träningar som någon annan tränare har skapat. */
+export function sharedSessions(list: CoachSession[], userId: string | null): CoachSession[] {
+  return list.filter((session) => session.user_id !== userId && session.team_id);
 }
