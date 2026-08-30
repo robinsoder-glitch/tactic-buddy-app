@@ -12,6 +12,18 @@ export type ExportOptions = {
   hideNames?: boolean;
   tokenScale?: number;
   showPhotos?: boolean;
+  /** Colour count for GIF palette (32-256). Lower = smaller file. */
+  colors?: number;
+  /** Video bitrate in bits per second. */
+  bitrate?: number;
+};
+
+export type ExportQuality = "low" | "medium" | "high";
+
+export const QUALITY_PRESETS: Record<ExportQuality, { label: string; width: number; colors: number; bitrate: number }> = {
+  low: { label: "Låg (480p)", width: 480, colors: 64, bitrate: 1_500_000 },
+  medium: { label: "Mellan (720p)", width: 720, colors: 128, bitrate: 4_000_000 },
+  high: { label: "Hög (1080p)", width: 1080, colors: 256, bitrate: 8_000_000 },
 };
 
 
@@ -61,7 +73,7 @@ export async function exportGif(options: ExportOptions, filename: string) {
       height: canvas.height,
     });
     const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const palette = quantize(data, 256);
+    const palette = quantize(data, options.colors ?? 256);
     const index = applyPalette(data, palette);
     encoder.writeFrame(index, canvas.width, canvas.height, { palette, delay });
     if (segments === 0) break;
@@ -94,7 +106,7 @@ export async function exportVideo(options: ExportOptions, filename: string) {
   const { canvas, ctx } = setup(pitchType, width);
   const photos = await loadPhotos(frames);
   const stream = canvas.captureStream(fps);
-  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 4_000_000 });
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: options.bitrate ?? 4_000_000 });
   const chunks: BlobPart[] = [];
   recorder.ondataavailable = (event) => {
     if (event.data.size > 0) chunks.push(event.data);
