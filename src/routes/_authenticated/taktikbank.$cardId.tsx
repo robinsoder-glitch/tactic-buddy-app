@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronLeft, ChevronRight, FlipHorizontal, Pause, Play, Repeat } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  ArrowLeft,
+  CalendarPlus,
+  ChevronLeft,
+  ChevronRight,
+  FlipHorizontal,
+  Pause,
+  Play,
+  Repeat,
+  Star,
+} from "lucide-react";
 import { Pitch } from "@/components/Pitch";
 import { interpolateFrames } from "@/lib/tactics";
 import {
@@ -9,12 +20,23 @@ import {
   PHASE_LABELS,
   ROLE_LABELS,
   SOURCE_TYPE_LABELS,
+  addEventResource,
+  addFavorite,
   cardToFrames,
+  fetchFavorites,
   fetchTacticCard,
   label,
+  removeFavorite,
 } from "@/lib/taktikbank";
+import { fetchMyTeams, saveEvent } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 
 export const Route = createFileRoute("/_authenticated/taktikbank/$cardId")({
   head: () => ({
