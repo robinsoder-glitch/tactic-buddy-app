@@ -28,16 +28,32 @@ export function sumMinutes(items: { minutes: number | null }[]): number {
   return items.reduce((total, item) => total + (item.minutes ?? 0), 0);
 }
 
-export type EventPlan = { event_id: string; team_id: string; notes: string | null };
+export type EventPlan = {
+  event_id: string;
+  team_id: string;
+  notes: string | null;
+  planning_done: boolean;
+};
 
 export async function fetchEventPlan(eventId: string): Promise<EventPlan | null> {
   const { data, error } = await supabase
     .from("event_plans")
-    .select("event_id, team_id, notes")
+    .select("event_id, team_id, notes, planning_done")
     .eq("event_id", eventId)
     .maybeSingle();
   if (error) throw error;
   return (data as EventPlan | null) ?? null;
+}
+
+/** Planeringsstatus för flera aktiviteter, används i listorna. */
+export async function fetchEventPlans(eventIds: string[]): Promise<EventPlan[]> {
+  if (eventIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from("event_plans")
+    .select("event_id, team_id, notes, planning_done")
+    .in("event_id", eventIds);
+  if (error) throw error;
+  return (data ?? []) as EventPlan[];
 }
 
 export async function saveEventPlan(input: {
@@ -45,6 +61,7 @@ export async function saveEventPlan(input: {
   teamId: string;
   userId: string;
   notes: string | null;
+  planningDone?: boolean;
 }) {
   const { error } = await supabase.from("event_plans").upsert(
     {
@@ -52,10 +69,22 @@ export async function saveEventPlan(input: {
       team_id: input.teamId,
       created_by: input.userId,
       notes: input.notes?.trim() || null,
+      ...(input.planningDone === undefined ? {} : { planning_done: input.planningDone }),
     },
     { onConflict: "event_id" },
   );
   if (error) throw error;
+}
+
+/** En träning räknas som planerad när tränaren bockat i att planeringen är klar. */
+export function planningStatus(
+  eventId: string,
+  plans: EventPlan[],
+  resources: { event_id: string }[],
+): "done" | "started" | "none" {
+  if (plans.some((plan) => plan.event_id === eventId && plan.planning_done)) return "done";
+  if (resources.some((row) => row.event_id === eventId)) return "started";
+  return "none";
 }
 
 /** Uttagna spelare för en match. Påverkar aldrig kallelser eller närvaro. */

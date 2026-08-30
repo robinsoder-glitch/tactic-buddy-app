@@ -18,8 +18,10 @@ import {
 } from "@/lib/coach-sessions";
 import {
   fetchEventPlan,
+  fetchEventPlans,
   fetchEventResources,
   moveEventResource,
+  planningStatus,
   plannedLabel,
   removeEventResource,
   saveEventPlan,
@@ -75,6 +77,17 @@ function PlanTrainingPage() {
     queryFn: () => fetchEventPlan(eventId as string),
     enabled: !!eventId,
   });
+
+  const plans = useQuery({
+    queryKey: ["event-plans", trainings.map((item) => item.id).join(",")],
+    queryFn: () => fetchEventPlans(trainings.map((item) => item.id)),
+    enabled: trainings.length > 0,
+  });
+
+  /** Planeringsstatus för varje träningstillfälle. */
+  function statusFor(id: string) {
+    return planningStatus(id, plans.data ?? [], resources.data ?? []);
+  }
 
   const sessions = useQuery({ queryKey: ["coach-sessions"], queryFn: fetchCoachSessions });
   const items = useQuery({ queryKey: ["coach-session-items"], queryFn: fetchAllSessionItems });
@@ -156,6 +169,60 @@ function PlanTrainingPage() {
             </p>
           </button>
         </div>
+      )}
+
+      {view === "start" && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-semibold">Alla träningstillfällen</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Här ser du vilka träningar som har en färdig planering och vilka som är oplanerade.
+          </p>
+          {events.isLoading && <p className="mt-3 text-sm text-muted-foreground">Hämtar träningar…</p>}
+          {!events.isLoading && trainings.length === 0 && (
+            <p className="mt-3 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              Inga kommande träningar bokade ännu.
+            </p>
+          )}
+          <ul className="mt-3 space-y-2">
+            {trainings.map((event) => {
+              const status = statusFor(event.id);
+              const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
+              const badge =
+                status === "done"
+                  ? { text: "Planerad", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" }
+                  : status === "started"
+                    ? { text: "Påbörjad", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" }
+                    : { text: "Oplanerad", cls: "bg-destructive/15 text-destructive" };
+              return (
+                <li
+                  key={event.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold">{event.title ?? "Träning"}</p>
+                    <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {event.team_name ?? "Lag"} · {plannedLabel(count)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}>
+                      {badge.text}
+                    </span>
+                    <Button size="sm" variant="secondary" asChild>
+                      <Link
+                        to="/team/$teamId/event/$eventId"
+                        params={{ teamId: event.team_id, eventId: event.id }}
+                      >
+                        Öppna
+                      </Link>
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       {view === "book" && (

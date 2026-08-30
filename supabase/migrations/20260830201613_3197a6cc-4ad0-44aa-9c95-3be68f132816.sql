@@ -1,0 +1,1 @@
+ALTER TABLE public.event_plans ADD COLUMN IF NOT EXISTS planning_done boolean NOT NULL DEFAULT false;
