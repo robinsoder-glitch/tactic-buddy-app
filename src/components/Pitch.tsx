@@ -25,12 +25,42 @@ type Props = {
   onRemoveDrawing?: (id: string) => void;
 };
 
+function pentagonPath(cx: number, cy: number, r: number, rotation = 0) {
+  const points = Array.from({ length: 5 }, (_, i) => {
+    const angle = rotation + (-Math.PI / 2 + (i * 2 * Math.PI) / 5);
+    return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+  });
+  return `M ${points.join(" L ")} Z`;
+}
+
+/** Classic black & white football */
+export function SoccerBall({ r, strokeWidth }: { r: number; strokeWidth: number }) {
+  const outer = Array.from({ length: 5 }, (_, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
+    return { x: r * 0.68 * Math.cos(angle), y: r * 0.68 * Math.sin(angle), a: angle };
+  });
+  return (
+    <g>
+      <circle r={r} fill="#ffffff" stroke="#141414" strokeWidth={strokeWidth} />
+      <path d={pentagonPath(0, 0, r * 0.38)} fill="#141414" />
+      {outer.map((point, index) => (
+        <path
+          key={index}
+          d={pentagonPath(point.x, point.y, r * 0.3, point.a + Math.PI / 2)}
+          fill="#141414"
+        />
+      ))}
+    </g>
+  );
+}
+
 export function tokenFill(object: FieldObject) {
   if (object.gk) {
     return object.team === "home" ? "var(--color-team-gk)" : "var(--color-team-gk-away)";
   }
   return object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)";
 }
+
 
 function tokenText(object: FieldObject) {
   if (object.gk) return "var(--color-team-gk-foreground)";
