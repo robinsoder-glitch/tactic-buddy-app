@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CopyPlus, LogOut, Plus, Trash2, Users } from "lucide-react";
+import { CopyPlus, LogOut, Plus, Shield, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAccount } from "@/hooks/useAccount";
 import { createTactic, deleteTactic, duplicateTactic, fetchTactics, renameTactic } from "@/lib/db";
 import { PITCH_SIZES } from "@/lib/tactics";
 import type { PitchType } from "@/lib/tactics";
@@ -42,13 +43,111 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { user, loading } = useAuth();
+  const account = useAccount();
+  const navigate = useNavigate();
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && user && !account.loading && account.roles.length === 0) {
+      navigate({ to: "/onboarding" });
+    }
+  }, [loading, user, account.loading, account.roles.length, navigate]);
+
+  if (loading || (user && account.loading)) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Laddar…</div>;
   }
 
-  return user ? <TacticsDashboard userId={user.id} /> : <Landing />;
+  if (!user) return <Landing />;
+  if (account.isPlayer && !account.isCoach && !account.isAdmin) return <PlayerHome />;
+  return <TacticsDashboard userId={user.id} />;
 }
+
+function TeamNav() {
+  const { isAdmin, isCoach, memberships } = useAccount();
+  const approved = memberships.filter((item) => item.status === "approved");
+  return (
+    <nav className="mt-5 flex flex-wrap gap-2">
+      {isCoach && (
+        <Button asChild variant="secondary" size="sm">
+          <Link to="/teams">
+            <Shield className="size-4" /> Mina lag
+          </Link>
+        </Button>
+      )}
+      {isAdmin && (
+        <Button asChild variant="secondary" size="sm">
+          <Link to="/admin">Admin</Link>
+        </Button>
+      )}
+      {approved.map((item) => (
+        <Button asChild variant="ghost" size="sm" key={item.id}>
+          <Link to="/team/$teamId" params={{ teamId: item.team_id }}>
+            {item.team?.name ?? "Laget"}
+          </Link>
+        </Button>
+      ))}
+    </nav>
+  );
+}
+
+function PlayerHome() {
+  const queryClient = useQueryClient();
+  const { memberships, profile } = useAccount();
+  const approved = memberships.filter((item) => item.status === "approved");
+  const pending = memberships.filter((item) => item.status === "pending");
+
+  return (
+    <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Spelare</p>
+          <h1 className="font-display text-4xl font-bold uppercase">{profile?.display_name ?? "Min profil"}</h1>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Logga ut"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            queryClient.clear();
+          }}
+        >
+          <LogOut className="size-5" />
+        </Button>
+      </header>
+
+      <section className="mt-6 space-y-3">
+        {pending.map((item) => (
+          <p key={item.id} className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+            Din ansökan till {item.team?.name ?? "laget"} väntar på tränarens godkännande.
+          </p>
+        ))}
+        {approved.length === 0 && pending.length === 0 && (
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Du är inte med i något lag än.
+            <Button asChild variant="secondary" size="sm" className="mt-3 w-full">
+              <Link to="/onboarding">Gå med med lagkod</Link>
+            </Button>
+          </div>
+        )}
+        {approved.map((item) => (
+          <Link
+            key={item.id}
+            to="/team/$teamId"
+            params={{ teamId: item.team_id }}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4"
+          >
+            <Shield className="size-5 text-primary" />
+            <div>
+              <h2 className="font-display text-xl font-semibold">{item.team?.name ?? "Laget"}</h2>
+              <p className="text-xs text-muted-foreground">Trupp, kalender, träningar och matcher</p>
+            </div>
+          </Link>
+        ))}
+      </section>
+    </main>
+  );
+}
+
 
 function Landing() {
   return (
@@ -132,6 +231,8 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <LogOut className="size-5" />
         </Button>
       </header>
+
+      <TeamNav />
 
       <div className="mt-5 flex gap-2">
         <Dialog open={open} onOpenChange={setOpen}>

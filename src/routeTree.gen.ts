@@ -12,9 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
+import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
+import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
+import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
+import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
+import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
+import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,9 +39,24 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBankRoute = AuthenticatedBankRouteImport.update({
   id: '/bank',
   path: '/bank',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTeamsRoute = AuthenticatedTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const TShareIdRoute = TShareIdRouteImport.update({
@@ -45,43 +69,140 @@ const AuthenticatedTacticIdRoute = AuthenticatedTacticIdRouteImport.update({
   path: '/tactic/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamTeamIdRoute = AuthenticatedTeamTeamIdRouteImport.update({
+  id: '/team/$teamId',
+  path: '/team/$teamId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTeamTeamIdIndexRoute =
+  AuthenticatedTeamTeamIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
+const AuthenticatedTeamTeamIdAboutRoute =
+  AuthenticatedTeamTeamIdAboutRouteImport.update({
+    id: '/about',
+    path: '/about',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
+const AuthenticatedTeamTeamIdCalendarRoute =
+  AuthenticatedTeamTeamIdCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
+const AuthenticatedTeamTeamIdMatchesRoute =
+  AuthenticatedTeamTeamIdMatchesRouteImport.update({
+    id: '/matches',
+    path: '/matches',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
+const AuthenticatedTeamTeamIdTrainingRoute =
+  AuthenticatedTeamTeamIdTrainingRouteImport.update({
+    id: '/training',
+    path: '/training',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
+  '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
+  '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
+  '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
+  '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
+  '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
+  '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
+  '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
+  '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
+  '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
+  '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
+  '/_authenticated/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
+  '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/bank' | '/t/$shareId' | '/tactic/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/bank'
+    | '/onboarding'
+    | '/teams'
+    | '/t/$shareId'
+    | '/tactic/$id'
+    | '/team/$teamId'
+    | '/team/$teamId/about'
+    | '/team/$teamId/calendar'
+    | '/team/$teamId/matches'
+    | '/team/$teamId/training'
+    | '/team/$teamId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/bank' | '/t/$shareId' | '/tactic/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/bank'
+    | '/onboarding'
+    | '/teams'
+    | '/t/$shareId'
+    | '/tactic/$id'
+    | '/team/$teamId/about'
+    | '/team/$teamId/calendar'
+    | '/team/$teamId/matches'
+    | '/team/$teamId/training'
+    | '/team/$teamId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin'
     | '/_authenticated/bank'
+    | '/_authenticated/onboarding'
+    | '/_authenticated/teams'
     | '/t/$shareId'
     | '/_authenticated/tactic/$id'
+    | '/_authenticated/team/$teamId'
+    | '/_authenticated/team/$teamId/about'
+    | '/_authenticated/team/$teamId/calendar'
+    | '/_authenticated/team/$teamId/matches'
+    | '/_authenticated/team/$teamId/training'
+    | '/_authenticated/team/$teamId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,11 +235,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bank': {
       id: '/_authenticated/bank'
       path: '/bank'
       fullPath: '/bank'
       preLoaderRoute: typeof AuthenticatedBankRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teams': {
+      id: '/_authenticated/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof AuthenticatedTeamsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/t/$shareId': {
@@ -135,17 +277,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTacticIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/team/$teamId': {
+      id: '/_authenticated/team/$teamId'
+      path: '/team/$teamId'
+      fullPath: '/team/$teamId'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team/$teamId/': {
+      id: '/_authenticated/team/$teamId/'
+      path: '/'
+      fullPath: '/team/$teamId/'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdIndexRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
+    '/_authenticated/team/$teamId/about': {
+      id: '/_authenticated/team/$teamId/about'
+      path: '/about'
+      fullPath: '/team/$teamId/about'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdAboutRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
+    '/_authenticated/team/$teamId/calendar': {
+      id: '/_authenticated/team/$teamId/calendar'
+      path: '/calendar'
+      fullPath: '/team/$teamId/calendar'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdCalendarRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
+    '/_authenticated/team/$teamId/matches': {
+      id: '/_authenticated/team/$teamId/matches'
+      path: '/matches'
+      fullPath: '/team/$teamId/matches'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdMatchesRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
+    '/_authenticated/team/$teamId/training': {
+      id: '/_authenticated/team/$teamId/training'
+      path: '/training'
+      fullPath: '/team/$teamId/training'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdTrainingRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
   }
 }
 
+interface AuthenticatedTeamTeamIdRouteChildren {
+  AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
+  AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
+  AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
+  AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
+  AuthenticatedTeamTeamIdIndexRoute: typeof AuthenticatedTeamTeamIdIndexRoute
+}
+
+const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren =
+  {
+    AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
+    AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
+    AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
+    AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
+    AuthenticatedTeamTeamIdIndexRoute: AuthenticatedTeamTeamIdIndexRoute,
+  }
+
+const AuthenticatedTeamTeamIdRouteWithChildren =
+  AuthenticatedTeamTeamIdRoute._addFileChildren(
+    AuthenticatedTeamTeamIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTacticIdRoute: typeof AuthenticatedTacticIdRoute
+  AuthenticatedTeamTeamIdRoute: typeof AuthenticatedTeamTeamIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBankRoute: AuthenticatedBankRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTacticIdRoute: AuthenticatedTacticIdRoute,
+  AuthenticatedTeamTeamIdRoute: AuthenticatedTeamTeamIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
