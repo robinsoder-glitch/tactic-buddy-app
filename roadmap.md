@@ -15,7 +15,7 @@
 
 ## Etapp 2: Ljust designsystem
 - [x] Ljust standardtema (bakgrund #F5F8F2, kort #FFFFFF, primär #2F6B4F, text #1E2B23)
-- [ ] Temaval: Ljust (standard), Följ enheten, Mörkt
+- [x] Temaval: Ljust (standard), Följ enheten, Mörkt
 - [ ] Systemtypsnitt i stället för kondenserad display, meningsform i rubriker (inga versaler)
 
 ## Etapp 3: Navigation

@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { KeyRound, LogOut, Shield, SlidersHorizontal, UserRound } from "lucide-react";
+import { KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
+import { DEFAULT_THEME, THEME_LABELS, loadTheme, saveTheme, type ThemeChoice } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,8 +36,10 @@ function SettingsPage() {
   const [birth, setBirth] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
+  const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
   useEffect(() => setPrefs(loadPrefs()), []);
+  useEffect(() => setTheme(loadTheme()), []);
   useEffect(() => {
     setName(profile?.display_name ?? "");
     setBirth(profile?.birth_date ?? "");
@@ -93,6 +96,37 @@ function SettingsPage() {
         <Button onClick={saveProfile} disabled={savingProfile}>
           Spara profil
         </Button>
+      </section>
+
+      <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+          <Palette className="size-4 text-primary" /> Utseende
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Ljust läge är standard och syns bäst utomhus. Följ enheten byter automatiskt efter telefonens inställning.
+        </p>
+        <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Temaval">
+          {(["light", "system", "dark"] as ThemeChoice[]).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={theme === value}
+              onClick={() => {
+                setTheme(value);
+                saveTheme(value);
+                toast.success(`Tema: ${THEME_LABELS[value]}`);
+              }}
+              className={`rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                theme === value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background text-foreground hover:bg-accent"
+              }`}
+            >
+              {THEME_LABELS[value]}
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">

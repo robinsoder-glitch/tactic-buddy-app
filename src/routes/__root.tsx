@@ -16,6 +16,7 @@ import { AppNav } from "@/components/AppNav";
 import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { supabase } from "@/integrations/supabase/client";
+import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
 
 const MODULE_RECOVERY_SCRIPT = `
 (() => {
@@ -157,6 +158,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="sv">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body>
         {children}
@@ -203,6 +205,16 @@ function RootComponent() {
     });
     return () => subscription.unsubscribe();
   }, [queryClient, router]);
+
+  useEffect(() => {
+    applyTheme(loadTheme());
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      if (loadTheme() === "system") applyTheme("system");
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
