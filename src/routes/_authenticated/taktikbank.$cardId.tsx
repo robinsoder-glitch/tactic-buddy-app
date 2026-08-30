@@ -38,6 +38,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RelatedContent } from "@/components/RelatedContent";
+import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { TACTIC_SECTIONS } from "@/lib/related-sections";
 
@@ -364,6 +365,10 @@ function TaktikbankCard() {
           </ul>
         </section>
       ) : null}
+
+      <div className="mt-4">
+        <AddToSessionButton kind="tactic" resourceId={cardId} title={data.title} defaultMinutes={15} size="sm" />
+      </div>
 
       <RelatedContent sections={relatedSectionList} />
     </main>
