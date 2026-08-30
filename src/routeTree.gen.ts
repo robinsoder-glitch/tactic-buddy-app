@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
+import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
@@ -25,6 +26,7 @@ import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
+import { Route as AuthenticatedTeamTeamIdLeadersRouteImport } from './routes/_authenticated/team.$teamId.leaders'
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
 import { Route as AuthenticatedTeamTeamIdPhotosRouteImport } from './routes/_authenticated/team.$teamId.photos'
 import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
@@ -53,6 +55,12 @@ const AuthenticatedBankRoute = AuthenticatedBankRouteImport.update({
   path: '/bank',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInstallningarRoute =
+  AuthenticatedInstallningarRouteImport.update({
+    id: '/installningar',
+    path: '/installningar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -113,6 +121,12 @@ const AuthenticatedTeamTeamIdCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdLeadersRoute =
+  AuthenticatedTeamTeamIdLeadersRouteImport.update({
+    id: '/leaders',
+    path: '/leaders',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdMatchesRoute =
   AuthenticatedTeamTeamIdMatchesRouteImport.update({
     id: '/matches',
@@ -137,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/installningar': typeof AuthenticatedInstallningarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -147,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -157,6 +173,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/installningar': typeof AuthenticatedInstallningarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -166,6 +183,7 @@ export interface FileRoutesByTo {
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -178,6 +196,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
+  '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
@@ -188,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/_authenticated/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/_authenticated/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -200,6 +220,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/bank'
+    | '/installningar'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -210,6 +231,7 @@ export interface FileRouteTypes {
     | '/taktikbank/'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
@@ -220,6 +242,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/bank'
+    | '/installningar'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -229,6 +252,7 @@ export interface FileRouteTypes {
     | '/taktikbank'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
@@ -240,6 +264,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/admin'
     | '/_authenticated/bank'
+    | '/_authenticated/installningar'
     | '/_authenticated/onboarding'
     | '/_authenticated/skapa'
     | '/_authenticated/teams'
@@ -250,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
+    | '/_authenticated/team/$teamId/leaders'
     | '/_authenticated/team/$teamId/matches'
     | '/_authenticated/team/$teamId/photos'
     | '/_authenticated/team/$teamId/training'
@@ -298,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/bank'
       fullPath: '/bank'
       preLoaderRoute: typeof AuthenticatedBankRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/installningar': {
+      id: '/_authenticated/installningar'
+      path: '/installningar'
+      fullPath: '/installningar'
+      preLoaderRoute: typeof AuthenticatedInstallningarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -377,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdCalendarRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/leaders': {
+      id: '/_authenticated/team/$teamId/leaders'
+      path: '/leaders'
+      fullPath: '/team/$teamId/leaders'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdLeadersRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/matches': {
       id: '/_authenticated/team/$teamId/matches'
       path: '/matches'
@@ -404,6 +444,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
   AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
+  AuthenticatedTeamTeamIdLeadersRoute: typeof AuthenticatedTeamTeamIdLeadersRoute
   AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
   AuthenticatedTeamTeamIdPhotosRoute: typeof AuthenticatedTeamTeamIdPhotosRoute
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -414,6 +455,7 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
   {
     AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
     AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
+    AuthenticatedTeamTeamIdLeadersRoute: AuthenticatedTeamTeamIdLeadersRoute,
     AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
     AuthenticatedTeamTeamIdPhotosRoute: AuthenticatedTeamTeamIdPhotosRoute,
     AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
@@ -428,6 +470,7 @@ const AuthenticatedTeamTeamIdRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
+  AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
@@ -440,6 +483,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBankRoute: AuthenticatedBankRoute,
+  AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
