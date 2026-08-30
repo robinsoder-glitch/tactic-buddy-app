@@ -1,0 +1,423 @@
+import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
+import {
+  addFavorite,
+  fetchDrills,
+  fetchFavorites,
+  fetchGoalkeeperCards,
+  fetchTacticCards,
+  fetchTrainingSessions,
+  removeFavorite,
+  label,
+  PHASE_LABELS,
+  type FavoriteKind,
+} from "@/lib/taktikbank";
+import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
+import { formatLabelFor } from "@/lib/rules-presentation";
+import { useAccount } from "@/hooks/useAccount";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export const Route = createFileRoute("/_authenticated/ovningsbank/")({
+  head: () => ({
+    meta: [
+      { title: "Övningsbank – övningar, målvaktsövningar och träningspass" },
+      {
+        name: "description",
+        content:
+          "Sök bland övningar, målvaktsövningar och färdiga träningspass för barnfotboll. Filtrera på ålder, spelform, träningsområde och svårighetsgrad.",
+      },
+      { property: "og:title", content: "Övningsbank – så tränar ni det" },
+      {
+        property: "og:description",
+        content: "Övningar, målvaktsövningar och träningspass kopplade till taktikkorten.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: OvningsbankPage,
+});
+
+const TABS = ["Övningar", "Målvaktsövningar", "Träningspass"] as const;
+type Tab = (typeof TABS)[number];
+
+function OvningsbankPage() {
+  const { isCoach, isAdmin, loading } = useAccount();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [tab, setTab] = useState<Tab>("Övningar");
+  const [query, setQuery] = useState("");
+  const [format, setFormat] = useState("all");
+  const [area, setArea] = useState("all");
+  const [difficulty, setDifficulty] = useState("all");
+  const [age, setAge] = useState("all");
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [openSession, setOpenSession] = useState<string | null>(null);
+
+  const allowed = isCoach || isAdmin;
+
+  const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: allowed });
+  const cards = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
+  const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed });
+  const sessions = useQuery({ queryKey: ["tb-sessions"], queryFn: fetchTrainingSessions, enabled: allowed });
+  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
+
+  const favoriteSet = useMemo(
+    () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
+    [favorites.data],
+  );
+
+  const toggleFavorite = useMutation({
+    mutationFn: async ({ kind, id }: { kind: FavoriteKind; id: string }) => {
+      if (!user) throw new Error("Inte inloggad");
+      if (favoriteSet.has(`${kind}:${id}`)) await removeFavorite(user.id, kind, id);
+      else await addFavorite(user.id, kind, id);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tb-favorites"] }),
+  });
+
+  const allCards = cards.data ?? [];
+  const formats = useMemo(() => Array.from(new Set(allCards.map((card) => card.format))), [allCards]);
+  const areas = useMemo(
+    () => Array.from(new Set(allCards.map((card) => card.phase).filter(Boolean) as string[])),
+    [allCards],
+  );
+
+  const visibleDrills = filterDrills(drills.data ?? [], allCards, {
+    query,
+    format,
+    area,
+    difficulty,
+    age,
+    onlyFavorites,
+    favorites: favoriteSet,
+  });
+
+  const visibleSessions = filterSessions(sessions.data ?? [], {
+    query,
+    onlyFavorites,
+    favorites: favoriteSet,
+  });
+
+  const visibleKeepers = (keepers.data ?? []).filter((card) => {
+    if (onlyFavorites && !favoriteSet.has(`goalkeeper:${card.id}`)) return false;
+    const needle = query.trim().toLowerCase();
+    if (!needle) return true;
+    return [card.title, card.purpose ?? ""].join(" ").toLowerCase().includes(needle);
+  });
+
+  if (loading) {
+    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+  }
+
+  if (!allowed) {
+    return (
+      <main className="mx-auto max-w-md px-4 py-16 text-center">
+        <Dumbbell className="mx-auto size-8 text-primary" />
+        <h1 className="mt-3 font-display text-2xl font-bold uppercase">Övningsbanken</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Övningsbanken är till för tränare och lagledare.</p>
+        <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+          Till startsidan
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
+      <header className="flex items-center gap-2">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
+          <Link to="/">
+            <ArrowLeft className="size-5" />
+          </Link>
+        </Button>
+        <div>
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Så tränar ni det</p>
+          <h1 className="font-display text-3xl font-bold uppercase">Övningsbank</h1>
+        </div>
+      </header>
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        Här hittar du övningar, målvaktsövningar och färdiga träningspass. Taktikbanken visar vad laget ska göra –
+        här visas hur ni tränar på det.
+      </p>
+
+      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Delar av övningsbanken">
+        {TABS.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => setTab(item)}
+            aria-pressed={tab === item}
+            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
+              tab === item ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
+
+      <div className="relative mt-4">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          className="pl-9"
+          placeholder="Sök på titel eller syfte"
+          aria-label="Sök i övningsbanken"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setOnlyFavorites((value) => !value)}
+          aria-pressed={onlyFavorites}
+          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+          }`}
+        >
+          <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+        </button>
+        {tab === "Övningar" && (
+          <>
+            <FilterGroup
+              value={age}
+              onChange={setAge}
+              options={[
+                ["all", "Alla åldrar"],
+                ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+              ]}
+            />
+            <FilterGroup
+              value={format}
+              onChange={setFormat}
+              options={[
+                ["all", "Alla spelformer"],
+                ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
+              ]}
+            />
+            <FilterGroup
+              value={area}
+              onChange={setArea}
+              options={[
+                ["all", "Alla träningsområden"],
+                ...areas.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
+              ]}
+            />
+            <FilterGroup
+              value={difficulty}
+              onChange={setDifficulty}
+              options={[
+                ["all", "Alla svårighetsgrader"],
+                ["1", "Nivå 1"],
+                ["2", "Nivå 2"],
+                ["3", "Nivå 3"],
+              ]}
+            />
+          </>
+        )}
+      </div>
+
+      {tab === "Övningar" && (
+        <section className="mt-4 space-y-3" aria-label="Övningar">
+          {drills.isLoading && <p className="text-sm text-muted-foreground">Laddar övningar…</p>}
+          {visibleDrills.map((drill) => {
+            const meta = drillMeta(drill, allCards);
+            return (
+              <article
+                key={drill.id}
+                className="flex items-start gap-2 rounded-xl border border-border bg-card p-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
+                    {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
+                    {drill.default_minutes ? ` · ${drill.default_minutes} min` : ""}
+                  </p>
+                  <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
+                  <p className="text-sm text-muted-foreground">{drill.purpose}</p>
+                  {drill.data.linkedTacticIds?.length ? (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {drill.data.linkedTacticIds.map((tacticId) => (
+                        <Link
+                          key={tacticId}
+                          to="/taktikbank/$cardId"
+                          params={{ cardId: tacticId }}
+                          className="rounded-full border border-border px-3 py-1 text-xs text-primary"
+                        >
+                          {allCards.find((card) => card.id === tacticId)?.title ?? "Taktikkort"}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                <FavoriteButton
+                  active={favoriteSet.has(`drill:${drill.id}`)}
+                  onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}
+                />
+              </article>
+            );
+          })}
+          {!drills.isLoading && visibleDrills.length === 0 && (
+            <p className="text-sm text-muted-foreground">Inga övningar matchar filtret.</p>
+          )}
+        </section>
+      )}
+
+      {tab === "Målvaktsövningar" && (
+        <section className="mt-4 space-y-3" aria-label="Målvaktsövningar">
+          {keepers.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
+          {visibleKeepers.map((card) => (
+            <article key={card.id} className="flex items-start gap-2 rounded-xl border border-border bg-card p-4">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-display text-lg font-semibold">{card.title}</h2>
+                <p className="text-sm text-muted-foreground">{card.purpose}</p>
+                {card.data.trigger && (
+                  <p className="mt-2 text-sm">
+                    <span className="text-muted-foreground">Startsignal: </span>
+                    {card.data.trigger}
+                  </p>
+                )}
+                {card.data.childCues?.length ? (
+                  <p className="mt-2 text-sm">
+                    <span className="text-muted-foreground">Barnfraser: </span>
+                    {card.data.childCues.join(" · ")}
+                  </p>
+                ) : null}
+                {card.data.steps?.length ? (
+                  <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
+                    {card.data.steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                ) : null}
+                {card.data.commonErrors?.length ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Vanliga fel: {card.data.commonErrors.join(" · ")}
+                  </p>
+                ) : null}
+              </div>
+              <FavoriteButton
+                active={favoriteSet.has(`goalkeeper:${card.id}`)}
+                onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
+              />
+            </article>
+          ))}
+          {!keepers.isLoading && visibleKeepers.length === 0 && (
+            <p className="text-sm text-muted-foreground">Inga målvaktsövningar matchar sökningen.</p>
+          )}
+        </section>
+      )}
+
+      {tab === "Träningspass" && (
+        <section className="mt-4 space-y-3" aria-label="Träningspass">
+          {sessions.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
+          {visibleSessions.map((session) => {
+            const open = openSession === session.id;
+            return (
+              <article key={session.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-start gap-2">
+                  <button
+                    type="button"
+                    className="min-w-0 flex-1 text-left"
+                    aria-expanded={open}
+                    onClick={() => setOpenSession(open ? null : session.id)}
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h2 className="font-display text-lg font-semibold">{session.title}</h2>
+                      <span className="text-xs text-muted-foreground">{session.total_minutes} min</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{session.theme}</p>
+                    <span className="mt-1 inline-flex items-center gap-1 text-xs text-primary">
+                      {open ? "Dölj övningar" : "Visa alla övningar"}
+                      <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+                    </span>
+                  </button>
+                  <FavoriteButton
+                    active={favoriteSet.has(`session:${session.id}`)}
+                    onClick={() => toggleFavorite.mutate({ kind: "session", id: session.id })}
+                  />
+                </div>
+                {open && (
+                  <ol className="mt-3 space-y-2 text-sm">
+                    {session.data.blocks
+                      .slice()
+                      .sort((a, b) => a.order - b.order)
+                      .map((block) => {
+                        const drill = (drills.data ?? []).find((item) => item.id === block.drillId);
+                        return (
+                          <li key={block.order} className="rounded-lg border border-border/60 px-3 py-2">
+                            <div className="flex justify-between gap-3">
+                              <span className="font-medium">{block.activity}</span>
+                              <span className="text-xs text-muted-foreground">{block.minutes} min</span>
+                            </div>
+                            {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
+                            {drill && (
+                              <p className="mt-1 text-xs text-muted-foreground">Övning: {drill.title}</p>
+                            )}
+                          </li>
+                        );
+                      })}
+                  </ol>
+                )}
+                {open && session.data.coachLimit && (
+                  <p className="mt-2 text-xs text-muted-foreground">{session.data.coachLimit}</p>
+                )}
+              </article>
+            );
+          })}
+          {!sessions.isLoading && visibleSessions.length === 0 && (
+            <p className="text-sm text-muted-foreground">Inga träningspass matchar sökningen.</p>
+          )}
+        </section>
+      )}
+    </main>
+  );
+}
+
+function FavoriteButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={active ? "Ta bort favorit" : "Spara som favorit"}
+      aria-pressed={active}
+      onClick={onClick}
+      className="shrink-0 rounded-full p-2 text-muted-foreground hover:text-primary"
+    >
+      <Star className={`size-5 ${active ? "fill-primary text-primary" : ""}`} />
+    </button>
+  );
+}
+
+function FilterGroup({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: [string, string][];
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {options.map(([key, text]) => (
+        <button
+          key={key}
+          type="button"
+          onClick={() => onChange(key)}
+          className={`rounded-full border px-3 py-1 text-xs ${
+            value === key ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+          }`}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
