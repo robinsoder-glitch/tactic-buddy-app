@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
+import { doneCount, loadProgress, resetSession, toggleBlock, type SessionProgress } from "@/lib/session-progress";
 import {
   addFavorite,
   fetchDrills,
@@ -56,6 +57,8 @@ function OvningsbankPage() {
   const [difficulty, setDifficulty] = useState("all");
   const [age, setAge] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [progress, setProgress] = useState<SessionProgress>({});
+  useEffect(() => setProgress(loadProgress()), []);
   const [openSession, setOpenSession] = useState<string | null>(null);
 
   const allowed = isCoach || isAdmin;
@@ -345,26 +348,64 @@ function OvningsbankPage() {
                   />
                 </div>
                 {open && (
-                  <ol className="mt-3 space-y-2 text-sm">
-                    {session.data.blocks
-                      .slice()
-                      .sort((a, b) => a.order - b.order)
-                      .map((block) => {
-                        const drill = (drills.data ?? []).find((item) => item.id === block.drillId);
-                        return (
-                          <li key={block.order} className="rounded-lg border border-border/60 px-3 py-2">
-                            <div className="flex justify-between gap-3">
-                              <span className="font-medium">{block.activity}</span>
-                              <span className="text-xs text-muted-foreground">{block.minutes} min</span>
-                            </div>
-                            {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
-                            {drill && (
-                              <p className="mt-1 text-xs text-muted-foreground">Övning: {drill.title}</p>
-                            )}
-                          </li>
-                        );
-                      })}
-                  </ol>
+                  <>
+                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>
+                        {doneCount(progress, session.id)} av {session.data.blocks.length} genomförda
+                      </span>
+                      {doneCount(progress, session.id) > 0 && (
+                        <button
+                          type="button"
+                          className="text-primary underline-offset-4 hover:underline"
+                          onClick={() => setProgress((current) => resetSession(current, session.id))}
+                        >
+                          Nollställ
+                        </button>
+                      )}
+                    </div>
+                    <ol className="mt-2 space-y-2 text-sm">
+                      {session.data.blocks
+                        .slice()
+                        .sort((a, b) => a.order - b.order)
+                        .map((block, index) => {
+                          const drill = (drills.data ?? []).find((item) => item.id === block.drillId);
+                          const done = (progress[session.id] ?? []).includes(block.order);
+                          return (
+                            <li
+                              key={block.order}
+                              className={`flex gap-3 rounded-lg border px-3 py-2 ${
+                                done ? "border-primary/50 bg-primary/10" : "border-border/60"
+                              }`}
+                            >
+                              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold">
+                                {index + 1}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex justify-between gap-3">
+                                  <span className={`font-medium ${done ? "line-through opacity-70" : ""}`}>
+                                    {block.activity}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">{block.minutes} min</span>
+                                </div>
+                                {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
+                                {drill && <p className="mt-1 text-xs text-muted-foreground">Övning: {drill.title}</p>}
+                              </div>
+                              <button
+                                type="button"
+                                aria-pressed={done}
+                                aria-label={done ? `Ångra genomförd: ${block.activity}` : `Markera som genomförd: ${block.activity}`}
+                                onClick={() => setProgress((current) => toggleBlock(current, session.id, block.order))}
+                                className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
+                                  done ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"
+                                }`}
+                              >
+                                <Check className="size-4" />
+                              </button>
+                            </li>
+                          );
+                        })}
+                    </ol>
+                  </>
                 )}
                 {open && session.data.coachLimit && (
                   <p className="mt-2 text-xs text-muted-foreground">{session.data.coachLimit}</p>
