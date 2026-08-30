@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CopyPlus, LogOut, Plus, Shield, Trash2, Users } from "lucide-react";
+import { BookOpen, CopyPlus, LogOut, Plus, Shield, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -313,6 +313,11 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <Button asChild variant="secondary">
           <Link to="/bank">
             <Users className="size-4" /> Spelarbank
+          </Link>
+        </Button>
+        <Button asChild variant="secondary">
+          <Link to="/taktikbank">
+            <BookOpen className="size-4" /> Taktikbank
           </Link>
         </Button>
       </div>
