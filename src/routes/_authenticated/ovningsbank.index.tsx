@@ -378,6 +378,9 @@ function OvningsbankPage() {
                 active={favoriteSet.has(`goalkeeper:${card.id}`)}
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
+              <div className="mt-3">
+                <AddToSessionButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+              </div>
             </article>
           ))}
           {!keepers.isLoading && visibleKeepers.length === 0 && (
