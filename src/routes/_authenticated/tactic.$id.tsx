@@ -392,7 +392,7 @@ function TacticEditor() {
     try {
       if (dirty) await save.mutateAsync();
       const filename = tactic.data.name.replace(/[^a-z0-9åäö]+/gi, "-").toLowerCase() || "taktik";
-      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS };
+      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS, hideNames };
       if (kind === "gif") {
         await exportGif(options, filename);
         toast.success("GIF nedladdad");
@@ -485,6 +485,7 @@ function TacticEditor() {
         selectedId={selectedId}
         interactive={!playing}
         drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+        hideNames={hideNames}
         passT={passT}
         onMoveObject={moveObject}
         onMoveEnd={() => {
@@ -538,6 +539,15 @@ function TacticEditor() {
           </Button>
           <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
             <Redo2 className="size-4" />
+          </Button>
+          <Button
+            variant={hideNames ? "default" : "ghost"}
+            size="icon"
+            aria-label={hideNames ? "Visa namn" : "Dölj namn"}
+            title={hideNames ? "Visa namn" : "Dölj namn"}
+            onClick={() => setHideNames((value) => !value)}
+          >
+            {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </Button>
           <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
             <FlipHorizontal2 className="size-4" />
