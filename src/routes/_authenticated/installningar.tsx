@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
+import { ArrowLeft, KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
