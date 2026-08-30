@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+import { useConfirm } from "@/components/ConfirmDelete";
   Dialog,
   DialogContent,
   DialogFooter,
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/")({
 });
 
 function SquadPage() {
+  const { confirm, confirmDialog } = useConfirm();
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/" });
   const { isCoach, userId } = useTeamRole(teamId);
   const queryClient = useQueryClient();
@@ -180,7 +182,12 @@ function SquadPage() {
               </p>
             </button>
             {isCoach && (
-              <Button size="icon" variant="ghost" onClick={() => remove.mutate(player.id)}>
+              <Button size="icon" variant="ghost" onClick={() => {
+                  void confirm({
+                    title: "Radera spelare",
+                    description: `${player.name} tas bort från lagets trupp permanent.`,
+                  }).then((ok) => ok && remove.mutate(player.id));
+                }}>
                 <Trash2 className="size-4" />
               </Button>
             )}
@@ -248,6 +255,7 @@ function SquadPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+  {confirmDialog}
     </section>
   );
 }
