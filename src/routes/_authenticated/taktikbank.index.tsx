@@ -49,15 +49,22 @@ type Tab = (typeof TABS)[number];
 
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("Taktikkort");
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<string>("all");
   const [moment, setMoment] = useState<string>("all");
   const [difficulty, setDifficulty] = useState<string>("all");
+  const [phase, setPhase] = useState<string>("all");
+  const [age, setAge] = useState<string>("all");
+  const [role, setRole] = useState<string>("all");
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
 
   const allowed = isCoach || isAdmin;
 
   const tactics = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
+  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
   const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed && tab === "Målvakt" });
   const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: allowed && tab === "Övningar" });
   const sessions = useQuery({
@@ -72,6 +79,20 @@ function TaktikbankPage() {
     enabled: allowed && tab === "Regler",
   });
 
+  const favoriteSet = useMemo(
+    () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
+    [favorites.data],
+  );
+
+  const toggleFavorite = useMutation({
+    mutationFn: async ({ kind, id }: { kind: FavoriteKind; id: string }) => {
+      if (!user) throw new Error("Inte inloggad");
+      if (favoriteSet.has(`${kind}:${id}`)) await removeFavorite(user.id, kind, id);
+      else await addFavorite(user.id, kind, id);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tb-favorites"] }),
+  });
+
   const formats = useMemo(
     () => Array.from(new Set((tactics.data ?? []).map((card) => card.format))),
     [tactics.data],
@@ -80,18 +101,51 @@ function TaktikbankPage() {
     () => Array.from(new Set((tactics.data ?? []).map((card) => card.game_moment).filter(Boolean) as string[])),
     [tactics.data],
   );
+  const phases = useMemo(
+    () => Array.from(new Set((tactics.data ?? []).map((card) => card.phase).filter(Boolean) as string[])),
+    [tactics.data],
+  );
+  const roles = useMemo(
+    () =>
+      Array.from(
+        new Set((tactics.data ?? []).flatMap((card) => card.data.actors?.map((actor) => actor.roleId) ?? [])),
+      ),
+    [tactics.data],
+  );
 
   const filtered = (tactics.data ?? []).filter((card) => {
+    if (onlyFavorites && !favoriteSet.has(`tactic:${card.id}`)) return false;
     if (format !== "all" && card.format !== format) return false;
     if (moment !== "all" && card.game_moment !== moment) return false;
+    if (phase !== "all" && card.phase !== phase) return false;
     if (difficulty !== "all" && String(card.difficulty) !== difficulty) return false;
+    if (role !== "all" && !(card.data.actors ?? []).some((actor) => actor.roleId === role)) return false;
+    if (age !== "all") {
+      const wanted = Number(age);
+      const fit = card.data.ageFit;
+      if (fit && (wanted < fit.min || wanted > fit.max)) return false;
+    }
     if (query.trim()) {
       const needle = query.trim().toLowerCase();
-      const haystack = `${card.title} ${card.purpose ?? ""} ${card.data.childCue ?? ""}`.toLowerCase();
-      if (!haystack.includes(needle)) return false;
+      const haystack = [
+        card.title,
+        card.purpose ?? "",
+        card.data.childCue ?? "",
+        card.data.trigger ?? "",
+        card.data.coachQuestion ?? "",
+        card.data.decisionRule ?? "",
+        card.data.successSign ?? "",
+        card.data.commonError ?? "",
+        ...(card.data.roleActions ?? []).map((item) => item.action),
+        ...(card.data.keyframes ?? []).map((frame) => frame.caption ?? ""),
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!needle.split(/\s+/).every((word) => haystack.includes(word))) return false;
     }
     return true;
   });
+
 
   if (loading) {
     return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
