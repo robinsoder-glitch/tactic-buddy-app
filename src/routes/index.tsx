@@ -193,6 +193,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("updated");
   const [teamFilter, setTeamFilter] = useState<string>("all");
+  const [showAll, setShowAll] = useState(false);
   const [renaming, setRenaming] = useState<TacticSummary | null>(null);
   const [renameValue, setRenameValue] = useState("");
 
@@ -269,6 +270,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   }, [tactics.data, query, sort, teamFilter]);
 
   const latest = tactics.data?.[0] ?? null;
+  const shown = showAll ? visible : visible.slice(0, 3);
 
   async function exportFile(tactic: TacticSummary) {
     try {
@@ -296,7 +298,9 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <div className="min-w-0">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
           <h1 className="truncate font-display text-4xl font-bold">
-            Hej {profile?.display_name?.split(" ")[0] ?? "tränare"}
+            {profile?.display_name?.trim()
+              ? `Hej ${profile.display_name.trim().split(" ")[0]}`
+              : "Hej!"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date().toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
@@ -341,8 +345,13 @@ function TacticsDashboard({ userId }: { userId: string }) {
       )}
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
-        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Börja med tom plan eller mall" primary />
-        <QuickCard to="/taktikbank" icon={<BookOpen className="size-5" />} title="Övningsbank" text="Färdiga övningar att köra" />
+        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom plan eller färdig mall" primary />
+        <QuickCard
+          to="/ovningsbank"
+          icon={<BookOpen className="size-5" />}
+          title="Övningsbank"
+          text="Färdiga övningar med organisation och coachpunkter"
+        />
         {isCoach ? (
           <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mitt lag" text="Trupp, kalender och närvaro" />
         ) : (
@@ -493,7 +502,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
             </div>
           )}
 
-          {visible.map((tactic) => (
+          {shown.map((tactic) => (
             <article
               key={tactic.id}
               className="overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
@@ -549,6 +558,15 @@ function TacticsDashboard({ userId }: { userId: string }) {
               </div>
             </article>
           ))}
+          {!showAll && visible.length > shown.length && (
+            <Button
+              variant="secondary"
+              className="sm:col-span-2"
+              onClick={() => setShowAll(true)}
+            >
+              Visa alla {visible.length} taktiker
+            </Button>
+          )}
         </div>
       </section>
 
