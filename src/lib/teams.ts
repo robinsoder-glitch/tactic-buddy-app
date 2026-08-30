@@ -147,7 +147,8 @@ export async function fetchMyTeams(): Promise<Team[]> {
     (data ?? []).map(async (row) => ({
       ...(row as unknown as Team),
       club: (row as unknown as { clubs: { id: string; name: string } | null }).clubs,
-      photoUrl: await signPhoto(row.photo_path),
+      photoUrl: await signTeamOrLegacy(row.photo_path, row.id as string),
+
     })),
   );
 }
@@ -162,7 +163,7 @@ export async function fetchTeam(id: string): Promise<Team> {
   return {
     ...(data as unknown as Team),
     club: (data as unknown as { clubs: { id: string; name: string } | null }).clubs,
-    photoUrl: await signPhoto(data.photo_path),
+    photoUrl: await signTeamOrLegacy(data.photo_path, id),
   };
 }
 
