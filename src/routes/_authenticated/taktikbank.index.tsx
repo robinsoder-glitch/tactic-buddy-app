@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { Input } from "@/components/ui/input";
 import { formatLabelFor } from "@/lib/rules-presentation";
+import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
