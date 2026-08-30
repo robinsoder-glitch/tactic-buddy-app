@@ -23,7 +23,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/taktik": BookOpen,
   "/kunskapsbank": GraduationCap,
   "/ovningsbank": Dumbbell,
-  "/mina-kallelser": CalendarDays,
+  "/kalender": CalendarDays,
   "/teams": Shield,
   "/installningar": Settings,
 };

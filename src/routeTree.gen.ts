@@ -25,6 +25,7 @@ import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
+import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
 import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
 import { Route as AuthenticatedKunskapsbankSlugRouteImport } from './routes/_authenticated/kunskapsbank.$slug'
@@ -134,6 +135,12 @@ const AuthenticatedInbjudanTokenRoute =
     id: '/inbjudan/$token',
     path: '/inbjudan/$token',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedKalenderIndexRoute =
+  AuthenticatedKalenderIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedKalenderRoute,
   } as any)
 const AuthenticatedKalenderKallelserRoute =
   AuthenticatedKalenderKallelserRouteImport.update({
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
+  '/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
@@ -332,7 +340,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
-  '/kalender': typeof AuthenticatedKalenderRouteWithChildren
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/planera-match': typeof AuthenticatedPlaneraMatchRoute
@@ -348,6 +355,7 @@ export interface FileRoutesByTo {
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
+  '/kalender': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/_authenticated/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
+  '/_authenticated/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
@@ -436,6 +445,7 @@ export interface FileRouteTypes {
     | '/taktikbank/regler'
     | '/team/$teamId'
     | '/traningspass/$id'
+    | '/kalender/'
     | '/kunskapsbank/'
     | '/ovningsbank/'
     | '/taktikbank/'
@@ -460,7 +470,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/bank'
     | '/installningar'
-    | '/kalender'
     | '/mina-kallelser'
     | '/onboarding'
     | '/planera-match'
@@ -476,6 +485,7 @@ export interface FileRouteTypes {
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
+    | '/kalender'
     | '/kunskapsbank'
     | '/ovningsbank'
     | '/taktikbank'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/regler'
     | '/_authenticated/team/$teamId'
     | '/_authenticated/traningspass/$id'
+    | '/_authenticated/kalender/'
     | '/_authenticated/kunskapsbank/'
     | '/_authenticated/ovningsbank/'
     | '/_authenticated/taktikbank/'
@@ -658,6 +669,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/inbjudan/$token'
       preLoaderRoute: typeof AuthenticatedInbjudanTokenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kalender/': {
+      id: '/_authenticated/kalender/'
+      path: '/'
+      fullPath: '/kalender/'
+      preLoaderRoute: typeof AuthenticatedKalenderIndexRouteImport
+      parentRoute: typeof AuthenticatedKalenderRoute
     }
     '/_authenticated/kalender/kallelser': {
       id: '/_authenticated/kalender/kallelser'
@@ -839,10 +857,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedKalenderRouteChildren {
   AuthenticatedKalenderKallelserRoute: typeof AuthenticatedKalenderKallelserRoute
+  AuthenticatedKalenderIndexRoute: typeof AuthenticatedKalenderIndexRoute
 }
 
 const AuthenticatedKalenderRouteChildren: AuthenticatedKalenderRouteChildren = {
   AuthenticatedKalenderKallelserRoute: AuthenticatedKalenderKallelserRoute,
+  AuthenticatedKalenderIndexRoute: AuthenticatedKalenderIndexRoute,
 }
 
 const AuthenticatedKalenderRouteWithChildren =
