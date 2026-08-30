@@ -489,13 +489,26 @@ function TacticEditor() {
       ArrowDown: [0, 1],
     };
     function onArrow(event: KeyboardEvent) {
-      const direction = arrows[event.key];
-      if (!direction || !selectedId) return;
       const target = event.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
-      event.preventDefault();
-      const step = event.shiftKey ? gridStep : FINE_STEP;
-      nudge(direction[0] * step, direction[1] * step);
+      const direction = arrows[event.key];
+      if (direction && selectedId) {
+        event.preventDefault();
+        const step = event.shiftKey ? gridStep : FINE_STEP;
+        nudge(direction[0] * step, direction[1] * step);
+        return;
+      }
+      // No object selected: arrows scrub the timeline
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        const sign = event.key === "ArrowRight" ? 1 : -1;
+        seekRef.current(sign, event.shiftKey);
+        return;
+      }
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        seekRef.current(event.key === "Home" ? -Infinity : Infinity, true);
+      }
     }
     window.addEventListener("keydown", onArrow);
     return () => window.removeEventListener("keydown", onArrow);
