@@ -19,6 +19,7 @@ import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
+import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
 import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
@@ -73,6 +74,12 @@ const AuthenticatedTeamTeamIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdAboutRoute =
+  AuthenticatedTeamTeamIdAboutRouteImport.update({
+    id: '/about',
+    path: '/about',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdCalendarRoute =
   AuthenticatedTeamTeamIdCalendarRouteImport.update({
     id: '/calendar',
@@ -101,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
   '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
+  '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -130,6 +139,7 @@ export interface FileRoutesById {
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/_authenticated/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/tactic/$id'
     | '/team/$teamId'
+    | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/matches'
     | '/team/$teamId/training'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/teams'
     | '/t/$shareId'
     | '/tactic/$id'
+    | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/matches'
     | '/team/$teamId/training'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/_authenticated/tactic/$id'
     | '/_authenticated/team/$teamId'
+    | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
     | '/_authenticated/team/$teamId/matches'
     | '/_authenticated/team/$teamId/training'
@@ -259,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdIndexRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/about': {
+      id: '/_authenticated/team/$teamId/about'
+      path: '/about'
+      fullPath: '/team/$teamId/about'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdAboutRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/calendar': {
       id: '/_authenticated/team/$teamId/calendar'
       path: '/calendar'
@@ -284,6 +304,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedTeamTeamIdRouteChildren {
+  AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
   AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
   AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -292,6 +313,7 @@ interface AuthenticatedTeamTeamIdRouteChildren {
 
 const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren =
   {
+    AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
     AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
     AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
     AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
