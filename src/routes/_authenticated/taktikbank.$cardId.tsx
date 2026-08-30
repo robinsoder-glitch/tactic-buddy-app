@@ -319,7 +319,7 @@ function TaktikbankCard() {
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
         <Info title="Startsignal" body={data.trigger} />
         <Info title="Barnfras" body={data.childCue} />
-        <Info title="Coachfråga" body={data.coachQuestion} />
+        <Info title="Tränarfråga" body={data.coachQuestion} />
         <Info title="Beslutsregel" body={data.decisionRule} />
         <Info title="Vanligt fel" body={data.commonError} />
         <Info title="Rättning" body={data.correction} />
