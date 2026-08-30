@@ -157,13 +157,85 @@ export async function updateInvitationDetails(input: {
   eventId: string;
   respondBy: string | null;
   message: string | null;
-}) {
-  const { error } = await supabase
+}): Promise<Array<{ id: string; event_id: string; respond_by: string | null; message: string | null }>> {
+  const { data, error } = await supabase
     .from("event_invitations")
     .update({ respond_by: input.respondBy, message: input.message })
-    .eq("event_id", input.eventId);
+    .eq("event_id", input.eventId)
+    .select("id, event_id, respond_by, message");
   if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error("Kallelsen kunde inte uppdateras. Inga rader ändrades.");
+  }
+  return data;
 }
+
+/** Svensk visning av ett kalenderdatum (YYYY-MM-DD) utan tidszonsförskjutning. */
+export function formatRespondBy(value: string | null | undefined): string {
+  if (!value) return "Ingen";
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return value;
+  const months = [
+    "januari",
+    "februari",
+    "mars",
+    "april",
+    "maj",
+    "juni",
+    "juli",
+    "augusti",
+    "september",
+    "oktober",
+    "november",
+    "december",
+  ];
+  const month = months[Number(match[2]) - 1];
+  if (!month) return value;
+  return `${Number(match[3])} ${month} ${match[1]}`;
+}
+
+/** Datumdelen (YYYY-MM-DD) av ett sparat värde, för formulärfältet. */
+export function respondByInputValue(value: string | null | undefined): string {
+  if (!value) return "";
+  const match = /^(\d{4}-\d{2}-\d{2})/.exec(value);
+  return match ? (match[1] as string) : "";
+}
+
+/** Sparar kallelsen: uppdaterar befintliga rader och skapar bara för nya spelare. */
+export async function saveInvitationPlan(input: {
+  eventId: string;
+  teamId: string;
+  hasExisting: boolean;
+  newPlayerIds: string[];
+  respondBy: string | null;
+  message: string | null;
+  createdBy: string;
+}): Promise<{ added: number; updated: number; respondBy: string | null }> {
+  let updated = 0;
+  if (input.hasExisting) {
+    const rows = await updateInvitationDetails({
+      eventId: input.eventId,
+      respondBy: input.respondBy,
+      message: input.message,
+    });
+    updated = rows.length;
+  }
+
+  let added = 0;
+  if (input.newPlayerIds.length > 0) {
+    added = await createInvitations({
+      eventId: input.eventId,
+      teamId: input.teamId,
+      playerIds: input.newPlayerIds,
+      respondBy: input.respondBy,
+      message: input.message,
+      createdBy: input.createdBy,
+    });
+  }
+
+  return { added, updated, respondBy: input.respondBy };
+}
+
 
 export async function removeInvitation(id: string) {
   const { error } = await supabase.from("event_invitations").delete().eq("id", id);
