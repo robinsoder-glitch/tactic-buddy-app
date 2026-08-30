@@ -213,28 +213,54 @@ function SquadPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="p-number">Nummer</Label>
+                <Label htmlFor="p-number">Nummer (frivilligt)</Label>
                 <Input id="p-number" type="number" value={number} onChange={(event) => setNumber(event.target.value)} />
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-year">Födelseår (frivilligt)</Label>
+                <Input
+                  id="p-year"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="2018"
+                  value={birthYear}
+                  onChange={(event) => setBirthYear(event.target.value)}
+                />
+              </div>
+            </div>
+            <label className="flex items-center gap-3 rounded-lg border border-border p-3 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={useExactDate}
+                onChange={(event) => setUseExactDate(event.target.checked)}
+                className="size-4 accent-[var(--color-primary)]"
+              />
+              Ange exakt födelsedatum (behövs sällan)
+            </label>
+            {useExactDate && (
               <div className="space-y-1.5">
                 <Label htmlFor="p-birth">Födelsedatum</Label>
                 <Input id="p-birth" type="date" value={birth} onChange={(event) => setBirth(event.target.value)} />
               </div>
+            )}
+            <div className="space-y-1.5">
+              <Label>Kön (frivilligt)</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {GENDER_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setGender(option.value)}
+                    className={`rounded-lg border px-2 py-2 text-xs ${
+                      gender === option.value ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {Object.entries(GENDER_LABELS).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setGender(value)}
-                  className={`rounded-lg border px-2 py-2 text-xs ${
-                    gender === value ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+
             <label className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm">
               <input
                 type="checkbox"
