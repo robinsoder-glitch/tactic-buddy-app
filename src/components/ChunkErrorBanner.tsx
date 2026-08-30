@@ -43,6 +43,32 @@ export function ChunkErrorBanner() {
     };
   }, []);
 
+  // Ny version upptäckt → ladda om automatiskt när det är ofarligt
+  // (ingen öppen dialog, inget skrivfält i fokus). Annars visas bannern.
+  useEffect(() => {
+    if (!newVersion || reloading) return;
+    const safeToReload = () => {
+      const active = document.activeElement as HTMLElement | null;
+      const typing =
+        active &&
+        (active.tagName === "INPUT" ||
+          active.tagName === "TEXTAREA" ||
+          active.tagName === "SELECT" ||
+          active.isContentEditable);
+      const dialogOpen = document.querySelector('[role="dialog"],[data-state="open"]');
+      return !typing && !dialogOpen && document.visibilityState === "visible";
+    };
+    const timer = window.setInterval(() => {
+      if (!safeToReload() || !canAutoReload()) return;
+      window.clearInterval(timer);
+      setReloading(true);
+      void hardReload();
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [newVersion, reloading]);
+
+
+
 
   useEffect(() => {
     // New build deployed while this tab was open → refresh silently once.
