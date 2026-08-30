@@ -38,7 +38,7 @@ export function AppNav() {
           <li key={item.label} className="flex-1">
             <Link
               to={item.to}
-              params={"teamId" in item ? { teamId: item.teamId as string } : undefined}
+              {...("teamId" in item ? { params: { teamId: item.teamId as string } } : {})}
               activeOptions={{ exact: item.exact }}
               className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-medium text-muted-foreground data-[status=active]:text-primary"
             >
