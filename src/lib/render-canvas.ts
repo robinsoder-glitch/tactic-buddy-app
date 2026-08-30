@@ -32,6 +32,35 @@ function shapeColor(ctx: CanvasRenderingContext2D, drawing: Drawing) {
   return drawing.type === "pass" ? COLORS.pass : COLORS.line;
 }
 
+function pentagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, rotation: number) {
+  ctx.beginPath();
+  for (let i = 0; i < 5; i += 1) {
+    const angle = rotation + (-Math.PI / 2 + (i * 2 * Math.PI) / 5);
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function soccerBall(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, lineWidth: number) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = "#141414";
+  ctx.stroke();
+  ctx.fillStyle = "#141414";
+  pentagon(ctx, cx, cy, r * 0.38, 0);
+  for (let i = 0; i < 5; i += 1) {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
+    pentagon(ctx, cx + r * 0.68 * Math.cos(angle), cy + r * 0.68 * Math.sin(angle), r * 0.3, angle + Math.PI / 2);
+  }
+}
+
 function arrowHead(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, size: number) {
   const angle = Math.atan2(y2 - y1, x2 - x1);
   ctx.beginPath();
@@ -166,13 +195,7 @@ export function drawScene(
     for (const drawing of options.drawings.filter((item) => item.type === "pass")) {
       const bx = (drawing.x1 + (drawing.x2 - drawing.x1) * options.passT) * w;
       const by = (drawing.y1 + (drawing.y2 - drawing.y1) * options.passT) * h;
-      ctx.beginPath();
-      ctx.arc(bx, by, tokenR * 0.55, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.lineWidth = w * 0.002;
-      ctx.strokeStyle = "#222";
-      ctx.stroke();
+      soccerBall(ctx, bx, by, tokenR * 0.62, w * 0.0016);
     }
   }
 
@@ -181,13 +204,7 @@ export function drawScene(
     const cx = object.x * w;
     const cy = object.y * h;
     if (object.kind === "ball") {
-      ctx.beginPath();
-      ctx.arc(cx, cy, tokenR * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.lineWidth = w * 0.002;
-      ctx.strokeStyle = "#222";
-      ctx.stroke();
+      soccerBall(ctx, cx, cy, tokenR * 0.62, w * 0.0016);
       continue;
     }
 

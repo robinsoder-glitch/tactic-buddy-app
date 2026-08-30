@@ -16,6 +16,8 @@ type Props = {
   drawColor?: string | undefined;
   /** hide player names on the pitch (numbers/initials still shown) */
   hideNames?: boolean;
+  /** show a snap grid overlay, value is grid step in 0..1 units */
+  gridStep?: number | null;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
@@ -78,6 +80,7 @@ export function Pitch({
   interactive = true,
   drawColor,
   hideNames = false,
+  gridStep = null,
   passT = null,
   onMoveObject,
   onMoveEnd,
@@ -282,6 +285,17 @@ export function Pitch({
           <rect x={1} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
           <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
         </g>
+
+        {gridStep ? (
+          <g stroke="rgba(255,255,255,0.13)" strokeWidth={w * 0.0012}>
+            {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
+              <line key={`gx-${i}`} x1={(i + 1) * gridStep * w} y1={0} x2={(i + 1) * gridStep * w} y2={h} />
+            ))}
+            {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
+              <line key={`gy-${i}`} x1={0} y1={(i + 1) * gridStep * h} x2={w} y2={(i + 1) * gridStep * h} />
+            ))}
+          </g>
+        ) : null}
 
         {drawings
           .filter((drawing) => drawing.type === "zone" || drawing.type === "circle")
