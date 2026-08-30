@@ -3,7 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  Circle,
   CircleDot,
+  ChevronLeft,
+  ChevronRight,
   Eraser,
   FlipHorizontal2,
   MoveRight,
@@ -12,6 +15,7 @@ import {
   Plus,
   Repeat,
   Save,
+  Square,
   Trash2,
   Undo2,
   Users,
@@ -19,7 +23,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames } from "@/lib/db";
-import { activeFrameIndex, interpolateFrames, uid } from "@/lib/tactics";
+import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
@@ -49,6 +53,7 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 });
 
 const STEP_MS = 1400;
+const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
 function TacticEditor() {
   const { id } = Route.useParams();
@@ -67,6 +72,7 @@ function TacticEditor() {
   const [loop, setLoop] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
   const history = useRef<Frame[][]>([]);
 
   useEffect(() => {
