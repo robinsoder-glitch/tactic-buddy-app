@@ -3,8 +3,6 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
-
-import { Check, Plus, Trash2, UserRound, X } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   deleteTeamPlayer,
