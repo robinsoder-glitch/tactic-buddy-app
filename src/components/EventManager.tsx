@@ -294,38 +294,57 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
               />
             </div>
 
+            <div className="space-y-1.5">
+              <Label htmlFor="e-date">Datum</Label>
+              <Input
+                id="e-date"
+                type="date"
+                value={date}
+                aria-invalid={Boolean(visibleErrors.date)}
+                onChange={(event) => setDate(event.target.value)}
+              />
+              {visibleErrors.date && <p className="text-sm text-destructive">{visibleErrors.date}</p>}
+            </div>
+
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <Label htmlFor="e-time">Från</Label>
                 <Input
                   id="e-time"
-                  type="datetime-local"
-                  value={startsAt}
-                  onChange={(event) => setStartsAt(event.target.value)}
+                  type="time"
+                  value={startTime}
+                  aria-invalid={Boolean(visibleErrors.start)}
+                  onChange={(event) => setStartTime(event.target.value)}
                 />
+                {visibleErrors.start && <p className="text-sm text-destructive">{visibleErrors.start}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="e-end">Till</Label>
+                <Label htmlFor="e-end">Till (frivillig)</Label>
                 <Input
                   id="e-end"
-                  type="datetime-local"
-                  value={endsAt}
-                  onChange={(event) => setEndsAt(event.target.value)}
+                  type="time"
+                  value={endTime}
+                  aria-invalid={Boolean(visibleErrors.end)}
+                  onChange={(event) => setEndTime(event.target.value)}
                 />
+                {visibleErrors.end && <p className="text-sm text-destructive">{visibleErrors.end}</p>}
               </div>
             </div>
 
             {type === "match" && (
               <>
                 <div className="space-y-1.5">
-                  <Label htmlFor="e-meet">Samling</Label>
+                  <Label htmlFor="e-meet">Samling (frivillig)</Label>
                   <Input
                     id="e-meet"
-                    type="datetime-local"
-                    value={meetAt}
-                    onChange={(event) => setMeetAt(event.target.value)}
+                    type="time"
+                    value={meetTime}
+                    aria-invalid={Boolean(visibleErrors.meet)}
+                    onChange={(event) => setMeetTime(event.target.value)}
                   />
+                  {visibleErrors.meet && <p className="text-sm text-destructive">{visibleErrors.meet}</p>}
                 </div>
+
                 <div className="space-y-1.5">
                   <Label>Tröja</Label>
                   <div className="flex gap-2">
