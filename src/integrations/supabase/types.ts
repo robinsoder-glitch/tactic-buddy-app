@@ -44,6 +44,54 @@ export type Database = {
         }
         Relationships: []
       }
+      event_resources: {
+        Row: {
+          created_at: string
+          created_by: string
+          event_id: string
+          id: string
+          kind: string
+          resource_id: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          event_id: string
+          id?: string
+          kind?: string
+          resource_id: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          id?: string
+          kind?: string
+          resource_id?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_resources_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_resources_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -267,6 +315,234 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tb_district_profiles: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_drills: {
+        Row: {
+          created_at: string
+          data: Json
+          default_minutes: number | null
+          id: string
+          purpose: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          default_minutes?: number | null
+          id: string
+          purpose?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          default_minutes?: number | null
+          id?: string
+          purpose?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_formations: {
+        Row: {
+          created_at: string
+          data: Json
+          format: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          format: string
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          format?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_goalkeeper_cards: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          purpose: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+          purpose?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          purpose?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_rulesets: {
+        Row: {
+          created_at: string
+          data: Json
+          format: string
+          id: string
+          season: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          format: string
+          id: string
+          season?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          format?: string
+          id?: string
+          season?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_tactics: {
+        Row: {
+          created_at: string
+          data: Json
+          difficulty: number
+          format: string
+          formation_ref: string | null
+          game_moment: string | null
+          id: string
+          phase: string | null
+          purpose: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          difficulty?: number
+          format: string
+          formation_ref?: string | null
+          game_moment?: string | null
+          id: string
+          phase?: string | null
+          purpose?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          difficulty?: number
+          format?: string
+          formation_ref?: string | null
+          game_moment?: string | null
+          id?: string
+          phase?: string | null
+          purpose?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_taxonomy: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_training_sessions: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          theme: string | null
+          title: string
+          total_minutes: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+          theme?: string | null
+          title: string
+          total_minutes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          theme?: string | null
+          title?: string
+          total_minutes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       team_members: {
         Row: {
