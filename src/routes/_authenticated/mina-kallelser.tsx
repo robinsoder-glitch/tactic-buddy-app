@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import {
   NO_ACCOUNT_TEXT,
   canRespondSelf,
+  emptyInviteMessage,
+  hasLinkedPlayer,
   fetchMyInvitations,
   inviteStatusLabel,
   respondToInvitation,
@@ -35,11 +37,16 @@ export const Route = createFileRoute("/_authenticated/mina-kallelser")({
 });
 
 function MyInvitesPage() {
-  const { userId } = useAccount();
+  const { userId, isCoach } = useAccount();
   const queryClient = useQueryClient();
   const [showPast, setShowPast] = useState(false);
 
   const invites = useQuery({ queryKey: ["my-invitations"], queryFn: fetchMyInvitations });
+  const playerLink = useQuery({
+    queryKey: ["has-linked-player", userId],
+    queryFn: () => hasLinkedPlayer(userId),
+    enabled: Boolean(userId),
+  });
 
   const respond = useMutation({
     mutationFn: ({ invitation, status }: { invitation: MyInvitation; status: InviteStatus }) => {
@@ -84,9 +91,15 @@ function MyInvitesPage() {
       )}
 
       {!invites.isLoading && !invites.isError && list.length === 0 && (
-        <p className="mt-6 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          {showPast ? "Inga tidigare kallelser." : "Du har inga kallelser just nu."}
-        </p>
+        <div className="mt-6 space-y-2 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+          {emptyInviteMessage({
+            hasPlayerLink: playerLink.data !== false,
+            isCoach,
+            showPast,
+          }).map((text) => (
+            <p key={text}>{text}</p>
+          ))}
+        </div>
       )}
 
       <ul className="mt-4 space-y-3">
