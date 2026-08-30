@@ -37,6 +37,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RelatedContent } from "@/components/RelatedContent";
+import { useRelatedContent } from "@/hooks/useRelatedContent";
+import { TACTIC_SECTIONS } from "@/lib/related-sections";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/$cardId")({
@@ -97,6 +100,8 @@ function TaktikbankCard() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const relatedSectionList = useRelatedContent({ type: "tactic", id: cardId }, TACTIC_SECTIONS);
 
   const frames = useMemo(
     () => (card.data ? cardToFrames(card.data.data, mirrored) : []),
@@ -359,6 +364,8 @@ function TaktikbankCard() {
           </ul>
         </section>
       ) : null}
+
+      <RelatedContent sections={relatedSectionList} />
     </main>
   );
 }

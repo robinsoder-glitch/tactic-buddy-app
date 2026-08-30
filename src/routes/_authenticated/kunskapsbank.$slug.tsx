@@ -1,11 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, ExternalLink } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
+import { toast } from "sonner";
 import {
   fetchKnowledgeArticle,
   knowledgeAgeLabel,
   knowledgeFormatLabel,
 } from "@/lib/knowledge";
+import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
+import { useAuth } from "@/hooks/useAuth";
+import { useRelatedContent } from "@/hooks/useRelatedContent";
+import { RelatedContent } from "@/components/RelatedContent";
+import { ARTICLE_SECTIONS } from "@/lib/related-sections";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   head: () => ({
@@ -32,6 +38,26 @@ function KnowledgeArticlePage() {
   });
 
   const data = article.data;
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites });
+  const isFavorite = (favorites.data ?? []).some(
+    (item) => item.kind === "article" && item.resource_id === data?.id,
+  );
+  const toggleFavorite = useMutation({
+    mutationFn: async () => {
+      if (!user || !data) throw new Error("Inte inloggad");
+      if (isFavorite) await removeFavorite(user.id, "article", data.id);
+      else await addFavorite(user.id, "article", data.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tb-favorites"] });
+      toast.success(isFavorite ? "Artikeln togs bort från Mina favoriter" : "Artikeln sparades i Mina favoriter");
+    },
+    onError: () => toast.error("Det gick inte att spara favoriten."),
+  });
+
+  const sections = useRelatedContent(data ? { type: "article", id: data.slug } : null, ARTICLE_SECTIONS);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6">
@@ -57,7 +83,18 @@ function KnowledgeArticlePage() {
             {data.category} · {knowledgeAgeLabel(data)}
             {knowledgeFormatLabel(data) ? ` · ${knowledgeFormatLabel(data)}` : ""}
           </p>
-          <h1 className="mt-1 font-display text-2xl font-semibold">{data.title_sv}</h1>
+          <div className="mt-1 flex items-start gap-2">
+            <h1 className="min-w-0 flex-1 font-display text-2xl font-semibold">{data.title_sv}</h1>
+            <button
+              type="button"
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? "Ta bort artikeln från Mina favoriter" : "Spara artikeln i Mina favoriter"}
+              onClick={() => toggleFavorite.mutate()}
+              className="shrink-0 rounded-full p-2 text-muted-foreground hover:text-primary"
+            >
+              <Star className={`size-5 ${isFavorite ? "fill-current text-primary" : ""}`} />
+            </button>
+          </div>
           {data.title_original && data.title_original !== data.title_sv && (
             <p className="mt-1 text-sm text-muted-foreground">Originaltitel: {data.title_original}</p>
           )}
@@ -118,6 +155,8 @@ function KnowledgeArticlePage() {
           </a>
 
           {data.copyright_note && <p className="mt-3 text-xs text-muted-foreground">{data.copyright_note}</p>}
+
+          <RelatedContent sections={sections} />
         </article>
       )}
     </main>

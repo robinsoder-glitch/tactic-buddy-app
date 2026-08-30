@@ -222,7 +222,7 @@ export async function fetchDistrictProfiles(): Promise<DistrictProfile[]> {
 
 /* ---------- favoriter ---------- */
 
-export type FavoriteKind = "tactic" | "goalkeeper" | "drill" | "session";
+export type FavoriteKind = "tactic" | "goalkeeper" | "drill" | "session" | "article";
 
 export type Favorite = { kind: FavoriteKind; resource_id: string };
 

@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      content_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string | null
+          sort_order: number
+          source_id: string
+          source_type: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          sort_order?: number
+          source_id: string
+          source_type: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          sort_order?: number
+          source_id?: string
+          source_type?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_resources: {
         Row: {
           created_at: string
