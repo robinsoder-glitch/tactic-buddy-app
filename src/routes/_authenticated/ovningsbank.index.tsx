@@ -62,7 +62,7 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/")({
   component: OvningsbankPage,
 });
 
-const TABS = ["Övningar", "Målvaktsövningar", "Träningspass"] as const;
+const TABS = ["Övningar", "Målvaktsövningar"] as const;
 type Tab = (typeof TABS)[number];
 
 function OvningsbankPage() {
@@ -71,7 +71,7 @@ function OvningsbankPage() {
   const queryClient = useQueryClient();
   const search = Route.useSearch();
   const initialTab: Tab =
-    search.flik === "malvakt" ? "Målvaktsövningar" : search.flik === "pass" ? "Träningspass" : "Övningar";
+    search.flik === "malvakt" ? "Målvaktsövningar" : "Övningar";
   const [tab, setTab] = useState<Tab>(initialTab);
   const highlight = search.markera ?? null;
   const [query, setQuery] = useState("");
@@ -431,131 +431,6 @@ function OvningsbankPage() {
         </section>
       )}
 
-      {tab === "Träningspass" && (
-        <section className="mt-4 space-y-3" aria-label="Träningspass">
-          {sessions.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {visibleSessions.map((session) => {
-            const open = openSession === session.id;
-            return (
-              <article
-                key={session.id}
-                id={`pass-${session.id}`}
-                className={`rounded-xl border bg-card p-4 ${
-                  highlight === session.id ? "border-primary" : "border-border"
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <button
-                    type="button"
-                    className="min-w-0 flex-1 text-left"
-                    aria-expanded={open}
-                    onClick={() => setOpenSession(open ? null : session.id)}
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <h2 className="font-display text-lg font-semibold">{session.title}</h2>
-                      <span className="text-xs text-muted-foreground">{session.total_minutes} min</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{session.theme}</p>
-                    <span className="mt-1 inline-flex items-center gap-1 text-xs text-primary">
-                      {open ? "Dölj övningar" : "Visa alla övningar"}
-                      <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
-                    </span>
-                  </button>
-                  <FavoriteButton
-                    active={favoriteSet.has(`session:${session.id}`)}
-                    onClick={() => toggleFavorite.mutate({ kind: "session", id: session.id })}
-                  />
-                </div>
-                <div className="mt-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={`Använd ${session.title} som mall`}
-                    onClick={async () => {
-                      if (!user) return;
-                      try {
-                        const newId = await createFromTemplate(session, user.id);
-                        navigate({ to: "/traningspass/$id", params: { id: newId } });
-                      } catch {
-                        setTemplateError("Det gick inte att skapa ett träningspass från mallen. Försök igen.");
-                      }
-                    }}
-                  >
-                    Använd som mall
-                  </Button>
-                  {templateError && <p className="mt-2 text-sm text-destructive">{templateError}</p>}
-                </div>
-                {open && (
-                  <>
-                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>
-                        {doneCount(progress, session.id)} av {session.data.blocks.length} genomförda
-                      </span>
-                      {doneCount(progress, session.id) > 0 && (
-                        <button
-                          type="button"
-                          className="text-primary underline-offset-4 hover:underline"
-                          onClick={() => setProgress((current) => resetSession(current, session.id))}
-                        >
-                          Nollställ
-                        </button>
-                      )}
-                    </div>
-                    <ol className="mt-2 space-y-2 text-sm">
-                      {session.data.blocks
-                        .slice()
-                        .sort((a, b) => a.order - b.order)
-                        .map((block, index) => {
-                          const drill = (drills.data ?? []).find((item) => item.id === block.drillId);
-                          const done = (progress[session.id] ?? []).includes(block.order);
-                          return (
-                            <li
-                              key={block.order}
-                              className={`flex gap-3 rounded-lg border px-3 py-2 ${
-                                done ? "border-primary/50 bg-primary/10" : "border-border/60"
-                              }`}
-                            >
-                              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold">
-                                {index + 1}
-                              </span>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex justify-between gap-3">
-                                  <span className={`font-medium ${done ? "line-through opacity-70" : ""}`}>
-                                    {block.activity}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">{block.minutes} min</span>
-                                </div>
-                                {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
-                                {drill && <p className="mt-1 text-xs text-muted-foreground">Övning: {drill.title}</p>}
-                              </div>
-                              <button
-                                type="button"
-                                aria-pressed={done}
-                                aria-label={done ? `Ångra genomförd: ${block.activity}` : `Markera som genomförd: ${block.activity}`}
-                                onClick={() => setProgress((current) => toggleBlock(current, session.id, block.order))}
-                                className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
-                                  done ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"
-                                }`}
-                              >
-                                <Check className="size-4" />
-                              </button>
-                            </li>
-                          );
-                        })}
-                    </ol>
-                  </>
-                )}
-                {open && session.data.coachLimit && (
-                  <p className="mt-2 text-xs text-muted-foreground">{session.data.coachLimit}</p>
-                )}
-              </article>
-            );
-          })}
-          {!sessions.isLoading && visibleSessions.length === 0 && (
-            <p className="text-sm text-muted-foreground">Inga träningspass matchar sökningen.</p>
-          )}
-        </section>
-      )}
     </main>
   );
 }
