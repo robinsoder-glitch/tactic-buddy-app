@@ -179,66 +179,96 @@ function TaktikbankPage() {
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <button
-              type="button"
-              onClick={() => setOnlyFavorites((value) => !value)}
-              className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-                onlyFavorites
-                  ? "border-primary bg-primary/15 text-foreground"
-                  : "border-border text-muted-foreground"
-              }`}
-            >
-              <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-            </button>
-            <FilterGroup
-              value={format}
-              onChange={setFormat}
-              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, formatLabelFor(item)] as [string, string])]}
-            />
-            <FilterGroup
-              value={moment}
-              onChange={setMoment}
-              options={[
-                ["all", "Alla moment"],
-                ...moments.map((item) => [item, label(GAME_MOMENT_LABELS, item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={phase}
-              onChange={setPhase}
-              options={[
-                ["all", "Alla faser"],
-                ...phases.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={difficulty}
-              onChange={setDifficulty}
-              options={[
-                ["all", "Alla nivåer"],
-                ["1", "Nivå 1"],
-                ["2", "Nivå 2"],
-                ["3", "Nivå 3"],
-              ]}
-            />
-            <FilterGroup
-              value={age}
-              onChange={setAge}
-              options={[
-                ["all", "Alla åldrar"],
-                ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={role}
-              onChange={setRole}
-              options={[
-                ["all", "Alla spelartyper"],
-                ...roles.map((item) => [item, label(ROLE_LABELS, item)] as [string, string]),
-              ]}
-            />
-          </div>
+          <FilterPanel
+            activeCount={
+              (onlyFavorites ? 1 : 0) +
+              [format, moment, phase, difficulty, age, role].filter((value) => value !== "all").length
+            }
+            onClear={() => {
+              setOnlyFavorites(false);
+              setFormat("all");
+              setMoment("all");
+              setPhase("all");
+              setDifficulty("all");
+              setAge("all");
+              setRole("all");
+            }}
+            primary={
+              <button
+                type="button"
+                onClick={() => setOnlyFavorites((value) => !value)}
+                aria-pressed={onlyFavorites}
+                className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                  onlyFavorites
+                    ? "border-primary bg-primary/15 text-foreground"
+                    : "border-border text-muted-foreground"
+                }`}
+              >
+                <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+              </button>
+            }
+          >
+            <FilterRow title="Spelform">
+              <FilterGroup
+                value={format}
+                onChange={setFormat}
+                options={[["all", "Alla spelformer"], ...formats.map((item) => [item, formatLabelFor(item)] as [string, string])]}
+              />
+            </FilterRow>
+            <FilterRow title="Moment">
+              <FilterGroup
+                value={moment}
+                onChange={setMoment}
+                options={[
+                  ["all", "Alla moment"],
+                  ...moments.map((item) => [item, label(GAME_MOMENT_LABELS, item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Fas">
+              <FilterGroup
+                value={phase}
+                onChange={setPhase}
+                options={[
+                  ["all", "Alla faser"],
+                  ...phases.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Nivå">
+              <FilterGroup
+                value={difficulty}
+                onChange={setDifficulty}
+                options={[
+                  ["all", "Alla nivåer"],
+                  ["1", "Nivå 1"],
+                  ["2", "Nivå 2"],
+                  ["3", "Nivå 3"],
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Ålder">
+              <FilterGroup
+                value={age}
+                onChange={setAge}
+                options={[
+                  ["all", "Alla åldrar"],
+                  ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Spelartyp">
+              <FilterGroup
+                value={role}
+                onChange={setRole}
+                options={[
+                  ["all", "Alla spelartyper"],
+                  ...roles.map((item) => [item, label(ROLE_LABELS, item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+          </FilterPanel>
+
 
           {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktikkort…</p>}
           {filtered.map((card) => (
