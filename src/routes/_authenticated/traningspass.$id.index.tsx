@@ -24,6 +24,7 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { SessionSharing } from "@/components/SessionSharing";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/_authenticated/traningspass/$id/")({
   head: () => ({
     meta: [
-      { title: "Bygg träningspass – Mina träningspass" },
+      { title: "Bygg träningspass – Mina träningar" },
       {
         name: "description",
         content: "Sätt ihop ditt träningspass: lägg till delar, ändra ordning, sätt tid och skriv anteckningar.",
@@ -136,7 +137,7 @@ function SessionBuilder() {
       <main className="mx-auto max-w-3xl px-4 py-10">
         <p className="text-sm text-muted-foreground">Träningspasset kunde inte hittas.</p>
         <Button asChild className="mt-4" variant="outline">
-          <Link to="/traningspass">Tillbaka till Mina träningspass</Link>
+          <Link to="/traningspass">Tillbaka till Mina träningar</Link>
         </Button>
       </main>
     );
@@ -153,7 +154,7 @@ function SessionBuilder() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningspass">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningar">
           <Link to="/traningspass">
             <ArrowLeft className="size-5" />
           </Link>
@@ -258,6 +259,8 @@ function SessionBuilder() {
         )}
       </section>
 
+      <SessionSharing sessionId={id} title={session.data.title} teamId={session.data.team_id} />
+
       <section className="mt-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">
@@ -270,8 +273,8 @@ function SessionBuilder() {
 
         {items.length === 0 && (
           <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Träningspasset är tomt. Lägg till samling, övningar och avslutning – eller lägg till innehåll direkt från
-            Taktikbanken, Övningsbanken och Kunskapsbanken.
+            Träningen är tom. Lägg till samling, övningar och avslutning – eller lägg till innehåll direkt från
+            Taktikbanken, Träningsbanken och Kunskapsbanken.
           </p>
         )}
 
@@ -437,7 +440,7 @@ function AddItemDialog({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Innehåll från Taktikbanken, Övningsbanken och Kunskapsbanken lägger du till med knappen &quot;Lägg till i
+            Innehåll från Taktikbanken, Träningsbanken och Kunskapsbanken lägger du till med knappen &quot;Lägg till i
             träningspass&quot; på respektive kort.
           </p>
 

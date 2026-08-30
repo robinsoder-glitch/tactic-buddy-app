@@ -158,6 +158,7 @@ export type Database = {
           notes: string | null
           session_date: string | null
           status: string
+          team_id: string | null
           template_id: string | null
           theme: string | null
           title: string
@@ -173,6 +174,7 @@ export type Database = {
           notes?: string | null
           session_date?: string | null
           status?: string
+          team_id?: string | null
           template_id?: string | null
           theme?: string | null
           title: string
@@ -188,13 +190,22 @@ export type Database = {
           notes?: string | null
           session_date?: string | null
           status?: string
+          team_id?: string | null
           template_id?: string | null
           theme?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "coach_sessions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_links: {
         Row: {

@@ -80,3 +80,58 @@ export function eventOptionLabel(event: PlannableEvent): string {
   const what = event.title?.trim() || (event.type === "match" ? "Match" : "Träning");
   return `${when} · ${what}${event.team_name ? ` · ${event.team_name}` : ""}`;
 }
+
+export type SessionEventLink = {
+  id: string;
+  event_id: string;
+  session_id: string;
+  starts_at: string;
+  type: "training" | "match";
+  title: string | null;
+  team_id: string;
+};
+
+/** Hämtar vilka kalenderaktiviteter ett träningspass är kopplat till. */
+export async function fetchSessionLinks(sessionIds: string[]): Promise<SessionEventLink[]> {
+  if (sessionIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from("event_resources")
+    .select("id, event_id, resource_id, team_id, events(starts_at, type, title)")
+    .eq("kind", "session")
+    .in("resource_id", sessionIds);
+  if (error) throw error;
+  return (data ?? []).map((row) => {
+    const event = (row as unknown as { events: { starts_at: string; type: string; title: string | null } | null })
+      .events;
+    return {
+      id: row.id as string,
+      event_id: row.event_id as string,
+      session_id: row.resource_id as string,
+      team_id: row.team_id as string,
+      starts_at: event?.starts_at ?? "",
+      type: (event?.type as "training" | "match") ?? "training",
+      title: event?.title ?? null,
+    };
+  });
+}
+
+/** Tar bort kopplingen mellan ett träningspass och en aktivitet. */
+export async function removeSessionLink(id: string) {
+  const { error } = await supabase.from("event_resources").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Kort etikett för en koppling, t.ex. "tis 9 sep 17:00 · Träning". */
+export function linkLabel(link: SessionEventLink): string {
+  const when = link.starts_at
+    ? new Date(link.starts_at).toLocaleString("sv-SE", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Okänd tid";
+  const what = link.title?.trim() || (link.type === "match" ? "Match" : "Träning");
+  return `${when} · ${what}`;
+}

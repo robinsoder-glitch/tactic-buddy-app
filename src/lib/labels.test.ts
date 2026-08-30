@@ -35,7 +35,7 @@ const ENGLISH = [
   "coachfråga",
 ];
 
-describe("svenska etiketter i Taktikbank och Övningsbank", () => {
+describe("svenska etiketter i Taktikbank och Träningsbank", () => {
   it("översätter alla spelmoment och faser som finns i banken", () => {
     for (const key of MOMENTS) expect(label(GAME_MOMENT_LABELS, key)).not.toContain("_");
     for (const key of PHASES) expect(label(PHASE_LABELS, key)).not.toContain("_");

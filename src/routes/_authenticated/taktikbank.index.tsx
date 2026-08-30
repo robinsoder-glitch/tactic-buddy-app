@@ -16,7 +16,6 @@ import {
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Input } from "@/components/ui/input";
 import { formatLabelFor } from "@/lib/rules-presentation";
@@ -307,7 +306,6 @@ function TaktikbankPage() {
               </button>
               </div>
               <div className="mt-3" onClick={(event) => event.stopPropagation()}>
-                <AddToSessionButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
 <AddToTrainingButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </div>
@@ -323,7 +321,7 @@ function TaktikbankPage() {
         <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
         <div className="mt-2 flex flex-wrap gap-2 text-sm">
           <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
-            Övningsbank
+            Träningsbank
           </Link>
           <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
             Kunskapsbank

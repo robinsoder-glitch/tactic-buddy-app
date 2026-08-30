@@ -1,6 +1,6 @@
 import type { Drill, DrillData } from "./taktikbank";
 
-/** Fälten som en färdig övning i Övningsbanken måste innehålla (full mall). */
+/** Fälten som en färdig övning i Träningsbanken måste innehålla (full mall). */
 export const REQUIRED_DRILL_FIELDS = [
   "purpose",
   "format",

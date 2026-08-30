@@ -5,7 +5,6 @@ import { fetchDrill, fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikb
 import { drillMeta } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
-import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
@@ -13,9 +12,9 @@ import { useAccount } from "@/hooks/useAccount";
 export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
   head: () => ({
     meta: [
-      { title: "Övning – Övningsbanken" },
+      { title: "Övning – Träningsbanken" },
       { name: "description", content: "Hela övningen: syfte, organisation, genomförande, coachpunkter och variation." },
-      { property: "og:title", content: "Övning – Övningsbanken" },
+      { property: "og:title", content: "Övning – Träningsbanken" },
       { property: "og:description", content: "Så genomför du övningen steg för steg." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
@@ -38,7 +37,7 @@ function DrillPage() {
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-sm text-muted-foreground">Övningsbanken är till för tränare och lagledare.</p>
+        <p className="text-sm text-muted-foreground">Träningsbanken är till för tränare och lagledare.</p>
         <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
           Till startsidan
         </Link>
@@ -51,7 +50,7 @@ function DrillPage() {
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-sm text-muted-foreground">Övningen hittades inte.</p>
         <Link to="/ovningsbank" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
-          Till övningsbanken
+          Till träningsbanken
         </Link>
       </main>
     );
@@ -62,7 +61,7 @@ function DrillPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till övningsbanken">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningsbanken">
           <Link to="/ovningsbank">
             <ArrowLeft className="size-5" />
           </Link>
@@ -81,12 +80,6 @@ function DrillPage() {
       <DrillDetails drill={drill.data} showGaps={isAdmin} />
 
       <div className="mt-6">
-        <AddToSessionButton
-          kind="drill"
-          resourceId={drill.data.id}
-          title={drill.data.title}
-          defaultMinutes={drill.data.default_minutes ?? 10}
-        />
 <AddToTrainingButton
           kind="drill"
           resourceId={drill.data.id}

@@ -349,7 +349,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <QuickCard
           to="/ovningsbank"
           icon={<BookOpen className="size-5" />}
-          title="Övningsbank"
+          title="Träningsbank"
           text="Färdiga övningar med organisation och coachpunkter"
         />
         {isCoach ? (

@@ -12,6 +12,7 @@ import {
   removeEventResource,
   type EventResourceKind,
 } from "@/lib/taktikbank";
+import { fetchCoachSessions } from "@/lib/coach-sessions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,7 +52,22 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     enabled: open || links.isSuccess,
   });
 
+  const coachSessions = useQuery({
+    queryKey: ["coach-sessions"],
+    queryFn: fetchCoachSessions,
+    enabled: open || links.isSuccess,
+  });
+
+  /** Ett kopplat träningspass kan vara redaktionellt eller en tränares egen träning. */
+  function isCoachSession(id: string) {
+    return (coachSessions.data ?? []).some((item) => item.id === id);
+  }
+
   function titleFor(kind: EventResourceKind, id: string) {
+    if (kind === "session") {
+      const own = (coachSessions.data ?? []).find((item) => item.id === id);
+      if (own) return own.title;
+    }
     const source =
       kind === "tactic" ? tactics.data : kind === "drill" ? drills.data : sessions.data;
     return source?.find((item) => item.id === id)?.title ?? id;
@@ -94,7 +110,15 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
         {items.map((item) => (
           <li key={item.id} className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
             <span className="text-xs text-muted-foreground">{KIND_LABELS[item.kind]}</span>
-            {item.kind === "tactic" ? (
+            {item.kind === "session" && isCoachSession(item.resource_id) ? (
+              <Link
+                to="/traningspass/$id/visa"
+                params={{ id: item.resource_id }}
+                className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline"
+              >
+                {titleFor(item.kind, item.resource_id)}
+              </Link>
+            ) : item.kind === "tactic" ? (
               <Link
                 to="/taktikbank/$cardId"
                 params={{ cardId: item.resource_id }}

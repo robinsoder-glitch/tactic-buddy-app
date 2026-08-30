@@ -12,8 +12,6 @@ import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { RelatedContent } from "@/components/RelatedContent";
-import { AddToSessionButton } from "@/components/AddToSessionDialog";
-import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { ARTICLE_SECTIONS } from "@/lib/related-sections";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
@@ -204,8 +202,6 @@ function KnowledgeArticlePage() {
           {data.copyright_note && <p className="mt-3 text-xs text-muted-foreground">{data.copyright_note}</p>}
 
           <div className="mt-4">
-            <AddToSessionButton kind="article" resourceId={data.slug} title={data.title_sv} defaultMinutes={5} size="sm" />
-<AddToTrainingButton kind="article" resourceId={data.slug} title={data.title_sv} defaultMinutes={5} size="sm" />
           </div>
 
           <RelatedContent sections={sections} />

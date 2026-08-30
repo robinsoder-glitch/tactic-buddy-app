@@ -21,7 +21,6 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
-import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
@@ -45,13 +44,13 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/")({
   },
   head: () => ({
     meta: [
-      { title: "Övningsbank – övningar, målvaktsövningar och träningspass" },
+      { title: "Träningsbank – övningar, målvaktsövningar och träningspass" },
       {
         name: "description",
         content:
           "Sök bland övningar, målvaktsövningar och färdiga träningspass för barnfotboll. Filtrera på ålder, spelform, träningsområde och svårighetsgrad.",
       },
-      { property: "og:title", content: "Övningsbank – så tränar ni det" },
+      { property: "og:title", content: "Träningsbank – så tränar ni det" },
       {
         property: "og:description",
         content: "Övningar, målvaktsövningar och träningspass kopplade till taktikkorten.",
@@ -172,8 +171,8 @@ function OvningsbankPage() {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <Dumbbell className="mx-auto size-8 text-primary" />
-        <h1 className="mt-3 font-display text-2xl font-bold">Övningsbanken</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Övningsbanken är till för tränare och lagledare.</p>
+        <h1 className="mt-3 font-display text-2xl font-bold">Träningsbanken</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Träningsbanken är till för tränare och lagledare.</p>
         <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
           Till startsidan
         </Link>
@@ -191,7 +190,7 @@ function OvningsbankPage() {
         </Button>
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Så tränar ni det</p>
-          <h1 className="font-display text-3xl font-bold">Övningsbank</h1>
+          <h1 className="font-display text-3xl font-bold">Träningsbank</h1>
         </div>
       </header>
 
@@ -200,7 +199,7 @@ function OvningsbankPage() {
         här visas hur ni tränar på det.
       </p>
 
-      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Delar av övningsbanken">
+      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Delar av träningsbanken">
         {TABS.map((item) => (
           <button
             key={item}
@@ -221,7 +220,7 @@ function OvningsbankPage() {
         <Input
           className="pl-9"
           placeholder="Sök på titel eller syfte"
-          aria-label="Sök i övningsbanken"
+          aria-label="Sök i träningsbanken"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
@@ -356,13 +355,6 @@ function OvningsbankPage() {
                     sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
                   />
                   <div className="mt-3">
-                    <AddToSessionButton
-                      kind="drill"
-                      resourceId={drill.id}
-                      title={drill.title}
-                      defaultMinutes={drill.default_minutes ?? 10}
-                      size="sm"
-                    />
 <AddToTrainingButton
                       kind="drill"
                       resourceId={drill.id}
@@ -429,7 +421,6 @@ function OvningsbankPage() {
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
               <div className="mt-3">
-                <AddToSessionButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
 <AddToTrainingButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </article>

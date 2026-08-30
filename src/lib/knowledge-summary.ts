@@ -58,7 +58,7 @@ export function notCovered(article: KnowledgeArticle): string[] {
   if (!article.format_7v7) formats.push("7 mot 7");
   if (formats.length && formats.length < 3) items.push(`Den tar inte upp ${formats.join(" eller ")}.`);
 
-  if (!article.try_next_sv) items.push("Den innehåller inga färdiga övningar – välj övningar i Övningsbanken.");
+  if (!article.try_next_sv) items.push("Den innehåller inga färdiga övningar – välj övningar i Träningsbanken.");
   if (article.evidence_level && /erfarenhet|praktik|åsikt/i.test(article.evidence_level)) {
     items.push("Den bygger på erfarenhet snarare än forskning – pröva råden i ditt eget lag.");
   }
