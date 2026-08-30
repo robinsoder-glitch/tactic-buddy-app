@@ -28,6 +28,7 @@ import {
   label,
   removeFavorite,
 } from "@/lib/taktikbank";
+import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchMyTeams, saveEvent } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
@@ -249,7 +250,7 @@ function TaktikbankCard() {
           <Button
             variant={loop ? "default" : "ghost"}
             size="icon"
-            aria-label="Loopa"
+            aria-label="Upprepa"
             onClick={() => setLoop((v) => !v)}
           >
             <Repeat className="size-5" />
@@ -279,7 +280,7 @@ function TaktikbankCard() {
             />
           </label>
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="w-24 shrink-0">Looppaus {loopPause.toFixed(1)}s</span>
+            <span className="w-24 shrink-0">Paus vid upprepning {loopPause.toFixed(1)} s</span>
             <input
               type="range"
               className="h-2 flex-1 accent-primary"
