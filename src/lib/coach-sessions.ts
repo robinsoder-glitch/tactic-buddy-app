@@ -43,6 +43,7 @@ export type CoachSession = {
   notes: string | null;
   status: string;
   template_id: string | null;
+  team_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -66,6 +67,7 @@ export type SessionDraft = {
   theme: string | null;
   goal: string | null;
   notes: string | null;
+  team_id?: string | null;
 };
 
 export const emptyDraft: SessionDraft = {
@@ -76,10 +78,11 @@ export const emptyDraft: SessionDraft = {
   theme: null,
   goal: null,
   notes: null,
+  team_id: null,
 };
 
 const SESSION_COLUMNS =
-  "id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, created_at, updated_at";
+  "id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, created_at, updated_at";
 const ITEM_COLUMNS = "id, session_id, kind, title, resource_id, minutes, note, sort_order";
 
 export async function fetchCoachSessions(): Promise<CoachSession[]> {
@@ -132,6 +135,7 @@ export async function createCoachSession(
       notes: draft.notes,
       status: "draft",
       template_id: extra.template_id ?? null,
+      team_id: draft.team_id ?? null,
     })
     .select("id")
     .single();
@@ -280,6 +284,7 @@ export async function duplicateCoachSession(session: CoachSession, userId: strin
       theme: session.theme,
       goal: session.goal,
       notes: session.notes,
+      team_id: session.team_id,
     },
     userId,
     { template_id: session.template_id },
