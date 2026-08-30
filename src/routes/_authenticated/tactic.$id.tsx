@@ -546,13 +546,35 @@ function TacticEditor() {
         </div>
       </div>
 
-      {selectedId && (
-        <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm">
-          <span>
-            {frame?.objects.find((object) => object.id === selectedId)?.label || "Objekt"} markerad
+      {selectedObject && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1 truncate">
+            {selectedObject.label || "Objekt"} markerad
           </span>
-          <Button size="sm" variant="ghost" onClick={() => removeObject(selectedId)}>
-            Ta bort från planen
+          {selectedObject.kind === "player" && (
+            <>
+              <Button
+                size="sm"
+                variant={selectedObject.gk ? "default" : "secondary"}
+                onClick={() => updateObject(selectedObject.id, { gk: !selectedObject.gk })}
+              >
+                <Shield className="size-4" /> Målvakt
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                  updateObject(selectedObject.id, {
+                    team: selectedObject.team === "home" ? "away" : "home",
+                  })
+                }
+              >
+                Byt lag
+              </Button>
+            </>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => removeObject(selectedObject.id)}>
+            Ta bort
           </Button>
         </div>
       )}
@@ -563,12 +585,37 @@ function TacticEditor() {
             <Users className="size-4" /> Spelarbank
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Sätt ut spelare</SheetTitle>
+            <SheetTitle>{teamId ? "Lagets trupp" : "Din spelarbank"}</SheetTitle>
           </SheetHeader>
+
+          <div className="flex flex-wrap gap-2 px-4 pb-3">
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", false)}>
+              <UserPlus className="size-4" /> Egen spelare
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", true)}>
+              <Shield className="size-4" /> Målvakt
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", false)}>
+              <UserPlus className="size-4" /> Motspelare
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", true)}>
+              <Shield className="size-4" /> Motst. målvakt
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                addObject({ id: uid(), kind: "ball", label: "", team: "home", x: 0.5, y: 0.5 })
+              }
+            >
+              <CircleDot className="size-4" /> Boll
+            </Button>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 p-4 pt-0 sm:grid-cols-4">
-            {(players.data ?? []).map((player) => {
+            {bank.map((player) => {
               const used = onPitchPlayerIds.has(player.id);
               return (
                 <button
@@ -582,9 +629,10 @@ function TacticEditor() {
                       playerId: player.id,
                       label: player.name.split(" ")[0] ?? player.name,
                       number: player.number,
-                      team: player.team === "away" ? "away" : "home",
+                      team: "home",
+                      gk: player.gk,
                       photoUrl: player.photoUrl,
-                      x: 0.5,
+                      x: 0.4,
                       y: 0.5,
                     })
                   }
@@ -595,36 +643,43 @@ function TacticEditor() {
                   <div
                     className="mx-auto grid size-12 place-items-center overflow-hidden rounded-full"
                     style={{
-                      background:
-                        player.team === "away" ? "var(--color-team-away)" : "var(--color-team-home)",
-                      color:
-                        player.team === "away"
-                          ? "var(--color-team-away-foreground)"
-                          : "var(--color-team-home-foreground)",
+                      background: player.gk ? "var(--color-team-gk)" : "var(--color-team-home)",
+                      color: player.gk
+                        ? "var(--color-team-gk-foreground)"
+                        : "var(--color-team-home-foreground)",
                     }}
                   >
                     {player.photoUrl ? (
                       <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
                     ) : (
-                      <span className="font-display text-base font-bold">{player.number ?? "•"}</span>
+                      <span className="font-display text-base font-bold">
+                        {player.number ?? (player.gk ? "MV" : "•")}
+                      </span>
                     )}
                   </div>
                   <p className="mt-1 truncate">{player.name}</p>
                 </button>
               );
             })}
-            {players.data?.length === 0 && (
+            {bank.length === 0 && (
               <p className="col-span-full text-center text-sm text-muted-foreground">
-                Inga spelare än.{" "}
-                <Link to="/bank" className="underline">
-                  Fyll på banken
-                </Link>
-                .
+                {teamId ? (
+                  "Inga spelare i truppen än – lägg till dem under fliken Truppen."
+                ) : (
+                  <>
+                    Inga spelare än.{" "}
+                    <Link to="/bank" className="underline">
+                      Fyll på banken
+                    </Link>
+                    .
+                  </>
+                )}
               </p>
             )}
           </div>
         </SheetContent>
       </Sheet>
+
 
       <section className="rounded-xl border border-border bg-card p-3">
         <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground" htmlFor="step-note">
