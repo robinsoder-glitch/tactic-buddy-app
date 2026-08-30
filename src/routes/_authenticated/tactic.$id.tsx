@@ -78,8 +78,9 @@ function TacticEditor() {
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
-  const [past, setPast] = useState<Frame[][]>([]);
-  const [future, setFuture] = useState<Frame[][]>([]);
+  const pastRef = useRef<Frame[][]>([]);
+  const futureRef = useRef<Frame[][]>([]);
+  const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video">(null);
   const framesRef = useRef<Frame[]>([]);
@@ -92,8 +93,9 @@ function TacticEditor() {
       setCurrent(0);
       setProgress(0);
       setDirty(false);
-      setPast([]);
-      setFuture([]);
+      pastRef.current = [];
+      futureRef.current = [];
+      setHistorySize({ past: 0, future: 0 });
       setIsPublic(Boolean(tactic.data.is_public));
     }
   }, [tactic.data]);
@@ -121,8 +123,9 @@ function TacticEditor() {
   }, [dirty, frames]);
 
   const pushHistory = useCallback(() => {
-    setPast((prev) => [...prev.slice(-49), framesRef.current]);
-    setFuture([]);
+    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
+    futureRef.current = [];
+    setHistorySize({ past: pastRef.current.length, future: 0 });
   }, []);
 
   const commit = useCallback(
@@ -262,29 +265,27 @@ function TacticEditor() {
   }
 
   const undo = useCallback(() => {
-    setPast((stack) => {
-      const previous = stack[stack.length - 1];
-      if (!previous) return stack;
-      setFuture((next) => [framesRef.current, ...next.slice(0, 49)]);
-      setFrames(previous);
-      setCurrent((value) => Math.min(value, previous.length - 1));
-      setProgress((value) => Math.min(value, previous.length - 1));
-      setDirty(true);
-      return stack.slice(0, -1);
-    });
+    const previous = pastRef.current[pastRef.current.length - 1];
+    if (!previous) return;
+    pastRef.current = pastRef.current.slice(0, -1);
+    futureRef.current = [framesRef.current, ...futureRef.current.slice(0, 49)];
+    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
+    setFrames(previous);
+    setCurrent((value) => Math.min(value, previous.length - 1));
+    setProgress((value) => Math.min(value, previous.length - 1));
+    setDirty(true);
   }, []);
 
   const redo = useCallback(() => {
-    setFuture((stack) => {
-      const next = stack[0];
-      if (!next) return stack;
-      setPast((prev) => [...prev.slice(-49), framesRef.current]);
-      setFrames(next);
-      setCurrent((value) => Math.min(value, next.length - 1));
-      setProgress((value) => Math.min(value, next.length - 1));
-      setDirty(true);
-      return stack.slice(1);
-    });
+    const next = futureRef.current[0];
+    if (!next) return;
+    futureRef.current = futureRef.current.slice(1);
+    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
+    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
+    setFrames(next);
+    setCurrent((value) => Math.min(value, next.length - 1));
+    setProgress((value) => Math.min(value, next.length - 1));
+    setDirty(true);
   }, []);
 
   useEffect(() => {
@@ -460,10 +461,10 @@ function TacticEditor() {
         )}
 
         <div className="ml-auto flex gap-1">
-          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo} disabled={past.length === 0}>
+          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo} disabled={historySize.past === 0}>
             <Undo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={future.length === 0}>
+          <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
             <Redo2 className="size-4" />
           </Button>
           <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
