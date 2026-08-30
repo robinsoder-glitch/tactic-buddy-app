@@ -77,6 +77,22 @@ const GRID_FALLBACK = 0.05;
 const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
+function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
+  return {
+    past: past.length,
+    future: future.length,
+    undoLabel: past[past.length - 1]?.label ?? "",
+    redoLabel: future[0]?.label ?? "",
+  };
+}
+
+function formatTime(seconds: number) {
+  const safe = Math.max(0, seconds);
+  const mins = Math.floor(safe / 60);
+  const rest = safe - mins * 60;
+  return `${mins}:${rest.toFixed(1).padStart(4, "0")}`;
+}
+
 type BankPlayer = {
   id: string;
   name: string;
@@ -744,10 +760,24 @@ function TacticEditor() {
         )}
 
         <div className="ml-auto flex gap-1">
-          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo} disabled={historySize.past === 0}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Ångra"
+            title={historySize.undoLabel ? `Ångra: ${historySize.undoLabel}` : "Ångra"}
+            onClick={undo}
+            disabled={historySize.past === 0}
+          >
             <Undo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Gör om"
+            title={historySize.redoLabel ? `Gör om: ${historySize.redoLabel}` : "Gör om"}
+            onClick={redo}
+            disabled={historySize.future === 0}
+          >
             <Redo2 className="size-4" />
           </Button>
           <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
