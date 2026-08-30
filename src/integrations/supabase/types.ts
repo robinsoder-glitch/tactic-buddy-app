@@ -628,6 +628,7 @@ export type Database = {
           created_at: string
           created_by: string
           gender: string
+          home_ground: string | null
           id: string
           join_code: string
           name: string
@@ -641,6 +642,7 @@ export type Database = {
           created_at?: string
           created_by: string
           gender?: string
+          home_ground?: string | null
           id?: string
           join_code?: string
           name: string
@@ -654,6 +656,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           gender?: string
+          home_ground?: string | null
           id?: string
           join_code?: string
           name?: string
