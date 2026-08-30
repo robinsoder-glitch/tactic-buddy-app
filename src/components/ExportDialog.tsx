@@ -57,7 +57,7 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport }: Props) {
   const preset = QUALITY_PRESETS[settings.quality];
   const estimateMb =
     settings.format === "gif"
-      ? (seconds * settings.fps * preset.width * preset.width * 0.55 * (preset.colors / 256)) / 8 / 1_000_000
+      ? (seconds * settings.fps * preset.width * preset.width * 0.6 * 0.12 * (preset.colors / 256)) / 1_000_000
       : (seconds * preset.bitrate) / 8 / 1_000_000;
 
   function update(patch: Partial<ExportSettings>) {
