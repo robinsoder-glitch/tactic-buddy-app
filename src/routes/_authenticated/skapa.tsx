@@ -239,10 +239,6 @@ function CreatePage() {
   );
 }
 
-    </main>
-  );
-}
-
 function StartCard({
   icon,
   title,
