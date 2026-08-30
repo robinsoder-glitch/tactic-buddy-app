@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useConfirm } from "@/components/ConfirmDelete";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
   head: () => ({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
 });
 
 function LeadersPage() {
+  const { confirm, confirmDialog } = useConfirm();
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/leaders" });
   const { isCoach, userId } = useTeamRole(teamId);
   const queryClient = useQueryClient();
@@ -142,7 +144,12 @@ function LeadersPage() {
               <Mail className="size-4 shrink-0 text-primary" />
               <span className="min-w-0 flex-1 truncate text-sm">{row.email}</span>
               <span className="text-xs text-muted-foreground">Väntar</span>
-              <Button variant="ghost" size="icon" onClick={() => drop.mutate(row.id)} aria-label="Ta bort inbjudan">
+              <Button variant="ghost" size="icon" onClick={() => {
+                void confirm({
+                  title: "Radera inbjudan",
+                  description: `Inbjudan till ${row.email} tas bort. Personen kan inte längre använda den.`,
+                }).then((ok) => ok && drop.mutate(row.id));
+              }} aria-label="Ta bort inbjudan">
                 <Trash2 className="size-4" />
               </Button>
             </div>
@@ -163,6 +170,7 @@ function LeadersPage() {
           </div>
         ))}
       </section>
+  {confirmDialog}
     </div>
   );
 }

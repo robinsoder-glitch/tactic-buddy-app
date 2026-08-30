@@ -44,6 +44,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
+import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -103,6 +104,7 @@ type BankPlayer = {
 
 
 function TacticEditor() {
+  const { confirm, confirmDialog } = useConfirm();
   const { id } = Route.useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -412,9 +414,15 @@ function TacticEditor() {
     );
   }
 
-  function deleteFrame(index: number) {
+  async function deleteFrame(index: number) {
     if (frames.length <= 1) return;
-    if (prefs.confirmDelete && !window.confirm("Ta bort det här steget?")) return;
+    if (prefs.confirmDelete) {
+      const ok = await confirm({
+        title: "Radera steg",
+        description: `Steg ${index + 1} tas bort med alla positioner, pilar och anteckningar i det steget.`,
+      });
+      if (!ok) return;
+    }
     commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort steg");
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
@@ -1021,7 +1029,19 @@ function TacticEditor() {
         <Button
           variant={isPublic ? "default" : "secondary"}
           size="sm"
-          onClick={() => share.mutate(!isPublic)}
+          onClick={() => {
+            if (isPublic) {
+              share.mutate(false);
+              return;
+            }
+            void confirm({
+              tone: "default",
+              title: "Dela taktiken via länk?",
+              description:
+                "Alla som har länken kan se taktiken – även personer utan konto. Inga uppgifter om lag, spelare eller din profil delas. Du kan stänga av delningen när du vill.",
+              confirmLabel: "Slå på delning",
+            }).then((ok) => ok && share.mutate(true));
+          }}
           disabled={share.isPending}
         >
           <Share2 className="size-4" /> {isPublic ? "Delning på" : "Dela via länk"}
@@ -1182,7 +1202,7 @@ function TacticEditor() {
                 <button
                   type="button"
                   aria-label="Ta bort steg"
-                  onClick={() => deleteFrame(index)}
+                  onClick={() => void deleteFrame(index)}
                   className="text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="size-3.5" />
@@ -1199,6 +1219,7 @@ function TacticEditor() {
           att döpa om det.
         </p>
       </section>
+      {confirmDialog}
     </main>
   );
 }

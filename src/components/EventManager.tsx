@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useConfirm } from "@/components/ConfirmDelete";
 
 type Props = {
   teamId: string;
@@ -59,6 +60,7 @@ function timeOnly(value: string | null) {
 }
 
 export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
+  const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TeamEvent | null>(null);
@@ -221,7 +223,12 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                 {event.notes && <p className="mt-2 text-sm text-muted-foreground">{event.notes}</p>}
               </button>
               {isCoach && (
-                <Button size="icon" variant="ghost" onClick={() => remove.mutate(event.id)}>
+                <Button size="icon" variant="ghost" onClick={() => {
+                    void confirm({
+                      title: type === "match" ? "Radera match" : "Radera träning",
+                      description: "Händelsen tas bort från lagets kalender permanent.",
+                    }).then((ok) => ok && remove.mutate(event.id));
+                  }}>
                   <Trash2 className="size-4" />
                 </Button>
               )}
@@ -410,6 +417,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+  {confirmDialog}
     </section>
   );
 }

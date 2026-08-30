@@ -8,12 +8,14 @@ import { addTeamPhoto, deleteTeamPhoto, fetchTeamPhotos } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useConfirm } from "@/components/ConfirmDelete";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/photos")({
   component: PhotosPage,
 });
 
 function PhotosPage() {
+  const { confirm, confirmDialog } = useConfirm();
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/photos" });
   const { isCoach, userId } = useTeamRole(teamId);
   const queryClient = useQueryClient();
@@ -98,7 +100,12 @@ function PhotosPage() {
                 <button
                   type="button"
                   aria-label="Ta bort bild"
-                  onClick={() => remove.mutate({ id: photo.id, path: photo.path })}
+                  onClick={() => {
+                    void confirm({
+                      title: "Radera bild",
+                      description: "Bilden tas bort från lagets galleri permanent.",
+                    }).then((ok) => ok && remove.mutate({ id: photo.id, path: photo.path }));
+                  }}
                 >
                   <Trash2 className="size-4 text-destructive" />
                 </button>
@@ -107,6 +114,7 @@ function PhotosPage() {
           </figure>
         ))}
       </div>
+  {confirmDialog}
     </section>
   );
 }
