@@ -14,6 +14,7 @@ import {
   knowledgeCategories,
   knowledgeFormatLabel,
 } from "@/lib/knowledge";
+import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { Input } from "@/components/ui/input";
 
 function Chips({
@@ -170,8 +171,12 @@ export function KnowledgeLibrary() {
               {article.featured && <span className="rounded-full border border-border px-2 py-0.5">Utvald</span>}
             </div>
           </Link>
+          <div className="mt-2">
+            <AddToSessionButton kind="article" resourceId={article.slug} title={article.title_sv} size="sm" />
+          </div>
           </div>
         ))}
+
         {!articles.isLoading && list.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <BookOpen className="mx-auto size-8 text-primary" />

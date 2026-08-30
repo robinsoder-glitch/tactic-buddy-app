@@ -6,7 +6,9 @@ import {
   fetchSessionItems,
   ITEM_KIND_LABELS,
   minutesLabel,
+  SESSION_STATUS_LABELS,
   totalMinutes,
+  type CoachSessionItem,
   type ItemKind,
 } from "@/lib/coach-sessions";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,40 @@ export const Route = createFileRoute("/_authenticated/traningspass/$id/visa")({
   }),
   component: SessionView,
 });
+
+/** Länk tillbaka till innehållets ursprung i bankerna, när en referens finns. */
+function SourceLink({ item }: { item: CoachSessionItem }) {
+  if (!item.resource_id) return null;
+  const label = "Öppna i banken";
+  const className = "mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline print:hidden";
+
+  if (item.kind === "tactic") {
+    return (
+      <Link to="/taktikbank/$cardId" params={{ cardId: item.resource_id }} className={className}>
+        {label}: Taktikbanken
+      </Link>
+    );
+  }
+  if (item.kind === "article") {
+    return (
+      <Link to="/kunskapsbank/$slug" params={{ slug: item.resource_id }} className={className}>
+        {label}: Kunskapsbanken
+      </Link>
+    );
+  }
+  if (item.kind === "drill" || item.kind === "goalkeeper") {
+    return (
+      <Link
+        to="/ovningsbank"
+        search={{ flik: item.kind === "drill" ? "ovningar" : "malvakt", markera: item.resource_id }}
+        className={className}
+      >
+        {label}: Övningsbanken
+      </Link>
+    );
+  }
+  return null;
+}
 
 function SessionView() {
   const { id } = Route.useParams();
@@ -52,7 +88,7 @@ function SessionView() {
   let elapsed = 0;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-32 pt-6 print:pt-0">
+    <main className="print-area mx-auto max-w-3xl px-4 pb-32 pt-6 print:pt-0">
       <header className="flex items-center gap-2 print:hidden">
         <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningspass">
           <Link to="/traningspass">
@@ -61,12 +97,17 @@ function SessionView() {
         </Button>
         <div className="flex-1" />
         <Button asChild variant="outline" size="sm">
-          <Link to="/traningspass/$id" params={{ id }}>
-            <Pencil className="size-4" /> Redigera
+          <Link to="/traningspass/$id" params={{ id }} aria-label="Redigera träningspass">
+            <Pencil className="size-4" /> Redigera träningspass
           </Link>
         </Button>
-        <Button variant="outline" size="sm" onClick={() => window.print()} aria-label="Skriv ut eller spara som PDF">
-          <Printer className="size-4" /> Skriv ut / PDF
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.print()}
+          aria-label="Skriv ut eller spara som PDF"
+        >
+          <Printer className="size-4" /> Skriv ut eller spara som PDF
         </Button>
       </header>
 
@@ -78,7 +119,8 @@ function SessionView() {
             session.data.age_group,
             session.data.game_format,
             session.data.theme,
-            `Total tid: ${minutesLabel(totalMinutes(list))}`,
+            `Status: ${SESSION_STATUS_LABELS[session.data.status] ?? "Utkast"}`,
+            minutesLabel(totalMinutes(list)),
           ]
             .filter(Boolean)
             .join(" · ")}
@@ -102,26 +144,29 @@ function SessionView() {
           const start = elapsed;
           elapsed += item.minutes;
           return (
-            <li key={item.id} className="rounded-xl border border-border bg-card p-4">
+            <li key={item.id} className="print-block rounded-xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <p className="font-display text-lg font-semibold">
                   {index + 1}. {item.title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {start}–{elapsed} min · {minutesLabel(item.minutes)}
+                  {start}–{elapsed} min · {item.minutes} minuter
                 </p>
               </div>
               <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
                 {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Egen aktivitet"}
               </p>
               {item.note && <p className="mt-2 text-sm">{item.note}</p>}
+              <SourceLink item={item} />
             </li>
           );
         })}
       </ol>
 
+      <p className="mt-5 font-display text-base font-semibold">{minutesLabel(totalMinutes(list))}</p>
+
       {session.data.notes && (
-        <section className="mt-6 rounded-xl border border-border bg-card p-4">
+        <section className="print-block mt-6 rounded-xl border border-border bg-card p-4">
           <h2 className="font-display text-lg font-semibold">Tränarens anteckningar</h2>
           <p className="mt-2 whitespace-pre-wrap text-sm">{session.data.notes}</p>
         </section>
