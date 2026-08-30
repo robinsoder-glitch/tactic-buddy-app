@@ -236,6 +236,16 @@ function EventPage() {
         )}
       </header>
 
+      <section className="mt-6 rounded-xl border border-border bg-card p-4">
+        <h2 className="font-display text-xl font-bold">Planerat träningsinnehåll</h2>
+        <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
+        <Button variant="outline" size="sm" className="mt-3" asChild>
+          <Link to={event.data?.type === "match" ? "/planera-match" : "/planera-traning"}>
+            Öppna planeringen
+          </Link>
+        </Button>
+      </section>
+
       <section className="mt-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-display text-2xl font-bold">Kallelse och deltagare</h2>
