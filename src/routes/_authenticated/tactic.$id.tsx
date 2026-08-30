@@ -31,7 +31,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
-import { exportGif, exportVideo } from "@/lib/export-clip";
+import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
+import { ExportDialog } from "@/components/ExportDialog";
+import type { ExportSettings } from "@/components/ExportDialog";
+import { downloadTacticFile } from "@/lib/tactic-file";
 import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
@@ -502,14 +505,27 @@ function TacticEditor() {
     onError: () => toast.error("Kunde inte ändra delningen"),
   });
 
-  async function runExport(kind: "gif" | "video") {
+  async function runExport(settings: ExportSettings) {
     if (!tactic.data) return;
+    const kind = settings.format;
     setExporting(kind);
     setPlaying(false);
     try {
       if (dirty) await save.mutateAsync();
       const filename = tactic.data.name.replace(/[^a-z0-9åäö]+/gi, "-").toLowerCase() || "taktik";
-      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS, hideNames, tokenScale: prefs.playerScale, showPhotos: prefs.showPhotos };
+      const preset = QUALITY_PRESETS[settings.quality];
+      const options = {
+        frames,
+        pitchType: tactic.data.pitch_type,
+        stepMs: STEP_MS / speed,
+        fps: settings.fps,
+        width: preset.width,
+        colors: preset.colors,
+        bitrate: preset.bitrate,
+        hideNames,
+        tokenScale: prefs.playerScale,
+        showPhotos: prefs.showPhotos,
+      };
       if (kind === "gif") {
         await exportGif(options, filename);
         toast.success("GIF nedladdad");
