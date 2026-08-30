@@ -444,6 +444,31 @@ function CreateSessionDialog({
             </>
           )}
 
+          <div className="space-y-1">
+            <Label htmlFor="new-event">Koppla till träning i kalendern (frivilligt)</Label>
+            {events.isLoading ? (
+              <p className="text-sm text-muted-foreground">Hämtar kommande träningar…</p>
+            ) : trainingEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Det finns inga kommande träningar i kalendern att koppla till.
+              </p>
+            ) : (
+              <select
+                id="new-event"
+                className={selectClass}
+                value={eventId}
+                onChange={(event) => setEventId(event.target.value)}
+              >
+                <option value="">Ingen koppling</option>
+                {trainingEvents.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {eventOptionLabel(item)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button className="w-full" disabled={save.isPending} onClick={() => save.mutate()}>
