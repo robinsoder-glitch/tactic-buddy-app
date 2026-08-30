@@ -924,13 +924,23 @@ function TacticEditor() {
           </button>
         )}
         <div className="ml-auto flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => runExport("gif")} disabled={exporting !== null}>
-            <Download className="size-4" /> {exporting === "gif" ? "Skapar GIF…" : "GIF"}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() =>
+              tactic.data && downloadTacticFile(tactic.data.name, tactic.data.pitch_type, frames)
+            }
+          >
+            <Download className="size-4" /> Fil
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => runExport("video")} disabled={exporting !== null}>
-            <Download className="size-4" /> {exporting === "video" ? "Spelar in…" : "Video"}
-          </Button>
+          <ExportDialog
+            frameCount={frames.length}
+            stepMs={STEP_MS / speed}
+            busy={exporting !== null}
+            onExport={(settings) => runExport(settings)}
+          />
         </div>
+
       </section>
 
       <section className="rounded-xl border border-border bg-card p-3">
