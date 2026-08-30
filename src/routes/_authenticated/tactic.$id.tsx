@@ -453,12 +453,30 @@ function TacticEditor() {
       <section className="rounded-xl border border-border bg-card p-3">
         <div className="flex items-center gap-2">
           <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Föregående steg"
+            onClick={() => goToStep(current - 1)}
+            disabled={current === 0}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
             size="icon"
             aria-label={playing ? "Pausa" : "Spela upp"}
             onClick={() => setPlaying((value) => !value)}
             disabled={frames.length < 2}
           >
             {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Nästa steg"
+            onClick={() => goToStep(current + 1)}
+            disabled={current >= frames.length - 1}
+          >
+            <ChevronRight className="size-4" />
           </Button>
           <button
             type="button"
@@ -477,6 +495,24 @@ function TacticEditor() {
           </Button>
           <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
         </div>
+
+        <input
+          type="range"
+          aria-label="Tidslinje"
+          min={0}
+          max={Math.max(frames.length - 1, 0)}
+          step={0.01}
+          value={progress}
+          disabled={frames.length < 2}
+          onChange={(event) => {
+            const value = Number(event.target.value);
+            setPlaying(false);
+            setProgress(value);
+            setCurrent(Math.round(value));
+          }}
+          className="mt-3 w-full accent-[var(--color-primary)]"
+        />
+
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {frames.map((item, index) => (
