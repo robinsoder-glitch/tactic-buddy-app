@@ -14,6 +14,7 @@ import {
   removeFavorite,
   GAME_MOMENT_LABELS,
   PHASE_LABELS,
+  ROLE_LABELS,
   label,
   type FavoriteKind,
 } from "@/lib/taktikbank";
