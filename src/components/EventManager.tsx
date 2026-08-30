@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { MapPin, Plus, Trash2 } from "lucide-react";
 import { deleteEvent, fetchEvents, formatDateTime, saveEvent, type TeamEvent } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
+import { EventResources } from "@/components/EventResources";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -126,6 +127,9 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                 </Button>
               )}
             </div>
+            {type === "training" && (
+              <EventResources eventId={event.id} teamId={teamId} userId={userId} isCoach={isCoach} />
+            )}
           </li>
         ))}
       </ul>
