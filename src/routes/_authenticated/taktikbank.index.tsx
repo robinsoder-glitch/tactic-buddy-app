@@ -4,13 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, ChevronRight, Search, Star } from "lucide-react";
 import {
   addFavorite,
-  fetchDistrictProfiles,
-  fetchDrills,
   fetchFavorites,
-  fetchGoalkeeperCards,
-  fetchRulesets,
   fetchTacticCards,
-  fetchTrainingSessions,
   removeFavorite,
   GAME_MOMENT_LABELS,
   PHASE_LABELS,
@@ -22,8 +17,8 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RulesView } from "@/components/rules/RulesView";
 import { formatLabelFor } from "@/lib/rules-presentation";
+
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
