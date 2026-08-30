@@ -163,10 +163,11 @@ function SessionBuilder() {
           <h1 className="font-display text-2xl font-bold uppercase">{session.data.title}</h1>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link to="/traningspass/$id/visa" params={{ id }}>
-            Visa
+          <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
+            Visa träningspass
           </Link>
         </Button>
+
       </header>
 
       <section className="mt-5 space-y-3 rounded-xl border border-border bg-card p-4">
