@@ -37,9 +37,9 @@ function CreatePage() {
   const { user } = useAuth();
   const account = useAccount();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"start" | "blank" | "templates">("start");
+  const [showTemplates, setShowTemplates] = useState(false);
   const [name, setName] = useState("");
-  const [pitchType, setPitchType] = useState<PitchType>("small");
+  const [format, setFormat] = useState<GameFormatId>("5v5");
   const [teamId, setTeamId] = useState<string>("");
   const [query, setQuery] = useState("");
 
@@ -51,7 +51,7 @@ function CreatePage() {
   const cards = useQuery({
     queryKey: ["tb-tactics"],
     queryFn: fetchTacticCards,
-    enabled: mode === "templates" && canUseBank,
+    enabled: showTemplates && canUseBank,
   });
 
   const filtered = useMemo(() => {
@@ -64,7 +64,12 @@ function CreatePage() {
 
   const createBlank = useMutation({
     mutationFn: () =>
-      createTactic(user!.id, name.trim() || "Ny taktik", pitchType, teamId || null),
+      createTactic(
+        user!.id,
+        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
+        pitchTypeForFormat(format),
+        teamId || null,
+      ),
     onSuccess: (id) => navigate({ to: "/tactic/$id", params: { id } }),
     onError: () => toast.error("Kunde inte skapa taktiken"),
   });
@@ -74,10 +79,11 @@ function CreatePage() {
       const card = (cards.data ?? []).find((item) => item.id === cardId);
       if (!card) throw new Error("Mallen hittades inte");
       const frames = cardToFrames(card.data);
+      const cardFormat = parseGameFormat(card.format);
       return createTacticFromFrames(
         user!.id,
         card.title,
-        card.format?.startsWith("11") ? "full" : "small",
+        pitchTypeForFormat(cardFormat ?? format),
         teamId || null,
         frames,
       );
@@ -94,7 +100,7 @@ function CreatePage() {
           variant="ghost"
           size="icon"
           aria-label="Tillbaka"
-          onClick={() => (mode === "start" ? navigate({ to: "/" }) : setMode("start"))}
+          onClick={() => (showTemplates ? setShowTemplates(false) : navigate({ to: "/" }))}
         >
           <ArrowLeft className="size-5" />
         </Button>
@@ -104,88 +110,92 @@ function CreatePage() {
         </div>
       </header>
 
-      {mode === "start" && (
-        <section className="mt-6 space-y-3">
-          <StartCard
-            icon={<PenLine className="size-5" />}
-            title="Skapa egen"
-            description="Tom plan – dra in spelare, rita och animera steg för steg."
-            onClick={() => setMode("blank")}
-          />
-          {canUseBank && (
-            <StartCard
-              icon={<Sparkles className="size-5" />}
-              title="Färdiga taktiker"
-              description="Utgå från en mall ur taktikbanken och ändra fritt."
-              onClick={() => setMode("templates")}
+      {!showTemplates && (
+        <section className="mt-6 space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold" htmlFor="tactic-name">
+              Namn (valfritt)
+            </label>
+            <Input
+              id="tactic-name"
+              placeholder="T.ex. Uppspel mot högpress"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
             />
-          )}
-          {canUseBank && (
-            <Link
-              to="/taktikbank"
-              className="flex items-center gap-3 rounded-xl border border-border bg-card p-4"
-            >
-              <span className="grid size-10 place-items-center rounded-lg bg-primary/15 text-primary">
-                <BookOpen className="size-5" />
-              </span>
-              <span>
-                <span className="block font-display text-lg font-semibold">Bläddra i taktikbanken</span>
-                <span className="block text-sm text-muted-foreground">
-                  Läs kort, övningar och färdiga pass.
-                </span>
-              </span>
-            </Link>
-          )}
-        </section>
-      )}
-
-      {mode !== "start" && coachTeams.length > 0 && (
-        <section className="mt-6">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground">
-            Spelarbank från lag
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Chip active={teamId === ""} onClick={() => setTeamId("")}>
-              Utan lag
-            </Chip>
-            {coachTeams.map((item) => (
-              <Chip
-                key={item.team_id}
-                active={teamId === item.team_id}
-                onClick={() => setTeamId(item.team_id)}
-              >
-                {item.team?.name ?? "Lag"}
-              </Chip>
-            ))}
           </div>
-        </section>
-      )}
 
-      {mode === "blank" && (
-        <section className="mt-6 space-y-4">
-          <Input
-            placeholder="Namn, t.ex. Uppspel mot högpress"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-2">
-            {(Object.keys(PITCH_SIZES) as PitchType[]).map((type) => (
-              <Chip key={type} active={pitchType === type} onClick={() => setPitchType(type)} block>
-                {PITCH_SIZES[type].label}
-              </Chip>
-            ))}
+          <div className="space-y-2">
+            <p className="text-sm font-semibold">Spelform</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {GAME_FORMATS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-pressed={format === item.id}
+                  onClick={() => setFormat(item.id)}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    format === item.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/60"
+                  }`}
+                >
+                  <span className="block font-display text-lg font-semibold">{item.label}</span>
+                  <span className="block text-xs text-muted-foreground">{item.hint}</span>
+                </button>
+              ))}
+            </div>
           </div>
+
+          {coachTeams.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Spelarbank från lag</p>
+              <div className="flex flex-wrap gap-2">
+                <Chip active={teamId === ""} onClick={() => setTeamId("")}>
+                  Utan lag
+                </Chip>
+                {coachTeams.map((item) => (
+                  <Chip
+                    key={item.team_id}
+                    active={teamId === item.team_id}
+                    onClick={() => setTeamId(item.team_id)}
+                  >
+                    {item.team?.name ?? "Lag"}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+          )}
+
           <Button
             className="w-full"
+            size="lg"
             disabled={createBlank.isPending || !user}
             onClick={() => createBlank.mutate()}
           >
-            Öppna tavlan
+            <PenLine className="mr-2 size-4" /> Skapa och öppna tavlan
           </Button>
+
+          {canUseBank && (
+            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+              <p className="text-sm text-muted-foreground">
+                Vill du hellre utgå från något färdigt?
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="secondary" onClick={() => setShowTemplates(true)}>
+                  <Sparkles className="mr-2 size-4" /> Välj färdig mall
+                </Button>
+                <Button variant="ghost" asChild>
+                  <Link to="/taktikbank">
+                    <BookOpen className="mr-2 size-4" /> Bläddra i banken
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
-      {mode === "templates" && (
+      {showTemplates && (
         <section className="mt-6">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -225,6 +235,10 @@ function CreatePage() {
           )}
         </section>
       )}
+    </main>
+  );
+}
+
     </main>
   );
 }
