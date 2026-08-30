@@ -9,12 +9,14 @@ import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   deleteTeam,
   fetchTeam,
+  fetchTeamImpact,
   regenerateJoinCode,
   setTeamArchived,
   TEAM_GENDER_LABELS,
   updateTeam,
   uploadTeamMedia,
 } from "@/lib/teams";
+import { friendlyError } from "@/lib/user-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,11 +28,16 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/about")({
 
 function AboutPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/about" });
-  const { isCoach, userId } = useTeamRole(teamId);
+  const { isCoach, isOwner: canManageTeam, userId } = useTeamRole(teamId);
   const navigate = useNavigate();
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
+  const impact = useQuery({
+    queryKey: ["team-impact", teamId],
+    queryFn: () => fetchTeamImpact(teamId),
+    enabled: isCoach,
+  });
 
   const [about, setAbout] = useState("");
   const [homeGround, setHomeGround] = useState("");
@@ -39,7 +46,7 @@ function AboutPage() {
   const [gender, setGender] = useState("mixed");
   const [busy, setBusy] = useState(false);
 
-  const isOwner = Boolean(team.data && userId && team.data.created_by === userId);
+  const isOwner = canManageTeam;
   const archived = Boolean(team.data?.archived_at);
 
   async function newCode() {
@@ -55,7 +62,7 @@ function AboutPage() {
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
       toast.success("Ny lagkod skapad");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kunde inte skapa ny kod");
+      toast.error(friendlyError(error, "Kunde inte skapa ny kod"));
     }
   }
 
@@ -78,8 +85,9 @@ function AboutPage() {
   async function removeTeam() {
     const ok = await confirm({
       title: "Radera laget permanent",
-      description:
-        "Spelare, kalender, närvaro och statistik för laget raderas och går inte att återskapa. Vill du bara dölja laget – arkivera i stället.",
+      description: impact.data
+        ? `Detta raderas permanent: ${impact.data.players} spelare, ${impact.data.events} aktiviteter, ${impact.data.attendance} närvaroposter, ${impact.data.stats} statistikrader, ${impact.data.photos} bilder och ${impact.data.members} medlemskap. Det går inte att återskapa. Vill du bara dölja laget – arkivera i stället.`
+        : "Spelare, kalender, närvaro och statistik för laget raderas och går inte att återskapa. Vill du bara dölja laget – arkivera i stället.",
       confirmLabel: "Radera laget",
       requireText: team.data?.name ?? "",
     });
@@ -90,7 +98,7 @@ function AboutPage() {
       toast.success("Laget är raderat");
       navigate({ to: "/teams" });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
+      toast.error(friendlyError(error, "Kunde inte radera laget"));
     }
   }
 
@@ -112,7 +120,7 @@ function AboutPage() {
       await queryClient.invalidateQueries({ queryKey: ["teams"] });
       toast.success("Sparat");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kunde inte spara");
+      toast.error(friendlyError(error, "Kunde inte spara"));
     } finally {
       setBusy(false);
     }

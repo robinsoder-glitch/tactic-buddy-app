@@ -4,9 +4,11 @@
 - [x] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
 - [x] Lagets skapare syns som ägare/ledare
 - [x] Personliga inbjudningar: engångstoken, utgångstid, återkallande. Lagkod ger aldrig ledarroll
-- [ ] Minimera barnuppgifter: födelseår i stället för fullt datum, foto opt-in med samtycke
+- [x] Minimera barnuppgifter: födelseår i stället för fullt datum, foto frivilligt med tydlig text
 - [x] Ny lagkod ("Skapa ny kod") och kodens giltighet i Om laget
-- [ ] Dölj all felsökningsinfo för vanliga användare (klart tidigare, verifiera)
+- [x] Dölj all felsökningsinfo för vanliga användare (bara admin eller utvecklingsläge)
+- [x] Rollförklaring, ägaröverlåtelse och begripliga svenska felmeddelanden
+
 
 ## Etapp 2: Ljust designsystem
 - [ ] Ljust standardtema (bakgrund #F5F8F2, kort #FFFFFF, primär #2F6B4F, text #1E2B23)

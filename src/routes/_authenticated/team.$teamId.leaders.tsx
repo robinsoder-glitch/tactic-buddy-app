@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -21,6 +21,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { TEAM_ROLE_DESCRIPTIONS, TEAM_ROLE_LABELS, canRemoveLeader, teamAccess } from "@/lib/permissions";
+import { friendlyError } from "@/lib/user-errors";
+import { ensureOwnerMembership, transferTeamOwnership } from "@/lib/teams";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
   head: () => ({
@@ -43,7 +46,7 @@ function formatDate(value: string) {
 function LeadersPage() {
   const { confirm, confirmDialog } = useConfirm();
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/leaders" });
-  const { isCoach, userId } = useTeamRole(teamId);
+  const { isCoach, isOwner, canInviteLeaders, canManageLeaders, userId } = useTeamRole(teamId);
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [days, setDays] = useState(14);
@@ -70,7 +73,7 @@ function LeadersPage() {
       toast.success("Personlig inbjudan skapad. Skicka länken till ledaren.");
       refresh();
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(friendlyError(error)),
   });
 
   const revoke = useMutation({ mutationFn: (id: string) => revokeTeamInvite(id), onSuccess: refresh });
@@ -79,14 +82,23 @@ function LeadersPage() {
   const changeRole = useMutation({
     mutationFn: ({ id, role }: { id: string; role: "coach" | "player" }) => setMemberRole(id, role),
     onSuccess: refresh,
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(friendlyError(error)),
   });
 
   const rows = members.data ?? [];
   const ownerId = team.data?.created_by ?? null;
   const leaders = rows.filter((member) => member.role === "coach");
   const players = rows.filter((member) => member.role === "player" && member.status === "approved");
-  const isOwner = Boolean(ownerId && ownerId === userId);
+
+  // Äldre lag kunde sakna medlemsrad för skaparen – då visades "Inga ledare ännu".
+  useEffect(() => {
+    if (!isOwner || !userId || !members.data) return;
+    const hasRow = members.data.some((m) => m.user_id === userId && m.role === "coach" && m.status === "approved");
+    if (hasRow) return;
+    void ensureOwnerMembership(teamId, userId).then(() =>
+      queryClient.invalidateQueries({ queryKey: ["team-members", teamId] }),
+    );
+  }, [isOwner, userId, members.data, teamId, queryClient]);
 
   async function copyLink(link: string) {
     try {
@@ -140,7 +152,12 @@ function LeadersPage() {
               {leader.user_id === ownerId && <span className="text-muted-foreground"> · lagägare</span>}
               {leader.user_id === userId && <span className="text-muted-foreground"> (du)</span>}
             </span>
-            {leader.user_id !== userId && leader.user_id !== ownerId && isOwner && (
+            {canRemoveLeader({
+              actor: teamAccess({ userId, isAdmin: false, isOwner, membership: { role: "coach", status: "approved" } }),
+              targetUserId: leader.user_id,
+              ownerUserId: ownerId,
+              actorUserId: userId,
+            }) && (
               <Button variant="ghost" size="sm" onClick={() => changeRole.mutate({ id: leader.id, role: "player" })}>
                 Ta bort ledarroll
               </Button>
@@ -149,6 +166,19 @@ function LeadersPage() {
         ))}
       </section>
 
+      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide">Vem får göra vad</h2>
+        <ul className="space-y-1 text-xs text-muted-foreground">
+          {(["owner", "coach", "player", "member"] as const).map((role) => (
+            <li key={role}>
+              <span className="font-medium text-foreground">{TEAM_ROLE_LABELS[role]}:</span>{" "}
+              {TEAM_ROLE_DESCRIPTIONS[role]}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {canInviteLeaders && (
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Bjud in ledare</h2>
         <p className="text-sm text-muted-foreground">
@@ -247,7 +277,9 @@ function LeadersPage() {
           })}
         </div>
       </section>
+      )}
 
+      {canManageLeaders && (
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Gör medlem till ledare</h2>
         {players.length === 0 && <p className="text-sm text-muted-foreground">Inga godkända medlemmar ännu.</p>}
@@ -258,17 +290,58 @@ function LeadersPage() {
             <Button
               size="sm"
               variant="secondary"
-              disabled={!isOwner}
+              disabled={!canManageLeaders}
               onClick={() => changeRole.mutate({ id: member.id, role: "coach" })}
             >
               Gör till ledare
             </Button>
           </div>
         ))}
-        {!isOwner && (
-          <p className="text-xs text-muted-foreground">Endast lagägaren kan ge eller ta bort ledarroller.</p>
-        )}
       </section>
+      )}
+
+      {!canManageLeaders && (
+        <p className="text-xs text-muted-foreground">Endast lagägaren kan bjuda in eller ändra ledarroller.</p>
+      )}
+
+      {isOwner && leaders.some((leader) => leader.user_id !== userId) && (
+        <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide">Överlåt lagägarskapet</h2>
+          <p className="text-xs text-muted-foreground">
+            Den nya ägaren tar över ansvaret för laget. Du blir kvar som ledare.
+          </p>
+          {leaders
+            .filter((leader) => leader.user_id !== userId)
+            .map((leader) => (
+              <div key={`transfer-${leader.id}`} className="flex items-center gap-3">
+                <span className="min-w-0 flex-1 truncate text-sm">{leader.displayName ?? "Ledare"}</span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    void confirm({
+                      title: "Överlåt lagägarskapet",
+                      description: `${leader.displayName ?? "Ledaren"} blir lagägare och kan radera laget. Du blir kvar som ledare.`,
+                      confirmLabel: "Överlåt",
+                    }).then(async (ok) => {
+                      if (!ok) return;
+                      try {
+                        await transferTeamOwnership(teamId, leader.user_id);
+                        refresh();
+                        queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+                        toast.success("Lagägarskapet är överlåtet.");
+                      } catch (error) {
+                        toast.error(friendlyError(error, "Kunde inte överlåta lagägarskapet"));
+                      }
+                    });
+                  }}
+                >
+                  Gör till lagägare
+                </Button>
+              </div>
+            ))}
+        </section>
+      )}
       {confirmDialog}
     </div>
   );
