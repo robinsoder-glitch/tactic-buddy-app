@@ -13,7 +13,7 @@ type Props = {
   tool?: Tool;
   selectedId?: string | null;
   interactive?: boolean;
-  drawColor?: string;
+  drawColor?: string | undefined;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
