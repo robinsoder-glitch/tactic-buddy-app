@@ -9,7 +9,9 @@ export type ExportOptions = {
   stepMs?: number;
   fps?: number;
   width?: number;
+  hideNames?: boolean;
 };
+
 
 function setup(pitchType: PitchType, width: number) {
   const { w, h } = PITCH_SIZES[pitchType];
@@ -49,6 +51,7 @@ export async function exportGif(options: ExportOptions, filename: string) {
     drawScene(ctx, {
       pitchType,
       ...scene,
+      hideNames: options.hideNames ?? false,
       photos,
       width: canvas.width,
       height: canvas.height,
@@ -109,6 +112,7 @@ export async function exportVideo(options: ExportOptions, filename: string) {
     drawScene(ctx, {
       pitchType,
       ...scene,
+      hideNames: options.hideNames ?? false,
       photos,
       width: canvas.width,
       height: canvas.height,

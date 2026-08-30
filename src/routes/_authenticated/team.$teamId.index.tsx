@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, Plus, Trash2, UserRound, X } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { uploadPlayerPhoto } from "@/lib/db";
 import {
   deleteTeamPlayer,
   fetchTeamMembers,
@@ -13,6 +12,7 @@ import {
   removeMember,
   saveTeamPlayer,
   setMemberStatus,
+  uploadTeamMedia,
   type TeamPlayer,
 } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ function SquadPage() {
   const [number, setNumber] = useState("");
   const [birth, setBirth] = useState("");
   const [gender, setGender] = useState<string>("none");
+  const [isGk, setIsGk] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -58,6 +59,7 @@ function SquadPage() {
     setNumber("");
     setBirth("");
     setGender("none");
+    setIsGk(false);
     setFile(null);
     setOpen(true);
   }
@@ -68,6 +70,7 @@ function SquadPage() {
     setNumber(player.number?.toString() ?? "");
     setBirth(player.birth_date ?? "");
     setGender(player.gender ?? "none");
+    setIsGk(player.is_goalkeeper);
     setFile(null);
     setOpen(true);
   }
@@ -80,7 +83,7 @@ function SquadPage() {
     }
     setBusy(true);
     try {
-      const photo_path = file ? await uploadPlayerPhoto(userId, file) : (editing?.photo_path ?? null);
+      const photo_path = file ? await uploadTeamMedia(teamId, file, "players") : (editing?.photo_path ?? null);
       await saveTeamPlayer({
         id: editing?.id,
         teamId,
@@ -89,6 +92,7 @@ function SquadPage() {
         number: number ? Number(number) : null,
         birth_date: birth || null,
         gender,
+        is_goalkeeper: isGk,
         photo_path,
       });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -166,7 +170,11 @@ function SquadPage() {
                 {player.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {[player.gender ? GENDER_LABELS[player.gender] : null, player.birth_date]
+                {[
+                  player.is_goalkeeper ? "Målvakt" : null,
+                  player.gender ? GENDER_LABELS[player.gender] : null,
+                  player.birth_date,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
@@ -214,6 +222,15 @@ function SquadPage() {
                 </button>
               ))}
             </div>
+            <label className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={isGk}
+                onChange={(event) => setIsGk(event.target.checked)}
+                className="size-4 accent-[var(--color-primary)]"
+              />
+              Målvakt (får egen tröjfärg på taktiktavlan)
+            </label>
             <div className="space-y-1.5">
               <Label htmlFor="p-photo">Bild</Label>
               <Input

@@ -14,6 +14,8 @@ type Props = {
   selectedId?: string | null;
   interactive?: boolean;
   drawColor?: string | undefined;
+  /** hide player names on the pitch (numbers/initials still shown) */
+  hideNames?: boolean;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
@@ -23,6 +25,19 @@ type Props = {
   onRemoveDrawing?: (id: string) => void;
 };
 
+export function tokenFill(object: FieldObject) {
+  if (object.gk) {
+    return object.team === "home" ? "var(--color-team-gk)" : "var(--color-team-gk-away)";
+  }
+  return object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)";
+}
+
+function tokenText(object: FieldObject) {
+  if (object.gk) return "var(--color-team-gk-foreground)";
+  return object.team === "home"
+    ? "var(--color-team-home-foreground)"
+    : "var(--color-team-away-foreground)";
+}
 
 export function Pitch({
   pitchType,
@@ -32,6 +47,7 @@ export function Pitch({
   selectedId = null,
   interactive = true,
   drawColor,
+  hideNames = false,
   passT = null,
   onMoveObject,
   onMoveEnd,
@@ -46,6 +62,7 @@ export function Pitch({
 
   const tokenR = w * 0.031;
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
+
 
   function toNormalized(event: React.PointerEvent) {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -300,11 +317,11 @@ export function Pitch({
             >
               <circle
                 r={tokenR}
-                fill={object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)"}
-                stroke={isSelected ? "white" : "rgba(0,0,0,0.35)"}
-                strokeWidth={isSelected ? w * 0.005 : w * 0.002}
+                fill={tokenFill(object)}
+                stroke={isSelected ? "white" : object.gk ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.35)"}
+                strokeWidth={isSelected ? w * 0.005 : object.gk ? w * 0.004 : w * 0.002}
               />
-              {object.photoUrl ? (
+              {object.photoUrl && !hideNames ? (
                 <image
                   href={object.photoUrl}
                   x={-tokenR}
@@ -320,22 +337,31 @@ export function Pitch({
                   dominantBaseline="central"
                   fontSize={tokenR}
                   fontWeight={700}
-                  fill={object.team === "home" ? "var(--color-team-home-foreground)" : "var(--color-team-away-foreground)"}
+                  fill={tokenText(object)}
                 >
-                  {object.number != null ? object.number : initials(object.label)}
+                  {object.gk && object.number == null
+                    ? "MV"
+                    : object.number != null
+                      ? object.number
+                      : hideNames
+                        ? ""
+                        : initials(object.label)}
                 </text>
               )}
-              <text
-                y={tokenR * 2}
-                textAnchor="middle"
-                fontSize={tokenR * 0.85}
-                fill="white"
-                stroke="rgba(0,0,0,0.5)"
-                strokeWidth={w * 0.0008}
-                paintOrder="stroke"
-              >
-                {object.label}
-              </text>
+              {!hideNames && (
+                <text
+                  y={tokenR * 2}
+                  textAnchor="middle"
+                  fontSize={tokenR * 0.85}
+                  fill="white"
+                  stroke="rgba(0,0,0,0.5)"
+                  strokeWidth={w * 0.0008}
+                  paintOrder="stroke"
+                >
+                  {object.label}
+                </text>
+              )}
+
             </g>
           );
         })}

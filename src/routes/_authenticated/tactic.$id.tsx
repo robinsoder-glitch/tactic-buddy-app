@@ -9,6 +9,8 @@ import {
   ChevronRight,
   Download,
   Eraser,
+  Eye,
+  EyeOff,
   FlipHorizontal2,
   MoveRight,
   Pause,
@@ -18,14 +20,17 @@ import {
   Save,
   Redo2,
   Share2,
+  Shield,
   Square,
   Trash2,
   Undo2,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
+import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo } from "@/lib/export-clip";
 import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
@@ -33,6 +38,7 @@ import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+
 
 export const Route = createFileRoute("/_authenticated/tactic/$id")({
   head: () => ({
@@ -60,13 +66,47 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 const STEP_MS = 1400;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
+type BankPlayer = {
+  id: string;
+  name: string;
+  number: number | null;
+  photoUrl: string | null;
+  gk: boolean;
+};
+
+
 function TacticEditor() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const tactic = useQuery({ queryKey: ["tactic", id], queryFn: () => fetchTactic(id) });
-  const players = useQuery({ queryKey: ["players"], queryFn: fetchPlayers });
+  const teamId = tactic.data?.team_id ?? null;
+  const squad = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId as string),
+    enabled: !!teamId,
+  });
+  const personal = useQuery({ queryKey: ["players"], queryFn: fetchPlayers, enabled: !teamId });
+
+  const bank: BankPlayer[] = useMemo(() => {
+    if (teamId) {
+      return (squad.data ?? []).map((player) => ({
+        id: player.id,
+        name: player.name,
+        number: player.number,
+        photoUrl: player.photoUrl,
+        gk: player.is_goalkeeper,
+      }));
+    }
+    return (personal.data ?? []).map((player) => ({
+      id: player.id,
+      name: player.name,
+      number: player.number,
+      photoUrl: player.photoUrl,
+      gk: false,
+    }));
+  }, [teamId, squad.data, personal.data]);
 
   const [frames, setFrames] = useState<Frame[]>([]);
   const [current, setCurrent] = useState(0);
@@ -77,7 +117,9 @@ function TacticEditor() {
   const [loop, setLoop] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [hideNames, setHideNames] = useState(false);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
+
   const pastRef = useRef<Frame[][]>([]);
   const futureRef = useRef<Frame[][]>([]);
   const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
@@ -195,6 +237,16 @@ function TacticEditor() {
     );
     setSelectedId(null);
   }
+
+  function updateObject(objectId: string, patch: Partial<FieldObject>) {
+    commit((prev) =>
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.map((o) => (o.id === objectId ? { ...o, ...patch } : o)),
+      })),
+    );
+  }
+
 
   function moveObject(objectId: string, x: number, y: number) {
     if (!dragSession.current) {
@@ -340,7 +392,7 @@ function TacticEditor() {
     try {
       if (dirty) await save.mutateAsync();
       const filename = tactic.data.name.replace(/[^a-z0-9åäö]+/gi, "-").toLowerCase() || "taktik";
-      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS };
+      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS, hideNames };
       if (kind === "gif") {
         await exportGif(options, filename);
         toast.success("GIF nedladdad");
@@ -378,6 +430,24 @@ function TacticEditor() {
     setSelectedId(null);
   }
 
+  function addFreePlayer(team: "home" | "away", gk: boolean) {
+    const existing = (frame?.objects ?? []).filter(
+      (object) => object.kind === "player" && object.team === team && !object.playerId,
+    );
+    const number = gk ? 1 : existing.filter((object) => !object.gk).length + 2;
+    addObject({
+      id: uid(),
+      kind: "player",
+      playerId: null,
+      label: gk ? (team === "home" ? "Målvakt" : "MV motst.") : team === "home" ? "Spelare" : "Motspelare",
+      number,
+      team,
+      gk,
+      x: team === "home" ? 0.35 : 0.65,
+      y: 0.5,
+    });
+  }
+
   if (tactic.isLoading || !tactic.data) {
     return <div className="grid min-h-screen place-items-center text-muted-foreground">Laddar taktik…</div>;
   }
@@ -385,6 +455,8 @@ function TacticEditor() {
   const onPitchPlayerIds = new Set(
     (frame?.objects ?? []).map((object) => object.playerId).filter(Boolean) as string[],
   );
+  const selectedObject = frame?.objects.find((object) => object.id === selectedId) ?? null;
+
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
@@ -413,6 +485,7 @@ function TacticEditor() {
         selectedId={selectedId}
         interactive={!playing}
         drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+        hideNames={hideNames}
         passT={passT}
         onMoveObject={moveObject}
         onMoveEnd={() => {
@@ -467,6 +540,15 @@ function TacticEditor() {
           <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
             <Redo2 className="size-4" />
           </Button>
+          <Button
+            variant={hideNames ? "default" : "ghost"}
+            size="icon"
+            aria-label={hideNames ? "Visa namn" : "Dölj namn"}
+            title={hideNames ? "Visa namn" : "Dölj namn"}
+            onClick={() => setHideNames((value) => !value)}
+          >
+            {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </Button>
           <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
             <FlipHorizontal2 className="size-4" />
           </Button>
@@ -493,13 +575,35 @@ function TacticEditor() {
         </div>
       </div>
 
-      {selectedId && (
-        <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm">
-          <span>
-            {frame?.objects.find((object) => object.id === selectedId)?.label || "Objekt"} markerad
+      {selectedObject && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1 truncate">
+            {selectedObject.label || "Objekt"} markerad
           </span>
-          <Button size="sm" variant="ghost" onClick={() => removeObject(selectedId)}>
-            Ta bort från planen
+          {selectedObject.kind === "player" && (
+            <>
+              <Button
+                size="sm"
+                variant={selectedObject.gk ? "default" : "secondary"}
+                onClick={() => updateObject(selectedObject.id, { gk: !selectedObject.gk })}
+              >
+                <Shield className="size-4" /> Målvakt
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                  updateObject(selectedObject.id, {
+                    team: selectedObject.team === "home" ? "away" : "home",
+                  })
+                }
+              >
+                Byt lag
+              </Button>
+            </>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => removeObject(selectedObject.id)}>
+            Ta bort
           </Button>
         </div>
       )}
@@ -510,12 +614,37 @@ function TacticEditor() {
             <Users className="size-4" /> Spelarbank
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Sätt ut spelare</SheetTitle>
+            <SheetTitle>{teamId ? "Lagets trupp" : "Din spelarbank"}</SheetTitle>
           </SheetHeader>
+
+          <div className="flex flex-wrap gap-2 px-4 pb-3">
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", false)}>
+              <UserPlus className="size-4" /> Egen spelare
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", true)}>
+              <Shield className="size-4" /> Målvakt
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", false)}>
+              <UserPlus className="size-4" /> Motspelare
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", true)}>
+              <Shield className="size-4" /> Motst. målvakt
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                addObject({ id: uid(), kind: "ball", label: "", team: "home", x: 0.5, y: 0.5 })
+              }
+            >
+              <CircleDot className="size-4" /> Boll
+            </Button>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 p-4 pt-0 sm:grid-cols-4">
-            {(players.data ?? []).map((player) => {
+            {bank.map((player) => {
               const used = onPitchPlayerIds.has(player.id);
               return (
                 <button
@@ -529,9 +658,10 @@ function TacticEditor() {
                       playerId: player.id,
                       label: player.name.split(" ")[0] ?? player.name,
                       number: player.number,
-                      team: player.team === "away" ? "away" : "home",
+                      team: "home",
+                      gk: player.gk,
                       photoUrl: player.photoUrl,
-                      x: 0.5,
+                      x: 0.4,
                       y: 0.5,
                     })
                   }
@@ -542,36 +672,43 @@ function TacticEditor() {
                   <div
                     className="mx-auto grid size-12 place-items-center overflow-hidden rounded-full"
                     style={{
-                      background:
-                        player.team === "away" ? "var(--color-team-away)" : "var(--color-team-home)",
-                      color:
-                        player.team === "away"
-                          ? "var(--color-team-away-foreground)"
-                          : "var(--color-team-home-foreground)",
+                      background: player.gk ? "var(--color-team-gk)" : "var(--color-team-home)",
+                      color: player.gk
+                        ? "var(--color-team-gk-foreground)"
+                        : "var(--color-team-home-foreground)",
                     }}
                   >
                     {player.photoUrl ? (
                       <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
                     ) : (
-                      <span className="font-display text-base font-bold">{player.number ?? "•"}</span>
+                      <span className="font-display text-base font-bold">
+                        {player.number ?? (player.gk ? "MV" : "•")}
+                      </span>
                     )}
                   </div>
                   <p className="mt-1 truncate">{player.name}</p>
                 </button>
               );
             })}
-            {players.data?.length === 0 && (
+            {bank.length === 0 && (
               <p className="col-span-full text-center text-sm text-muted-foreground">
-                Inga spelare än.{" "}
-                <Link to="/bank" className="underline">
-                  Fyll på banken
-                </Link>
-                .
+                {teamId ? (
+                  "Inga spelare i truppen än – lägg till dem under fliken Truppen."
+                ) : (
+                  <>
+                    Inga spelare än.{" "}
+                    <Link to="/bank" className="underline">
+                      Fyll på banken
+                    </Link>
+                    .
+                  </>
+                )}
               </p>
             )}
           </div>
         </SheetContent>
       </Sheet>
+
 
       <section className="rounded-xl border border-border bg-card p-3">
         <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground" htmlFor="step-note">

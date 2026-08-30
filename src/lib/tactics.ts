@@ -8,10 +8,13 @@ export type FieldObject = {
   label: string;
   number?: number | null;
   team: Team;
+  /** goalkeepers get a separate jersey colour */
+  gk?: boolean;
   photoUrl?: string | null;
   x: number; // 0..1
   y: number; // 0..1
 };
+
 
 export type DrawingType = "run" | "pass" | "zone" | "circle";
 
@@ -40,7 +43,9 @@ export type PlayerRow = {
   number: number | null;
   team: string;
   photo_path: string | null;
+  is_goalkeeper?: boolean;
 };
+
 
 export type PlayerWithPhoto = PlayerRow & { photoUrl: string | null };
 

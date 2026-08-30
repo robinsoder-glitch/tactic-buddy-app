@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { signPhoto } from "./db";
 
+export const TEAM_MEDIA_BUCKET = "team-media";
+
 export type AppRole = "admin" | "coach" | "player";
 
 export type Team = {
@@ -34,7 +36,17 @@ export type TeamPlayer = {
   birth_date: string | null;
   gender: string | null;
   photo_path: string | null;
+  is_goalkeeper: boolean;
   photoUrl: string | null;
+};
+
+export type TeamPhoto = {
+  id: string;
+  team_id: string;
+  path: string;
+  caption: string | null;
+  created_at: string;
+  url: string | null;
 };
 
 export type TeamEvent = {
@@ -46,6 +58,34 @@ export type TeamEvent = {
   location: string | null;
   notes: string | null;
 };
+
+/* ---------------- team media ---------------- */
+
+export async function signTeamMedia(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from(TEAM_MEDIA_BUCKET).createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
+export async function uploadTeamMedia(teamId: string, file: File, folder = "misc"): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${teamId}/${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(TEAM_MEDIA_BUCKET).upload(path, file, { upsert: true });
+  if (error) throw error;
+  return path;
+}
+
+export async function removeTeamMedia(path: string) {
+  await supabase.storage.from(TEAM_MEDIA_BUCKET).remove([path]);
+}
+
+/** Team media paths look like "<teamId>/...", older photos live in the personal bucket. */
+async function signTeamOrLegacy(path: string | null, teamId: string): Promise<string | null> {
+  if (!path) return null;
+  if (path.startsWith(`${teamId}/`)) return signTeamMedia(path);
+  return signPhoto(path);
+}
+
 
 export const GENDER_LABELS: Record<string, string> = {
   boy: "Pojke",
@@ -107,7 +147,8 @@ export async function fetchMyTeams(): Promise<Team[]> {
     (data ?? []).map(async (row) => ({
       ...(row as unknown as Team),
       club: (row as unknown as { clubs: { id: string; name: string } | null }).clubs,
-      photoUrl: await signPhoto(row.photo_path),
+      photoUrl: await signTeamOrLegacy(row.photo_path, row.id as string),
+
     })),
   );
 }
@@ -122,7 +163,7 @@ export async function fetchTeam(id: string): Promise<Team> {
   return {
     ...(data as unknown as Team),
     club: (data as unknown as { clubs: { id: string; name: string } | null }).clubs,
-    photoUrl: await signPhoto(data.photo_path),
+    photoUrl: await signTeamOrLegacy(data.photo_path, id),
   };
 }
 
@@ -221,12 +262,27 @@ export async function findTeamByCode(code: string) {
   return rows[0] ?? null;
 }
 
+export async function fetchMembership(teamId: string, userId: string) {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id, status, role")
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as { id: string; status: "pending" | "approved"; role: "coach" | "player" } | null;
+}
+
 export async function requestJoin(teamId: string, userId: string) {
+  const existing = await fetchMembership(teamId, userId);
+  if (existing) return existing.status;
   const { error } = await supabase
     .from("team_members")
     .insert({ team_id: teamId, user_id: userId, role: "player", status: "pending" });
   if (error) throw error;
+  return "pending" as const;
 }
+
 
 export async function setMemberStatus(id: string, status: "approved" | "pending") {
   const { error } = await supabase.from("team_members").update({ status }).eq("id", id);
@@ -243,7 +299,7 @@ export async function removeMember(id: string) {
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
-    .select("id, name, number, birth_date, gender, photo_path")
+    .select("id, name, number, birth_date, gender, photo_path, is_goalkeeper")
     .eq("team_id", teamId)
     .order("name");
   if (error) throw error;
@@ -251,7 +307,7 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   return Promise.all(
     (data ?? []).map(async (row) => ({
       ...(row as unknown as TeamPlayer),
-      photoUrl: await signPhoto(row.photo_path),
+      photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
     })),
   );
 }
@@ -264,6 +320,7 @@ export async function saveTeamPlayer(input: {
   number: number | null;
   birth_date: string | null;
   gender: string | null;
+  is_goalkeeper: boolean;
   photo_path: string | null;
 }) {
   const patch = {
@@ -271,6 +328,7 @@ export async function saveTeamPlayer(input: {
     number: input.number,
     birth_date: input.birth_date,
     gender: input.gender,
+    is_goalkeeper: input.is_goalkeeper,
     photo_path: input.photo_path,
   };
   if (input.id) {
@@ -291,6 +349,44 @@ export async function deleteTeamPlayer(id: string) {
   const { error } = await supabase.from("players").delete().eq("id", id);
   if (error) throw error;
 }
+
+/* ---------------- team photos ---------------- */
+
+export async function fetchTeamPhotos(teamId: string): Promise<TeamPhoto[]> {
+  const { data, error } = await supabase
+    .from("team_photos")
+    .select("id, team_id, path, caption, created_at")
+    .eq("team_id", teamId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+
+  return Promise.all(
+    (data ?? []).map(async (row) => ({
+      ...(row as unknown as TeamPhoto),
+      url: await signTeamMedia(row.path as string),
+    })),
+  );
+}
+
+export async function addTeamPhoto(input: {
+  teamId: string;
+  userId: string;
+  file: File;
+  caption: string | null;
+}) {
+  const path = await uploadTeamMedia(input.teamId, input.file, "gallery");
+  const { error } = await supabase
+    .from("team_photos")
+    .insert({ team_id: input.teamId, path, caption: input.caption, created_by: input.userId });
+  if (error) throw error;
+}
+
+export async function deleteTeamPhoto(photo: { id: string; path: string }) {
+  const { error } = await supabase.from("team_photos").delete().eq("id", photo.id);
+  if (error) throw error;
+  await removeTeamMedia(photo.path);
+}
+
 
 /* ---------------- events ---------------- */
 
