@@ -558,6 +558,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {confirmDialog}
     </main>
   );
 }

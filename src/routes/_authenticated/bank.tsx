@@ -8,6 +8,7 @@ import { deletePlayer, fetchPlayers, savePlayer, uploadPlayerPhoto } from "@/lib
 import { initials } from "@/lib/tactics";
 import type { PlayerWithPhoto } from "@/lib/tactics";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/ConfirmDelete";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -53,6 +54,7 @@ const emptyPlayer: EditState = {
 };
 
 function BankPage() {
+  const { confirm, confirmDialog } = useConfirm();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
@@ -238,6 +240,7 @@ function BankPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {confirmDialog}
     </main>
   );
 }
