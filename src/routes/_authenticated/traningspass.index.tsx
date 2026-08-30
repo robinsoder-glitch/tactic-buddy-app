@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   addSessionItem,
   createCoachSession,
-  createFromTemplate,
   deleteCoachSession,
   duplicateCoachSession,
   emptyDraft,
@@ -28,7 +27,6 @@ import {
   linkLabel,
 } from "@/lib/event-planning";
 import { useAuth } from "@/hooks/useAuth";
-import { useAccount } from "@/hooks/useAccount";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -235,7 +233,6 @@ function MySessionsPage() {
       <CreateSessionDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        mySessions={mine}
         onCreated={(id) => {
           setCreateOpen(false);
           queryClient.invalidateQueries({ queryKey: ["coach-sessions"] });
@@ -248,17 +245,15 @@ function MySessionsPage() {
   );
 }
 
-type StartMode = "blank" | "bank" | "mine";
+type StartMode = "blank" | "bank";
 
 function CreateSessionDialog({
   open,
   onOpenChange,
-  mySessions,
   onCreated,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  mySessions: CoachSession[];
   onCreated: (id: string) => void;
 }) {
   const { user } = useAuth();

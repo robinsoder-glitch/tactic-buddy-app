@@ -67,3 +67,9 @@
 - [ ] Automatiskt test som failar om knapparna återkommer i Kunskapsbanken
 - [ ] Tydlig uppdatering/cache-busting så senaste versionen visas utan hård omladdning
 - [x] Ta bort "Sista svarsdag" helt från gränssnittet (databasfältet respond_by behålls) — etapp 1 klar
+
+## Etapp 7 – Skapa träning (aug 2026)
+- [x] Kalenderfält i "Skapa träning" som kopplar träningen till en träning i kalendern
+- [x] Borttaget: Åldersgrupp, Dela med lag, läget "Tidigare träning"
+- [x] "Färdigt pass" ersatt med val av övningar från Träningsbanken
+- [x] Fliken "Träningspass" borttagen i Träningsbanken
