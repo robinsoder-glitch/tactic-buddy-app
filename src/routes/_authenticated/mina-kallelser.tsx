@@ -135,11 +135,6 @@ function MyInvitesPage() {
                   </span>
                 )}
               </p>
-              {invitation.respond_by && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Sista svarsdag: {invitation.respond_by}
-                </p>
-              )}
               {invitation.message && <p className="mt-2 text-sm">{invitation.message}</p>}
               <p className="mt-2 text-sm font-semibold">
                 Ditt svar: {inviteStatusLabel(invitation.status)}

@@ -62,7 +62,6 @@ function EventPage() {
   const [filter, setFilter] = useState<Filter>("alla");
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
-  const [respondBy, setRespondBy] = useState("");
   const [message, setMessage] = useState("");
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
