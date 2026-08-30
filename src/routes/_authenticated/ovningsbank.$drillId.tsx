@@ -6,6 +6,7 @@ import { drillMeta } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
 
@@ -81,6 +82,12 @@ function DrillPage() {
 
       <div className="mt-6">
         <AddToSessionButton
+          kind="drill"
+          resourceId={drill.data.id}
+          title={drill.data.title}
+          defaultMinutes={drill.data.default_minutes ?? 10}
+        />
+<AddToTrainingButton
           kind="drill"
           resourceId={drill.data.id}
           title={drill.data.title}

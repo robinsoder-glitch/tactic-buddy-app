@@ -18,6 +18,7 @@ import {
   knowledgeSources,
 } from "@/lib/knowledge";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Input } from "@/components/ui/input";
 
 function Chips({
@@ -215,6 +216,7 @@ export function KnowledgeLibrary() {
           </Link>
           <div className="mt-2">
             <AddToSessionButton kind="article" resourceId={article.slug} title={article.title_sv} size="sm" />
+<AddToTrainingButton kind="article" resourceId={article.slug} title={article.title_sv} size="sm" />
           </div>
           </div>
         ))}

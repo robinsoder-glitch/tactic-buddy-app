@@ -17,6 +17,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Input } from "@/components/ui/input";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
@@ -307,6 +308,7 @@ function TaktikbankPage() {
               </div>
               <div className="mt-3" onClick={(event) => event.stopPropagation()}>
                 <AddToSessionButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
+<AddToTrainingButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </div>
           ))}

@@ -22,6 +22,7 @@ import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
@@ -362,6 +363,13 @@ function OvningsbankPage() {
                       defaultMinutes={drill.default_minutes ?? 10}
                       size="sm"
                     />
+<AddToTrainingButton
+                      kind="drill"
+                      resourceId={drill.id}
+                      title={drill.title}
+                      defaultMinutes={drill.default_minutes ?? 10}
+                      size="sm"
+                    />
                   </div>
                 </div>
                 <FavoriteButton
@@ -422,6 +430,7 @@ function OvningsbankPage() {
               />
               <div className="mt-3">
                 <AddToSessionButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+<AddToTrainingButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </article>
           ))}
