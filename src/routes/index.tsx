@@ -505,23 +505,27 @@ function TacticsDashboard({ userId }: { userId: string }) {
           {shown.map((tactic) => (
             <article
               key={tactic.id}
-              className="overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
             >
-              <Link to="/tactic/$id" params={{ id: tactic.id }} className="block">
-                <TacticThumb pitchType={tactic.pitch_type} frame={previews.data?.[tactic.id] ?? null} width={420} />
-              </Link>
+              <Link
+                to="/tactic/$id"
+                params={{ id: tactic.id }}
+                className="absolute inset-0 z-0"
+                aria-label={`Öppna ${tactic.name}`}
+              />
+              <TacticThumb pitchType={tactic.pitch_type} frame={previews.data?.[tactic.id] ?? null} width={420} />
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3">
-                <Link to="/tactic/$id" params={{ id: tactic.id }} className="min-w-0">
+                <div className="min-w-0">
                   <h3 className="truncate font-display text-lg font-semibold">{tactic.name}</h3>
                   <p className="truncate text-xs text-muted-foreground">
-                    {PITCH_SIZES[tactic.pitch_type]?.label ?? tactic.pitch_type} · {tactic.frameCount} steg ·{" "}
+                    {pitchTypeLabel(tactic.pitch_type)} · {tactic.frameCount} steg ·{" "}
                     {new Date(tactic.updated_at).toLocaleDateString("sv-SE")}
                     {tactic.is_public ? " · delad" : ""}
                   </p>
-                </Link>
+                </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Fler åtgärder">
+                    <Button variant="ghost" size="icon" aria-label="Fler åtgärder" className="relative z-10">
                       <MoreVertical className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -538,10 +542,10 @@ function TacticsDashboard({ userId }: { userId: string }) {
                       <CopyPlus className="size-4" /> Duplicera
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => copyShare(tactic)}>
-                      <Link2 className="size-4" /> Kopiera länk
+                      <Link2 className="size-4" /> Dela – kopiera länk
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => void exportFile(tactic)}>
-                      <Download className="size-4" /> Spara som fil
+                      <Download className="size-4" /> Exportera som fil
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() => {
@@ -551,13 +555,14 @@ function TacticsDashboard({ userId }: { userId: string }) {
                         }).then((ok) => ok && remove.mutate(tactic.id));
                       }}
                     >
-                      <Trash2 className="size-4 text-destructive" /> Ta bort
+                      <Trash2 className="size-4 text-destructive" /> Radera
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </article>
           ))}
+
           {!showAll && visible.length > shown.length && (
             <Button
               variant="secondary"
