@@ -44,6 +44,104 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_session_items: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          minutes: number
+          note: string | null
+          resource_id: string | null
+          session_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          minutes?: number
+          note?: string | null
+          resource_id?: string | null
+          session_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          minutes?: number
+          note?: string | null
+          resource_id?: string | null
+          session_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_session_items_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "coach_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_sessions: {
+        Row: {
+          age_group: string | null
+          created_at: string
+          game_format: string | null
+          goal: string | null
+          id: string
+          notes: string | null
+          session_date: string | null
+          status: string
+          template_id: string | null
+          theme: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_group?: string | null
+          created_at?: string
+          game_format?: string | null
+          goal?: string | null
+          id?: string
+          notes?: string | null
+          session_date?: string | null
+          status?: string
+          template_id?: string | null
+          theme?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          age_group?: string | null
+          created_at?: string
+          game_format?: string | null
+          goal?: string | null
+          id?: string
+          notes?: string | null
+          session_date?: string | null
+          status?: string
+          template_id?: string | null
+          theme?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       content_links: {
         Row: {
           created_at: string
