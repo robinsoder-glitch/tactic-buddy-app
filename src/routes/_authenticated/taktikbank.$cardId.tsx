@@ -177,7 +177,7 @@ function TaktikbankCard() {
         </Button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-xs uppercase tracking-[0.25em] text-primary">
-            {data.format} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
+            {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
           </p>
           <h1 className="truncate font-display text-2xl font-bold uppercase">{data.title}</h1>
         </div>
@@ -316,7 +316,7 @@ function TaktikbankCard() {
 
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Info title="Trigger" body={data.trigger} />
+        <Info title="Startsignal" body={data.trigger} />
         <Info title="Barnfras" body={data.childCue} />
         <Info title="Coachfråga" body={data.coachQuestion} />
         <Info title="Beslutsregel" body={data.decisionRule} />
