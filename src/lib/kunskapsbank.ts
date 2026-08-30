@@ -104,6 +104,7 @@ export type ArticleFilter = {
   category?: string;
   level?: string;
   age?: string;
+  tags?: string[];
   onlyFavorites?: boolean;
   favorites?: Set<string>;
 };
@@ -113,6 +114,10 @@ export function filterArticles(articles: KbArticle[], filter: ArticleFilter): Kb
     if (filter.onlyFavorites && !filter.favorites?.has(`article:${article.id}`)) return false;
     if (filter.category && filter.category !== "all" && article.category !== filter.category) return false;
     if (filter.level && filter.level !== "all" && article.level !== filter.level) return false;
+    if (filter.tags?.length) {
+      const tags = (article.tags ?? []).map((tag) => tag.toLowerCase());
+      if (!filter.tags.every((tag) => tags.includes(tag.toLowerCase()))) return false;
+    }
     if (filter.age && filter.age !== "all") {
       const wanted = Number(filter.age);
       if (article.age_min !== null && wanted < article.age_min) return false;
@@ -132,4 +137,132 @@ export function ageLabel(article: KbArticle): string {
   if (article.age_min !== null && article.age_max !== null) return `${article.age_min}–${article.age_max} år`;
   if (article.age_min !== null) return `Från ${article.age_min} år`;
   return `Till ${article.age_max} år`;
+}
+
+/** Alla taggar som finns i artiklarna, sorterade och utan dubbletter. */
+export function allTags(articles: KbArticle[]): string[] {
+  const set = new Set<string>();
+  for (const article of articles) for (const tag of article.tags ?? []) set.add(tag.trim());
+  return Array.from(set).filter(Boolean).sort((a, b) => a.localeCompare(b, "sv"));
+}
+
+/** Validerar en artikel innan den sparas. Returnerar svenska felmeddelanden. */
+export function validateArticle(input: ArticleInput): string[] {
+  const errors: string[] = [];
+  const title = input.title?.trim() ?? "";
+  if (!title) errors.push("Ange en titel.");
+  if (title.length > 200) errors.push("Titeln får vara högst 200 tecken.");
+  if ((input.summary ?? "").length > 1000) errors.push("Sammanfattningen får vara högst 1000 tecken.");
+  if (!KB_CATEGORIES.includes(input.category as KbCategory)) errors.push("Välj en giltig kategori.");
+  if (!KB_LEVELS.includes(input.level as KbLevel)) errors.push("Välj en giltig kunskapsnivå.");
+  if (!KB_STATUSES.includes(input.status as KbStatus)) errors.push("Välj en giltig status.");
+
+  const url = (input.source_url ?? "").trim();
+  if (url && !/^https?:\/\/\S+$/i.test(url)) errors.push("Länken måste börja med http:// eller https://.");
+
+  if (input.age_min !== null && input.age_max !== null && input.age_min > input.age_max) {
+    errors.push("Ålder från kan inte vara högre än ålder till.");
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [value, name] of [
+    [input.published_at, "Publiceringsdatum"],
+    [input.reviewed_at, "Senast granskad"],
+  ] as [string | null, string][]) {
+    if (!value) continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value))) {
+      errors.push(`${name} måste vara ett giltigt datum.`);
+    } else if (value > today) {
+      errors.push(`${name} kan inte ligga i framtiden.`);
+    }
+  }
+
+  if (input.status === "verified") {
+    if (!input.source_name?.trim() || !url) errors.push("En verifierad artikel behöver både källa och länk.");
+    if (!input.reviewed_at) errors.push("En verifierad artikel behöver ett granskningsdatum.");
+  }
+  if (input.is_published && input.status !== "verified") {
+    errors.push("Bara verifierade artiklar kan publiceras.");
+  }
+  return errors;
+}
+
+/** Nyckel som avgör om två artiklar är samma. */
+export function articleKey(article: { title: string; source_url?: string | null }): string {
+  const url = (article.source_url ?? "").trim().toLowerCase().replace(/\/+$/, "");
+  return url || article.title.trim().toLowerCase();
+}
+
+export type ImportResult = {
+  toImport: ArticleInput[];
+  duplicates: number;
+  invalid: { title: string; errors: string[] }[];
+};
+
+/** Läser en importfil (JSON-lista eller ett objekt med "articles") och sorterar bort dubbletter. */
+export function parseArticleImport(raw: string, existing: KbArticle[]): ImportResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("Filen är inte en giltig JSON-fil.");
+  }
+  const list = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray((parsed as { articles?: unknown })?.articles)
+      ? (parsed as { articles: unknown[] }).articles
+      : null;
+  if (!list) throw new Error("Filen måste innehålla en lista med artiklar.");
+
+  const seen = new Set(existing.map((article) => articleKey(article)));
+  const result: ImportResult = { toImport: [], duplicates: 0, invalid: [] };
+
+  for (const item of list) {
+    const article = normalizeImported(item as Record<string, unknown>);
+    const key = articleKey(article);
+    if (seen.has(key)) {
+      result.duplicates += 1;
+      continue;
+    }
+    const errors = validateArticle(article);
+    if (errors.length) {
+      result.invalid.push({ title: article.title || "Namnlös artikel", errors });
+      continue;
+    }
+    seen.add(key);
+    result.toImport.push(article);
+  }
+  return result;
+}
+
+function normalizeImported(item: Record<string, unknown>): ArticleInput {
+  const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+  const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? Math.round(value) : null);
+  const date = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 10) : null);
+  return {
+    title: text(item['title']),
+    summary: text(item['summary']) || null,
+    coach_value: text(item['coach_value']) || null,
+    category: text(item['category']) || "coaching",
+    age_min: num(item['age_min']),
+    age_max: num(item['age_max']),
+    level: text(item['level']) || "basic",
+    source_name: text(item['source_name']) || null,
+    source_url: text(item['source_url']) || null,
+    published_at: date(item['published_at']),
+    reviewed_at: date(item['reviewed_at']),
+    tags: Array.isArray(item['tags'])
+      ? (item['tags'] as unknown[]).map((tag) => String(tag).trim()).filter(Boolean)
+      : [],
+    status: text(item['status']) || "unverified",
+    is_published: item['is_published'] === true,
+  };
+}
+
+export async function importArticles(articles: ArticleInput[], userId: string) {
+  if (!articles.length) return 0;
+  const rows = articles.map((article) => ({ ...article, created_by: userId }));
+  const { error } = await supabase.from("kb_articles").insert(rows);
+  if (error) throw error;
+  return rows.length;
 }

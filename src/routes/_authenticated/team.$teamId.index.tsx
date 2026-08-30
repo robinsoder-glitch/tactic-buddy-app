@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Plus, Trash2, UserRound, X } from "lucide-react";
+import { Check, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   deleteTeamPlayer,
@@ -162,10 +162,10 @@ function SquadPage() {
                 <UserRound className="size-5 text-muted-foreground" />
               )}
             </div>
-            <button
-              type="button"
+            <Link
+              to="/team/$teamId/player/$playerId"
+              params={{ teamId, playerId: player.id }}
               className="min-w-0 flex-1 text-left"
-              onClick={() => isCoach && openEdit(player)}
             >
               <p className="truncate font-medium">
                 {player.number != null && <span className="mr-2 text-primary">#{player.number}</span>}
@@ -180,9 +180,14 @@ function SquadPage() {
                   .filter(Boolean)
                   .join(" · ")}
               </p>
-            </button>
+            </Link>
             {isCoach && (
-              <Button size="icon" variant="ghost" onClick={() => {
+              <Button size="icon" variant="ghost" aria-label="Redigera spelare" onClick={() => openEdit(player)}>
+                <Pencil className="size-4" />
+              </Button>
+            )}
+            {isCoach && (
+              <Button size="icon" variant="ghost" aria-label="Radera spelare" onClick={() => {
                   void confirm({
                     title: "Radera spelare",
                     description: `${player.name} tas bort från lagets trupp permanent.`,
@@ -191,6 +196,7 @@ function SquadPage() {
                 <Trash2 className="size-4" />
               </Button>
             )}
+
           </li>
         ))}
       </ul>

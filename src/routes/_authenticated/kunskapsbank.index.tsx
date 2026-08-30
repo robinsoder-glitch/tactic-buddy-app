@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, GraduationCap, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, GraduationCap, Pencil, Plus, Search, Star, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import {
   KB_CATEGORIES,
@@ -11,10 +11,14 @@ import {
   KB_STATUSES,
   KB_STATUS_LABELS,
   ageLabel,
+  allTags,
   deleteArticle,
   fetchArticles,
   filterArticles,
+  importArticles,
+  parseArticleImport,
   saveArticle,
+  validateArticle,
   visibleArticles,
   type ArticleInput,
   type KbArticle,
@@ -83,7 +87,9 @@ function KunskapsbankPage() {
   const [level, setLevel] = useState("all");
   const [age, setAge] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editing, setEditing] = useState<ArticleInput | null>(null);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
   const articles = useQuery({ queryKey: ["kb-articles"], queryFn: fetchArticles, enabled: !!user });
   const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: !!user });
@@ -105,15 +111,35 @@ function KunskapsbankPage() {
   const save = useMutation({
     mutationFn: async (input: ArticleInput) => {
       if (!user) throw new Error("Inte inloggad");
-      if (!input.title.trim()) throw new Error("Ange en titel");
+      const errors = validateArticle(input);
+      setFormErrors(errors);
+      if (errors.length) throw new Error(errors[0]);
       await saveArticle(input, user.id);
     },
     onSuccess: () => {
       setEditing(null);
+      setFormErrors([]);
       queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
       toast.success("Artikeln sparades");
     },
-    onError: () => toast.error("Kunde inte spara artikeln"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Kunde inte spara artikeln"),
+  });
+
+  const importFile = useMutation({
+    mutationFn: async (file: File) => {
+      if (!user) throw new Error("Inte inloggad");
+      const result = parseArticleImport(await file.text(), articles.data ?? []);
+      const created = await importArticles(result.toImport, user.id);
+      return { ...result, created };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
+      const parts = [`${result.created} artiklar importerades`];
+      if (result.duplicates) parts.push(`${result.duplicates} dubbletter hoppades över`);
+      if (result.invalid.length) parts.push(`${result.invalid.length} hade fel och lästes inte in`);
+      toast.success(parts.join(" · "));
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Kunde inte importera filen"),
   });
 
   const remove = useMutation({
@@ -122,11 +148,14 @@ function KunskapsbankPage() {
     onError: () => toast.error("Kunde inte radera artikeln"),
   });
 
+  const tagOptions = useMemo(() => allTags(visibleArticles(articles.data ?? [], isAdmin)), [articles.data, isAdmin]);
+
   const list = filterArticles(visibleArticles(articles.data ?? [], isAdmin), {
     query,
     category,
     level,
     age,
+    tags: selectedTags,
     onlyFavorites,
     favorites: favoriteSet,
   });
@@ -148,9 +177,27 @@ function KunskapsbankPage() {
           <h1 className="font-display text-3xl font-bold uppercase">Kunskapsbank</h1>
         </div>
         {isAdmin && (
-          <Button onClick={() => setEditing({ ...emptyArticle })}>
-            <Plus className="size-4" /> Ny artikel
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" disabled={importFile.isPending}>
+              <label className="cursor-pointer">
+                <Upload className="size-4" /> Importera
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  className="sr-only"
+                  aria-label="Importera artiklar från fil"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) importFile.mutate(file);
+                  }}
+                />
+              </label>
+            </Button>
+            <Button onClick={() => { setFormErrors([]); setEditing({ ...emptyArticle }); }}>
+              <Plus className="size-4" /> Ny artikel
+            </Button>
+          </div>
         )}
       </header>
 
@@ -207,6 +254,41 @@ function KunskapsbankPage() {
         />
       </div>
 
+      {tagOptions.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-1" aria-label="Filtrera på taggar">
+          <span className="mr-1 text-xs uppercase tracking-wide text-muted-foreground">Taggar</span>
+          {tagOptions.map((tag) => {
+            const active = selectedTags.includes(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                aria-pressed={active}
+                onClick={() =>
+                  setSelectedTags((current) =>
+                    current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag],
+                  )
+                }
+                className={`rounded-full border px-3 py-1 text-xs ${
+                  active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+                }`}
+              >
+                {tag}
+              </button>
+            );
+          })}
+          {selectedTags.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedTags([])}
+              className="rounded-full px-2 py-1 text-xs text-primary underline-offset-4 hover:underline"
+            >
+              Rensa taggar
+            </button>
+          )}
+        </div>
+      )}
+
       <section className="mt-4 space-y-3" aria-label="Artiklar">
         {articles.isLoading && <p className="text-sm text-muted-foreground">Laddar artiklar…</p>}
         {!articles.isLoading && list.length === 0 && (
@@ -225,7 +307,7 @@ function KunskapsbankPage() {
             isAdmin={isAdmin}
             favorite={favoriteSet.has(`article:${article.id}`)}
             onFavorite={() => toggleFavorite.mutate(article.id)}
-            onEdit={() => setEditing({ ...article })}
+  onEdit={() => { setFormErrors([]); setEditing({ ...article }); }}
             onDelete={() => {
               void confirm({
                 title: "Radera artikel",
@@ -251,6 +333,7 @@ function KunskapsbankPage() {
         <ArticleDialog
           value={editing}
           onChange={setEditing}
+          errors={formErrors}
           onSave={() => editing && save.mutate(editing)}
           saving={save.isPending}
         />
@@ -361,11 +444,13 @@ function ArticleCard({
 function ArticleDialog({
   value,
   onChange,
+  errors,
   onSave,
   saving,
 }: {
   value: ArticleInput | null;
   onChange: (value: ArticleInput | null) => void;
+  errors: string[];
   onSave: () => void;
   saving: boolean;
 }) {
@@ -375,6 +460,13 @@ function ArticleDialog({
         <DialogHeader>
           <DialogTitle>{value?.id ? "Redigera artikel" : "Ny artikel"}</DialogTitle>
         </DialogHeader>
+        {errors.length > 0 && (
+          <ul className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+            {errors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        )}
         {value && (
           <div className="space-y-4">
             <div className="space-y-1.5">
