@@ -42,8 +42,8 @@ export function AppNav() {
               activeOptions={{ exact: item.exact }}
               className="group relative flex min-h-[4.25rem] flex-col items-center justify-center gap-1 px-1 py-2 text-[13px] font-semibold text-muted-foreground transition-colors data-[status=active]:text-primary-foreground"
             >
-              <span className="absolute inset-x-1 top-1 bottom-1 -z-10 rounded-xl bg-transparent transition-colors group-hover:bg-accent data-[status=active]:bg-primary" />
-              <span className="absolute inset-x-0 top-0 h-1 rounded-b-sm bg-transparent transition-colors data-[status=active]:bg-primary" />
+              <span className="absolute inset-x-1 top-1 bottom-1 -z-10 rounded-xl bg-transparent transition-colors group-hover:bg-accent group-data-[status=active]:bg-primary" />
+              <span className="absolute inset-x-0 top-0 h-1 rounded-b-sm bg-transparent transition-colors group-data-[status=active]:bg-primary" />
               <item.icon className="size-6" aria-hidden />
               {item.label}
             </Link>
