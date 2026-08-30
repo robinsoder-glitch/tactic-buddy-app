@@ -101,11 +101,11 @@ function TaktikbankCard() {
   }
 
   const data = card.data.data;
-  const current = interpolateFrames(frames, progress);
+  const objects = interpolateFrames(frames, progress);
   const index = Math.min(frames.length - 1, Math.round(progress));
   const note = frames[index]?.note;
   const passT = progress - Math.floor(progress);
-  const pitchType = data.format === "5v5" ? "small" : data.format === "7v7" ? "medium" : "full";
+  const pitchType = data.format === "11v11" ? "full" : "small";
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-6">
@@ -127,9 +127,9 @@ function TaktikbankCard() {
 
       <div className="mt-4 rounded-xl border border-border bg-card p-3">
         <Pitch
-          pitchType={pitchType as never}
-          objects={current.objects}
-          drawings={current.drawings}
+          pitchType={pitchType}
+          objects={objects}
+          drawings={frames[index]?.drawings ?? []}
           interactive={false}
           passT={passT}
         />
@@ -244,7 +244,7 @@ function TaktikbankCard() {
   );
 }
 
-function Info({ title, body }: { title: string; body?: string | null }) {
+function Info({ title, body }: { title: string; body?: string | null | undefined }) {
   if (!body) return null;
   return (
     <article className="rounded-xl border border-border bg-card p-4">
