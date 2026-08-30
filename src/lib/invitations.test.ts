@@ -84,3 +84,13 @@ describe("kallelser – behörighet att svara själv", () => {
     expect(canRespondSelf({ memberUserId: "user-1" }, null)).toBe(false);
   });
 });
+
+describe("kallelser – inga externa utskick i etapp 1", () => {
+  it("kallelsemodulen anropar inga externa tjänster för mejl, SMS eller push", async () => {
+    const fs = await import("node:fs/promises");
+    const source = await fs.readFile(new URL("./invitations.ts", import.meta.url), "utf8");
+    for (const forbidden of ["resend", "twilio", "sendgrid", "firebase", "sendMail", "pushNotification", "fetch("]) {
+      expect(source.toLowerCase()).not.toContain(forbidden.toLowerCase());
+    }
+  });
+});
