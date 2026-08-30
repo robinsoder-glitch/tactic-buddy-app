@@ -221,6 +221,17 @@ export async function fetchDrills(): Promise<Drill[]> {
   return (data ?? []) as unknown as Drill[];
 }
 
+export async function fetchDrill(id: string): Promise<Drill> {
+  const { data, error } = await supabase
+    .from("tb_drills")
+    .select("id, title, default_minutes, purpose, data")
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return data as unknown as Drill;
+}
+
+
 export async function fetchTrainingSessions(): Promise<TrainingSessionCard[]> {
   const { data, error } = await supabase
     .from("tb_training_sessions")
