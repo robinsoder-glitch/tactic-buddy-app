@@ -112,7 +112,7 @@ function SessionView() {
       </header>
 
       <section className="mt-4">
-        <h1 className="font-display text-3xl font-bold uppercase">{session.data.title}</h1>
+        <h1 className="font-display text-3xl font-bold">{session.data.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {[
             session.data.session_date,
@@ -153,7 +153,7 @@ function SessionView() {
                   {start}–{elapsed} min · {item.minutes} minuter
                 </p>
               </div>
-              <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+              <p className="mt-1 text-xs tracking-wide text-muted-foreground">
                 {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Egen aktivitet"}
               </p>
               {item.note && <p className="mt-2 text-sm">{item.note}</p>}

@@ -46,7 +46,7 @@ function PhotosPage() {
 
   return (
     <section>
-      <h2 className="font-display text-2xl font-bold uppercase">Bilder</h2>
+      <h2 className="font-display text-2xl font-bold">Bilder</h2>
 
       {isCoach && (
         <div className="mt-4 space-y-3 rounded-xl border border-border bg-card p-4">

@@ -183,10 +183,10 @@ function TaktikbankCard() {
           </Link>
         </Button>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-xs uppercase tracking-[0.25em] text-primary">
+          <p className="truncate font-display text-xs tracking-[0.25em] text-primary">
             {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
           </p>
-          <h1 className="truncate font-display text-2xl font-bold uppercase">{data.title}</h1>
+          <h1 className="truncate font-display text-2xl font-bold">{data.title}</h1>
         </div>
         <Button
           variant="ghost"
@@ -335,7 +335,7 @@ function TaktikbankCard() {
 
       {data.roleActions?.length ? (
         <section className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-display text-sm uppercase tracking-wide text-muted-foreground">Roller</h2>
+          <h2 className="font-display text-sm tracking-wide text-muted-foreground">Roller</h2>
           <ul className="mt-2 space-y-1 text-sm">
             {data.roleActions.map((role) => (
               <li key={role.roleId}>
@@ -348,7 +348,7 @@ function TaktikbankCard() {
 
       {data.sources?.length ? (
         <section className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="font-display text-sm uppercase tracking-wide text-muted-foreground">Källor</h2>
+          <h2 className="font-display text-sm tracking-wide text-muted-foreground">Källor</h2>
           <ul className="mt-2 space-y-1 text-sm">
             {data.sources.map((source) => (
               <li key={source.title}>
@@ -379,7 +379,7 @@ function Info({ title, body }: { title: string; body?: string | null | undefined
   if (!body) return null;
   return (
     <article className="rounded-xl border border-border bg-card p-4">
-      <h2 className="font-display text-xs uppercase tracking-wide text-muted-foreground">{title}</h2>
+      <h2 className="font-display text-xs tracking-wide text-muted-foreground">{title}</h2>
       <p className="mt-1 text-sm">{body}</p>
     </article>
   );

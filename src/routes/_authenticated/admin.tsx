@@ -34,7 +34,7 @@ function AdminPage() {
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
         <ArrowLeft className="size-4" /> Tillbaka
       </Link>
-      <h1 className="mt-3 font-display text-4xl font-bold uppercase">Admin</h1>
+      <h1 className="mt-3 font-display text-4xl font-bold">Admin</h1>
 
       <div className="mt-5 grid grid-cols-3 gap-3">
         {[
@@ -44,13 +44,13 @@ function AdminPage() {
         ].map((item) => (
           <div key={item.label} className="rounded-xl border border-border bg-card p-4 text-center">
             <p className="font-display text-3xl font-bold">{item.value}</p>
-            <p className="text-xs uppercase text-muted-foreground">{item.label}</p>
+            <p className="text-xs text-muted-foreground">{item.label}</p>
           </div>
         ))}
       </div>
 
       <section className="mt-6 space-y-3">
-        <h2 className="font-display text-2xl font-bold uppercase">Alla lag</h2>
+        <h2 className="font-display text-2xl font-bold">Alla lag</h2>
         {data?.teams.map((team) => {
           const club = data.clubs.find((item) => item.id === team.club_id);
           const members = data.members.filter((item) => item.team_id === team.id);

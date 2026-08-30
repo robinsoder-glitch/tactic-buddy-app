@@ -80,7 +80,7 @@ function KnowledgeArticlePage() {
 
       {data && (
         <article className="mt-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs tracking-wide text-muted-foreground">
             {data.category} · {knowledgeAgeLabel(data)}
             {knowledgeFormatLabel(data) ? ` · ${knowledgeFormatLabel(data)}` : ""}
           </p>
@@ -115,13 +115,13 @@ function KnowledgeArticlePage() {
           </div>
 
           <section className="mt-5 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
             <p className="mt-2 text-sm">{data.summary_sv}</p>
           </section>
 
           {data.learn_sv && (
             <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">
+              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
                 Det här lär du dig
               </h2>
               <p className="mt-2 whitespace-pre-line text-sm">{data.learn_sv}</p>
@@ -130,7 +130,7 @@ function KnowledgeArticlePage() {
 
           {data.try_next_sv && (
             <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">
+              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
                 Testa på nästa träning
               </h2>
               <p className="mt-2 whitespace-pre-line text-sm">{data.try_next_sv}</p>
@@ -139,7 +139,7 @@ function KnowledgeArticlePage() {
 
           {data.coach_value && (
             <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">
+              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
                 Nytta för dig som tränare
               </h2>
               <p className="mt-2 text-sm">{data.coach_value}</p>

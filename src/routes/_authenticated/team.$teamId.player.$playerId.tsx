@@ -84,7 +84,7 @@ function PlayerPage() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <h2 className="font-display text-2xl font-bold uppercase">{player?.name ?? "Spelare"}</h2>
+        <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
       </div>
 
       <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
@@ -120,7 +120,7 @@ function PlayerPage() {
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <h3 className="font-display text-xl font-bold uppercase">Statistik</h3>
+        <h3 className="font-display text-xl font-bold">Statistik</h3>
         {isCoach && (
           <Button size="sm" onClick={() => setEditing(emptyStat(playerId, teamId))}>
             <Plus className="size-4" /> Lägg till
@@ -132,7 +132,7 @@ function PlayerPage() {
         <table className="w-full min-w-[32rem] text-sm">
           <caption className="sr-only">Statistik för {player?.name ?? "spelaren"}</caption>
           <thead>
-            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <tr className="border-b border-border text-left text-xs tracking-wide text-muted-foreground">
               <th scope="col" className="px-3 py-2">
                 Serie/Cup
               </th>

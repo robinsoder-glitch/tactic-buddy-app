@@ -67,7 +67,7 @@ function SharedTactic() {
     return (
       <main className="grid min-h-screen place-items-center px-6 text-center">
         <div>
-          <h1 className="font-display text-2xl font-bold uppercase">Taktiken är inte tillgänglig</h1>
+          <h1 className="font-display text-2xl font-bold">Taktiken är inte tillgänglig</h1>
           <p className="mt-2 text-sm text-muted-foreground">Länken kan ha slutat delas.</p>
           <Button asChild className="mt-4">
             <Link to="/">Till Taktiktavlan</Link>
@@ -85,8 +85,8 @@ function SharedTactic() {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-3 px-3 pb-8 pt-4">
       <header>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Delad taktik</p>
-        <h1 className="font-display text-3xl font-bold uppercase">{tactic.data.name}</h1>
+        <p className="text-xs tracking-widest text-muted-foreground">Delad taktik</p>
+        <h1 className="font-display text-3xl font-bold">{tactic.data.name}</h1>
       </header>
 
       <Pitch

@@ -77,7 +77,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
   return (
     <div className="mt-3 border-t border-border/60 pt-3">
       <div className="flex items-center justify-between">
-        <p className="flex items-center gap-1 text-xs uppercase tracking-wide text-muted-foreground">
+        <p className="flex items-center gap-1 text-xs tracking-wide text-muted-foreground">
           <BookOpen className="size-3" /> Från taktikbanken
         </p>
         {isCoach && userId && (
@@ -91,7 +91,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
         {items.length === 0 && <li className="text-xs text-muted-foreground">Inget kopplat än.</li>}
         {items.map((item) => (
           <li key={item.id} className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
-            <span className="text-xs uppercase text-muted-foreground">{KIND_LABELS[item.kind]}</span>
+            <span className="text-xs text-muted-foreground">{KIND_LABELS[item.kind]}</span>
             {item.kind === "tactic" ? (
               <Link
                 to="/taktikbank/$cardId"
@@ -126,7 +126,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
               ] as [EventResourceKind, { id: string; title: string }[]][]
             ).map(([kind, list]) => (
               <section key={kind}>
-                <h3 className="font-display text-sm uppercase tracking-wide text-muted-foreground">
+                <h3 className="font-display text-sm tracking-wide text-muted-foreground">
                   {KIND_LABELS[kind]}
                 </h3>
                 <ul className="mt-1 space-y-1">

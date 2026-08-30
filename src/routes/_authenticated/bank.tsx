@@ -114,7 +114,7 @@ function BankPage() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <h1 className="font-display text-3xl font-bold uppercase">Spelarbank</h1>
+        <h1 className="font-display text-3xl font-bold">Spelarbank</h1>
       </header>
 
       <div className="mt-4 flex gap-2">

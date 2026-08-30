@@ -52,7 +52,7 @@ function TeamLayout() {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <Shield className="mx-auto size-8 text-primary" />
-        <h1 className="mt-3 font-display text-2xl font-bold uppercase">Väntar på godkännande</h1>
+        <h1 className="mt-3 font-display text-2xl font-bold">Väntar på godkännande</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Din tränare behöver godkänna dig innan du kommer åt laget.
         </p>
@@ -86,7 +86,7 @@ function TeamLayout() {
           )}
         </div>
         <div className="min-w-0">
-          <h1 className="truncate font-display text-3xl font-bold uppercase">{team.data?.name ?? "Laget"}</h1>
+          <h1 className="truncate font-display text-3xl font-bold">{team.data?.name ?? "Laget"}</h1>
           <p className="text-xs text-muted-foreground">
             {[team.data?.club?.name, team.data?.age_group, team.data && TEAM_GENDER_LABELS[team.data.gender]]
               .filter(Boolean)

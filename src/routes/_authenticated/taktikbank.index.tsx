@@ -138,7 +138,7 @@ function TaktikbankPage() {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <BookOpen className="mx-auto size-8 text-primary" />
-        <h1 className="mt-3 font-display text-2xl font-bold uppercase">Taktikbanken</h1>
+        <h1 className="mt-3 font-display text-2xl font-bold">Taktikbanken</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Taktikbanken är till för tränare och lagledare.
         </p>
@@ -158,8 +158,8 @@ function TaktikbankPage() {
           </Link>
         </Button>
         <div>
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Barnfotboll</p>
-          <h1 className="font-display text-3xl font-bold uppercase">Taktikbank</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Barnfotboll</p>
+          <h1 className="font-display text-3xl font-bold">Taktikbank</h1>
         </div>
       </header>
 
@@ -253,7 +253,7 @@ function TaktikbankPage() {
                 className="flex min-w-0 flex-1 items-center gap-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs tracking-wide text-muted-foreground">
                     {formatLabelFor(card.format)} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
                     {label(PHASE_LABELS, card.phase)} · nivå {card.difficulty}
                   </p>
@@ -287,7 +287,7 @@ function TaktikbankPage() {
 
 
       <section className="mt-8 rounded-xl border border-border/60 bg-card/50 p-4">
-        <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
+        <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
         <div className="mt-2 flex flex-wrap gap-2 text-sm">
           <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
             Övningsbank

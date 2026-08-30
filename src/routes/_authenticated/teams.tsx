@@ -81,7 +81,7 @@ function TeamsPage() {
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
         <ArrowLeft className="size-4" /> Tillbaka
       </Link>
-      <h1 className="mt-3 font-display text-4xl font-bold uppercase">Mina lag</h1>
+      <h1 className="mt-3 font-display text-4xl font-bold">Mina lag</h1>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -194,7 +194,7 @@ function TeamsPage() {
               <h2 className="truncate font-display text-xl font-semibold">
                 {team.name}
                 {team.archived_at && (
-                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 align-middle text-[10px] uppercase text-muted-foreground">
+                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 align-middle text-[10px] text-muted-foreground">
                     Arkiverat
                   </span>
                 )}

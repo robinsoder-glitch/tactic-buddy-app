@@ -168,7 +168,7 @@ function OvningsbankPage() {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <Dumbbell className="mx-auto size-8 text-primary" />
-        <h1 className="mt-3 font-display text-2xl font-bold uppercase">Övningsbanken</h1>
+        <h1 className="mt-3 font-display text-2xl font-bold">Övningsbanken</h1>
         <p className="mt-2 text-sm text-muted-foreground">Övningsbanken är till för tränare och lagledare.</p>
         <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
           Till startsidan
@@ -186,8 +186,8 @@ function OvningsbankPage() {
           </Link>
         </Button>
         <div>
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Så tränar ni det</p>
-          <h1 className="font-display text-3xl font-bold uppercase">Övningsbank</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Så tränar ni det</p>
+          <h1 className="font-display text-3xl font-bold">Övningsbank</h1>
         </div>
       </header>
 
@@ -288,7 +288,7 @@ function OvningsbankPage() {
                 }`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs tracking-wide text-muted-foreground">
                     {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
                     {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
                     {drill.default_minutes ? ` · ${drill.default_minutes} min` : ""}

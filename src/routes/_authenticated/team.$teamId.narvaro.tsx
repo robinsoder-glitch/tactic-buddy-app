@@ -98,7 +98,7 @@ function AttendancePage() {
     <section className="mt-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="font-display text-xl font-bold uppercase">Närvaro</h2>
+          <h2 className="font-display text-xl font-bold">Närvaro</h2>
           <p className="text-sm text-muted-foreground">
             Välj en träning eller match och pricka av truppen. Kommande händelser visas när de har startat.
           </p>
@@ -156,7 +156,7 @@ function AttendancePage() {
                 aria-label={`Registrera närvaro för ${eventLabel(event)}`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs tracking-wide text-muted-foreground">
                     {event.type === "training" ? "Träning" : "Match"} · {formatDateTime(event.starts_at)}
                   </p>
                   <p className="font-display text-base font-semibold">{eventLabel(event)}</p>
@@ -254,7 +254,7 @@ function EventAttendance({
           <ArrowLeft className="size-5" />
         </Button>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-xl font-bold uppercase">{heading}</h2>
+          <h2 className="truncate font-display text-xl font-bold">{heading}</h2>
           <p className="text-xs text-muted-foreground">{subheading}</p>
         </div>
       </div>

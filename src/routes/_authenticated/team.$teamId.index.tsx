@@ -138,7 +138,7 @@ function SquadPage() {
     <section>
       {isCoach && pending.length > 0 && (
         <div className="mb-5 rounded-xl border border-primary/40 bg-primary/10 p-4">
-          <h2 className="font-display text-lg font-semibold uppercase">Ansökningar</h2>
+          <h2 className="font-display text-lg font-semibold">Ansökningar</h2>
           <ul className="mt-3 space-y-2">
             {pending.map((member) => (
               <li key={member.id} className="flex items-center gap-2 text-sm">
@@ -156,7 +156,7 @@ function SquadPage() {
       )}
 
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-2xl font-bold uppercase">Truppen</h2>
+        <h2 className="font-display text-2xl font-bold">Truppen</h2>
         {isCoach && (
           <Button size="sm" onClick={openNew}>
             <Plus className="size-4" /> Spelare

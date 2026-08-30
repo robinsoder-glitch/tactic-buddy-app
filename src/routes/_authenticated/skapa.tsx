@@ -99,8 +99,8 @@ function CreatePage() {
           <ArrowLeft className="size-5" />
         </Button>
         <div>
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="font-display text-3xl font-bold uppercase">Ny taktik</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+          <h1 className="font-display text-3xl font-bold">Ny taktik</h1>
         </div>
       </header>
 
@@ -141,7 +141,7 @@ function CreatePage() {
 
       {mode !== "start" && coachTeams.length > 0 && (
         <section className="mt-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-semibold tracking-wide text-muted-foreground">
             Spelarbank från lag
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -208,7 +208,7 @@ function CreatePage() {
                   onClick={() => createFromTemplate.mutate(card.id)}
                   className="h-full w-full rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary"
                 >
-                  <p className="text-xs uppercase tracking-wide text-primary">
+                  <p className="text-xs tracking-wide text-primary">
                     {card.format} · {label(GAME_MOMENT_LABELS, card.game_moment)}
                   </p>
                   <h2 className="mt-1 font-display text-lg font-semibold">{card.title}</h2>

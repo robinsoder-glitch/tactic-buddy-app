@@ -197,7 +197,7 @@ export function KnowledgeLibrary() {
             params={{ slug: article.slug }}
             className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary"
           >
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs tracking-wide text-muted-foreground">
               {article.category} · {knowledgeAgeLabel(article)}
               {knowledgeFormatLabel(article) ? ` · ${knowledgeFormatLabel(article)}` : ""}
             </p>
