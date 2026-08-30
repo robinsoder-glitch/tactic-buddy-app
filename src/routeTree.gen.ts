@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 
@@ -41,6 +42,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamsRoute = AuthenticatedTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const TShareIdRoute = TShareIdRouteImport.update({
   id: '/t/$shareId',
   path: '/t/$shareId',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bank': typeof AuthenticatedBankRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bank': typeof AuthenticatedBankRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
@@ -75,15 +83,29 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/bank' | '/onboarding' | '/t/$shareId' | '/tactic/$id'
+    | '/'
+    | '/auth'
+    | '/bank'
+    | '/onboarding'
+    | '/teams'
+    | '/t/$shareId'
+    | '/tactic/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/bank' | '/onboarding' | '/t/$shareId' | '/tactic/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/bank'
+    | '/onboarding'
+    | '/teams'
+    | '/t/$shareId'
+    | '/tactic/$id'
   id:
     | '__root__'
     | '/'
@@ -91,6 +113,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/bank'
     | '/_authenticated/onboarding'
+    | '/_authenticated/teams'
     | '/t/$shareId'
     | '/_authenticated/tactic/$id'
   fileRoutesById: FileRoutesById
@@ -139,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teams': {
+      id: '/_authenticated/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof AuthenticatedTeamsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/t/$shareId': {
       id: '/t/$shareId'
       path: '/t/$shareId'
@@ -159,12 +189,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTacticIdRoute: typeof AuthenticatedTacticIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBankRoute: AuthenticatedBankRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTacticIdRoute: AuthenticatedTacticIdRoute,
 }
 
