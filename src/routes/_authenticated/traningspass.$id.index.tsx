@@ -233,9 +233,27 @@ function SessionBuilder() {
                 onChange={(event) => set({ notes: event.target.value || null })}
               />
             </div>
-            <Button disabled={saveInfo.isPending} onClick={() => saveInfo.mutate()}>
-              <Save className="size-4" /> {saveInfo.isPending ? "Sparar…" : "Spara information"}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button disabled={saveInfo.isPending} onClick={() => saveInfo.mutate()}>
+                <Save className="size-4" /> {saveInfo.isPending ? "Sparar…" : "Spara information"}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Status: {SESSION_STATUS_LABELS[session.data.status] ?? "Utkast"}
+              </span>
+              <Button
+                variant="outline"
+                disabled={setStatus.isPending}
+                aria-label={
+                  session.data.status === "done"
+                    ? "Markera träningspasset som utkast"
+                    : "Markera träningspasset som genomfört"
+                }
+                onClick={() => setStatus.mutate(session.data?.status === "done" ? "draft" : "done")}
+              >
+                {session.data.status === "done" ? "Markera som utkast" : "Markera som genomfört"}
+              </Button>
+            </div>
+
           </>
         )}
       </section>
