@@ -220,7 +220,37 @@ export async function fetchDistrictProfiles(): Promise<DistrictProfile[]> {
   return (data ?? []) as unknown as DistrictProfile[];
 }
 
+/* ---------- favoriter ---------- */
+
+export type FavoriteKind = "tactic" | "goalkeeper" | "drill" | "session";
+
+export type Favorite = { kind: FavoriteKind; resource_id: string };
+
+export async function fetchFavorites(): Promise<Favorite[]> {
+  const { data, error } = await supabase.from("tb_favorites").select("kind, resource_id");
+  if (error) throw error;
+  return (data ?? []) as Favorite[];
+}
+
+export async function addFavorite(userId: string, kind: FavoriteKind, resourceId: string) {
+  const { error } = await supabase
+    .from("tb_favorites")
+    .insert({ user_id: userId, kind, resource_id: resourceId });
+  if (error && error.code !== "23505") throw error;
+}
+
+export async function removeFavorite(userId: string, kind: FavoriteKind, resourceId: string) {
+  const { error } = await supabase
+    .from("tb_favorites")
+    .delete()
+    .eq("user_id", userId)
+    .eq("kind", kind)
+    .eq("resource_id", resourceId);
+  if (error) throw error;
+}
+
 /* ---------- etiketter ---------- */
+
 
 export const GAME_MOMENT_LABELS: Record<string, string> = {
   own_possession: "Vi har bollen",
