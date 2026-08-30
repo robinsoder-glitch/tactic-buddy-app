@@ -252,34 +252,41 @@ export async function removeFavorite(userId: string, kind: FavoriteKind, resourc
 /* ---------- etiketter ---------- */
 
 
-export const GAME_MOMENT_LABELS: Record<string, string> = {
+/**
+ * Svenska etiketter för alla spelmoment och faser som finns i banken.
+ * Databasvärdena ändras aldrig – översättningen sker enbart här i presentationslagret.
+ */
+const MOMENT_AND_PHASE_LABELS: Record<string, string> = {
   own_possession: "Vi har bollen",
   opponent_possession: "Motståndaren har bollen",
-  transition_to_attack: "Omställning framåt",
-  transition_to_defence: "Omställning bakåt",
-  offensive_transition: "Omställning framåt",
-  defensive_transition: "Omställning bakåt",
+  transition_to_attack: "Offensiv omställning",
+  transition_to_defence: "Defensiv omställning",
+  offensive_transition: "Offensiv omställning",
+  defensive_transition: "Defensiv omställning",
   ball_win: "Bollvinst",
   ball_loss: "Bolltapp",
   set_piece: "Fast situation",
   corner: "Hörna",
-  goalkeeper_restart: "Målvaktens igångsättning",
-  touchline_restart: "Inkast",
-};
-
-export const PHASE_LABELS: Record<string, string> = {
+  restart: "Igångsättning",
+  goalkeeper_restart: "Målvaktsstart",
+  goalkeeper_start: "Målvaktsstart",
+  touchline_restart: "Igångsättning från sidlinjen",
   build_up: "Uppspel",
   attack: "Anfall",
   finishing: "Avslut",
   create_chance: "Chansskapande",
-  progress: "Framåtskjutande",
+  progress: "Spela framåt",
   numerical_advantage: "Numerärt överläge",
   defend_goal: "Målförsvar",
   defence: "Försvar",
+  defending: "Försvar",
   pressing: "Press",
   recovery: "Återhämtning",
-  restart: "Igångsättning",
 };
+
+export const GAME_MOMENT_LABELS: Record<string, string> = { ...MOMENT_AND_PHASE_LABELS };
+
+export const PHASE_LABELS: Record<string, string> = { ...MOMENT_AND_PHASE_LABELS };
 
 export const SOURCE_TYPE_LABELS: Record<string, string> = {
   official_rule: "Officiell regel",
@@ -293,16 +300,20 @@ export const ROLE_LABELS: Record<string, string> = {
   wide_left: "Vänster ytter",
   wide_right: "Höger ytter",
   high: "Hög spelare",
-  extra_player: "Extras spelare",
+  extra_player: "Extraspelare",
   nearest: "Närmast bollen",
   farthest: "Längst från bollen",
   ball_carrier: "Bollhållare",
 };
 
+/** Sista skyddsnät: ingen okänd nyckel får visas som engelsk text med understreck. */
+const FALLBACK_LABELS: Record<string, string> = { ...MOMENT_AND_PHASE_LABELS, ...ROLE_LABELS };
+
 export function label(map: Record<string, string>, key: string | null | undefined) {
   if (!key) return "";
-  return map[key] ?? key.replace(/_/g, " ");
+  return map[key] ?? FALLBACK_LABELS[key] ?? key.replace(/_/g, " ");
 }
+
 
 /* ---------- konvertering till appens animationsmodell ---------- */
 
