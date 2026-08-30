@@ -262,12 +262,27 @@ export async function findTeamByCode(code: string) {
   return rows[0] ?? null;
 }
 
+export async function fetchMembership(teamId: string, userId: string) {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id, status, role")
+    .eq("team_id", teamId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as { id: string; status: "pending" | "approved"; role: "coach" | "player" } | null;
+}
+
 export async function requestJoin(teamId: string, userId: string) {
+  const existing = await fetchMembership(teamId, userId);
+  if (existing) return existing.status;
   const { error } = await supabase
     .from("team_members")
     .insert({ team_id: teamId, user_id: userId, role: "player", status: "pending" });
   if (error) throw error;
+  return "pending" as const;
 }
+
 
 export async function setMemberStatus(id: string, status: "approved" | "pending") {
   const { error } = await supabase.from("team_members").update({ status }).eq("id", id);
