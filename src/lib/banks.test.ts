@@ -135,3 +135,43 @@ describe("Kunskapsbanken", () => {
     ]);
   });
 });
+
+describe("kunskapsbank import och validering", () => {
+  const base = {
+    title: "Artikel",
+    summary: null,
+    coach_value: null,
+    category: "coaching",
+    age_min: null,
+    age_max: null,
+    level: "basic",
+    source_name: "SvFF",
+    source_url: "https://svenskfotboll.se/a",
+    published_at: "2024-01-01",
+    reviewed_at: "2024-02-01",
+    tags: ["teknik"],
+    status: "verified",
+    is_published: true,
+  };
+
+  it("godkänner en komplett verifierad artikel", () => {
+    expect(validateArticle(base)).toEqual([]);
+  });
+
+  it("kräver verifiering innan publicering", () => {
+    expect(validateArticle({ ...base, status: "unverified" }).length).toBeGreaterThan(0);
+  });
+
+  it("hoppar över dubbletter vid import", () => {
+    const existing = [{ ...base, id: "1" }];
+    const result = parseArticleImport(JSON.stringify([base, { ...base, title: "Ny", source_url: "https://x.se/b" }]), existing);
+    expect(result.duplicates).toBe(1);
+    expect(result.toImport).toHaveLength(1);
+  });
+
+  it("filtrerar på taggar", () => {
+    const rows = [{ ...base, id: "1" }, { ...base, id: "2", tags: ["kost"] }];
+    expect(filterArticles(rows, { tags: ["kost"] })).toHaveLength(1);
+    expect(allTags(rows)).toEqual(["kost", "teknik"]);
+  });
+});
