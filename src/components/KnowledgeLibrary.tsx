@@ -55,8 +55,12 @@ export function KnowledgeLibrary() {
   const [category, setCategory] = useState("all");
   const [age, setAge] = useState("all");
   const [format, setFormat] = useState("all");
+  const [level, setLevel] = useState("all");
+  const [language, setLanguage] = useState("all");
+  const [source, setSource] = useState("all");
   const [onlyFeatured, setOnlyFeatured] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
