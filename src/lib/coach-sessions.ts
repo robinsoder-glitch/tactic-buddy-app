@@ -244,7 +244,7 @@ export async function createFromTemplate(template: TrainingSessionCard, userId: 
       ...emptyDraft,
       title: template.title,
       theme: template.data.theme ?? template.theme ?? null,
-      goal: template.data.goal ?? null,
+      goal: template.data.coachLimit ?? null,
     },
     userId,
     { template_id: template.id },
