@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Circle,
   CircleDot,
+  Grid3x3,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -36,6 +37,7 @@ import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
 
@@ -63,6 +65,8 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 });
 
 const STEP_MS = 1400;
+const GRID = 0.05;
+const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
 type BankPlayer = {
@@ -117,6 +121,7 @@ function TacticEditor() {
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [hideNames, setHideNames] = useState(false);
+  const [snap, setSnap] = useState(true);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
   const pastRef = useRef<Frame[][]>([]);
@@ -130,7 +135,20 @@ function TacticEditor() {
 
   useEffect(() => {
     if (tactic.data) {
-      setFrames(tactic.data.frames);
+      setFrames(
+        tactic.data.frames.map((item) => {
+          let ballSeen = false;
+          return {
+            ...item,
+            objects: item.objects.filter((object) => {
+              if (object.kind !== "ball") return true;
+              if (ballSeen) return false;
+              ballSeen = true;
+              return true;
+            }),
+          };
+        }),
+      );
       setCurrent(0);
       setProgress(0);
       setDirty(false);
@@ -212,6 +230,7 @@ function TacticEditor() {
   }, [playing, speed, loop, frames.length]);
 
   const frame = frames[current];
+  const hasBall = (frame?.objects ?? []).some((object) => object.kind === "ball");
   const scrubbing = Math.abs(progress - current) > 0.001;
   const animating = playing || scrubbing;
   const displayedObjects = useMemo(
@@ -247,7 +266,14 @@ function TacticEditor() {
   }
 
 
-  function moveObject(objectId: string, x: number, y: number) {
+  function snapValue(value: number) {
+    const clamped = Math.min(0.98, Math.max(0.02, value));
+    return snap ? Math.round(clamped / GRID) * GRID : clamped;
+  }
+
+  function moveObject(objectId: string, rawX: number, rawY: number) {
+    const x = snapValue(rawX);
+    const y = snapValue(rawY);
     if (!dragSession.current) {
       dragSession.current = true;
       pushHistory();
@@ -338,6 +364,53 @@ function TacticEditor() {
     setProgress((value) => Math.min(value, next.length - 1));
     setDirty(true);
   }, []);
+
+  const nudge = useCallback(
+    (dx: number, dy: number) => {
+      if (!selectedId) return;
+      pushHistory();
+      setDirty(true);
+      setFrames((prev) =>
+        prev.map((item, index) =>
+          index === current
+            ? {
+                ...item,
+                objects: item.objects.map((o) =>
+                  o.id === selectedId
+                    ? {
+                        ...o,
+                        x: Math.min(0.98, Math.max(0.02, o.x + dx)),
+                        y: Math.min(0.98, Math.max(0.02, o.y + dy)),
+                      }
+                    : o,
+                ),
+              }
+            : item,
+        ),
+      );
+    },
+    [selectedId, current, pushHistory],
+  );
+
+  useEffect(() => {
+    const arrows: Record<string, [number, number]> = {
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    };
+    function onArrow(event: KeyboardEvent) {
+      const direction = arrows[event.key];
+      if (!direction || !selectedId) return;
+      const target = event.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
+      event.preventDefault();
+      const step = event.shiftKey ? GRID : FINE_STEP;
+      nudge(direction[0] * step, direction[1] * step);
+    }
+    window.addEventListener("keydown", onArrow);
+    return () => window.removeEventListener("keydown", onArrow);
+  }, [nudge, selectedId]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -448,7 +521,11 @@ function TacticEditor() {
   }
 
   function addBall(x = 0.5, y = 0.5) {
-    addObject({ id: uid(), kind: "ball", label: "", team: "home", x, y });
+    if (hasBall) {
+      toast.info("Det får bara finnas en boll – dra den befintliga bollen istället.");
+      return;
+    }
+    addObject({ id: uid(), kind: "ball", label: "", team: "home", x: snapValue(x), y: snapValue(y) });
   }
 
   function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
@@ -466,7 +543,9 @@ function TacticEditor() {
     });
   }
 
-  function dropPayload(raw: string, x: number, y: number) {
+  function dropPayload(raw: string, rawX: number, rawY: number) {
+    const x = snapValue(rawX);
+    const y = snapValue(rawY);
     if (raw === "ball") return addBall(x, y);
     if (raw.startsWith("free:")) {
       const [, team, gk] = raw.split(":");
@@ -531,6 +610,7 @@ function TacticEditor() {
           interactive={!playing}
           drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
           hideNames={hideNames}
+          gridStep={snap && !playing ? GRID : null}
           passT={passT}
           onMoveObject={moveObject}
           onMoveEnd={() => {
@@ -587,15 +667,24 @@ function TacticEditor() {
           <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={historySize.future === 0}>
             <Redo2 className="size-4" />
           </Button>
-          <Button
-            variant={hideNames ? "default" : "ghost"}
-            size="icon"
-            aria-label={hideNames ? "Visa namn" : "Dölj namn"}
-            title={hideNames ? "Visa namn" : "Dölj namn"}
-            onClick={() => setHideNames((value) => !value)}
-          >
+          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+            <Checkbox
+              checked={hideNames}
+              onCheckedChange={(value) => setHideNames(value === true)}
+              aria-label="Dölj namn på spelare"
+            />
             {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </Button>
+            Dölj namn
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+            <Checkbox
+              checked={snap}
+              onCheckedChange={(value) => setSnap(value === true)}
+              aria-label="Snäpp till rutnät"
+            />
+            <Grid3x3 className="size-4" />
+            Rutnät
+          </label>
           <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
             <FlipHorizontal2 className="size-4" />
           </Button>
@@ -603,16 +692,8 @@ function TacticEditor() {
             variant="ghost"
             size="icon"
             aria-label="Lägg till boll"
-            onClick={() =>
-              addObject({
-                id: uid(),
-                kind: "ball",
-                label: "",
-                team: "home",
-                x: 0.5,
-                y: 0.5,
-              })
-            }
+            disabled={hasBall}
+            onClick={() => addBall()}
           >
             <CircleDot className="size-4" />
           </Button>
@@ -736,8 +817,8 @@ function TacticEditor() {
               <Shield className="size-5" />
             </span>
           </BankChip>
-          <BankChip payload="ball" label="Boll" onAdd={() => addBall()}>
-            <span className="grid size-11 place-items-center rounded-full bg-background">
+          <BankChip payload="ball" label="Boll" onAdd={() => addBall()} disabled={hasBall}>
+            <span className="grid size-11 place-items-center rounded-full bg-white text-[#141414]">
               <CircleDot className="size-6" />
             </span>
           </BankChip>
@@ -951,20 +1032,23 @@ function BankChip({
   payload,
   label,
   onAdd,
+  disabled = false,
   children,
 }: {
   payload: string;
   label: string;
   onAdd: () => void;
+  disabled?: boolean;
   children: ReactNode;
 }) {
   return (
     <button
       type="button"
-      draggable
+      draggable={!disabled}
+      disabled={disabled}
       onDragStart={(event) => event.dataTransfer.setData("text/plain", payload)}
       onClick={onAdd}
-      className="w-16 shrink-0 rounded-xl border border-border bg-card p-2 text-center text-xs active:scale-95"
+      className="w-16 shrink-0 rounded-xl border border-border bg-card p-2 text-center text-xs active:scale-95 disabled:opacity-40"
     >
       <span className="mx-auto flex justify-center">{children}</span>
       <p className="mt-1 truncate">{label}</p>

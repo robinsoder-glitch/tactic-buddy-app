@@ -16,6 +16,8 @@ type Props = {
   drawColor?: string | undefined;
   /** hide player names on the pitch (numbers/initials still shown) */
   hideNames?: boolean;
+  /** show a snap grid overlay, value is grid step in 0..1 units */
+  gridStep?: number | null;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
@@ -25,12 +27,42 @@ type Props = {
   onRemoveDrawing?: (id: string) => void;
 };
 
+function pentagonPath(cx: number, cy: number, r: number, rotation = 0) {
+  const points = Array.from({ length: 5 }, (_, i) => {
+    const angle = rotation + (-Math.PI / 2 + (i * 2 * Math.PI) / 5);
+    return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+  });
+  return `M ${points.join(" L ")} Z`;
+}
+
+/** Classic black & white football */
+export function SoccerBall({ r, strokeWidth }: { r: number; strokeWidth: number }) {
+  const outer = Array.from({ length: 5 }, (_, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
+    return { x: r * 0.68 * Math.cos(angle), y: r * 0.68 * Math.sin(angle), a: angle };
+  });
+  return (
+    <g>
+      <circle r={r} fill="#ffffff" stroke="#141414" strokeWidth={strokeWidth} />
+      <path d={pentagonPath(0, 0, r * 0.38)} fill="#141414" />
+      {outer.map((point, index) => (
+        <path
+          key={index}
+          d={pentagonPath(point.x, point.y, r * 0.3, point.a + Math.PI / 2)}
+          fill="#141414"
+        />
+      ))}
+    </g>
+  );
+}
+
 export function tokenFill(object: FieldObject) {
   if (object.gk) {
     return object.team === "home" ? "var(--color-team-gk)" : "var(--color-team-gk-away)";
   }
   return object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)";
 }
+
 
 function tokenText(object: FieldObject) {
   if (object.gk) return "var(--color-team-gk-foreground)";
@@ -48,6 +80,7 @@ export function Pitch({
   interactive = true,
   drawColor,
   hideNames = false,
+  gridStep = null,
   passT = null,
   onMoveObject,
   onMoveEnd,
@@ -253,6 +286,17 @@ export function Pitch({
           <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
         </g>
 
+        {gridStep ? (
+          <g stroke="rgba(255,255,255,0.13)" strokeWidth={w * 0.0012}>
+            {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
+              <line key={`gx-${i}`} x1={(i + 1) * gridStep * w} y1={0} x2={(i + 1) * gridStep * w} y2={h} />
+            ))}
+            {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
+              <line key={`gy-${i}`} x1={0} y1={(i + 1) * gridStep * h} x2={w} y2={(i + 1) * gridStep * h} />
+            ))}
+          </g>
+        ) : null}
+
         {drawings
           .filter((drawing) => drawing.type === "zone" || drawing.type === "circle")
           .map((drawing) => renderShape(drawing, drawing.id))}
@@ -271,10 +315,10 @@ export function Pitch({
 
         {passBalls.map((ball) => (
           <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
-            <circle r={tokenR * 0.55} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
-            <circle r={tokenR * 0.22} fill="oklch(0.2 0 0)" />
+            <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
           </g>
         ))}
+
 
 
         {objects.map((object) => {
@@ -296,8 +340,8 @@ export function Pitch({
                   onSelectObject?.(object.id);
                 }}
               >
-                <circle r={tokenR * 0.5} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
-                <circle r={tokenR * 0.2} fill="oklch(0.2 0 0)" />
+                <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
+
               </g>
             );
           }
