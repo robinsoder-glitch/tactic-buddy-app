@@ -289,6 +289,8 @@ function TacticEditor() {
         tool={tool}
         selectedId={selectedId}
         interactive={!playing}
+        drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+        passT={passT}
         onMoveObject={moveObject}
         onSelectObject={setSelectedId}
         onAddDrawing={addDrawing}
@@ -305,9 +307,16 @@ function TacticEditor() {
         <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
           <span className="text-xs font-semibold">Passning</span>
         </ToolButton>
+        <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
+          <Square className="size-4" />
+        </ToolButton>
+        <ToolButton active={tool === "circle"} onClick={() => setTool("circle")} label="Markering">
+          <Circle className="size-4" />
+        </ToolButton>
         <ToolButton active={tool === "erase"} onClick={() => setTool("erase")} label="Radera linjer">
           <Eraser className="size-4" />
         </ToolButton>
+
 
         <div className="ml-auto flex gap-1">
           <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo}>
