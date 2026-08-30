@@ -7,14 +7,14 @@ export const MISSING_TEXT = "Uppgiften saknas och behöver kontrolleras.";
 
 export type VerificationLabel = "Verifierad" | "Behöver kontrolleras" | "Ej verifierad";
 
-export type RuleSource = { title: string; url?: string; reviewedAt?: string };
+export type RuleSource = { title: string; url?: string | undefined; reviewedAt?: string | undefined };
 
 export type RuleSection = {
   key: string;
   title: string;
   intro: string;
   value: string;
-  help?: string;
+  help?: string | undefined;
   missing: boolean;
 };
 
@@ -22,11 +22,11 @@ export type DistrictDeviation = {
   id: string;
   name: string;
   status: VerificationLabel;
-  season?: string;
+  season?: string | undefined;
   /** Meningar av typen "I <distrikt> gäller i stället …" */
   lines: string[];
   notes: string[];
-  source?: RuleSource;
+  source?: RuleSource | undefined;
   /** Endast synlig för admin när status inte är Verifierad. */
   adminOnly: boolean;
 };
@@ -37,7 +37,7 @@ export type RulesPresentation = {
   rulesetName: string;
   reviewedLabel: string;
   status: VerificationLabel;
-  source?: RuleSource;
+  source?: RuleSource | undefined;
   sections: RuleSection[];
   districts: DistrictDeviation[];
 };
