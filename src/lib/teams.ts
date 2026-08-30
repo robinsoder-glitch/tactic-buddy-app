@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { signPhoto } from "./db";
 
+export const TEAM_MEDIA_BUCKET = "team-media";
+
 export type AppRole = "admin" | "coach" | "player";
 
 export type Team = {
@@ -34,7 +36,17 @@ export type TeamPlayer = {
   birth_date: string | null;
   gender: string | null;
   photo_path: string | null;
+  is_goalkeeper: boolean;
   photoUrl: string | null;
+};
+
+export type TeamPhoto = {
+  id: string;
+  team_id: string;
+  path: string;
+  caption: string | null;
+  created_at: string;
+  url: string | null;
 };
 
 export type TeamEvent = {
@@ -46,6 +58,34 @@ export type TeamEvent = {
   location: string | null;
   notes: string | null;
 };
+
+/* ---------------- team media ---------------- */
+
+export async function signTeamMedia(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from(TEAM_MEDIA_BUCKET).createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
+export async function uploadTeamMedia(teamId: string, file: File, folder = "misc"): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${teamId}/${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(TEAM_MEDIA_BUCKET).upload(path, file, { upsert: true });
+  if (error) throw error;
+  return path;
+}
+
+export async function removeTeamMedia(path: string) {
+  await supabase.storage.from(TEAM_MEDIA_BUCKET).remove([path]);
+}
+
+/** Team media paths look like "<teamId>/...", older photos live in the personal bucket. */
+async function signTeamOrLegacy(path: string | null, teamId: string): Promise<string | null> {
+  if (!path) return null;
+  if (path.startsWith(`${teamId}/`)) return signTeamMedia(path);
+  return signPhoto(path);
+}
+
 
 export const GENDER_LABELS: Record<string, string> = {
   boy: "Pojke",
