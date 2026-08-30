@@ -29,7 +29,7 @@
 - [x] Ny taktik: 5 mot 5 / 7 mot 7 / 9 mot 9 / 11 mot 11, ett steg, "Skapa och öppna tavlan"
 - [x] Mina taktiker: spelform i modern text, hela kortet klickbart, meny (Byt namn, Duplicera, Dela, Exportera, Radera)
 - [x] Filterpanel "Fler filter" + "Rensa filter" + antal aktiva filter i alla banker
-- [ ] Övningsbank: nyckeltal på kort (spelare, yta, tid, utrustning), riktiga detaljsidor
+- [x] Övningsbank: nyckeltal på kort (spelare, yta, tid, utrustning), riktiga detaljsidor
 - [ ] Kunskapsbank: fylligare intern sammanfattning (Passar dig som, Huvudbudskap, Praktiska råd, Vad artikeln inte svarar på, källkontroll)
 - [ ] Editorn: förskjutning av nya spelare, "Lägg till steg", tydliga verktygsetiketter, enklare tidsvisning, "Sparat"-indikator, helskärm på mobil
 - [ ] Spelarbank: förklaring mot lagets trupp, "Symbolfärg: eget lag/motståndare"
