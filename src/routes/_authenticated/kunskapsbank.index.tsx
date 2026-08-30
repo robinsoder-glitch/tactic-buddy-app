@@ -24,6 +24,7 @@ import {
   type KbArticle,
 } from "@/lib/kunskapsbank";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
+import { KnowledgeLibrary } from "@/components/KnowledgeLibrary";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -206,6 +207,10 @@ function KunskapsbankPage() {
         källa och granskning.
       </p>
 
+      <KnowledgeLibrary />
+
+      {isAdmin && (
+      <>
       <div className="relative mt-4">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -328,6 +333,9 @@ function KunskapsbankPage() {
           ))}
         </div>
       </section>
+      </>
+      )}
+
 
       {isAdmin && (
         <ArticleDialog
