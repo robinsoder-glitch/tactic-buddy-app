@@ -99,10 +99,15 @@ export async function fetchTactics(): Promise<TacticSummary[]> {
   });
 }
 
-export async function createTactic(userId: string, name: string, pitchType: PitchType) {
+export async function createTactic(
+  userId: string,
+  name: string,
+  pitchType: PitchType,
+  teamId?: string | null,
+) {
   const { data, error } = await supabase
     .from("tactics")
-    .insert({ user_id: userId, name, pitch_type: pitchType })
+    .insert({ user_id: userId, name, pitch_type: pitchType, team_id: teamId ?? null })
     .select("id")
     .single();
   if (error) throw error;
@@ -119,6 +124,7 @@ export async function createTactic(userId: string, name: string, pitchType: Pitc
 
   return data.id as string;
 }
+
 
 export async function renameTactic(id: string, name: string) {
   const { error } = await supabase.from("tactics").update({ name }).eq("id", id);
