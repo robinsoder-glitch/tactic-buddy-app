@@ -173,7 +173,7 @@ function TaktikbankPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Sök på titel, syfte, coachfråga eller barnfras"
+              placeholder="Sök på titel, syfte, tränarfråga eller barnfras"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -288,9 +288,11 @@ function TaktikbankPage() {
           <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
             Kunskapsbank
           </Link>
-          <Link to="/taktikbank/regler" className="rounded-full border border-border px-3 py-1 text-muted-foreground">
-            Regler
-          </Link>
+          {isAdmin && (
+            <Link to="/taktikbank/regler" className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+              Regler
+            </Link>
+          )}
         </div>
       </section>
 

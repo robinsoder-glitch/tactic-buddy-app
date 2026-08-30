@@ -223,6 +223,111 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_articles: {
+        Row: {
+          age_10: boolean
+          age_5_7: boolean
+          age_8_9: boolean
+          age_label: string | null
+          category: string
+          checked_date: string | null
+          coach_value: string | null
+          content_type: string | null
+          copyright_note: string | null
+          created_at: string
+          evidence_level: string | null
+          featured: boolean
+          format_3v3: boolean
+          format_5v5: boolean
+          format_7v7: boolean
+          game_format_label: string | null
+          id: string
+          is_published: boolean
+          language: string | null
+          learn_sv: string | null
+          level: string | null
+          original_url: string
+          reading_minutes: number | null
+          slug: string
+          sort_order: number | null
+          source_name: string | null
+          source_type: string | null
+          summary_sv: string
+          title_original: string | null
+          title_sv: string
+          try_next_sv: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_10?: boolean
+          age_5_7?: boolean
+          age_8_9?: boolean
+          age_label?: string | null
+          category: string
+          checked_date?: string | null
+          coach_value?: string | null
+          content_type?: string | null
+          copyright_note?: string | null
+          created_at?: string
+          evidence_level?: string | null
+          featured?: boolean
+          format_3v3?: boolean
+          format_5v5?: boolean
+          format_7v7?: boolean
+          game_format_label?: string | null
+          id: string
+          is_published?: boolean
+          language?: string | null
+          learn_sv?: string | null
+          level?: string | null
+          original_url: string
+          reading_minutes?: number | null
+          slug: string
+          sort_order?: number | null
+          source_name?: string | null
+          source_type?: string | null
+          summary_sv: string
+          title_original?: string | null
+          title_sv: string
+          try_next_sv?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_10?: boolean
+          age_5_7?: boolean
+          age_8_9?: boolean
+          age_label?: string | null
+          category?: string
+          checked_date?: string | null
+          coach_value?: string | null
+          content_type?: string | null
+          copyright_note?: string | null
+          created_at?: string
+          evidence_level?: string | null
+          featured?: boolean
+          format_3v3?: boolean
+          format_5v5?: boolean
+          format_7v7?: boolean
+          game_format_label?: string | null
+          id?: string
+          is_published?: boolean
+          language?: string | null
+          learn_sv?: string | null
+          level?: string | null
+          original_url?: string
+          reading_minutes?: number | null
+          slug?: string
+          sort_order?: number | null
+          source_name?: string | null
+          source_type?: string | null
+          summary_sv?: string
+          title_original?: string | null
+          title_sv?: string
+          try_next_sv?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       player_stats: {
         Row: {
           assists: number
