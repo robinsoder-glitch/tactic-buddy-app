@@ -6,8 +6,14 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccount } from "@/hooks/useAccount";
 import { createTactic, createTacticFromFrames } from "@/lib/db";
-import { PITCH_SIZES } from "@/lib/tactics";
-import type { PitchType } from "@/lib/tactics";
+import {
+  GAME_FORMATS,
+  gameFormatLabel,
+  parseGameFormat,
+  pitchTypeForFormat,
+} from "@/lib/game-format";
+import type { GameFormatId } from "@/lib/game-format";
+
 import { cardToFrames, fetchTacticCards, GAME_MOMENT_LABELS, label } from "@/lib/taktikbank";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
