@@ -193,6 +193,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("updated");
   const [teamFilter, setTeamFilter] = useState<string>("all");
+  const [showAll, setShowAll] = useState(false);
   const [renaming, setRenaming] = useState<TacticSummary | null>(null);
   const [renameValue, setRenameValue] = useState("");
 
@@ -269,6 +270,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   }, [tactics.data, query, sort, teamFilter]);
 
   const latest = tactics.data?.[0] ?? null;
+  const shown = showAll ? visible : visible.slice(0, 3);
 
   async function exportFile(tactic: TacticSummary) {
     try {
@@ -500,7 +502,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
             </div>
           )}
 
-          {visible.map((tactic) => (
+          {shown.map((tactic) => (
             <article
               key={tactic.id}
               className="overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
@@ -556,6 +558,15 @@ function TacticsDashboard({ userId }: { userId: string }) {
               </div>
             </article>
           ))}
+          {!showAll && visible.length > shown.length && (
+            <Button
+              variant="secondary"
+              className="sm:col-span-2"
+              onClick={() => setShowAll(true)}
+            >
+              Visa alla {visible.length} taktiker
+            </Button>
+          )}
         </div>
       </section>
 
