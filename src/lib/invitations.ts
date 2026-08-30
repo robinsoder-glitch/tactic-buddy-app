@@ -131,7 +131,6 @@ export async function createInvitations(input: {
   eventId: string;
   teamId: string;
   playerIds: string[];
-  respondBy: string | null;
   message: string | null;
   createdBy: string;
 }): Promise<number> {
@@ -140,7 +139,6 @@ export async function createInvitations(input: {
     event_id: input.eventId,
     team_id: input.teamId,
     player_id: playerId,
-    respond_by: input.respondBy,
     message: input.message,
     created_by: input.createdBy,
   }));
@@ -152,53 +150,21 @@ export async function createInvitations(input: {
   return data?.length ?? 0;
 }
 
-/** Uppdaterar sista svarsdag och information för hela kallelsen. */
+/** Uppdaterar informationstexten för hela kallelsen. */
 export async function updateInvitationDetails(input: {
   eventId: string;
-  respondBy: string | null;
   message: string | null;
-}): Promise<Array<{ id: string; event_id: string; respond_by: string | null; message: string | null }>> {
+}): Promise<Array<{ id: string; event_id: string; message: string | null }>> {
   const { data, error } = await supabase
     .from("event_invitations")
-    .update({ respond_by: input.respondBy, message: input.message })
+    .update({ message: input.message })
     .eq("event_id", input.eventId)
-    .select("id, event_id, respond_by, message");
+    .select("id, event_id, message");
   if (error) throw error;
   if (!data || data.length === 0) {
     throw new Error("Kallelsen kunde inte uppdateras. Inga rader ändrades.");
   }
   return data;
-}
-
-/** Svensk visning av ett kalenderdatum (YYYY-MM-DD) utan tidszonsförskjutning. */
-export function formatRespondBy(value: string | null | undefined): string {
-  if (!value) return "Ingen";
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (!match) return value;
-  const months = [
-    "januari",
-    "februari",
-    "mars",
-    "april",
-    "maj",
-    "juni",
-    "juli",
-    "augusti",
-    "september",
-    "oktober",
-    "november",
-    "december",
-  ];
-  const month = months[Number(match[2]) - 1];
-  if (!month) return value;
-  return `${Number(match[3])} ${month} ${match[1]}`;
-}
-
-/** Datumdelen (YYYY-MM-DD) av ett sparat värde, för formulärfältet. */
-export function respondByInputValue(value: string | null | undefined): string {
-  if (!value) return "";
-  const match = /^(\d{4}-\d{2}-\d{2})/.exec(value);
-  return match ? (match[1] as string) : "";
 }
 
 /** Sparar kallelsen: uppdaterar befintliga rader och skapar bara för nya spelare. */
@@ -207,15 +173,13 @@ export async function saveInvitationPlan(input: {
   teamId: string;
   hasExisting: boolean;
   newPlayerIds: string[];
-  respondBy: string | null;
   message: string | null;
   createdBy: string;
-}): Promise<{ added: number; updated: number; respondBy: string | null }> {
+}): Promise<{ added: number; updated: number }> {
   let updated = 0;
   if (input.hasExisting) {
     const rows = await updateInvitationDetails({
       eventId: input.eventId,
-      respondBy: input.respondBy,
       message: input.message,
     });
     updated = rows.length;
@@ -227,14 +191,14 @@ export async function saveInvitationPlan(input: {
       eventId: input.eventId,
       teamId: input.teamId,
       playerIds: input.newPlayerIds,
-      respondBy: input.respondBy,
       message: input.message,
       createdBy: input.createdBy,
     });
   }
 
-  return { added, updated, respondBy: input.respondBy };
+  return { added, updated };
 }
+
 
 
 export async function removeInvitation(id: string) {
