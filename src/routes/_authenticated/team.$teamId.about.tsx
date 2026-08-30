@@ -2,9 +2,19 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Archive, ArchiveRestore, Copy, RefreshCw, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/ConfirmDelete";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { fetchTeam, TEAM_GENDER_LABELS, updateTeam, uploadTeamMedia } from "@/lib/teams";
+import {
+  deleteTeam,
+  fetchTeam,
+  regenerateJoinCode,
+  setTeamArchived,
+  TEAM_GENDER_LABELS,
+  updateTeam,
+  uploadTeamMedia,
+} from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +27,8 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/about")({
 function AboutPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/about" });
   const { isCoach, userId } = useTeamRole(teamId);
+  const navigate = useNavigate();
+  const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
@@ -26,6 +38,61 @@ function AboutPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [gender, setGender] = useState("mixed");
   const [busy, setBusy] = useState(false);
+
+  const isOwner = Boolean(team.data && userId && team.data.created_by === userId);
+  const archived = Boolean(team.data?.archived_at);
+
+  async function newCode() {
+    const ok = await confirm({
+      title: "Skapa ny lagkod",
+      description: "Den gamla koden slutar fungera direkt. Alla som ska gå med behöver den nya koden.",
+      confirmLabel: "Skapa ny kod",
+      tone: "default",
+    });
+    if (!ok) return;
+    try {
+      await regenerateJoinCode(teamId);
+      await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+      toast.success("Ny lagkod skapad");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte skapa ny kod");
+    }
+  }
+
+  async function toggleArchive() {
+    const ok = await confirm({
+      title: archived ? "Återställ laget" : "Arkivera laget",
+      description: archived
+        ? "Laget blir aktivt igen och visas i listan över lag."
+        : "Laget döljs i listan men all data finns kvar. Du kan återställa det när som helst.",
+      confirmLabel: archived ? "Återställ" : "Arkivera",
+      tone: "default",
+    });
+    if (!ok) return;
+    await setTeamArchived(teamId, !archived);
+    await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+    await queryClient.invalidateQueries({ queryKey: ["teams"] });
+    toast.success(archived ? "Laget är återställt" : "Laget är arkiverat");
+  }
+
+  async function removeTeam() {
+    const ok = await confirm({
+      title: "Radera laget permanent",
+      description:
+        "Spelare, kalender, närvaro och statistik för laget raderas och går inte att återskapa. Vill du bara dölja laget – arkivera i stället.",
+      confirmLabel: "Radera laget",
+      requireText: team.data?.name ?? "",
+    });
+    if (!ok) return;
+    try {
+      await deleteTeam(teamId);
+      await queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Laget är raderat");
+      navigate({ to: "/teams" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
+    }
+  }
 
   useEffect(() => {
     if (!team.data) return;
@@ -78,9 +145,15 @@ function AboutPage() {
               toast.success("Kod kopierad");
             }}
           >
-            <Copy className="size-4" /> Kopiera
+            <Copy className="size-4" aria-hidden /> Kopiera
+          </Button>
+          <Button size="sm" variant="ghost" onClick={newCode}>
+            <RefreshCw className="size-4" aria-hidden /> Ny kod
           </Button>
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Lagkoden ger bara läsbehörighet som spelare. Ledare bjuds in personligt under fliken Ledare.
+        </p>
       </div>
 
       <div className="space-y-1.5">
@@ -130,6 +203,27 @@ function AboutPage() {
       <Button onClick={() => save()} disabled={busy}>
         Spara
       </Button>
+
+      {isOwner && (
+        <div className="space-y-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wide">Hantera laget</h3>
+          <p className="text-sm text-muted-foreground">
+            {archived
+              ? "Laget är arkiverat och döljs i lagöversikten."
+              : "Arkivera laget när säsongen är slut, eller radera det permanent."}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={toggleArchive}>
+              {archived ? <ArchiveRestore className="size-4" aria-hidden /> : <Archive className="size-4" aria-hidden />}
+              {archived ? "Återställ laget" : "Arkivera laget"}
+            </Button>
+            <Button variant="destructive" onClick={removeTeam}>
+              <Trash2 className="size-4" aria-hidden /> Radera laget
+            </Button>
+          </div>
+        </div>
+      )}
+      {confirmDialog}
     </section>
   );
 }

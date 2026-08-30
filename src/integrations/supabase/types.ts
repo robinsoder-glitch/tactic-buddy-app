@@ -1014,30 +1014,45 @@ export type Database = {
       }
       team_invites: {
         Row: {
+          accepted_at: string | null
+          accepted_by: string | null
           created_at: string
           created_by: string
           email: string
+          expires_at: string
           id: string
+          revoked_at: string | null
           role: string
           team_id: string
+          token: string
           updated_at: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           created_by: string
           email: string
+          expires_at?: string
           id?: string
+          revoked_at?: string | null
           role?: string
           team_id: string
+          token?: string
           updated_at?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           created_by?: string
           email?: string
+          expires_at?: string
           id?: string
+          revoked_at?: string | null
           role?: string
           team_id?: string
+          token?: string
           updated_at?: string
         }
         Relationships: [
@@ -1130,6 +1145,7 @@ export type Database = {
         Row: {
           about: string | null
           age_group: string | null
+          archived_at: string | null
           club_id: string | null
           created_at: string
           created_by: string
@@ -1144,6 +1160,7 @@ export type Database = {
         Insert: {
           about?: string | null
           age_group?: string | null
+          archived_at?: string | null
           club_id?: string | null
           created_at?: string
           created_by: string
@@ -1158,6 +1175,7 @@ export type Database = {
         Update: {
           about?: string | null
           age_group?: string | null
+          archived_at?: string | null
           club_id?: string | null
           created_at?: string
           created_by?: string
@@ -1205,6 +1223,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_team_invite: { Args: { _token: string }; Returns: string }
       find_team_by_code: {
         Args: { _code: string }
         Returns: {
@@ -1229,7 +1248,6 @@ export type Database = {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
       }
-      redeem_team_invite: { Args: { _team_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "coach" | "player"

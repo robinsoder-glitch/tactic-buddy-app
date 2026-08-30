@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ClipboardList, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { claimRole, findTeamByCode, redeemTeamInvite, requestJoin, updateProfile } from "@/lib/teams";
+import { claimRole, findTeamByCode, requestJoin, updateProfile } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,13 +82,7 @@ function OnboardingPage() {
       const team = await findTeamByCode(code);
       if (!team) throw new Error("Ingen lag hittades med den koden");
       await requestJoin(team.id, user.id);
-      const invited = await redeemTeamInvite(team.id);
       await queryClient.invalidateQueries();
-      if (invited === "coach") {
-        toast.success(`Du är nu ledare i ${team.name}.`);
-        navigate({ to: "/team/$teamId", params: { teamId: team.id } });
-        return;
-      }
       toast.success(`Ansökan skickad till ${team.name}. Vänta på att tränaren godkänner dig.`);
       navigate({ to: "/" });
     } catch (error) {
