@@ -1,4 +1,4 @@
-import { loadPrefs } from "@/lib/prefs";
+import { loadPrefs, type AppPrefs } from "@/lib/prefs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -64,7 +64,7 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 });
 
 const STEP_MS = 1400;
-const GRID = 0.05;
+const GRID_FALLBACK = 0.05;
 const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
@@ -116,7 +116,9 @@ function TacticEditor() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() => loadPrefs().speed);
-  const [loop, setLoop] = useState(false);
+  const [loop, setLoop] = useState(() => loadPrefs().loop);
+  const [prefs] = useState<AppPrefs>(() => loadPrefs());
+  const gridStep = prefs.gridStep || GRID_FALLBACK;
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [hideNames, setHideNames] = useState(() => loadPrefs().hideNames);
@@ -267,7 +269,7 @@ function TacticEditor() {
 
   function snapValue(value: number) {
     const clamped = Math.min(0.98, Math.max(0.02, value));
-    return snap ? Math.round(clamped / GRID) * GRID : clamped;
+    return snap ? Math.round(clamped / gridStep) * gridStep : clamped;
   }
 
   function moveObject(objectId: string, rawX: number, rawY: number) {
@@ -361,6 +363,7 @@ function TacticEditor() {
 
   function deleteFrame(index: number) {
     if (frames.length <= 1) return;
+    if (prefs.confirmDelete && !window.confirm("Ta bort det här steget?")) return;
     commit((prev) => renumber(prev.filter((_, i) => i !== index)));
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
@@ -437,7 +440,7 @@ function TacticEditor() {
       const target = event.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
       event.preventDefault();
-      const step = event.shiftKey ? GRID : FINE_STEP;
+      const step = event.shiftKey ? gridStep : FINE_STEP;
       nudge(direction[0] * step, direction[1] * step);
     }
     window.addEventListener("keydown", onArrow);
@@ -496,7 +499,7 @@ function TacticEditor() {
     try {
       if (dirty) await save.mutateAsync();
       const filename = tactic.data.name.replace(/[^a-z0-9åäö]+/gi, "-").toLowerCase() || "taktik";
-      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS, hideNames };
+      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS, hideNames, tokenScale: prefs.playerScale, showPhotos: prefs.showPhotos };
       if (kind === "gif") {
         await exportGif(options, filename);
         toast.success("GIF nedladdad");
@@ -642,7 +645,9 @@ function TacticEditor() {
           interactive={!playing}
           drawColor={tool === "zone" ? drawColor : undefined}
           hideNames={hideNames}
-          gridStep={snap && !playing ? GRID : null}
+          gridStep={snap && !playing ? gridStep : null}
+          tokenScale={prefs.playerScale}
+          showPhotos={prefs.showPhotos}
           passT={passT}
           onMoveObject={moveObject}
           onMoveEnd={() => {
