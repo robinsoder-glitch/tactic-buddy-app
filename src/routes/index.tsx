@@ -345,7 +345,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
       )}
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
-        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom plan eller färdig mall" primary />
+        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny övning" text="Tom plan eller färdig mall" primary />
         <QuickCard
           to="/ovningsbank"
           icon={<BookOpen className="size-5" />}

@@ -28,8 +28,8 @@
 - [x] Startsida: hälsning med visningsnamn, rätt undertitel på Taktikbanken, tre huvudvägar, "Aktivt lag"-etikett, max 3 senaste taktiker
 - [x] Ny taktik: 5 mot 5 / 7 mot 7 / 9 mot 9 / 11 mot 11, ett steg, "Skapa och öppna tavlan"
 - [x] Mina taktiker: spelform i modern text, hela kortet klickbart, meny (Byt namn, Duplicera, Dela, Exportera, Radera)
-- [ ] Filterpanel "Fler filter" + "Rensa filter" + antal aktiva filter i alla banker
-- [ ] Övningsbank: nyckeltal på kort (spelare, yta, tid, utrustning), riktiga detaljsidor
+- [x] Filterpanel "Fler filter" + "Rensa filter" + antal aktiva filter i alla banker
+- [x] Övningsbank: nyckeltal på kort (spelare, yta, tid, utrustning), riktiga detaljsidor
 - [ ] Kunskapsbank: fylligare intern sammanfattning (Passar dig som, Huvudbudskap, Praktiska råd, Vad artikeln inte svarar på, källkontroll)
 - [ ] Editorn: förskjutning av nya spelare, "Lägg till steg", tydliga verktygsetiketter, enklare tidsvisning, "Sparat"-indikator, helskärm på mobil
 - [ ] Spelarbank: förklaring mot lagets trupp, "Symbolfärg: eget lag/motståndare"
@@ -53,3 +53,8 @@
 - [x] Inställd aktivitet blockerar nya svar
 - [x] Tester för kallelser
 - [x] Kalendern och närvarosidan länkar till kallelsen
+
+## Etapp 6: Koppling bank → kalender
+- [x] Koppla övning/målvaktsövning/taktik/artikel direkt till en träning i lagets kalender (välj aktivitet + minuter)
+- [x] "Lägg till i träning" på alla kort i banken, inte bara träningspass
+- [x] Byt namn: "Ny taktik" → "Ny övning" i hela appen

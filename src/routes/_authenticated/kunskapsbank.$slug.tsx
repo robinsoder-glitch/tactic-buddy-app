@@ -1,3 +1,4 @@
+import { fitsYouIf, keyMessages, notCovered, practicalAdvice, sourceCheck } from "@/lib/knowledge-summary";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
@@ -12,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { RelatedContent } from "@/components/RelatedContent";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { ARTICLE_SECTIONS } from "@/lib/related-sections";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
@@ -115,36 +117,80 @@ function KnowledgeArticlePage() {
           </div>
 
           <section className="mt-5 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
-            <p className="mt-2 text-sm">{data.summary_sv}</p>
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Passar dig som</h2>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+              {fitsYouIf(data).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </section>
 
-          {data.learn_sv && (
+          <section className="mt-3 rounded-xl border border-border bg-card p-4">
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Huvudbudskap</h2>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+              {keyMessages(data).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+
+          {practicalAdvice(data).length > 0 && (
             <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-                Det här lär du dig
-              </h2>
-              <p className="mt-2 whitespace-pre-line text-sm">{data.learn_sv}</p>
+              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Praktiska råd</h2>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                {practicalAdvice(data).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </section>
           )}
 
-          {data.try_next_sv && (
-            <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-                Testa på nästa träning
-              </h2>
-              <p className="mt-2 whitespace-pre-line text-sm">{data.try_next_sv}</p>
-            </section>
-          )}
+          <section className="mt-3 rounded-xl border border-border bg-card p-4">
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+              Vad artikeln inte svarar på
+            </h2>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+              {notCovered(data).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
 
-          {data.coach_value && (
-            <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-                Nytta för dig som tränare
-              </h2>
-              <p className="mt-2 text-sm">{data.coach_value}</p>
-            </section>
-          )}
+          <section className="mt-3 rounded-xl border border-border bg-card p-4">
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Källa och kontroll</h2>
+            <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
+              {sourceCheck(data).map(([term, value]) => (
+                <div key={term}>
+                  <dt className="text-xs text-muted-foreground">{term}</dt>
+                  <dd className="font-medium">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <details className="mt-3 rounded-xl border border-border bg-card p-4">
+            <summary className="cursor-pointer text-sm font-semibold">Hela sammanfattningen</summary>
+            <p className="mt-2 text-sm">{data.summary_sv}</p>
+            {data.learn_sv && (
+              <>
+                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Det här lär du dig</h3>
+                <p className="mt-1 whitespace-pre-line text-sm">{data.learn_sv}</p>
+              </>
+            )}
+            {data.try_next_sv && (
+              <>
+                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Testa på nästa träning</h3>
+                <p className="mt-1 whitespace-pre-line text-sm">{data.try_next_sv}</p>
+              </>
+            )}
+            {data.coach_value && (
+              <>
+                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Nytta för dig som tränare</h3>
+                <p className="mt-1 text-sm">{data.coach_value}</p>
+              </>
+            )}
+          </details>
+
 
           <a
             href={data.original_url}
@@ -159,6 +205,7 @@ function KnowledgeArticlePage() {
 
           <div className="mt-4">
             <AddToSessionButton kind="article" resourceId={data.slug} title={data.title_sv} defaultMinutes={5} size="sm" />
+<AddToTrainingButton kind="article" resourceId={data.slug} title={data.title_sv} defaultMinutes={5} size="sm" />
           </div>
 
           <RelatedContent sections={sections} />

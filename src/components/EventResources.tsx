@@ -31,6 +31,8 @@ const KIND_LABELS: Record<EventResourceKind, string> = {
   tactic: "Taktikkort",
   drill: "Övning",
   session: "Träningspass",
+  goalkeeper: "Målvaktsövning",
+  article: "Artikel",
 };
 
 export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
@@ -78,7 +80,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     <div className="mt-3 border-t border-border/60 pt-3">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-1 text-xs tracking-wide text-muted-foreground">
-          <BookOpen className="size-3" /> Från taktikbanken
+          <BookOpen className="size-3" /> Planerat innehåll
         </p>
         {isCoach && userId && (
           <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
@@ -103,6 +105,11 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
             ) : (
               <span className="min-w-0 flex-1 truncate">{titleFor(item.kind, item.resource_id)}</span>
             )}
+            {item.minutes ? (
+              <span className="shrink-0 rounded-full bg-background px-2 py-0.5 text-xs text-muted-foreground">
+                {item.minutes} min
+              </span>
+            ) : null}
             {isCoach && (
               <button type="button" aria-label="Ta bort koppling" onClick={() => remove.mutate(item.id)}>
                 <X className="size-4 text-muted-foreground" />

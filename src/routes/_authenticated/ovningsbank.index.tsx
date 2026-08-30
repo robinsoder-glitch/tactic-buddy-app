@@ -14,6 +14,7 @@ import {
   label,
   PHASE_LABELS,
   type FavoriteKind,
+  type Drill,
 } from "@/lib/taktikbank";
 import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
@@ -21,12 +22,15 @@ import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FilterPanel, FilterRow } from "@/components/FilterPanel";
+
 
 type OvningsbankSearch = { flik?: "ovningar" | "malvakt" | "pass" | undefined; markera?: string | undefined };
 
@@ -223,56 +227,85 @@ function OvningsbankPage() {
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setOnlyFavorites((value) => !value)}
-          aria-pressed={onlyFavorites}
-          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-          }`}
-        >
-          <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-        </button>
-        {tab === "Övningar" && (
+      <FilterPanel
+        activeCount={
+          (onlyFavorites ? 1 : 0) +
+          (tab === "Övningar"
+            ? [age, format, area, difficulty].filter((value) => value !== "all").length
+            : 0)
+        }
+        onClear={() => {
+          setOnlyFavorites(false);
+          setAge("all");
+          setFormat("all");
+          setArea("all");
+          setDifficulty("all");
+        }}
+        primary={
+          <button
+            type="button"
+            onClick={() => setOnlyFavorites((value) => !value)}
+            aria-pressed={onlyFavorites}
+            className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+              onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            }`}
+          >
+            <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+          </button>
+        }
+      >
+        {tab === "Övningar" ? (
           <>
-            <FilterGroup
-              value={age}
-              onChange={setAge}
-              options={[
-                ["all", "Alla åldrar"],
-                ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={format}
-              onChange={setFormat}
-              options={[
-                ["all", "Alla spelformer"],
-                ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={area}
-              onChange={setArea}
-              options={[
-                ["all", "Alla träningsområden"],
-                ...areas.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={difficulty}
-              onChange={setDifficulty}
-              options={[
-                ["all", "Alla svårighetsgrader"],
-                ["1", "Nivå 1"],
-                ["2", "Nivå 2"],
-                ["3", "Nivå 3"],
-              ]}
-            />
+            <FilterRow title="Ålder">
+              <FilterGroup
+                value={age}
+                onChange={setAge}
+                options={[
+                  ["all", "Alla åldrar"],
+                  ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Spelform">
+              <FilterGroup
+                value={format}
+                onChange={setFormat}
+                options={[
+                  ["all", "Alla spelformer"],
+                  ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Träningsområde">
+              <FilterGroup
+                value={area}
+                onChange={setArea}
+                options={[
+                  ["all", "Alla träningsområden"],
+                  ...areas.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Svårighetsgrad">
+              <FilterGroup
+                value={difficulty}
+                onChange={setDifficulty}
+                options={[
+                  ["all", "Alla svårighetsgrader"],
+                  ["1", "Nivå 1"],
+                  ["2", "Nivå 2"],
+                  ["3", "Nivå 3"],
+                ]}
+              />
+            </FilterRow>
           </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Fler filter finns för fliken Övningar. Här söker du på titel och syfte.
+          </p>
         )}
-      </div>
+      </FilterPanel>
+
 
       {tab === "Övningar" && (
         <section className="mt-4 space-y-3" aria-label="Övningar">
@@ -293,8 +326,18 @@ function OvningsbankPage() {
                     {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
                     {drill.default_minutes ? ` · ${drill.default_minutes} min` : ""}
                   </p>
-                  <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
+                  <h2 className="font-display text-lg font-semibold">
+                    <Link
+                      to="/ovningsbank/$drillId"
+                      params={{ drillId: drill.id }}
+                      className="hover:underline underline-offset-4"
+                    >
+                      {drill.title}
+                    </Link>
+                  </h2>
                   <p className="text-sm text-muted-foreground">{drill.purpose}</p>
+                  <DrillKeyFacts drill={drill} />
+
                   {drill.data.linkedTacticIds?.length ? (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {drill.data.linkedTacticIds.map((tacticId) => (
@@ -314,6 +357,13 @@ function OvningsbankPage() {
                   />
                   <div className="mt-3">
                     <AddToSessionButton
+                      kind="drill"
+                      resourceId={drill.id}
+                      title={drill.title}
+                      defaultMinutes={drill.default_minutes ?? 10}
+                      size="sm"
+                    />
+<AddToTrainingButton
                       kind="drill"
                       resourceId={drill.id}
                       title={drill.title}
@@ -380,6 +430,7 @@ function OvningsbankPage() {
               />
               <div className="mt-3">
                 <AddToSessionButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+<AddToTrainingButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </article>
           ))}
@@ -556,5 +607,24 @@ function FilterGroup({
         </button>
       ))}
     </div>
+  );
+}
+
+function DrillKeyFacts({ drill }: { drill: Drill }) {
+  const facts: Array<[string, string]> = [];
+  if (drill.data.players) facts.push(["Spelare", drill.data.players]);
+  if (drill.data.area) facts.push(["Yta", drill.data.area]);
+  if (drill.default_minutes) facts.push(["Tid", `${drill.default_minutes} min`]);
+  if (drill.data.equipment?.length) facts.push(["Utrustning", drill.data.equipment.join(", ")]);
+  if (!facts.length) return null;
+  return (
+    <dl className="mt-2 flex flex-wrap gap-1.5 text-xs">
+      {facts.map(([term, value]) => (
+        <div key={term} className="rounded-full bg-secondary/70 px-3 py-1">
+          <dt className="inline text-muted-foreground">{term}: </dt>
+          <dd className="inline font-medium text-foreground">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
