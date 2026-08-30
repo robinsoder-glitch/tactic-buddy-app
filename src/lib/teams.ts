@@ -16,6 +16,7 @@ export type Team = {
   join_code: string;
   club_id: string | null;
   created_by: string;
+  archived_at: string | null;
   club?: { id: string; name: string } | null;
   photoUrl?: string | null;
 };
@@ -147,7 +148,7 @@ export async function fetchProfile(userId: string) {
 export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, clubs(id, name)")
+    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, archived_at, clubs(id, name)")
     .order("created_at", { ascending: false });
   if (error) throw error;
 
@@ -164,7 +165,7 @@ export async function fetchMyTeams(): Promise<Team[]> {
 export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, clubs(id, name)")
+    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, archived_at, clubs(id, name)")
     .eq("id", id)
     .single();
   if (error) throw error;
