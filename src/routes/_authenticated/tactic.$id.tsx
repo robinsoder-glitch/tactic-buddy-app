@@ -477,24 +477,40 @@ function TacticEditor() {
         </Button>
       </header>
 
-      <Pitch
-        pitchType={tactic.data.pitch_type}
-        objects={displayedObjects}
-        drawings={displayedDrawings}
-        tool={tool}
-        selectedId={selectedId}
-        interactive={!playing}
-        drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
-        hideNames={hideNames}
-        passT={passT}
-        onMoveObject={moveObject}
-        onMoveEnd={() => {
-          dragSession.current = false;
+      <div
+        onDragOver={(event) => {
+          if (event.dataTransfer.types.includes("text/plain")) event.preventDefault();
         }}
-        onSelectObject={setSelectedId}
-        onAddDrawing={addDrawing}
-        onRemoveDrawing={removeDrawing}
-      />
+        onDrop={(event) => {
+          const raw = event.dataTransfer.getData("text/plain");
+          if (!raw) return;
+          event.preventDefault();
+          const rect = event.currentTarget.getBoundingClientRect();
+          const x = Math.min(0.97, Math.max(0.03, (event.clientX - rect.left) / rect.width));
+          const y = Math.min(0.97, Math.max(0.03, (event.clientY - rect.top) / rect.height));
+          dropPayload(raw, x, y);
+        }}
+      >
+        <Pitch
+          pitchType={tactic.data.pitch_type}
+          objects={displayedObjects}
+          drawings={displayedDrawings}
+          tool={tool}
+          selectedId={selectedId}
+          interactive={!playing}
+          drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+          hideNames={hideNames}
+          passT={passT}
+          onMoveObject={moveObject}
+          onMoveEnd={() => {
+            dragSession.current = false;
+          }}
+          onSelectObject={setSelectedId}
+          onAddDrawing={addDrawing}
+          onRemoveDrawing={removeDrawing}
+        />
+      </div>
+
 
       <div className="flex flex-wrap items-center gap-2">
         <ToolButton active={tool === "select"} onClick={() => setTool("select")} label="Flytta">
