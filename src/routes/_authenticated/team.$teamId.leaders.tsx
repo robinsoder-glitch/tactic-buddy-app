@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { TEAM_ROLE_DESCRIPTIONS, TEAM_ROLE_LABELS, canRemoveLeader, teamAccess } from "@/lib/permissions";
 import { friendlyError } from "@/lib/user-errors";
-import { transferTeamOwnership } from "@/lib/teams";
+import { ensureOwnerMembership, transferTeamOwnership } from "@/lib/teams";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
   head: () => ({
@@ -89,6 +89,16 @@ function LeadersPage() {
   const ownerId = team.data?.created_by ?? null;
   const leaders = rows.filter((member) => member.role === "coach");
   const players = rows.filter((member) => member.role === "player" && member.status === "approved");
+
+  // Äldre lag kunde sakna medlemsrad för skaparen – då visades "Inga ledare ännu".
+  useEffect(() => {
+    if (!isOwner || !userId || !members.data) return;
+    const hasRow = members.data.some((m) => m.user_id === userId && m.role === "coach" && m.status === "approved");
+    if (hasRow) return;
+    void ensureOwnerMembership(teamId, userId).then(() =>
+      queryClient.invalidateQueries({ queryKey: ["team-members", teamId] }),
+    );
+  }, [isOwner, userId, members.data, teamId, queryClient]);
 
   async function copyLink(link: string) {
     try {
