@@ -276,8 +276,8 @@ function TaktikbankPage() {
           {!tactics.isLoading && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
           )}
-        </section>
-      )}
+      </section>
+
 
       <section className="mt-8 rounded-xl border border-border/60 bg-card/50 p-4">
         <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
