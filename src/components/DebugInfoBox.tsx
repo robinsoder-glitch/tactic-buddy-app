@@ -3,9 +3,30 @@ import { Bug, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import { BUILD_ID, BUILD_MODE, latestChunk } from "@/lib/build-info";
 
+/**
+ * Felsökningsruta. Visas aldrig för vanliga användare i den publicerade appen –
+ * bara i utvecklingsläge eller när någon uttryckligen öppnar appen med ?debug=1.
+ */
 export function DebugInfoBox() {
+  const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [chunk, setChunk] = useState<{ name: string; hash: string } | null>(null);
+
+  useEffect(() => {
+    if (BUILD_MODE !== "production") {
+      setVisible(true);
+      return;
+    }
+    try {
+      if (new URLSearchParams(window.location.search).has("debug")) {
+        window.sessionStorage.setItem("taktik:debug", "1");
+      }
+      setVisible(window.sessionStorage.getItem("taktik:debug") === "1");
+    } catch {
+      setVisible(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     if (!open) return;
