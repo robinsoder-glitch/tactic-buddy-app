@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CopyPlus, LogOut, Plus, Trash2, Users } from "lucide-react";
+import { CopyPlus, LogOut, Plus, Shield, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAccount } from "@/hooks/useAccount";
 import { createTactic, deleteTactic, duplicateTactic, fetchTactics, renameTactic } from "@/lib/db";
 import { PITCH_SIZES } from "@/lib/tactics";
 import type { PitchType } from "@/lib/tactics";
@@ -230,6 +231,8 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <LogOut className="size-5" />
         </Button>
       </header>
+
+      <TeamNav />
 
       <div className="mt-5 flex gap-2">
         <Dialog open={open} onOpenChange={setOpen}>
