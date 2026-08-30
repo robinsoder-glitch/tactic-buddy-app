@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -36,7 +36,6 @@ import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
 
@@ -931,7 +930,7 @@ function ToolButton({
   active: boolean;
   onClick: () => void;
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button
@@ -957,7 +956,7 @@ function BankChip({
   payload: string;
   label: string;
   onAdd: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button
