@@ -411,6 +411,24 @@ function TacticEditor() {
     setSelectedId(null);
   }
 
+  function addFreePlayer(team: "home" | "away", gk: boolean) {
+    const existing = (frame?.objects ?? []).filter(
+      (object) => object.kind === "player" && object.team === team && !object.playerId,
+    );
+    const number = gk ? 1 : existing.filter((object) => !object.gk).length + 2;
+    addObject({
+      id: uid(),
+      kind: "player",
+      playerId: null,
+      label: gk ? (team === "home" ? "Målvakt" : "MV motst.") : team === "home" ? "Spelare" : "Motspelare",
+      number,
+      team,
+      gk,
+      x: team === "home" ? 0.35 : 0.65,
+      y: 0.5,
+    });
+  }
+
   if (tactic.isLoading || !tactic.data) {
     return <div className="grid min-h-screen place-items-center text-muted-foreground">Laddar taktik…</div>;
   }
@@ -418,6 +436,8 @@ function TacticEditor() {
   const onPitchPlayerIds = new Set(
     (frame?.objects ?? []).map((object) => object.playerId).filter(Boolean) as string[],
   );
+  const selectedObject = frame?.objects.find((object) => object.id === selectedId) ?? null;
+
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
