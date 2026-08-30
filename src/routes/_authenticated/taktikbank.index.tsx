@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RulesView } from "@/components/rules/RulesView";
+import { formatLabelFor } from "@/lib/rules-presentation";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
@@ -223,7 +224,7 @@ function TaktikbankPage() {
             <FilterGroup
               value={format}
               onChange={setFormat}
-              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, item] as [string, string])]}
+              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, formatLabelFor(item)] as [string, string])]}
             />
             <FilterGroup
               value={moment}
@@ -282,7 +283,7 @@ function TaktikbankPage() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {card.format} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
+                    {formatLabelFor(card.format)} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
                     {label(PHASE_LABELS, card.phase)} · nivå {card.difficulty}
                   </p>
                   <h2 className="font-display text-lg font-semibold">{card.title}</h2>
