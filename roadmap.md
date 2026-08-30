@@ -60,3 +60,9 @@
 - [x] Byt namn: "Ny taktik" → "Ny övning" i hela appen
 
 - [x] Kunskapsbanken: ta bort knapparna för att lägga till artiklar i träning/träningspass (inget ska kunna läggas till därifrån).
+
+## Etapp 6: Rättningar 2026-08-30 (kväll)
+- [ ] Sista svarsdag i kallelser sparas och visas på svenska (verifierat mot databasen)
+- [ ] Verifiera att inga "Lägg till träningspass"/"Lägg till träning" finns kvar i Kunskapsbanken
+- [ ] Automatiskt test som failar om knapparna återkommer i Kunskapsbanken
+- [ ] Tydlig uppdatering/cache-busting så senaste versionen visas utan hård omladdning

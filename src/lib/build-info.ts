@@ -81,3 +81,23 @@ export function latestChunk(): { name: string; hash: string } | null {
     return null;
   }
 }
+
+/**
+ * Signatur för den version som servern levererar just nu: namnen på
+ * inlästa skript i index.html. Ändras signaturen finns en ny version.
+ */
+export async function fetchDeployedSignature(): Promise<string | null> {
+  try {
+    const response = await fetch(`/?v=${Date.now().toString(36)}`, {
+      cache: "no-store",
+      headers: { "cache-control": "no-cache" },
+    });
+    if (!response.ok) return null;
+    const html = await response.text();
+    const scripts = Array.from(html.matchAll(/(?:src|href)="([^"]+\.m?js)"/g)).map((m) => m[1]);
+    if (scripts.length === 0) return null;
+    return scripts.sort().join("|");
+  } catch {
+    return null;
+  }
+}

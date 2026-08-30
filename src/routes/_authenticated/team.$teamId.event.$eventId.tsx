@@ -10,17 +10,19 @@ import {
   NO_REMINDER_TEXT,
   canRespondSelf,
   countInvitations,
-  createInvitations,
   createReminders,
   expectedAttendance,
   fetchEventInvitations,
+  formatRespondBy,
   inviteStatusLabel,
+  respondByInputValue,
   respondToInvitation,
+  saveInvitationPlan,
   setEventCancelled,
-  updateInvitationDetails,
   type InviteStatus,
   type Invitation,
 } from "@/lib/invitations";
+
 import { useTeamRole } from "@/hooks/useTeamRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,29 +85,47 @@ function EventPage() {
   const create = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      if (list.length > 0) {
-        await updateInvitationDetails({
-          eventId,
-          respondBy: respondBy || null,
-          message: message.trim() || null,
-        });
-      }
-      return createInvitations({
+      const invited = new Set(list.map((item) => item.player_id));
+      const wanted = respondBy || null;
+      const result = await saveInvitationPlan({
         eventId,
         teamId,
-        playerIds: selected,
-        respondBy: respondBy || null,
+        hasExisting: list.length > 0,
+        newPlayerIds: selected.filter((id) => !invited.has(id)),
+        respondBy: wanted,
         message: message.trim() || null,
         createdBy: userId,
       });
+
+      // Verifiera mot databasen innan vi visar ett lyckat meddelande.
+      await queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
+      const saved = await queryClient.fetchQuery({
+        queryKey: ["invitations", eventId],
+        queryFn: () => fetchEventInvitations(eventId),
+      });
+      const allMatch =
+        saved.length > 0 && saved.every((item) => (item.respond_by ?? null) === wanted);
+      if (!allMatch) throw new Error("RESPOND_BY_NOT_SAVED");
+      return result;
     },
-    onSuccess: (added) => {
+    onSuccess: (result) => {
       setCreating(false);
-      toast.success(added > 0 ? `Kallelsen är uppdaterad (${added} nya).` : "Kallelsen är uppdaterad.");
-      refresh();
+      toast.success(
+        result.added > 0
+          ? `Kallelsen är uppdaterad (${result.added} nya).`
+          : "Kallelsen är uppdaterad.",
+      );
     },
-    onError: () => toast.error("Kunde inte spara kallelsen. Försök igen."),
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "";
+      toast.error(
+        message === "RESPOND_BY_NOT_SAVED"
+          ? "Sista svarsdag kunde inte sparas. Försök igen."
+          : "Kunde inte spara kallelsen. Försök igen.",
+      );
+    },
   });
+
 
   const respond = useMutation({
     mutationFn: ({ invitation, status }: { invitation: Invitation; status: InviteStatus }) => {
@@ -162,7 +182,7 @@ function EventPage() {
   function openDialog() {
     const invited = new Set(list.map((item) => item.player_id));
     setSelected((players.data ?? []).map((player) => player.id).filter((id) => !invited.has(id)));
-    setRespondBy(meta?.respond_by ?? "");
+    setRespondBy(respondByInputValue(meta?.respond_by));
     setMessage(meta?.message ?? "");
     setCreating(true);
   }
@@ -259,7 +279,7 @@ function EventPage() {
               <Stat label="Kallade" value={counts.total} />
               <Stat label="Beräknat antal" value={expectedAttendance(counts)} />
               <Stat label="Saknar svar" value={counts.pending} />
-              <Stat label="Sista svarsdag" value={meta?.respond_by ?? "Ingen"} />
+              <Stat label="Sista svarsdag" value={formatRespondBy(meta?.respond_by)} />
             </dl>
 
             {meta?.message && (
