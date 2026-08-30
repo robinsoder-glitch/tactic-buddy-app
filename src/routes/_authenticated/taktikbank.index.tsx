@@ -243,8 +243,9 @@ function TaktikbankPage() {
           {filtered.map((card) => (
             <div
               key={card.id}
-              className="flex items-center gap-2 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
+              className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
             >
+              <div className="flex items-center gap-2">
               <Link
                 to="/taktikbank/$cardId"
                 params={{ cardId: card.id }}
@@ -271,8 +272,13 @@ function TaktikbankPage() {
                   className={`size-5 ${favoriteSet.has(`tactic:${card.id}`) ? "fill-primary text-primary" : ""}`}
                 />
               </button>
+              </div>
+              <div className="mt-3" onClick={(event) => event.stopPropagation()}>
+                <AddToSessionButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
+              </div>
             </div>
           ))}
+
           {!tactics.isLoading && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
           )}
