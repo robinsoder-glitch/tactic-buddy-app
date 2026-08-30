@@ -157,7 +157,7 @@ function TacticEditor() {
   const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
 
   const [isPublic, setIsPublic] = useState(false);
-  const [exporting, setExporting] = useState<null | "gif" | "video">(null);
+  const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
   const framesRef = useRef<Frame[]>([]);
   const dragSession = useRef(false);
   framesRef.current = frames;
