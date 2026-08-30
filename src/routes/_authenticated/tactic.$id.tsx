@@ -623,18 +623,7 @@ function TacticEditor() {
         showPhotos: prefs.showPhotos,
       };
       if (kind === "pdf") {
-        await exportPdf(
-          {
-            frames,
-            pitchType: tactic.data.pitch_type,
-            title: tactic.data.name,
-            hideNames,
-            tokenScale: prefs.playerScale,
-            showPhotos: prefs.showPhotos,
-            width: Math.max(preset.width, 900),
-          },
-          filename,
-        );
+        await exportPdf(pdfOptions(settings), filename);
         toast.success("PDF nedladdad");
       } else if (kind === "gif") {
         await exportGif(options, filename);
