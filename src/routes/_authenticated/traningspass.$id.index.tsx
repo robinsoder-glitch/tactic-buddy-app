@@ -13,6 +13,7 @@ import {
   minutesLabel,
   moveItem,
   saveItemOrder,
+  SESSION_STATUS_LABELS,
   totalMinutes,
   updateCoachSession,
   updateSessionItem,
@@ -20,6 +21,7 @@ import {
   type ItemKind,
   type SessionDraft,
 } from "@/lib/coach-sessions";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
