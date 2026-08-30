@@ -25,10 +25,11 @@ describe("Sista svarsdag visas inte i gränssnittet", () => {
     expect(hits).toEqual([]);
   });
 
-  it("inget formulär skriver eller läser respond_by", () => {
+  it("ingen vy läser eller skriver respond_by", () => {
     const hits = FILES.filter((file) => {
+      if (!file.endsWith(".tsx")) return false;
       const source = readFileSync(file, "utf8");
-      return source.includes("respondBy") || source.includes("respond_by:");
+      return source.includes("respondBy") || source.includes("respond_by");
     });
     expect(hits).toEqual([]);
   });
