@@ -377,10 +377,8 @@ function EventPage() {
             <DialogTitle>{list.length > 0 ? "Hantera kallelse" : "Skapa kallelse"}</DialogTitle>
           </DialogHeader>
 
-          <label className="text-sm">
-            Sista svarsdag
-            <Input type="date" value={respondBy} onChange={(e) => setRespondBy(e.target.value)} />
-          </label>
+
+
 
           <label className="text-sm">
             Information till spelarna
