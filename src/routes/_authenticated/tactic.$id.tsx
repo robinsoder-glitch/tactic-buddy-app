@@ -128,9 +128,10 @@ function TacticEditor() {
   const [snap, setSnap] = useState(true);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
-  const pastRef = useRef<Frame[][]>([]);
-  const futureRef = useRef<Frame[][]>([]);
-  const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
+  const pastRef = useRef<HistoryEntry[]>([]);
+  const futureRef = useRef<HistoryEntry[]>([]);
+  const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
+
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video">(null);
   const framesRef = useRef<Frame[]>([]);
