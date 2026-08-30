@@ -88,12 +88,40 @@ export type GoalkeeperCardData = {
 
 export type GoalkeeperCard = { id: string; title: string; purpose: string | null; data: GoalkeeperCardData };
 
+/** Full mall för en övning i Övningsbanken. */
 export type DrillData = {
   id: string;
   title: string;
   defaultMinutes?: number;
   purpose?: string;
   linkedTacticIds?: string[];
+  /** Spelform övningen är skriven för, t.ex. "5v5". */
+  format?: string;
+  /** Åldersspann övningen passar. */
+  ageFit?: { min: number; max: number };
+  /** Ytan i meter, t.ex. "20 x 25 m". */
+  area?: string;
+  /** Antal spelare, t.ex. "6–10 spelare, 2 lag". */
+  players?: string;
+  /** Utrustning som behövs. */
+  equipment?: string[];
+  /** Så ställer du upp övningen. */
+  organisation?: string[];
+  /** Så genomförs övningen. */
+  execution?: string[];
+  /** Det tränaren tittar efter och coachar på. */
+  coachingPoints?: string[];
+  /** Frågor att ställa till spelarna. */
+  coachQuestions?: string[];
+  /** Så gör du övningen lättare. */
+  simplify?: string[];
+  /** Så gör du övningen svårare. */
+  challenge?: string[];
+  /** Tecken på att övningen fungerar. */
+  successSigns?: string[];
+  /** Säkerhet och hänsyn. */
+  safety?: string;
+  sources?: Source[];
 };
 
 export type Drill = {
