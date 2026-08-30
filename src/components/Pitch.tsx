@@ -360,13 +360,7 @@ export function Pitch({
                 key={object.id}
                 transform={`translate(${cx} ${cy})`}
                 style={{ cursor: interactive ? "grab" : "default" }}
-                onPointerDown={(event) => {
-                  if (!interactive || tool !== "select") return;
-                  event.stopPropagation();
-                  svgRef.current?.setPointerCapture?.(event.pointerId);
-                  dragId.current = object.id;
-                  onSelectObject?.(object.id);
-                }}
+                onPointerDown={(event) => startObjectDrag(event, object)}
               >
                 <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
 
@@ -379,13 +373,7 @@ export function Pitch({
               key={object.id}
               transform={`translate(${cx} ${cy})`}
               style={{ cursor: interactive ? "grab" : "default" }}
-              onPointerDown={(event) => {
-                if (!interactive || tool !== "select") return;
-                event.stopPropagation();
-                svgRef.current?.setPointerCapture?.(event.pointerId);
-                dragId.current = object.id;
-                onSelectObject?.(object.id);
-              }}
+              onPointerDown={(event) => startObjectDrag(event, object)}
             >
               <circle
                 r={tokenR}
