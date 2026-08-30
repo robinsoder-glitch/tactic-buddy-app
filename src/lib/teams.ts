@@ -518,14 +518,39 @@ export type TeamInvite = {
   email: string;
   role: "coach" | "player";
   created_at: string;
+  token: string;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
 };
+
+export type InviteState = "active" | "accepted" | "revoked" | "expired";
+
+export function inviteState(invite: TeamInvite): InviteState {
+  if (invite.accepted_at) return "accepted";
+  if (invite.revoked_at) return "revoked";
+  if (new Date(invite.expires_at).getTime() <= Date.now()) return "expired";
+  return "active";
+}
+
+export const INVITE_STATE_LABELS: Record<InviteState, string> = {
+  active: "Väntar på svar",
+  accepted: "Accepterad",
+  revoked: "Återkallad",
+  expired: "Utgången",
+};
+
+export function inviteLink(token: string): string {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return `${origin}/inbjudan/${token}`;
+}
 
 export async function fetchTeamInvites(teamId: string): Promise<TeamInvite[]> {
   const { data, error } = await supabase
     .from("team_invites")
-    .select("id, team_id, email, role, created_at")
+    .select("id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at")
     .eq("team_id", teamId)
-    .order("created_at");
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as TeamInvite[];
 }
@@ -535,16 +560,34 @@ export async function addTeamInvite(input: {
   userId: string;
   email: string;
   role?: "coach" | "player";
-}) {
+  days?: number;
+}): Promise<TeamInvite> {
   const email = input.email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Ange en giltig e-postadress");
-  const { error } = await supabase.from("team_invites").insert({
-    team_id: input.teamId,
-    created_by: input.userId,
-    email,
-    role: input.role ?? "coach",
-  });
-  if (error && error.code !== "23505") throw error;
+  const days = input.days ?? 14;
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("team_invites")
+    .insert({
+      team_id: input.teamId,
+      created_by: input.userId,
+      email,
+      role: input.role ?? "coach",
+      expires_at: expires,
+    })
+    .select("id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at")
+    .single();
+  if (error) {
+    if (error.code === "23505") throw new Error("Det finns redan en öppen inbjudan till den adressen.");
+    throw error;
+  }
+  return data as TeamInvite;
+}
+
+/** Revoke an invite so its one-time link stops working. */
+export async function revokeTeamInvite(id: string) {
+  const { error } = await supabase.from("team_invites").update({ revoked_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw error;
 }
 
 export async function removeTeamInvite(id: string) {
@@ -558,9 +601,34 @@ export async function setMemberRole(id: string, role: "coach" | "player") {
   if (error) throw error;
 }
 
-/** Redeem a pending leader invite for the signed-in user. Returns the granted role. */
-export async function redeemTeamInvite(teamId: string): Promise<"coach" | "player" | null> {
-  const { data, error } = await supabase.rpc("redeem_team_invite", { _team_id: teamId });
+/** Accept a personal, one-time invite. Returns the team id. */
+export async function acceptTeamInvite(token: string): Promise<string> {
+  const { data, error } = await supabase.rpc("accept_team_invite", { _token: token });
+  if (error) throw new Error(error.message);
+  return data as string;
+}
+
+/* ---------------- archive & delete ---------------- */
+
+export async function setTeamArchived(teamId: string, archived: boolean) {
+  const { error } = await supabase
+    .from("teams")
+    .update({ archived_at: archived ? new Date().toISOString() : null })
+    .eq("id", teamId);
   if (error) throw error;
-  return (data as "coach" | "player" | null) ?? null;
+}
+
+export async function deleteTeam(teamId: string) {
+  const { error } = await supabase.from("teams").delete().eq("id", teamId);
+  if (error) throw error;
+}
+
+/** Generate a fresh join code so an old, spread code stops working. */
+export async function regenerateJoinCode(teamId: string): Promise<string> {
+  const code = Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join(
+    "",
+  );
+  const { error } = await supabase.from("teams").update({ join_code: code }).eq("id", teamId);
+  if (error) throw error;
+  return code;
 }
