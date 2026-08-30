@@ -947,3 +947,28 @@ function ToolButton({
     </button>
   );
 }
+
+function BankChip({
+  payload,
+  label,
+  onAdd,
+  children,
+}: {
+  payload: string;
+  label: string;
+  onAdd: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      draggable
+      onDragStart={(event) => event.dataTransfer.setData("text/plain", payload)}
+      onClick={onAdd}
+      className="w-16 shrink-0 rounded-xl border border-border bg-card p-2 text-center text-xs active:scale-95"
+    >
+      <span className="mx-auto flex justify-center">{children}</span>
+      <p className="mt-1 truncate">{label}</p>
+    </button>
+  );
+}
