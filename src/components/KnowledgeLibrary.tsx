@@ -118,6 +118,38 @@ export function KnowledgeLibrary() {
         />
         <Chips label="Ålder" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
         <Chips label="Spelform" value={format} onChange={setFormat} options={KNOWLEDGE_FORMAT_OPTIONS} />
+        {levels.length > 1 && (
+          <Chips
+            label="Nivå"
+            value={level}
+            onChange={setLevel}
+            options={[["all", "Alla nivåer"], ...levels.map((item) => [item, item] as [string, string])]}
+          />
+        )}
+        {languages.length > 1 && (
+          <Chips
+            label="Språk"
+            value={language}
+            onChange={setLanguage}
+            options={[["all", "Alla språk"], ...languages.map((item) => [item, item] as [string, string])]}
+          />
+        )}
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Källa
+          <select
+            aria-label="Filtrera på källa"
+            value={source}
+            onChange={(event) => setSource(event.target.value)}
+            className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground"
+          >
+            <option value="all">Alla källor</option>
+            {sources.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           aria-pressed={onlyFeatured}
