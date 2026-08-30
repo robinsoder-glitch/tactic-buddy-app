@@ -13,6 +13,9 @@ import {
   knowledgeAgeLabel,
   knowledgeCategories,
   knowledgeFormatLabel,
+  knowledgeLanguages,
+  knowledgeLevels,
+  knowledgeSources,
 } from "@/lib/knowledge";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { Input } from "@/components/ui/input";
