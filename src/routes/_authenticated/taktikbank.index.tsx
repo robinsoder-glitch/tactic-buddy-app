@@ -171,20 +171,10 @@ function TaktikbankPage() {
         </div>
       </header>
 
-      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        {TABS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTab(item)}
-            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
-              tab === item ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </nav>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Taktikbanken förklarar hur laget och spelarna ska agera i olika situationer.
+      </p>
+
 
       {tab === "Taktikkort" && (
         <section className="mt-4 space-y-3">
