@@ -7,6 +7,8 @@
 - Regellänken under "Mer innehåll" visas bara för admin.
 - Mobilmeny med fem val (Hem, Taktikbank, Övningsbank, Kunskapsbank, Mer).
 - Tester för etiketter, innehållsmängder, meny och kunskapsbankens filter.
+- Kopplat innehåll mellan bankerna (`content_links`): relaterade avsnitt på artikel, taktikkort och övning, admin-verktyg, favoriter på artiklar.
 
 ## Kvar
 - Inget öppet.
+
