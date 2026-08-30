@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Route = createFileRoute("/_authenticated/traningspass/$id")({
+export const Route = createFileRoute("/_authenticated/traningspass/$id/")({
   head: () => ({
     meta: [
       { title: "Bygg träningspass – Mina träningspass" },
