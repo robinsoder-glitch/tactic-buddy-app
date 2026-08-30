@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
+import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
@@ -54,6 +55,12 @@ const AuthenticatedBankRoute = AuthenticatedBankRouteImport.update({
   path: '/bank',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInstallningarRoute =
+  AuthenticatedInstallningarRouteImport.update({
+    id: '/installningar',
+    path: '/installningar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/installningar': typeof AuthenticatedInstallningarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/installningar': typeof AuthenticatedInstallningarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
+  '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/bank'
+    | '/installningar'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/bank'
+    | '/installningar'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -252,6 +264,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/admin'
     | '/_authenticated/bank'
+    | '/_authenticated/installningar'
     | '/_authenticated/onboarding'
     | '/_authenticated/skapa'
     | '/_authenticated/teams'
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/bank'
       fullPath: '/bank'
       preLoaderRoute: typeof AuthenticatedBankRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/installningar': {
+      id: '/_authenticated/installningar'
+      path: '/installningar'
+      fullPath: '/installningar'
+      preLoaderRoute: typeof AuthenticatedInstallningarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -450,6 +470,7 @@ const AuthenticatedTeamTeamIdRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
+  AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
@@ -462,6 +483,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBankRoute: AuthenticatedBankRoute,
+  AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,

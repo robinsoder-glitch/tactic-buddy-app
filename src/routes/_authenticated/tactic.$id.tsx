@@ -1,3 +1,4 @@
+import { loadPrefs } from "@/lib/prefs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -116,11 +117,11 @@ function TacticEditor() {
   const [tool, setTool] = useState<Tool>("select");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(() => loadPrefs().speed);
   const [loop, setLoop] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
-  const [hideNames, setHideNames] = useState(false);
+  const [hideNames, setHideNames] = useState(() => loadPrefs().hideNames);
   const [snap, setSnap] = useState(true);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
