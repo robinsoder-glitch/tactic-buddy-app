@@ -16,13 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-import { useConfirm } from "@/components/ConfirmDelete";
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useConfirm } from "@/components/ConfirmDelete";
 
 type Props = {
   teamId: string;
