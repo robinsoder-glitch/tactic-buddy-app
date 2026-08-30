@@ -1106,22 +1106,54 @@ function TacticEditor() {
           <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
         </div>
 
-        <input
-          type="range"
-          aria-label="Tidslinje"
-          min={0}
-          max={Math.max(frames.length - 1, 0)}
-          step={0.01}
-          value={progress}
-          disabled={frames.length < 2}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            setPlaying(false);
-            setProgress(value);
-            setCurrent(Math.round(value));
-          }}
-          className="mt-3 w-full accent-[var(--color-primary)]"
-        />
+        <div className="relative mt-3">
+          <input
+            type="range"
+            aria-label="Tidslinje"
+            min={0}
+            max={Math.max(frames.length - 1, 0)}
+            step={0.01}
+            value={progress}
+            disabled={frames.length < 2}
+            onChange={(event) => seekTo(Number(event.target.value))}
+            className="w-full accent-[var(--color-primary)]"
+          />
+          <div className="pointer-events-none mt-1 flex justify-between px-1">
+            {frames.map((item, index) => (
+              <span
+                key={item.id}
+                className={`h-1.5 w-1.5 rounded-full ${
+                  Math.round(progress) === index ? "bg-primary" : "bg-muted-foreground/40"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-mono tabular-nums text-foreground">{formatTime(currentSeconds)}</span>
+          <span>/ {formatTime(totalSeconds)}</span>
+          <label className="ml-auto flex items-center gap-1">
+            <span>Sök till</span>
+            <input
+              type="number"
+              aria-label="Hoppa till tid (sekunder)"
+              min={0}
+              max={Number(totalSeconds.toFixed(1))}
+              step={0.1}
+              value={Number(currentSeconds.toFixed(1))}
+              disabled={frames.length < 2}
+              onChange={(event) => seekSeconds(Number(event.target.value))}
+              className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
+            />
+            <span>s</span>
+          </label>
+        </div>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Piltangenter ← → spolar 0,1 s (Skift = helt steg), Home/End hoppar till start/slut.
+        </p>
+
+
 
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
