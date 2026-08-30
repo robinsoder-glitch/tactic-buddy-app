@@ -240,76 +240,12 @@ function TacticsDashboard({ userId }: { userId: string }) {
       <TeamNav />
 
       <div className="mt-5 flex gap-2">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex-1">
-              <Plus className="size-4" /> Ny taktik
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ny taktik</DialogTitle>
-            </DialogHeader>
-            <Input
-              placeholder="Namn, t.ex. Uppspel mot högpress"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.keys(PITCH_SIZES) as PitchType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setPitchType(type)}
-                  className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
-                    pitchType === type
-                      ? "border-primary bg-primary/15 text-foreground"
-                      : "border-border text-muted-foreground"
-                  }`}
-                >
-                  {PITCH_SIZES[type].label}
-                </button>
-              ))}
-            </div>
-            {coachTeams.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Koppla till lag (spelarbank)
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setTeamId("")}
-                    className={`rounded-lg border px-3 py-2 text-sm ${
-                      teamId === "" ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
-                    }`}
-                  >
-                    Utan lag
-                  </button>
-                  {coachTeams.map((item) => (
-                    <button
-                      key={item.team_id}
-                      type="button"
-                      onClick={() => setTeamId(item.team_id)}
-                      className={`rounded-lg border px-3 py-2 text-sm ${
-                        teamId === item.team_id
-                          ? "border-primary bg-primary/15"
-                          : "border-border text-muted-foreground"
-                      }`}
-                    >
-                      {item.team?.name ?? "Lag"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button onClick={() => create.mutate()} disabled={create.isPending}>
-                Skapa
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button asChild className="flex-1">
+          <Link to="/skapa">
+            <Plus className="size-4" /> Ny taktik
+          </Link>
+        </Button>
+
         <Button asChild variant="secondary">
           <Link to="/bank">
             <Users className="size-4" /> Spelarbank
