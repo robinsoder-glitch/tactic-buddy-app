@@ -32,7 +32,7 @@ import {
 import { fetchEvents, formatDateTime } from "@/lib/teams";
 import type { TeamEvent } from "@/lib/teams";
 import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
-import { PITCH_SIZES } from "@/lib/tactics";
+import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
 import { useConfirm } from "@/components/ConfirmDelete";
