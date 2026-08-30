@@ -73,3 +73,5 @@
 - [x] Borttaget: Åldersgrupp, Dela med lag, läget "Tidigare träning"
 - [x] "Färdigt pass" ersatt med val av övningar från Träningsbanken
 - [x] Fliken "Träningspass" borttagen i Träningsbanken
+
+- [x] Övningar i Träningsbanken kopplade till kunskapsartiklar (content_links)
