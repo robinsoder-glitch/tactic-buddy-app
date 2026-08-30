@@ -86,8 +86,8 @@ function MySessionsPage() {
           </Link>
         </Button>
         <div className="flex-1">
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Planera träningen</p>
-          <h1 className="font-display text-3xl font-bold uppercase">Mina träningspass</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Planera träningen</p>
+          <h1 className="font-display text-3xl font-bold">Mina träningspass</h1>
         </div>
         <Button onClick={() => setCreateOpen(true)} aria-label="Skapa träningspass">
           <Plus className="size-4" /> Skapa träningspass

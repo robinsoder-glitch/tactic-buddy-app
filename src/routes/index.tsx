@@ -103,8 +103,8 @@ function PlayerHome() {
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Spelare</p>
-          <h1 className="truncate font-display text-4xl font-bold uppercase">
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Spelare</p>
+          <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name ?? "Min profil"}
           </h1>
         </div>
@@ -157,8 +157,8 @@ function PlayerHome() {
 function Landing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-16">
-      <p className="font-display text-sm uppercase tracking-[0.3em] text-primary">Taktiktavlan</p>
-      <h1 className="mt-3 font-display text-5xl font-bold uppercase leading-[0.95]">
+      <p className="font-display text-sm tracking-[0.3em] text-primary">Taktiktavlan</p>
+      <h1 className="mt-3 font-display text-5xl font-bold leading-[0.95]">
         Rita, flytta,
         <br />
         animera spelet
@@ -293,8 +293,8 @@ function TacticsDashboard({ userId }: { userId: string }) {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="truncate font-display text-4xl font-bold uppercase">
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+          <h1 className="truncate font-display text-4xl font-bold">
             Hej {profile?.display_name?.split(" ")[0] ?? "tränare"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -322,7 +322,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
         >
           <CalendarDays className="size-5 shrink-0 text-primary" />
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-wide text-primary">
+            <p className="text-xs tracking-wide text-primary">
               Nästa {nextEvent.data.type === "match" ? "match" : "träning"}
             </p>
             <p className="truncate font-display text-lg font-semibold">
@@ -369,7 +369,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
 
       {latest && (
         <section className="mt-6">
-          <h2 className="font-display text-xs uppercase tracking-[0.25em] text-muted-foreground">
+          <h2 className="font-display text-xs tracking-[0.25em] text-muted-foreground">
             Fortsätt där du var
           </h2>
           <Link
@@ -392,7 +392,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
 
       <section className="mt-8">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <h2 className="truncate font-display text-2xl font-bold uppercase">Mina taktiker</h2>
+          <h2 className="truncate font-display text-2xl font-bold">Mina taktiker</h2>
           <div className="flex gap-2">
             <input
               ref={fileInput}
@@ -586,7 +586,7 @@ function QuickCard({
       }`}
     >
       <span className="text-primary">{icon}</span>
-      <span className="font-display text-lg font-semibold uppercase leading-tight">{title}</span>
+      <span className="font-display text-lg font-semibold leading-tight">{title}</span>
       <span className="text-xs text-muted-foreground">{text}</span>
     </Link>
   );

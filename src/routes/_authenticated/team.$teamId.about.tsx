@@ -129,7 +129,7 @@ function AboutPage() {
   if (!isCoach) {
     return (
       <section className="space-y-3">
-        <h2 className="font-display text-2xl font-bold uppercase">Om laget</h2>
+        <h2 className="font-display text-2xl font-bold">Om laget</h2>
         <p className="whitespace-pre-wrap text-sm text-muted-foreground">
           {team.data?.about || "Tränaren har inte lagt till någon beskrivning än."}
         </p>
@@ -139,10 +139,10 @@ function AboutPage() {
 
   return (
     <section className="space-y-4">
-      <h2 className="font-display text-2xl font-bold uppercase">Om laget</h2>
+      <h2 className="font-display text-2xl font-bold">Om laget</h2>
 
       <div className="rounded-xl border border-border bg-card p-4">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Lagkod för spelare</p>
+        <p className="text-xs tracking-wide text-muted-foreground">Lagkod för spelare</p>
         <div className="mt-1 flex items-center gap-3">
           <span className="font-mono text-2xl tracking-widest">{team.data?.join_code}</span>
           <Button
@@ -214,7 +214,7 @@ function AboutPage() {
 
       {isOwner && (
         <div className="space-y-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wide">Hantera laget</h3>
+          <h3 className="text-sm font-semibold tracking-wide">Hantera laget</h3>
           <p className="text-sm text-muted-foreground">
             {archived
               ? "Laget är arkiverat och döljs i lagöversikten."

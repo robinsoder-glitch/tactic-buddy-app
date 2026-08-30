@@ -175,8 +175,8 @@ function KunskapsbankPage() {
           </Link>
         </Button>
         <div className="flex-1">
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Varför vi gör så här</p>
-          <h1 className="font-display text-3xl font-bold uppercase">Kunskapsbank</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Varför vi gör så här</p>
+          <h1 className="font-display text-3xl font-bold">Kunskapsbank</h1>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -262,7 +262,7 @@ function KunskapsbankPage() {
 
       {tagOptions.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-1" aria-label="Filtrera på taggar">
-          <span className="mr-1 text-xs uppercase tracking-wide text-muted-foreground">Taggar</span>
+          <span className="mr-1 text-xs tracking-wide text-muted-foreground">Taggar</span>
           {tagOptions.map((tag) => {
             const active = selectedTags.includes(tag);
             return (
@@ -325,7 +325,7 @@ function KunskapsbankPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Kategorier</h2>
+        <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Kategorier</h2>
         <div className="mt-2 flex flex-wrap gap-2">
           {KB_CATEGORIES.map((item) => (
             <span key={item} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
@@ -373,7 +373,7 @@ function ArticleCard({
     <article className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs tracking-wide text-muted-foreground">
             {KB_CATEGORY_LABELS[article.category] ?? article.category} · {KB_LEVEL_LABELS[article.level] ?? article.level} ·{" "}
             {ageLabel(article)}
           </p>

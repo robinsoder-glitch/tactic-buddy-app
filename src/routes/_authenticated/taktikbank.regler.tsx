@@ -37,7 +37,7 @@ function ReglerPage() {
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="font-display text-2xl font-bold uppercase">Regler</h1>
+        <h1 className="font-display text-2xl font-bold">Regler</h1>
         <p className="mt-2 text-sm text-muted-foreground">Sidan är till för tränare och lagledare.</p>
       </main>
     );
@@ -51,7 +51,7 @@ function ReglerPage() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <h1 className="font-display text-3xl font-bold uppercase">Regler</h1>
+        <h1 className="font-display text-3xl font-bold">Regler</h1>
       </header>
       <section className="mt-4">
         {(rulesets.isLoading || districts.isLoading) && (

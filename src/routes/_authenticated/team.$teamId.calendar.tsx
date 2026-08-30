@@ -20,7 +20,7 @@ function CalendarPage() {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-2xl font-bold uppercase">Kommande</h2>
+        <h2 className="font-display text-2xl font-bold">Kommande</h2>
         <Button
           size="sm"
           variant="secondary"
@@ -44,7 +44,7 @@ function CalendarPage() {
               <div className="min-w-0">
                 <p className="font-medium">
                   {event.title ?? (event.type === "training" ? "Träning" : "Match")}
-                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] uppercase text-muted-foreground">
+                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     {event.type === "training" ? "Träning" : "Match"}
                   </span>
                 </p>
@@ -63,7 +63,7 @@ function CalendarPage() {
 
       {past.length > 0 && (
         <div>
-          <h2 className="font-display text-lg font-semibold uppercase text-muted-foreground">Tidigare</h2>
+          <h2 className="font-display text-lg font-semibold text-muted-foreground">Tidigare</h2>
           <ul className="mt-3 space-y-2">
             {past.map((event) => (
               <li key={event.id} className="rounded-xl border border-border/60 p-3 text-sm text-muted-foreground">

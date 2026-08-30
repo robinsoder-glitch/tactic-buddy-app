@@ -82,7 +82,7 @@ export function ContentLinkAdmin() {
 
   return (
     <section className="mt-6 rounded-xl border border-border bg-card p-4" aria-label="Kopplat innehåll">
-      <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Kopplat innehåll</h2>
+      <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Kopplat innehåll</h2>
       <p className="mt-1 text-xs text-muted-foreground">
         Koppla en artikel, ett taktikkort eller en övning till annat innehåll. Kopplingen visas åt båda hållen.
       </p>

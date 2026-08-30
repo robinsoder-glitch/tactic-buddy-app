@@ -170,7 +170,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   return (
     <section>
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-2xl font-bold uppercase">{title}</h2>
+        <h2 className="font-display text-2xl font-bold">{title}</h2>
         {isCoach && (
           <Button size="sm" onClick={openNew}>
             <Plus className="size-4" /> Nytt
@@ -197,7 +197,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                       : "Träning")}
                 </p>
                 {type === "match" && event.match_kind && (
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs tracking-wide text-muted-foreground">
                     {event.match_kind}
                   </p>
                 )}

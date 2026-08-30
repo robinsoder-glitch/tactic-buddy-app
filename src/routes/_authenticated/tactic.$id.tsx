@@ -802,7 +802,7 @@ function TacticEditor() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <h1 className="min-w-0 flex-1 truncate font-display text-2xl font-bold uppercase">
+        <h1 className="min-w-0 flex-1 truncate font-display text-2xl font-bold">
           {tactic.data.name}
         </h1>
         <span className="text-xs text-muted-foreground">
@@ -975,7 +975,7 @@ function TacticEditor() {
       )}
 
       <section className="rounded-2xl border border-border bg-card/60 p-3">
-        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+        <div className="mb-2 flex items-center gap-2 text-xs tracking-wide text-muted-foreground">
           <Users className="size-4" />
           {teamId ? "Lagets trupp" : "Din spelarbank"} – dra ut på planen eller tryck för att lägga till
         </div>
@@ -1082,7 +1082,7 @@ function TacticEditor() {
 
 
       <section className="rounded-xl border border-border bg-card p-3">
-        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground" htmlFor="step-note">
+        <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
           Anteckning för {frame?.name || `steg ${current + 1}`}
         </label>
         <Textarea

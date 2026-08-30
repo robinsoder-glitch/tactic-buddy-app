@@ -167,7 +167,7 @@ function LeadersPage() {
       </section>
 
       <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide">Vem får göra vad</h2>
+        <h2 className="text-sm font-semibold tracking-wide">Vem får göra vad</h2>
         <ul className="space-y-1 text-xs text-muted-foreground">
           {(["owner", "coach", "player", "member"] as const).map((role) => (
             <li key={role}>
@@ -306,7 +306,7 @@ function LeadersPage() {
 
       {isOwner && leaders.some((leader) => leader.user_id !== userId) && (
         <section className="space-y-3 rounded-xl border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide">Överlåt lagägarskapet</h2>
+          <h2 className="text-sm font-semibold tracking-wide">Överlåt lagägarskapet</h2>
           <p className="text-xs text-muted-foreground">
             Den nya ägaren tar över ansvaret för laget. Du blir kvar som ledare.
           </p>

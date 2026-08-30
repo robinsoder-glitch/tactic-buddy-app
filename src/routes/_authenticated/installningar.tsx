@@ -78,11 +78,11 @@ function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <h1 className="font-display text-3xl font-bold uppercase">Inställningar</h1>
+      <h1 className="font-display text-3xl font-bold">Inställningar</h1>
       <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
 
       <section className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4">
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <UserRound className="size-4 text-primary" /> Profil
         </h2>
         <div>
@@ -99,7 +99,7 @@ function SettingsPage() {
       </section>
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Palette className="size-4 text-primary" /> Utseende
         </h2>
         <p className="text-xs text-muted-foreground">
@@ -130,7 +130,7 @@ function SettingsPage() {
       </section>
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <SlidersHorizontal className="size-4 text-primary" /> Taktiktavlan
         </h2>
         <PrefRow
@@ -225,7 +225,7 @@ function SettingsPage() {
       </section>
 
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Shield className="size-4 text-primary" /> Mina lag
         </h2>
         {approved.length === 0 && <p className="text-sm text-muted-foreground">Du är inte med i något lag ännu.</p>}
@@ -258,7 +258,7 @@ function SettingsPage() {
       </section>
 
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <KeyRound className="size-4 text-primary" /> Konto
         </h2>
         <Button variant="secondary" onClick={sendReset}>

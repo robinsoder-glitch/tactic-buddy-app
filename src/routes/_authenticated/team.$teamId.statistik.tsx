@@ -58,7 +58,7 @@ function StatsPage() {
     <section className="mt-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="font-display text-xl font-bold uppercase">Statistik</h2>
+          <h2 className="font-display text-xl font-bold">Statistik</h2>
           <p className="text-sm text-muted-foreground">
             {done.filter((event) => event.type === "training").length} träningar och{" "}
             {done.filter((event) => event.type === "match").length} matcher är genomförda.
@@ -95,7 +95,7 @@ function StatsPage() {
         <div className="mt-4 overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[540px] text-sm">
             <caption className="sr-only">Närvaro per spelare på träningar och matcher</caption>
-            <thead className="bg-secondary/50 text-xs uppercase tracking-wide text-muted-foreground">
+            <thead className="bg-secondary/50 text-xs tracking-wide text-muted-foreground">
               <tr>
                 <th scope="col" className="px-3 py-2 text-left">
                   Spelare

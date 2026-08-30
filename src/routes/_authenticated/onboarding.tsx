@@ -94,8 +94,8 @@ function OnboardingPage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-10">
-      <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Kom igång</p>
-      <h1 className="mt-2 font-display text-4xl font-bold uppercase">Välj kontotyp</h1>
+      <p className="font-display text-xs tracking-[0.3em] text-primary">Kom igång</p>
+      <h1 className="mt-2 font-display text-4xl font-bold">Välj kontotyp</h1>
 
       <div className="mt-6 grid gap-3">
         <button
@@ -106,7 +106,7 @@ function OnboardingPage() {
           }`}
         >
           <ClipboardList className="mb-2 size-5 text-primary" />
-          <h2 className="font-display text-xl font-semibold uppercase">Tränare / lagledare</h2>
+          <h2 className="font-display text-xl font-semibold">Tränare / lagledare</h2>
           <p className="text-sm text-muted-foreground">Skapa lag, trupp och träningar. Kräver 18 år.</p>
         </button>
 
@@ -118,7 +118,7 @@ function OnboardingPage() {
           }`}
         >
           <User className="mb-2 size-5 text-primary" />
-          <h2 className="font-display text-xl font-semibold uppercase">Spelare</h2>
+          <h2 className="font-display text-xl font-semibold">Spelare</h2>
           <p className="text-sm text-muted-foreground">Gå med i ditt lag med lagkoden från tränaren.</p>
         </button>
       </div>

@@ -5,7 +5,7 @@ import { LINK_TYPE_LABELS, type RelatedItem, type RelatedSection } from "@/lib/c
 function ItemCard({ item }: { item: RelatedItem }) {
   const inner = (
     <>
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{LINK_TYPE_LABELS[item.type]}</p>
+      <p className="text-xs tracking-wide text-muted-foreground">{LINK_TYPE_LABELS[item.type]}</p>
       <p className="mt-1 font-display text-sm font-semibold">{item.title}</p>
       {item.note && <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>}
       <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
@@ -44,7 +44,7 @@ export function RelatedContent({ sections }: { sections: RelatedSection[] }) {
     <div className="mt-6 space-y-5">
       {sections.map((section) => (
         <section key={section.title} aria-label={section.title}>
-          <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">{section.title}</h2>
+          <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">{section.title}</h2>
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {section.items.map((item) => (
               <ItemCard key={`${item.type}:${item.id}`} item={item} />

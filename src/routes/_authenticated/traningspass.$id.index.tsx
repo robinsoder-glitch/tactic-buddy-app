@@ -159,8 +159,8 @@ function SessionBuilder() {
           </Link>
         </Button>
         <div className="flex-1">
-          <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Bygg träningspass</p>
-          <h1 className="font-display text-2xl font-bold uppercase">{session.data.title}</h1>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
+          <h1 className="font-display text-2xl font-bold">{session.data.title}</h1>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
@@ -280,7 +280,7 @@ function SessionBuilder() {
             <li key={item.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs tracking-wide text-muted-foreground">
                     {index + 1}. {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Egen aktivitet"}
                   </p>
                   <p className="font-display text-base font-semibold">{item.title}</p>

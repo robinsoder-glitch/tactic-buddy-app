@@ -83,7 +83,7 @@ function AuthPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl">
-        <h1 className="font-display text-3xl font-bold uppercase tracking-wide">
+        <h1 className="font-display text-3xl font-bold tracking-wide">
           {mode === "signin" ? "Logga in" : "Skapa konto"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ function AuthPage() {
           Fortsätt med Google
         </Button>
 
-        <div className="my-5 flex items-center gap-3 text-xs uppercase text-muted-foreground">
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" /> eller <span className="h-px flex-1 bg-border" />
         </div>
 
