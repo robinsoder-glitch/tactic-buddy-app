@@ -66,3 +66,4 @@
 - [ ] Verifiera att inga "Lägg till träningspass"/"Lägg till träning" finns kvar i Kunskapsbanken
 - [ ] Automatiskt test som failar om knapparna återkommer i Kunskapsbanken
 - [ ] Tydlig uppdatering/cache-busting så senaste versionen visas utan hård omladdning
+- [ ] Ta bort "Sista svarsdag" helt från gränssnittet (databasfältet respond_by behålls)
