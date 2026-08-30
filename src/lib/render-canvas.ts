@@ -188,7 +188,7 @@ export function drawScene(
     arrowHead(ctx, x1, y1, x2, y2, w * 0.018);
   }
 
-  const tokenR = w * 0.031;
+  const tokenR = 0.7; // armspännvidd ~1,4 m i meterkoordinater
 
   // pass balls
   if (options.passT != null) {

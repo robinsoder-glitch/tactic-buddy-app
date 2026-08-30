@@ -93,7 +93,8 @@ export function Pitch({
   const dragId = useRef<string | null>(null);
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
-  const tokenR = w * 0.031;
+  // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
+  const tokenR = 0.7;
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
 
 
