@@ -328,6 +328,9 @@ function KunskapsbankPage() {
           ))}
         </div>
       </section>
+      </>
+      )}
+
 
       {isAdmin && (
         <ArticleDialog
