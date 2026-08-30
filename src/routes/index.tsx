@@ -1,23 +1,54 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, CopyPlus, LogOut, Plus, Shield, Trash2, Users } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  CopyPlus,
+  Download,
+  Link2,
+  LogOut,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Shield,
+  Trash2,
+  Upload,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccount } from "@/hooks/useAccount";
-import { createTactic, deleteTactic, duplicateTactic, fetchTactics, renameTactic } from "@/lib/db";
+import {
+  createTacticFromFrames,
+  deleteTactic,
+  duplicateTactic,
+  fetchTactic,
+  fetchTacticPreviews,
+  fetchTactics,
+  renameTactic,
+} from "@/lib/db";
+import { fetchEvents, formatDateTime } from "@/lib/teams";
+import type { TeamEvent } from "@/lib/teams";
+import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
 import { PITCH_SIZES } from "@/lib/tactics";
-import type { PitchType } from "@/lib/tactics";
+import type { TacticSummary } from "@/lib/db";
+import { TacticThumb } from "@/components/TacticThumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
@@ -61,34 +92,6 @@ function HomePage() {
   return <TacticsDashboard userId={user.id} />;
 }
 
-function TeamNav() {
-  const { isAdmin, isCoach, memberships } = useAccount();
-  const approved = memberships.filter((item) => item.status === "approved");
-  return (
-    <nav className="mt-5 flex flex-wrap gap-2">
-      {isCoach && (
-        <Button asChild variant="secondary" size="sm">
-          <Link to="/teams">
-            <Shield className="size-4" /> Mina lag
-          </Link>
-        </Button>
-      )}
-      {isAdmin && (
-        <Button asChild variant="secondary" size="sm">
-          <Link to="/admin">Admin</Link>
-        </Button>
-      )}
-      {approved.map((item) => (
-        <Button asChild variant="ghost" size="sm" key={item.id}>
-          <Link to="/team/$teamId" params={{ teamId: item.team_id }}>
-            {item.team?.name ?? "Laget"}
-          </Link>
-        </Button>
-      ))}
-    </nav>
-  );
-}
-
 function PlayerHome() {
   const queryClient = useQueryClient();
   const { memberships, profile } = useAccount();
@@ -97,10 +100,12 @@ function PlayerHome() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <header className="flex items-start justify-between gap-3">
-        <div>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
           <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Spelare</p>
-          <h1 className="font-display text-4xl font-bold uppercase">{profile?.display_name ?? "Min profil"}</h1>
+          <h1 className="truncate font-display text-4xl font-bold uppercase">
+            {profile?.display_name ?? "Min profil"}
+          </h1>
         </div>
         <Button
           variant="ghost"
@@ -148,7 +153,6 @@ function PlayerHome() {
   );
 }
 
-
 function Landing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-16">
@@ -174,34 +178,47 @@ function Landing() {
   );
 }
 
+/* ----------------------------- dashboard ----------------------------- */
+
+type SortKey = "updated" | "name";
+
 function TacticsDashboard({ userId }: { userId: string }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [pitchType, setPitchType] = useState<PitchType>("full");
-  const [teamId, setTeamId] = useState<string>("");
-  const { memberships } = useAccount();
-  const coachTeams = memberships.filter(
-    (item) => item.role === "coach" && item.status === "approved",
-  );
+  const { memberships, profile, isAdmin, isCoach } = useAccount();
+  const fileInput = useRef<HTMLInputElement | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortKey>("updated");
+  const [teamFilter, setTeamFilter] = useState<string>("all");
+  const [renaming, setRenaming] = useState<TacticSummary | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+
+  const approved = memberships.filter((item) => item.status === "approved");
 
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
+  const previews = useQuery({ queryKey: ["tactic-previews"], queryFn: fetchTacticPreviews });
 
-  const create = useMutation({
-    mutationFn: () => createTactic(userId, name.trim() || "Ny taktik", pitchType, teamId || null),
-    onSuccess: (id) => {
-      setOpen(false);
-      setName("");
-      queryClient.invalidateQueries({ queryKey: ["tactics"] });
-      navigate({ to: "/tactic/$id", params: { id } });
+  const nextEvent = useQuery({
+    queryKey: ["next-event", approved.map((item) => item.team_id).join(",")],
+    enabled: approved.length > 0,
+    queryFn: async () => {
+      const lists = await Promise.all(approved.map((item) => fetchEvents(item.team_id)));
+      const now = Date.now();
+      const upcoming = lists
+        .flat()
+        .filter((event) => new Date(event.starts_at).getTime() >= now)
+        .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+      return (upcoming[0] ?? null) as TeamEvent | null;
     },
-    onError: () => toast.error("Kunde inte skapa taktiken"),
   });
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteTactic(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tactics"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      queryClient.invalidateQueries({ queryKey: ["tactic-previews"] });
+    },
   });
 
   const copy = useMutation({
@@ -209,20 +226,78 @@ function TacticsDashboard({ userId }: { userId: string }) {
     onSuccess: () => {
       toast.success("Taktiken kopierades");
       queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      queryClient.invalidateQueries({ queryKey: ["tactic-previews"] });
     },
   });
 
   const rename = useMutation({
     mutationFn: ({ id, value }: { id: string; value: string }) => renameTactic(id, value),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tactics"] }),
+    onSuccess: () => {
+      setRenaming(null);
+      queryClient.invalidateQueries({ queryKey: ["tactics"] });
+    },
   });
 
+  const importFile = useMutation({
+    mutationFn: async (file: File) => {
+      const parsed = parseTacticFile(await file.text());
+      return createTacticFromFrames(userId, parsed.name, parsed.pitchType, null, parsed.frames);
+    },
+    onSuccess: (id) => {
+      toast.success("Taktiken importerades");
+      queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      navigate({ to: "/tactic/$id", params: { id } });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Kunde inte importera filen"),
+  });
+
+  const coachTeams = approved.filter((item) => item.role === "coach");
+
+  const visible = useMemo(() => {
+    const list = (tactics.data ?? []).filter((tactic) => {
+      const matchesQuery = tactic.name.toLowerCase().includes(query.trim().toLowerCase());
+      const matchesTeam = teamFilter === "all" || tactic.team_id === teamFilter;
+      return matchesQuery && matchesTeam;
+    });
+    return [...list].sort((a, b) =>
+      sort === "name" ? a.name.localeCompare(b.name, "sv") : b.updated_at.localeCompare(a.updated_at),
+    );
+  }, [tactics.data, query, sort, teamFilter]);
+
+  const latest = tactics.data?.[0] ?? null;
+
+  async function exportFile(tactic: TacticSummary) {
+    try {
+      const detail = await fetchTactic(tactic.id);
+      downloadTacticFile(detail.name, detail.pitch_type, detail.frames);
+    } catch {
+      toast.error("Kunde inte exportera taktiken");
+    }
+  }
+
+  function copyShare(tactic: TacticSummary) {
+    if (!tactic.is_public || !tactic.share_id) {
+      toast.error("Slå på delning i taktiken först");
+      return;
+    }
+    navigator.clipboard.writeText(`${window.location.origin}/t/${tactic.share_id}`).then(
+      () => toast.success("Länk kopierad"),
+      () => toast.error("Kunde inte kopiera"),
+    );
+  }
+
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <header className="flex items-start justify-between gap-3">
-        <div>
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
           <p className="font-display text-xs uppercase tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="font-display text-4xl font-bold uppercase">Mina taktiker</h1>
+          <h1 className="truncate font-display text-4xl font-bold uppercase">
+            Hej {profile?.display_name?.split(" ")[0] ?? "tränare"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {new Date().toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
         </div>
         <Button
           variant="ghost"
@@ -237,76 +312,276 @@ function TacticsDashboard({ userId }: { userId: string }) {
         </Button>
       </header>
 
-      <TeamNav />
+      {nextEvent.data && (
+        <Link
+          to="/team/$teamId"
+          params={{ teamId: nextEvent.data.team_id }}
+          className="mt-5 flex items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 p-4"
+        >
+          <CalendarDays className="size-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-wide text-primary">
+              Nästa {nextEvent.data.type === "match" ? "match" : "träning"}
+            </p>
+            <p className="truncate font-display text-lg font-semibold">
+              {nextEvent.data.title ??
+                (nextEvent.data.type === "match"
+                  ? `${nextEvent.data.home_team ?? "Hemma"} – ${nextEvent.data.away_team ?? "Borta"}`
+                  : "Träning")}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {formatDateTime(nextEvent.data.starts_at)}
+              {nextEvent.data.location ? ` · ${nextEvent.data.location}` : ""}
+            </p>
+          </div>
+        </Link>
+      )}
 
-      <div className="mt-5 flex gap-2">
-        <Button asChild className="flex-1">
-          <Link to="/skapa">
-            <Plus className="size-4" /> Ny taktik
-          </Link>
-        </Button>
-
-        <Button asChild variant="secondary">
-          <Link to="/bank">
-            <Users className="size-4" /> Spelarbank
-          </Link>
-        </Button>
-        <Button asChild variant="secondary">
-          <Link to="/taktikbank">
-            <BookOpen className="size-4" /> Taktikbank
-          </Link>
-        </Button>
-      </div>
-
-      <section className="mt-6 space-y-3">
-        {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktiker…</p>}
-        {tactics.data?.length === 0 && (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Inga taktiker än. Skapa din första!
-          </p>
+      <section className="mt-5 grid grid-cols-2 gap-3">
+        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom plan eller mall" primary />
+        <QuickCard to="/taktikbank" icon={<BookOpen className="size-5" />} title="Taktikbank" text="Färdiga övningar" />
+        <QuickCard to="/bank" icon={<Users className="size-5" />} title="Spelarbank" text="Namn, nummer, bilder" />
+        {isCoach ? (
+          <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mina lag" text="Trupp och kalender" />
+        ) : (
+          <QuickCard to="/installningar" icon={<Shield className="size-5" />} title="Inställningar" text="Profil och app" />
         )}
-        {tactics.data?.map((tactic) => (
-          <article
-            key={tactic.id}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
-          >
-            <Link
-              to="/tactic/$id"
-              params={{ id: tactic.id }}
-              className="min-w-0 flex-1"
-            >
-              <h2 className="truncate font-display text-xl font-semibold">{tactic.name}</h2>
-              <p className="text-xs text-muted-foreground">
-                {PITCH_SIZES[tactic.pitch_type]?.label ?? tactic.pitch_type} · {tactic.frameCount} steg
-              </p>
-            </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Döp om"
-              onClick={() => {
-                const value = window.prompt("Nytt namn", tactic.name);
-                if (value) rename.mutate({ id: tactic.id, value });
-              }}
-            >
-              <span className="font-display text-sm">Aa</span>
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="Duplicera" onClick={() => copy.mutate(tactic.id)}>
-              <CopyPlus className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Ta bort"
-              onClick={() => {
-                if (window.confirm(`Ta bort "${tactic.name}"?`)) remove.mutate(tactic.id);
-              }}
-            >
-              <Trash2 className="size-4 text-destructive" />
-            </Button>
-          </article>
-        ))}
       </section>
+
+      {(isAdmin || approved.length > 0) && (
+        <nav className="mt-3 flex flex-wrap gap-2">
+          {isAdmin && (
+            <Button asChild variant="secondary" size="sm">
+              <Link to="/admin">Admin</Link>
+            </Button>
+          )}
+          {approved.map((item) => (
+            <Button asChild variant="ghost" size="sm" key={item.id}>
+              <Link to="/team/$teamId" params={{ teamId: item.team_id }}>
+                {item.team?.name ?? "Laget"}
+              </Link>
+            </Button>
+          ))}
+        </nav>
+      )}
+
+      {latest && (
+        <section className="mt-6">
+          <h2 className="font-display text-xs uppercase tracking-[0.25em] text-muted-foreground">
+            Fortsätt där du var
+          </h2>
+          <Link
+            to="/tactic/$id"
+            params={{ id: latest.id }}
+            className="mt-2 flex items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3"
+          >
+            <div className="w-28 shrink-0 overflow-hidden rounded-lg">
+              <TacticThumb pitchType={latest.pitch_type} frame={previews.data?.[latest.id] ?? null} width={220} />
+            </div>
+            <div className="min-w-0">
+              <h3 className="truncate font-display text-xl font-semibold">{latest.name}</h3>
+              <p className="text-xs text-muted-foreground">
+                {PITCH_SIZES[latest.pitch_type]?.label ?? latest.pitch_type} · {latest.frameCount} steg
+              </p>
+            </div>
+          </Link>
+        </section>
+      )}
+
+      <section className="mt-8">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <h2 className="truncate font-display text-2xl font-bold uppercase">Mina taktiker</h2>
+          <div className="flex gap-2">
+            <input
+              ref={fileInput}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) importFile.mutate(file);
+              }}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => fileInput.current?.click()}
+              disabled={importFile.isPending}
+            >
+              <Upload className="size-4" /> Importera
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Sök taktik…"
+            className="min-w-40 flex-1"
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setSort(sort === "updated" ? "name" : "updated")}
+          >
+            {sort === "updated" ? "Senast ändrad" : "Namn A–Ö"}
+          </Button>
+        </div>
+
+        {coachTeams.length > 1 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant={teamFilter === "all" ? "default" : "ghost"}
+              onClick={() => setTeamFilter("all")}
+            >
+              Alla lag
+            </Button>
+            {coachTeams.map((item) => (
+              <Button
+                key={item.id}
+                size="sm"
+                variant={teamFilter === item.team_id ? "default" : "ghost"}
+                onClick={() => setTeamFilter(item.team_id)}
+              >
+                {item.team?.name ?? "Laget"}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktiker…</p>}
+
+          {!tactics.isLoading && visible.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-border p-6 text-center sm:col-span-2">
+              <p className="text-sm text-muted-foreground">
+                {tactics.data?.length ? "Ingen taktik matchar sökningen." : "Inga taktiker än."}
+              </p>
+              <div className="mt-3 flex justify-center gap-2">
+                <Button asChild size="sm">
+                  <Link to="/skapa">
+                    <Plus className="size-4" /> Skapa taktik
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="secondary">
+                  <Link to="/taktikbank">
+                    <BookOpen className="size-4" /> Välj mall
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {visible.map((tactic) => (
+            <article
+              key={tactic.id}
+              className="overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
+            >
+              <Link to="/tactic/$id" params={{ id: tactic.id }} className="block">
+                <TacticThumb pitchType={tactic.pitch_type} frame={previews.data?.[tactic.id] ?? null} width={420} />
+              </Link>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3">
+                <Link to="/tactic/$id" params={{ id: tactic.id }} className="min-w-0">
+                  <h3 className="truncate font-display text-lg font-semibold">{tactic.name}</h3>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {PITCH_SIZES[tactic.pitch_type]?.label ?? tactic.pitch_type} · {tactic.frameCount} steg ·{" "}
+                    {new Date(tactic.updated_at).toLocaleDateString("sv-SE")}
+                    {tactic.is_public ? " · delad" : ""}
+                  </p>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Fler åtgärder">
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setRenaming(tactic);
+                        setRenameValue(tactic.name);
+                      }}
+                    >
+                      <Pencil className="size-4" /> Byt namn
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => copy.mutate(tactic.id)}>
+                      <CopyPlus className="size-4" /> Duplicera
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => copyShare(tactic)}>
+                      <Link2 className="size-4" /> Kopiera länk
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => void exportFile(tactic)}>
+                      <Download className="size-4" /> Spara som fil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        if (window.confirm(`Ta bort "${tactic.name}"?`)) remove.mutate(tactic.id);
+                      }}
+                    >
+                      <Trash2 className="size-4 text-destructive" /> Ta bort
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <Dialog open={renaming !== null} onOpenChange={(open) => !open && setRenaming(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Byt namn</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={renameValue}
+            onChange={(event) => setRenameValue(event.target.value)}
+            placeholder="Namn på taktiken"
+          />
+          <DialogFooter>
+            <Button
+              disabled={!renameValue.trim() || rename.isPending}
+              onClick={() =>
+                renaming && rename.mutate({ id: renaming.id, value: renameValue.trim() })
+              }
+            >
+              Spara
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
+  );
+}
+
+function QuickCard({
+  to,
+  icon,
+  title,
+  text,
+  primary,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+  primary?: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      className={`flex flex-col gap-1 rounded-2xl border p-4 transition-colors ${
+        primary
+          ? "border-primary bg-primary/15 hover:bg-primary/25"
+          : "border-border bg-card hover:border-primary/50"
+      }`}
+    >
+      <span className="text-primary">{icon}</span>
+      <span className="font-display text-lg font-semibold uppercase leading-tight">{title}</span>
+      <span className="text-xs text-muted-foreground">{text}</span>
+    </Link>
   );
 }
