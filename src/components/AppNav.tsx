@@ -31,7 +31,7 @@ export function AppNav() {
   return (
     <nav
       aria-label="Huvudmeny"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-primary bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85"
     >
       <ul className="mx-auto flex max-w-3xl items-stretch">
         {items.map((item) => (
@@ -40,9 +40,11 @@ export function AppNav() {
               to={item.to}
               {...("teamId" in item ? { params: { teamId: item.teamId as string } } : {})}
               activeOptions={{ exact: item.exact }}
-              className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-medium text-muted-foreground data-[status=active]:text-primary"
+              className="group relative flex min-h-[4.25rem] flex-col items-center justify-center gap-1 px-1 py-2 text-[13px] font-semibold text-muted-foreground transition-colors data-[status=active]:text-primary-foreground"
             >
-              <item.icon className="size-5" aria-hidden />
+              <span className="absolute inset-x-1 top-1 bottom-1 -z-10 rounded-xl bg-transparent transition-colors group-hover:bg-accent data-[status=active]:bg-primary" />
+              <span className="absolute inset-x-0 top-0 h-1 rounded-b-sm bg-transparent transition-colors data-[status=active]:bg-primary" />
+              <item.icon className="size-6" aria-hidden />
               {item.label}
             </Link>
           </li>
