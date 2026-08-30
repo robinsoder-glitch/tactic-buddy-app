@@ -94,6 +94,7 @@ export function Pitch({
   const { w, h } = PITCH_SIZES[pitchType];
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragId = useRef<string | null>(null);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
