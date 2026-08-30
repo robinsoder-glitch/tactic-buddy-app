@@ -85,12 +85,15 @@ export function KnowledgeLibrary() {
 
   const all = articles.data ?? [];
   const categories = useMemo(() => knowledgeCategories(all), [all]);
+  const levels = useMemo(() => knowledgeLevels(all), [all]);
+  const languages = useMemo(() => knowledgeLanguages(all), [all]);
+  const sources = useMemo(() => knowledgeSources(all), [all]);
   const list = useMemo(
     () =>
-      filterKnowledge(all, { query, category, age, format, onlyFeatured }).filter(
+      filterKnowledge(all, { query, category, age, format, level, language, source, onlyFeatured }).filter(
         (article) => !onlyFavorites || favoriteSet.has(article.id),
       ),
-    [all, query, category, age, format, onlyFeatured, onlyFavorites, favoriteSet],
+    [all, query, category, age, format, level, language, source, onlyFeatured, onlyFavorites, favoriteSet],
   );
 
   return (
