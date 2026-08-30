@@ -30,6 +30,8 @@ export function Pitch({
   tool = "select",
   selectedId = null,
   interactive = true,
+  drawColor,
+  passT = null,
   onMoveObject,
   onSelectObject,
   onAddDrawing,
@@ -41,6 +43,7 @@ export function Pitch({
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   const tokenR = w * 0.031;
+  const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
 
   function toNormalized(event: React.PointerEvent) {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -53,7 +56,7 @@ export function Pitch({
 
   function handlePointerDown(event: React.PointerEvent) {
     if (!interactive) return;
-    if (tool === "run" || tool === "pass") {
+    if (isShapeTool) {
       const point = toNormalized(event);
       svgRef.current?.setPointerCapture?.(event.pointerId);
       setPending({ x1: point.x, y1: point.y, x2: point.x, y2: point.y });
@@ -79,20 +82,14 @@ export function Pitch({
   function handlePointerUp() {
     if (pending) {
       const distance = Math.hypot(pending.x2 - pending.x1, pending.y2 - pending.y1);
-      if (distance > 0.02 && (tool === "run" || tool === "pass")) {
-        onAddDrawing?.({ type: tool, ...pending });
+      if (distance > 0.02 && isShapeTool) {
+        onAddDrawing?.({ type: tool, color: drawColor ?? null, ...pending });
       }
       setPending(null);
     }
     dragId.current = null;
   }
 
-  const markLine = "var(--color-pitch-line)";
-  const boxDepth = pitchType === "full" ? 16.5 : 9;
-  const boxWidth = pitchType === "full" ? 40.3 : 20;
-  const goalDepth = pitchType === "full" ? 5.5 : 3;
-  const goalWidth = pitchType === "full" ? 18.3 : 9;
-  const circleR = pitchType === "full" ? 9.15 : 6;
 
   return (
     <div
