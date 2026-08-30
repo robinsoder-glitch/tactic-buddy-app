@@ -296,7 +296,9 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <div className="min-w-0">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
           <h1 className="truncate font-display text-4xl font-bold">
-            Hej {profile?.display_name?.split(" ")[0] ?? "tränare"}
+            {profile?.display_name?.trim()
+              ? `Hej ${profile.display_name.trim().split(" ")[0]}`
+              : "Hej!"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date().toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
