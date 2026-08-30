@@ -230,6 +230,13 @@ function TacticEditor() {
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
 
+  function goToStep(index: number) {
+    const next = Math.max(0, Math.min(index, frames.length - 1));
+    setPlaying(false);
+    setCurrent(next);
+    setProgress(next);
+  }
+
   function undo() {
     const previous = history.current.pop();
     if (!previous) return;
@@ -524,11 +531,7 @@ function TacticEditor() {
             >
               <button
                 type="button"
-                onClick={() => {
-                  setPlaying(false);
-                  setCurrent(index);
-                  setProgress(index);
-                }}
+                onClick={() => goToStep(index)}
                 onDoubleClick={() => {
                   const value = window.prompt("Namn på steget", item.name ?? "");
                   if (value !== null) {
