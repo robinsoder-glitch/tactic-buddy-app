@@ -106,6 +106,8 @@ export function drawScene(
     passT: number | null;
     note?: string | null;
     hideNames?: boolean;
+    tokenScale?: number;
+    showPhotos?: boolean;
     photos?: PhotoMap;
 
     width: number;
@@ -188,7 +190,7 @@ export function drawScene(
     arrowHead(ctx, x1, y1, x2, y2, w * 0.018);
   }
 
-  const tokenR = 0.7; // armspännvidd ~1,4 m i meterkoordinater
+  const tokenR = 0.7 * (options.tokenScale || 1); // armspännvidd ~1,4 m i meterkoordinater
 
   // pass balls
   if (options.passT != null) {
@@ -223,7 +225,7 @@ export function drawScene(
     ctx.stroke();
 
     const photo =
-      object.photoUrl && !options.hideNames ? options.photos?.get(object.photoUrl) : undefined;
+      object.photoUrl && options.showPhotos !== false ? options.photos?.get(object.photoUrl) : undefined;
     if (photo) {
       ctx.save();
       ctx.beginPath();

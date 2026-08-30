@@ -16,6 +16,10 @@ type Props = {
   drawColor?: string | undefined;
   /** hide player names on the pitch (numbers/initials still shown) */
   hideNames?: boolean;
+  /** scale factor for the player tokens (1 = default) */
+  tokenScale?: number;
+  /** render player photos inside the tokens when available */
+  showPhotos?: boolean;
   /** show a snap grid overlay, value is grid step in 0..1 units */
   gridStep?: number | null;
   /** 0..1 progress of the current animation segment, used for the pass ball */
@@ -82,6 +86,8 @@ export function Pitch({
   interactive = true,
   drawColor,
   hideNames = false,
+  tokenScale = 1,
+  showPhotos = true,
   gridStep = null,
   passT = null,
   onMoveObject,
@@ -98,7 +104,7 @@ export function Pitch({
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
-  const tokenR = 0.7;
+  const tokenR = 0.7 * (tokenScale || 1);
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
 
 
@@ -381,7 +387,7 @@ export function Pitch({
                 stroke={isSelected ? "white" : object.gk ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.35)"}
                 strokeWidth={isSelected ? w * 0.005 : object.gk ? w * 0.004 : w * 0.002}
               />
-              {object.photoUrl && !hideNames ? (
+              {object.photoUrl && showPhotos ? (
                 <image
                   href={object.photoUrl}
                   x={-tokenR}

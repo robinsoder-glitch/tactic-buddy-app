@@ -10,6 +10,8 @@ export type ExportOptions = {
   fps?: number;
   width?: number;
   hideNames?: boolean;
+  tokenScale?: number;
+  showPhotos?: boolean;
 };
 
 
@@ -52,6 +54,8 @@ export async function exportGif(options: ExportOptions, filename: string) {
       pitchType,
       ...scene,
       hideNames: options.hideNames ?? false,
+      tokenScale: options.tokenScale ?? 1,
+      showPhotos: options.showPhotos ?? true,
       photos,
       width: canvas.width,
       height: canvas.height,
@@ -113,6 +117,8 @@ export async function exportVideo(options: ExportOptions, filename: string) {
       pitchType,
       ...scene,
       hideNames: options.hideNames ?? false,
+      tokenScale: options.tokenScale ?? 1,
+      showPhotos: options.showPhotos ?? true,
       photos,
       width: canvas.width,
       height: canvas.height,
