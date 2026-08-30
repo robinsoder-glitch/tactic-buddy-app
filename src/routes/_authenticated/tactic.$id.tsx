@@ -420,6 +420,39 @@ function TacticEditor() {
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
 
+  const stepSeconds = STEP_MS / 1000 / speed;
+  const totalSeconds = Math.max(frames.length - 1, 0) * stepSeconds;
+  const currentSeconds = progress * stepSeconds;
+
+  const seekTo = useCallback(
+    (value: number) => {
+      const max = Math.max(frames.length - 1, 0);
+      const clamped = Math.min(max, Math.max(0, value));
+      setPlaying(false);
+      setProgress(clamped);
+      setCurrent(Math.round(clamped));
+    },
+    [frames.length],
+  );
+
+  const seekSeconds = useCallback(
+    (seconds: number) => seekTo(seconds / stepSeconds),
+    [seekTo, stepSeconds],
+  );
+
+  const seekRef = useRef<(sign: number, whole: boolean) => void>(() => {});
+  seekRef.current = (sign, whole) => {
+    if (!Number.isFinite(sign)) {
+      seekTo(sign < 0 ? 0 : frames.length - 1);
+      return;
+    }
+    if (whole) {
+      seekTo(Math.round(progress) + sign);
+      return;
+    }
+    seekTo(progress + (sign * 0.1) / stepSeconds);
+  };
+
   function goToStep(index: number) {
     const next = Math.max(0, Math.min(index, frames.length - 1));
     setPlaying(false);
