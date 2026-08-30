@@ -22,6 +22,8 @@ type Props = {
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onMoveEnd?: () => void;
+  /** called when an object was dragged with the run/pass tool: draw a trail from start to end */
+  onObjectTrail?: (objectId: string, type: "run" | "pass", from: { x: number; y: number }) => void;
   onSelectObject?: (id: string | null) => void;
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
@@ -84,6 +86,7 @@ export function Pitch({
   passT = null,
   onMoveObject,
   onMoveEnd,
+  onObjectTrail,
   onSelectObject,
   onAddDrawing,
   onRemoveDrawing,
@@ -91,6 +94,7 @@ export function Pitch({
   const { w, h } = PITCH_SIZES[pitchType];
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragId = useRef<string | null>(null);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
@@ -140,8 +144,31 @@ export function Pitch({
       }
       setPending(null);
     }
-    if (dragId.current) onMoveEnd?.();
+    if (dragId.current) {
+      if (dragStart.current && (tool === "run" || tool === "pass")) {
+        onObjectTrail?.(dragId.current, tool, dragStart.current);
+      }
+      onMoveEnd?.();
+    }
     dragId.current = null;
+    dragStart.current = null;
+  }
+
+  /** run-tool drags players, pass-tool drags the ball, select drags everything */
+  function canDragObject(object: FieldObject) {
+    if (tool === "select") return true;
+    if (tool === "run") return object.kind === "player";
+    if (tool === "pass") return object.kind === "ball";
+    return false;
+  }
+
+  function startObjectDrag(event: React.PointerEvent, object: FieldObject) {
+    if (!interactive || !canDragObject(object)) return;
+    event.stopPropagation();
+    svgRef.current?.setPointerCapture?.(event.pointerId);
+    dragId.current = object.id;
+    dragStart.current = { x: object.x, y: object.y };
+    onSelectObject?.(object.id);
   }
 
   const markLine = "var(--color-pitch-line)";
@@ -333,13 +360,7 @@ export function Pitch({
                 key={object.id}
                 transform={`translate(${cx} ${cy})`}
                 style={{ cursor: interactive ? "grab" : "default" }}
-                onPointerDown={(event) => {
-                  if (!interactive || tool !== "select") return;
-                  event.stopPropagation();
-                  svgRef.current?.setPointerCapture?.(event.pointerId);
-                  dragId.current = object.id;
-                  onSelectObject?.(object.id);
-                }}
+                onPointerDown={(event) => startObjectDrag(event, object)}
               >
                 <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
 
@@ -352,13 +373,7 @@ export function Pitch({
               key={object.id}
               transform={`translate(${cx} ${cy})`}
               style={{ cursor: interactive ? "grab" : "default" }}
-              onPointerDown={(event) => {
-                if (!interactive || tool !== "select") return;
-                event.stopPropagation();
-                svgRef.current?.setPointerCapture?.(event.pointerId);
-                dragId.current = object.id;
-                onSelectObject?.(object.id);
-              }}
+              onPointerDown={(event) => startObjectDrag(event, object)}
             >
               <circle
                 r={tokenR}
