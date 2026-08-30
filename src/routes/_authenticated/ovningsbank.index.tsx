@@ -27,6 +27,8 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FilterPanel, FilterRow } from "@/components/FilterPanel";
+
 
 type OvningsbankSearch = { flik?: "ovningar" | "malvakt" | "pass" | undefined; markera?: string | undefined };
 
