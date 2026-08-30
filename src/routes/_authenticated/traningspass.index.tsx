@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, Copy, ListChecks, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
+  addSessionItem,
   createCoachSession,
   createFromTemplate,
   deleteCoachSession,
@@ -18,7 +19,7 @@ import {
   type CoachSession,
   type SessionDraft,
 } from "@/lib/coach-sessions";
-import { fetchTrainingSessions } from "@/lib/taktikbank";
+import { fetchDrills } from "@/lib/taktikbank";
 import {
   addResourceToEvent,
   eventOptionLabel,
