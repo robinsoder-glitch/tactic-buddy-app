@@ -324,8 +324,18 @@ function OvningsbankPage() {
                     {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
                     {drill.default_minutes ? ` · ${drill.default_minutes} min` : ""}
                   </p>
-                  <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
+                  <h2 className="font-display text-lg font-semibold">
+                    <Link
+                      to="/ovningsbank/$drillId"
+                      params={{ drillId: drill.id }}
+                      className="hover:underline underline-offset-4"
+                    >
+                      {drill.title}
+                    </Link>
+                  </h2>
                   <p className="text-sm text-muted-foreground">{drill.purpose}</p>
+                  <DrillKeyFacts drill={drill} />
+
                   {drill.data.linkedTacticIds?.length ? (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {drill.data.linkedTacticIds.map((tacticId) => (
