@@ -22,6 +22,8 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RulesView } from "@/components/rules/RulesView";
+import { formatLabelFor } from "@/lib/rules-presentation";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
@@ -222,7 +224,7 @@ function TaktikbankPage() {
             <FilterGroup
               value={format}
               onChange={setFormat}
-              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, item] as [string, string])]}
+              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, formatLabelFor(item)] as [string, string])]}
             />
             <FilterGroup
               value={moment}
@@ -281,7 +283,7 @@ function TaktikbankPage() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {card.format} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
+                    {formatLabelFor(card.format)} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
                     {label(PHASE_LABELS, card.phase)} · nivå {card.difficulty}
                   </p>
                   <h2 className="font-display text-lg font-semibold">{card.title}</h2>
@@ -406,21 +408,17 @@ function TaktikbankPage() {
       )}
 
       {tab === "Regler" && (
-        <section className="mt-4 space-y-3">
+        <section className="mt-4">
           {(rulesets.isLoading || districts.isLoading) && (
             <p className="text-sm text-muted-foreground">Laddar…</p>
           )}
-          {(rulesets.data ?? []).map((rule) => (
-            <RuleCard key={rule.id} format={rule.format} season={rule.season} data={rule.data} />
-          ))}
-          {(districts.data ?? []).map((district) => (
-            <article key={district.id} className="rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-lg font-semibold">{district.name}</h2>
-              <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-muted-foreground">
-                {readable(district.data)}
-              </pre>
-            </article>
-          ))}
+          {!rulesets.isLoading && !districts.isLoading && (
+            <RulesView
+              rulesets={rulesets.data ?? []}
+              districts={districts.data ?? []}
+              isAdmin={isAdmin}
+            />
+          )}
         </section>
       )}
     </main>
@@ -452,50 +450,4 @@ function FilterGroup({
       ))}
     </div>
   );
-}
-
-function RuleCard({
-  format,
-  season,
-  data,
-}: {
-  format: string;
-  season: string | null;
-  data: Record<string, unknown>;
-}) {
-  const sources = (data["sources"] as { title: string; url?: string }[] | undefined) ?? [];
-  return (
-    <article className="rounded-xl border border-border bg-card p-4">
-      <h2 className="font-display text-lg font-semibold">
-        Spelform {format} {season ? `· ${season}` : ""}
-      </h2>
-      <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-muted-foreground">
-        {readable({ ...data, sources: undefined })}
-      </pre>
-      {sources.length > 0 && (
-        <ul className="mt-2 space-y-1 text-xs">
-          {sources.map((source) => (
-            <li key={source.title}>
-              {source.url ? (
-                <a href={source.url} target="_blank" rel="noreferrer" className="text-primary underline">
-                  {source.title}
-                </a>
-              ) : (
-                source.title
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
-  );
-}
-
-function readable(value: unknown) {
-  return JSON.stringify(value, (_key, item) => (item === undefined ? undefined : item), 2)
-    .replace(/[{}"[\]]/g, "")
-    .split("\n")
-    .map((line) => line.replace(/,$/, "").trimEnd())
-    .filter((line) => line.trim().length > 0)
-    .join("\n");
 }
