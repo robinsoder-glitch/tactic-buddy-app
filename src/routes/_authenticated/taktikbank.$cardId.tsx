@@ -264,11 +264,56 @@ function TaktikbankCard() {
           </Button>
         </div>
 
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="w-24 shrink-0">Hastighet {speed.toFixed(2)}x</span>
+            <input
+              type="range"
+              className="h-2 flex-1 accent-primary"
+              min={0.25}
+              max={2}
+              step={0.05}
+              value={speed}
+              aria-label="Animationshastighet"
+              onChange={(event) => setSpeed(Number(event.target.value))}
+            />
+          </label>
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="w-24 shrink-0">Looppaus {loopPause.toFixed(1)}s</span>
+            <input
+              type="range"
+              className="h-2 flex-1 accent-primary"
+              min={0}
+              max={3}
+              step={0.1}
+              value={loopPause}
+              disabled={!loop}
+              aria-label="Paus mellan repetitioner"
+              onChange={(event) => setLoopPause(Number(event.target.value))}
+            />
+          </label>
+        </div>
+
         <p className="mt-2 min-h-10 rounded-lg bg-muted/40 px-3 py-2 text-sm">
           <span className="text-muted-foreground">Steg {index + 1}/{frames.length}: </span>
           {note ?? "—"}
         </p>
       </div>
+
+      <PlanTrainingDialog
+        open={planOpen}
+        onOpenChange={setPlanOpen}
+        cardId={cardId}
+        cardTitle={data.title}
+        purpose={data.purpose ?? ""}
+        teams={teams.data ?? []}
+        userId={user?.id ?? null}
+        onCreated={(teamId) => {
+          setPlanOpen(false);
+          navigate({ to: "/team/$teamId/training", params: { teamId } });
+        }}
+      />
+
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
         <Info title="Trigger" body={data.trigger} />
