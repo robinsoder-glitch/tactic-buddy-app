@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ClipboardList, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { claimRole, findTeamByCode, redeemTeamInvite, requestJoin, updateProfile } from "@/lib/teams";
+import { claimRole, findTeamByCode, requestJoin, updateProfile } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
