@@ -3,7 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  Circle,
   CircleDot,
+  ChevronLeft,
+  ChevronRight,
   Eraser,
   FlipHorizontal2,
   MoveRight,
@@ -12,6 +15,7 @@ import {
   Plus,
   Repeat,
   Save,
+  Square,
   Trash2,
   Undo2,
   Users,
@@ -19,7 +23,7 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames } from "@/lib/db";
-import { activeFrameIndex, interpolateFrames, uid } from "@/lib/tactics";
+import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
@@ -49,6 +53,7 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 });
 
 const STEP_MS = 1400;
+const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
 function TacticEditor() {
   const { id } = Route.useParams();
@@ -67,6 +72,7 @@ function TacticEditor() {
   const [loop, setLoop] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
+  const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
   const history = useRef<Frame[][]>([]);
 
   useEffect(() => {
@@ -142,13 +148,19 @@ function TacticEditor() {
   }, [playing, speed, loop, frames.length]);
 
   const frame = frames[current];
+  const scrubbing = Math.abs(progress - current) > 0.001;
+  const animating = playing || scrubbing;
   const displayedObjects = useMemo(
-    () => (playing ? interpolateFrames(frames, progress) : (frame?.objects ?? [])),
-    [playing, frames, progress, frame],
+    () => (animating ? interpolateFrames(frames, progress) : (frame?.objects ?? [])),
+    [animating, frames, progress, frame],
   );
-  const displayedDrawings = playing
-    ? (frames[activeFrameIndex(progress, frames.length)]?.drawings ?? [])
+  const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
+  const segmentT = progress - segmentIndex;
+  const displayedDrawings = animating
+    ? (frames[segmentIndex]?.drawings ?? [])
     : (frame?.drawings ?? []);
+  const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
+
 
   function addObject(object: FieldObject) {
     commit((prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })));
@@ -218,6 +230,13 @@ function TacticEditor() {
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
 
+  function goToStep(index: number) {
+    const next = Math.max(0, Math.min(index, frames.length - 1));
+    setPlaying(false);
+    setCurrent(next);
+    setProgress(next);
+  }
+
   function undo() {
     const previous = history.current.pop();
     if (!previous) return;
@@ -283,6 +302,8 @@ function TacticEditor() {
         tool={tool}
         selectedId={selectedId}
         interactive={!playing}
+        drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
+        passT={passT}
         onMoveObject={moveObject}
         onSelectObject={setSelectedId}
         onAddDrawing={addDrawing}
@@ -299,9 +320,32 @@ function TacticEditor() {
         <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
           <span className="text-xs font-semibold">Passning</span>
         </ToolButton>
+        <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
+          <Square className="size-4" />
+        </ToolButton>
+        <ToolButton active={tool === "circle"} onClick={() => setTool("circle")} label="Markering">
+          <Circle className="size-4" />
+        </ToolButton>
         <ToolButton active={tool === "erase"} onClick={() => setTool("erase")} label="Radera linjer">
           <Eraser className="size-4" />
         </ToolButton>
+
+        {(tool === "zone" || tool === "circle") && (
+          <div className="flex items-center gap-1" role="group" aria-label="Färg på markering">
+            {MARK_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                aria-label={`Färg ${color}`}
+                onClick={() => setDrawColor(color)}
+                className={`size-6 rounded-full border-2 ${
+                  drawColor === color ? "border-foreground" : "border-transparent"
+                }`}
+                style={{ background: color }}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="ml-auto flex gap-1">
           <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo}>
@@ -416,12 +460,30 @@ function TacticEditor() {
       <section className="rounded-xl border border-border bg-card p-3">
         <div className="flex items-center gap-2">
           <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Föregående steg"
+            onClick={() => goToStep(current - 1)}
+            disabled={current === 0}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
             size="icon"
             aria-label={playing ? "Pausa" : "Spela upp"}
             onClick={() => setPlaying((value) => !value)}
             disabled={frames.length < 2}
           >
             {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Nästa steg"
+            onClick={() => goToStep(current + 1)}
+            disabled={current >= frames.length - 1}
+          >
+            <ChevronRight className="size-4" />
           </Button>
           <button
             type="button"
@@ -441,6 +503,24 @@ function TacticEditor() {
           <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
         </div>
 
+        <input
+          type="range"
+          aria-label="Tidslinje"
+          min={0}
+          max={Math.max(frames.length - 1, 0)}
+          step={0.01}
+          value={progress}
+          disabled={frames.length < 2}
+          onChange={(event) => {
+            const value = Number(event.target.value);
+            setPlaying(false);
+            setProgress(value);
+            setCurrent(Math.round(value));
+          }}
+          className="mt-3 w-full accent-[var(--color-primary)]"
+        />
+
+
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
           {frames.map((item, index) => (
             <div
@@ -451,11 +531,7 @@ function TacticEditor() {
             >
               <button
                 type="button"
-                onClick={() => {
-                  setPlaying(false);
-                  setCurrent(index);
-                  setProgress(index);
-                }}
+                onClick={() => goToStep(index)}
                 onDoubleClick={() => {
                   const value = window.prompt("Namn på steget", item.name ?? "");
                   if (value !== null) {

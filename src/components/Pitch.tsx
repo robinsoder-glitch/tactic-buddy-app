@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { PITCH_SIZES, clamp01, initials } from "@/lib/tactics";
 import type { Drawing, FieldObject, PitchType } from "@/lib/tactics";
 
-export type Tool = "select" | "run" | "pass" | "erase";
+export type Tool = "select" | "run" | "pass" | "zone" | "circle" | "erase";
+
+export const PASS_COLOR = "oklch(0.9 0.16 90)";
 
 type Props = {
   pitchType: PitchType;
@@ -11,11 +13,15 @@ type Props = {
   tool?: Tool;
   selectedId?: string | null;
   interactive?: boolean;
+  drawColor?: string | undefined;
+  /** 0..1 progress of the current animation segment, used for the pass ball */
+  passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onSelectObject?: (id: string | null) => void;
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
 };
+
 
 export function Pitch({
   pitchType,
@@ -24,6 +30,8 @@ export function Pitch({
   tool = "select",
   selectedId = null,
   interactive = true,
+  drawColor,
+  passT = null,
   onMoveObject,
   onSelectObject,
   onAddDrawing,
@@ -35,6 +43,7 @@ export function Pitch({
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   const tokenR = w * 0.031;
+  const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
 
   function toNormalized(event: React.PointerEvent) {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -47,7 +56,7 @@ export function Pitch({
 
   function handlePointerDown(event: React.PointerEvent) {
     if (!interactive) return;
-    if (tool === "run" || tool === "pass") {
+    if (isShapeTool) {
       const point = toNormalized(event);
       svgRef.current?.setPointerCapture?.(event.pointerId);
       setPending({ x1: point.x, y1: point.y, x2: point.x, y2: point.y });
@@ -73,8 +82,8 @@ export function Pitch({
   function handlePointerUp() {
     if (pending) {
       const distance = Math.hypot(pending.x2 - pending.x1, pending.y2 - pending.y1);
-      if (distance > 0.02 && (tool === "run" || tool === "pass")) {
-        onAddDrawing?.({ type: tool, ...pending });
+      if (distance > 0.02 && isShapeTool) {
+        onAddDrawing?.({ type: tool, color: drawColor ?? null, ...pending });
       }
       setPending(null);
     }
@@ -87,6 +96,94 @@ export function Pitch({
   const goalDepth = pitchType === "full" ? 5.5 : 3;
   const goalWidth = pitchType === "full" ? 18.3 : 9;
   const circleR = pitchType === "full" ? 9.15 : 6;
+
+  function shapeColor(drawing: Pick<Drawing, "type" | "color">) {
+    if (drawing.color) return drawing.color;
+    return drawing.type === "pass" ? PASS_COLOR : markLine;
+  }
+
+  function renderShape(drawing: Drawing, key: string, preview = false) {
+    const color = shapeColor(drawing);
+    const x1 = drawing.x1 * w;
+    const y1 = drawing.y1 * h;
+    const x2 = drawing.x2 * w;
+    const y2 = drawing.y2 * h;
+    const erasable = !preview && tool === "erase";
+    const common = {
+      style: { cursor: erasable ? "pointer" : "default" },
+      onPointerDown: (event: React.PointerEvent) => {
+        if (erasable) {
+          event.stopPropagation();
+          onRemoveDrawing?.(drawing.id);
+        }
+      },
+      opacity: preview ? 0.8 : 1,
+    };
+
+    if (drawing.type === "zone") {
+      return (
+        <rect
+          key={key}
+          x={Math.min(x1, x2)}
+          y={Math.min(y1, y2)}
+          width={Math.abs(x2 - x1)}
+          height={Math.abs(y2 - y1)}
+          fill={color}
+          fillOpacity={0.18}
+          stroke={color}
+          strokeWidth={w * 0.004}
+          strokeDasharray={`${w * 0.012} ${w * 0.01}`}
+          rx={w * 0.006}
+          {...common}
+        />
+      );
+    }
+
+    if (drawing.type === "circle") {
+      return (
+        <ellipse
+          key={key}
+          cx={(x1 + x2) / 2}
+          cy={(y1 + y2) / 2}
+          rx={Math.abs(x2 - x1) / 2}
+          ry={Math.abs(y2 - y1) / 2}
+          fill={color}
+          fillOpacity={0.14}
+          stroke={color}
+          strokeWidth={w * 0.004}
+          {...common}
+        />
+      );
+    }
+
+    return (
+      <line
+        key={key}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={color}
+        strokeWidth={w * 0.005}
+        strokeLinecap="round"
+        strokeDasharray={drawing.type === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
+        markerEnd={preview ? undefined : drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"}
+        {...common}
+      />
+    );
+  }
+
+  const passBalls =
+    passT == null
+      ? []
+      : drawings
+          .filter((drawing) => drawing.type === "pass")
+          .map((drawing) => ({
+            id: drawing.id,
+            x: (drawing.x1 + (drawing.x2 - drawing.x1) * passT) * w,
+            y: (drawing.y1 + (drawing.y2 - drawing.y1) * passT) * h,
+          }));
+
 
   return (
     <div
@@ -136,40 +233,29 @@ export function Pitch({
           <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
         </g>
 
-        {drawings.map((drawing) => (
-          <line
-            key={drawing.id}
-            x1={drawing.x1 * w}
-            y1={drawing.y1 * h}
-            x2={drawing.x2 * w}
-            y2={drawing.y2 * h}
-            stroke={drawing.type === "run" ? markLine : "oklch(0.9 0.16 90)"}
-            strokeWidth={w * 0.005}
-            strokeLinecap="round"
-            strokeDasharray={drawing.type === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
-            markerEnd={drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"}
-            style={{ cursor: tool === "erase" ? "pointer" : "default" }}
-            onPointerDown={(event) => {
-              if (tool === "erase") {
-                event.stopPropagation();
-                onRemoveDrawing?.(drawing.id);
-              }
-            }}
-          />
+        {drawings
+          .filter((drawing) => drawing.type === "zone" || drawing.type === "circle")
+          .map((drawing) => renderShape(drawing, drawing.id))}
+
+        {drawings
+          .filter((drawing) => drawing.type === "run" || drawing.type === "pass")
+          .map((drawing) => renderShape(drawing, drawing.id))}
+
+        {pending &&
+          isShapeTool &&
+          renderShape(
+            { id: "pending", type: tool as Drawing["type"], color: drawColor ?? null, ...pending },
+            "pending",
+            true,
+          )}
+
+        {passBalls.map((ball) => (
+          <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
+            <circle r={tokenR * 0.55} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
+            <circle r={tokenR * 0.22} fill="oklch(0.2 0 0)" />
+          </g>
         ))}
 
-        {pending && (
-          <line
-            x1={pending.x1 * w}
-            y1={pending.y1 * h}
-            x2={pending.x2 * w}
-            y2={pending.y2 * h}
-            stroke={tool === "run" ? markLine : "oklch(0.9 0.16 90)"}
-            strokeWidth={w * 0.005}
-            strokeLinecap="round"
-            strokeDasharray={tool === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
-          />
-        )}
 
         {objects.map((object) => {
           const cx = object.x * w;
