@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
 import { doneCount, loadProgress, resetSession, toggleBlock, type SessionProgress } from "@/lib/session-progress";
@@ -21,6 +21,7 @@ import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
@@ -417,6 +418,25 @@ function OvningsbankPage() {
                     active={favoriteSet.has(`session:${session.id}`)}
                     onClick={() => toggleFavorite.mutate({ kind: "session", id: session.id })}
                   />
+                </div>
+                <div className="mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    aria-label={`Använd ${session.title} som mall`}
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        const newId = await createFromTemplate(session, user.id);
+                        navigate({ to: "/traningspass/$id", params: { id: newId } });
+                      } catch {
+                        setTemplateError("Det gick inte att skapa ett träningspass från mallen. Försök igen.");
+                      }
+                    }}
+                  >
+                    Använd som mall
+                  </Button>
+                  {templateError && <p className="mt-2 text-sm text-destructive">{templateError}</p>}
                 </div>
                 {open && (
                   <>
