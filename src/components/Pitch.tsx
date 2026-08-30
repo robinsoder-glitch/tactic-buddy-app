@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { PITCH_SIZES, clamp01, initials } from "@/lib/tactics";
 import type { Drawing, FieldObject, PitchType } from "@/lib/tactics";
 
-export type Tool = "select" | "run" | "pass" | "erase";
+export type Tool = "select" | "run" | "pass" | "zone" | "circle" | "erase";
+
+export const PASS_COLOR = "oklch(0.9 0.16 90)";
 
 type Props = {
   pitchType: PitchType;
@@ -11,11 +13,15 @@ type Props = {
   tool?: Tool;
   selectedId?: string | null;
   interactive?: boolean;
+  drawColor?: string;
+  /** 0..1 progress of the current animation segment, used for the pass ball */
+  passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onSelectObject?: (id: string | null) => void;
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
 };
+
 
 export function Pitch({
   pitchType,
