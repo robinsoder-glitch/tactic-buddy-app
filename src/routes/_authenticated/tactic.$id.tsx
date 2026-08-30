@@ -1,0 +1,519 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  CircleDot,
+  Eraser,
+  FlipHorizontal2,
+  MoveRight,
+  Pause,
+  Play,
+  Plus,
+  Repeat,
+  Save,
+  Trash2,
+  Undo2,
+  Users,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchPlayers, fetchTactic, saveFrames } from "@/lib/db";
+import { activeFrameIndex, interpolateFrames, uid } from "@/lib/tactics";
+import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
+import { Pitch, type Tool } from "@/components/Pitch";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+
+export const Route = createFileRoute("/_authenticated/tactic/$id")({
+  head: () => ({
+    meta: [
+      { title: "Taktiktavla – bygg och animera spelmoment" },
+      {
+        name: "description",
+        content: "Placera spelare på planen, rita löpningar och passningar och animera taktiken steg för steg.",
+      },
+      { property: "og:title", content: "Taktiktavla – bygg och animera spelmoment" },
+      { property: "og:description", content: "Placera spelare, rita löpningar och animera taktiken." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: TacticEditor,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-8 text-center text-sm text-muted-foreground">
+      {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-8 text-center">Taktiken hittades inte.</div>,
+});
+
+const STEP_MS = 1400;
+
+function TacticEditor() {
+  const { id } = Route.useParams();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const tactic = useQuery({ queryKey: ["tactic", id], queryFn: () => fetchTactic(id) });
+  const players = useQuery({ queryKey: ["players"], queryFn: fetchPlayers });
+
+  const [frames, setFrames] = useState<Frame[]>([]);
+  const [current, setCurrent] = useState(0);
+  const [tool, setTool] = useState<Tool>("select");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [loop, setLoop] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [dirty, setDirty] = useState(false);
+  const history = useRef<Frame[][]>([]);
+
+  useEffect(() => {
+    if (tactic.data) {
+      setFrames(tactic.data.frames);
+      setCurrent(0);
+      setProgress(0);
+      setDirty(false);
+    }
+  }, [tactic.data]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Inte inloggad");
+      await saveFrames(id, user.id, frames);
+    },
+    onSuccess: () => {
+      setDirty(false);
+      queryClient.invalidateQueries({ queryKey: ["tactics"] });
+    },
+    onError: () => toast.error("Kunde inte spara"),
+  });
+
+  const saveRef = useRef(save);
+  saveRef.current = save;
+
+  // Autosave with debounce
+  useEffect(() => {
+    if (!dirty) return;
+    const timeout = setTimeout(() => saveRef.current.mutate(), 2000);
+    return () => clearTimeout(timeout);
+  }, [dirty, frames]);
+
+  const commit = useCallback((updater: (frames: Frame[]) => Frame[]) => {
+    setFrames((prev) => {
+      history.current = [...history.current.slice(-24), prev];
+      return updater(prev);
+    });
+    setDirty(true);
+  }, []);
+
+  // Playback
+  useEffect(() => {
+    if (!playing || frames.length < 2) return;
+    let raf = 0;
+    const startedAt = performance.now();
+    const from = progress >= frames.length - 1 ? 0 : progress;
+    const total = ((frames.length - 1 - from) * STEP_MS) / speed;
+
+    const tick = (now: number) => {
+      const elapsed = now - startedAt;
+      const value = from + (elapsed / STEP_MS) * speed;
+      if (value >= frames.length - 1) {
+        if (loop) {
+          setProgress(0);
+          setPlaying(false);
+          setTimeout(() => setPlaying(true), 60);
+        } else {
+          setProgress(frames.length - 1);
+          setCurrent(frames.length - 1);
+          setPlaying(false);
+        }
+        return;
+      }
+      setProgress(value);
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    void total;
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, speed, loop, frames.length]);
+
+  const frame = frames[current];
+  const displayedObjects = useMemo(
+    () => (playing ? interpolateFrames(frames, progress) : (frame?.objects ?? [])),
+    [playing, frames, progress, frame],
+  );
+  const displayedDrawings = playing
+    ? (frames[activeFrameIndex(progress, frames.length)]?.drawings ?? [])
+    : (frame?.drawings ?? []);
+
+  function addObject(object: FieldObject) {
+    commit((prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })));
+  }
+
+  function removeObject(objectId: string) {
+    commit((prev) =>
+      prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
+    );
+    setSelectedId(null);
+  }
+
+  function moveObject(objectId: string, x: number, y: number) {
+    setDirty(true);
+    setFrames((prev) =>
+      prev.map((item, index) =>
+        index === current
+          ? {
+              ...item,
+              objects: item.objects.map((o) => (o.id === objectId ? { ...o, x, y } : o)),
+            }
+          : item,
+      ),
+    );
+  }
+
+  function addDrawing(drawing: Omit<Drawing, "id">) {
+    commit((prev) =>
+      prev.map((item, index) =>
+        index === current ? { ...item, drawings: [...item.drawings, { ...drawing, id: uid() }] } : item,
+      ),
+    );
+  }
+
+  function removeDrawing(drawingId: string) {
+    commit((prev) =>
+      prev.map((item, index) =>
+        index === current
+          ? { ...item, drawings: item.drawings.filter((d) => d.id !== drawingId) }
+          : item,
+      ),
+    );
+  }
+
+  function addFrame() {
+    commit((prev) => {
+      const source = prev[current];
+      if (!source) return prev;
+      const copy: Frame = {
+        id: uid(),
+        name: `Steg ${prev.length + 1}`,
+        objects: source.objects.map((object) => ({ ...object })),
+        drawings: [],
+      };
+      const next = [...prev];
+      next.splice(current + 1, 0, copy);
+      return next;
+    });
+    setCurrent((value) => value + 1);
+    setProgress(current + 1);
+  }
+
+  function deleteFrame(index: number) {
+    if (frames.length <= 1) return;
+    commit((prev) => prev.filter((_, i) => i !== index));
+    setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
+    setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
+  }
+
+  function undo() {
+    const previous = history.current.pop();
+    if (!previous) return;
+    setFrames(previous);
+    setCurrent((value) => Math.min(value, previous.length - 1));
+    setDirty(true);
+  }
+
+  function mirror() {
+    commit((prev) =>
+      prev.map((item, index) =>
+        index === current
+          ? {
+              ...item,
+              objects: item.objects.map((object) => ({ ...object, x: 1 - object.x })),
+              drawings: item.drawings.map((drawing) => ({
+                ...drawing,
+                x1: 1 - drawing.x1,
+                x2: 1 - drawing.x2,
+              })),
+            }
+          : item,
+      ),
+    );
+  }
+
+  function clearPitch() {
+    commit((prev) => prev.map((item) => ({ ...item, objects: [], drawings: [] })));
+    setSelectedId(null);
+  }
+
+  if (tactic.isLoading || !tactic.data) {
+    return <div className="grid min-h-screen place-items-center text-muted-foreground">Laddar taktik…</div>;
+  }
+
+  const onPitchPlayerIds = new Set(
+    (frame?.objects ?? []).map((object) => object.playerId).filter(Boolean) as string[],
+  );
+
+  return (
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
+      <header className="flex items-center gap-2">
+        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
+          <Link to="/">
+            <ArrowLeft className="size-5" />
+          </Link>
+        </Button>
+        <h1 className="min-w-0 flex-1 truncate font-display text-2xl font-bold uppercase">
+          {tactic.data.name}
+        </h1>
+        <span className="text-xs text-muted-foreground">
+          {save.isPending ? "Sparar…" : dirty ? "Osparat" : "Sparat"}
+        </span>
+        <Button variant="ghost" size="icon" aria-label="Spara" onClick={() => save.mutate()}>
+          <Save className="size-5" />
+        </Button>
+      </header>
+
+      <Pitch
+        pitchType={tactic.data.pitch_type}
+        objects={displayedObjects}
+        drawings={displayedDrawings}
+        tool={tool}
+        selectedId={selectedId}
+        interactive={!playing}
+        onMoveObject={moveObject}
+        onSelectObject={setSelectedId}
+        onAddDrawing={addDrawing}
+        onRemoveDrawing={removeDrawing}
+      />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <ToolButton active={tool === "select"} onClick={() => setTool("select")} label="Flytta">
+          <MoveRight className="size-4" />
+        </ToolButton>
+        <ToolButton active={tool === "run"} onClick={() => setTool("run")} label="Löpning">
+          <span className="text-xs font-semibold">Löpning</span>
+        </ToolButton>
+        <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
+          <span className="text-xs font-semibold">Passning</span>
+        </ToolButton>
+        <ToolButton active={tool === "erase"} onClick={() => setTool("erase")} label="Radera linjer">
+          <Eraser className="size-4" />
+        </ToolButton>
+
+        <div className="ml-auto flex gap-1">
+          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo}>
+            <Undo2 className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
+            <FlipHorizontal2 className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Lägg till boll"
+            onClick={() =>
+              addObject({
+                id: uid(),
+                kind: "ball",
+                label: "",
+                team: "home",
+                x: 0.5,
+                y: 0.5,
+              })
+            }
+          >
+            <CircleDot className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Rensa plan" onClick={clearPitch}>
+            <Trash2 className="size-4 text-destructive" />
+          </Button>
+        </div>
+      </div>
+
+      {selectedId && (
+        <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm">
+          <span>
+            {frame?.objects.find((object) => object.id === selectedId)?.label || "Objekt"} markerad
+          </span>
+          <Button size="sm" variant="ghost" onClick={() => removeObject(selectedId)}>
+            Ta bort från planen
+          </Button>
+        </div>
+      )}
+
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="secondary" className="w-full">
+            <Users className="size-4" /> Spelarbank
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Sätt ut spelare</SheetTitle>
+          </SheetHeader>
+          <div className="grid grid-cols-3 gap-3 p-4 pt-0 sm:grid-cols-4">
+            {(players.data ?? []).map((player) => {
+              const used = onPitchPlayerIds.has(player.id);
+              return (
+                <button
+                  key={player.id}
+                  type="button"
+                  disabled={used}
+                  onClick={() =>
+                    addObject({
+                      id: uid(),
+                      kind: "player",
+                      playerId: player.id,
+                      label: player.name.split(" ")[0] ?? player.name,
+                      number: player.number,
+                      team: player.team === "away" ? "away" : "home",
+                      photoUrl: player.photoUrl,
+                      x: 0.5,
+                      y: 0.5,
+                    })
+                  }
+                  className={`rounded-xl border border-border p-2 text-center text-xs ${
+                    used ? "opacity-40" : "bg-card"
+                  }`}
+                >
+                  <div
+                    className="mx-auto grid size-12 place-items-center overflow-hidden rounded-full"
+                    style={{
+                      background:
+                        player.team === "away" ? "var(--color-team-away)" : "var(--color-team-home)",
+                      color:
+                        player.team === "away"
+                          ? "var(--color-team-away-foreground)"
+                          : "var(--color-team-home-foreground)",
+                    }}
+                  >
+                    {player.photoUrl ? (
+                      <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
+                    ) : (
+                      <span className="font-display text-base font-bold">{player.number ?? "•"}</span>
+                    )}
+                  </div>
+                  <p className="mt-1 truncate">{player.name}</p>
+                </button>
+              );
+            })}
+            {players.data?.length === 0 && (
+              <p className="col-span-full text-center text-sm text-muted-foreground">
+                Inga spelare än.{" "}
+                <Link to="/bank" className="underline">
+                  Fyll på banken
+                </Link>
+                .
+              </p>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <section className="rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon"
+            aria-label={playing ? "Pausa" : "Spela upp"}
+            onClick={() => setPlaying((value) => !value)}
+            disabled={frames.length < 2}
+          >
+            {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+          </Button>
+          <button
+            type="button"
+            onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
+            className="rounded-md border border-border px-2 py-1 text-xs font-semibold"
+          >
+            {speed}x
+          </button>
+          <Button
+            variant={loop ? "default" : "ghost"}
+            size="icon"
+            aria-label="Loopa"
+            onClick={() => setLoop((value) => !value)}
+          >
+            <Repeat className="size-4" />
+          </Button>
+          <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
+        </div>
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {frames.map((item, index) => (
+            <div
+              key={item.id}
+              className={`flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-sm ${
+                index === current ? "border-primary bg-primary/15" : "border-border"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaying(false);
+                  setCurrent(index);
+                  setProgress(index);
+                }}
+                onDoubleClick={() => {
+                  const value = window.prompt("Namn på steget", item.name ?? "");
+                  if (value !== null) {
+                    commit((prev) =>
+                      prev.map((f, i) => (i === index ? { ...f, name: value } : f)),
+                    );
+                  }
+                }}
+              >
+                {item.name || `Steg ${index + 1}`}
+              </button>
+              {frames.length > 1 && (
+                <button
+                  type="button"
+                  aria-label="Ta bort steg"
+                  onClick={() => deleteFrame(index)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              )}
+            </div>
+          ))}
+          <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
+            <Plus className="size-4" /> Steg
+          </Button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Flytta spelarna i varje steg – appen animerar mjukt mellan stegen. Dubbeltryck på ett steg för
+          att döpa om det.
+        </p>
+      </section>
+    </main>
+  );
+}
+
+function ToolButton({
+  active,
+  onClick,
+  label,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={active}
+      onClick={onClick}
+      className={`flex h-9 items-center gap-1 rounded-lg border px-3 ${
+        active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
