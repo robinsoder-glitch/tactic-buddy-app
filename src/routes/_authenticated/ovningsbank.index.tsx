@@ -17,12 +17,26 @@ import {
 } from "@/lib/taktikbank";
 import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
+import { fetchKnowledgeArticles } from "@/lib/knowledge";
+import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
+import { RelatedContent } from "@/components/RelatedContent";
+import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+type OvningsbankSearch = { flik?: "ovningar" | "malvakt" | "pass" | undefined; markera?: string | undefined };
+
 export const Route = createFileRoute("/_authenticated/ovningsbank/")({
+  validateSearch: (search: Record<string, unknown>): OvningsbankSearch => {
+    const flik = search['flik'];
+    const markera = search['markera'];
+    return {
+      flik: flik === "malvakt" || flik === "pass" || flik === "ovningar" ? flik : undefined,
+      markera: typeof markera === "string" && markera ? markera : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Övningsbank – övningar, målvaktsövningar och träningspass" },
@@ -50,7 +64,11 @@ function OvningsbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<Tab>("Övningar");
+  const search = Route.useSearch();
+  const initialTab: Tab =
+    search.flik === "malvakt" ? "Målvaktsövningar" : search.flik === "pass" ? "Träningspass" : "Övningar";
+  const [tab, setTab] = useState<Tab>(initialTab);
+  const highlight = search.markera ?? null;
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState("all");
   const [area, setArea] = useState("all");
@@ -59,7 +77,19 @@ function OvningsbankPage() {
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [progress, setProgress] = useState<SessionProgress>({});
   useEffect(() => setProgress(loadProgress()), []);
-  const [openSession, setOpenSession] = useState<string | null>(null);
+  const [openSession, setOpenSession] = useState<string | null>(
+    search.flik === "pass" ? (search.markera ?? null) : null,
+  );
+
+  useEffect(() => {
+    if (!highlight) return;
+    const prefix = search.flik === "malvakt" ? "malvakt" : search.flik === "pass" ? "pass" : "ovning";
+    const timer = window.setTimeout(() => {
+      document.getElementById(`${prefix}-${highlight}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [highlight, search.flik]);
+
 
   const allowed = isCoach || isAdmin;
 
@@ -68,6 +98,8 @@ function OvningsbankPage() {
   const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed });
   const sessions = useQuery({ queryKey: ["tb-sessions"], queryFn: fetchTrainingSessions, enabled: allowed });
   const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
+  const links = useQuery({ queryKey: ["content-links"], queryFn: fetchContentLinks, enabled: allowed });
+  const articles = useQuery({ queryKey: ["knowledge-articles"], queryFn: fetchKnowledgeArticles, enabled: allowed });
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
@@ -84,6 +116,17 @@ function OvningsbankPage() {
   });
 
   const allCards = cards.data ?? [];
+  const catalog = useMemo(
+    () =>
+      buildCatalog([
+        ...(articles.data ?? []).map((item) => ({ type: "article" as const, id: item.slug, title: item.title_sv })),
+        ...allCards.map((item) => ({ type: "tactic" as const, id: item.id, title: item.title })),
+        ...(drills.data ?? []).map((item) => ({ type: "drill" as const, id: item.id, title: item.title })),
+        ...(keepers.data ?? []).map((item) => ({ type: "goalkeeper" as const, id: item.id, title: item.title })),
+        ...(sessions.data ?? []).map((item) => ({ type: "session" as const, id: item.id, title: item.title })),
+      ]),
+    [articles.data, allCards, drills.data, keepers.data, sessions.data],
+  );
   const formats = useMemo(() => Array.from(new Set(allCards.map((card) => card.format))), [allCards]);
   const areas = useMemo(
     () => Array.from(new Set(allCards.map((card) => card.phase).filter(Boolean) as string[])),
@@ -235,7 +278,10 @@ function OvningsbankPage() {
             return (
               <article
                 key={drill.id}
-                className="flex items-start gap-2 rounded-xl border border-border bg-card p-4"
+                id={`ovning-${drill.id}`}
+                className={`flex items-start gap-2 rounded-xl border bg-card p-4 ${
+                  highlight === drill.id ? "border-primary" : "border-border"
+                }`}
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -259,6 +305,9 @@ function OvningsbankPage() {
                       ))}
                     </div>
                   ) : null}
+                  <RelatedContent
+                    sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
+                  />
                 </div>
                 <FavoriteButton
                   active={favoriteSet.has(`drill:${drill.id}`)}
@@ -277,7 +326,13 @@ function OvningsbankPage() {
         <section className="mt-4 space-y-3" aria-label="Målvaktsövningar">
           {keepers.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
           {visibleKeepers.map((card) => (
-            <article key={card.id} className="flex items-start gap-2 rounded-xl border border-border bg-card p-4">
+            <article
+              key={card.id}
+              id={`malvakt-${card.id}`}
+              className={`flex items-start gap-2 rounded-xl border bg-card p-4 ${
+                highlight === card.id ? "border-primary" : "border-border"
+              }`}
+            >
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-lg font-semibold">{card.title}</h2>
                 <p className="text-sm text-muted-foreground">{card.purpose}</p>
@@ -324,7 +379,13 @@ function OvningsbankPage() {
           {visibleSessions.map((session) => {
             const open = openSession === session.id;
             return (
-              <article key={session.id} className="rounded-xl border border-border bg-card p-4">
+              <article
+                key={session.id}
+                id={`pass-${session.id}`}
+                className={`rounded-xl border bg-card p-4 ${
+                  highlight === session.id ? "border-primary" : "border-border"
+                }`}
+              >
                 <div className="flex items-start gap-2">
                   <button
                     type="button"

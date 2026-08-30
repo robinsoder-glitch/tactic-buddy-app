@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { BookOpen, Clock, Search, Sparkles } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BookOpen, Clock, Search, Sparkles, Star } from "lucide-react";
+import { toast } from "sonner";
+import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
+import { useAuth } from "@/hooks/useAuth";
 import {
   KNOWLEDGE_AGE_OPTIONS,
   KNOWLEDGE_FORMAT_OPTIONS,
@@ -49,13 +52,37 @@ export function KnowledgeLibrary() {
   const [age, setAge] = useState("all");
   const [format, setFormat] = useState("all");
   const [onlyFeatured, setOnlyFeatured] = useState(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const articles = useQuery({ queryKey: ["knowledge-articles"], queryFn: fetchKnowledgeArticles });
+  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites });
+  const favoriteSet = useMemo(
+    () =>
+      new Set(
+        (favorites.data ?? []).filter((item) => item.kind === "article").map((item) => item.resource_id),
+      ),
+    [favorites.data],
+  );
+  const toggleFavorite = useMutation({
+    mutationFn: async (input: { id: string; active: boolean }) => {
+      if (!user) throw new Error("Inte inloggad");
+      if (input.active) await removeFavorite(user.id, "article", input.id);
+      else await addFavorite(user.id, "article", input.id);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tb-favorites"] }),
+    onError: () => toast.error("Det gick inte att spara favoriten."),
+  });
+
   const all = articles.data ?? [];
   const categories = useMemo(() => knowledgeCategories(all), [all]);
   const list = useMemo(
-    () => filterKnowledge(all, { query, category, age, format, onlyFeatured }),
-    [all, query, category, age, format, onlyFeatured],
+    () =>
+      filterKnowledge(all, { query, category, age, format, onlyFeatured }).filter(
+        (article) => !onlyFavorites || favoriteSet.has(article.id),
+      ),
+    [all, query, category, age, format, onlyFeatured, onlyFavorites, favoriteSet],
   );
 
   return (
@@ -90,6 +117,16 @@ export function KnowledgeLibrary() {
         >
           <Sparkles className="size-3.5" /> Utvalda
         </button>
+        <button
+          type="button"
+          aria-pressed={onlyFavorites}
+          onClick={() => setOnlyFavorites((value) => !value)}
+          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+          }`}
+        >
+          <Star className="size-3.5" /> Mina favoriter
+        </button>
       </div>
 
       <p className="mt-3 text-xs text-muted-foreground">
@@ -98,11 +135,24 @@ export function KnowledgeLibrary() {
 
       <div className="mt-2 space-y-3">
         {list.map((article) => (
+          <div key={article.id} className="relative">
+          <button
+            type="button"
+            aria-pressed={favoriteSet.has(article.id)}
+            aria-label={
+              favoriteSet.has(article.id)
+                ? `Ta bort ${article.title_sv} från Mina favoriter`
+                : `Spara ${article.title_sv} i Mina favoriter`
+            }
+            onClick={() => toggleFavorite.mutate({ id: article.id, active: favoriteSet.has(article.id) })}
+            className="absolute right-2 top-2 z-10 rounded-full p-2 text-muted-foreground hover:text-primary"
+          >
+            <Star className={`size-4 ${favoriteSet.has(article.id) ? "fill-current text-primary" : ""}`} />
+          </button>
           <Link
-            key={article.id}
             to="/kunskapsbank/$slug"
             params={{ slug: article.slug }}
-            className="block rounded-xl border border-border bg-card p-4 transition hover:border-primary"
+            className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary"
           >
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               {article.category} · {knowledgeAgeLabel(article)}
@@ -120,6 +170,7 @@ export function KnowledgeLibrary() {
               {article.featured && <span className="rounded-full border border-border px-2 py-0.5">Utvald</span>}
             </div>
           </Link>
+          </div>
         ))}
         {!articles.isLoading && list.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
