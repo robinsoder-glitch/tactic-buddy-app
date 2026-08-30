@@ -78,7 +78,10 @@ function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <h1 className="font-display text-3xl font-bold">Inställningar</h1>
+      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden /> Tillbaka
+      </Link>
+      <h1 className="mt-3 font-display text-3xl font-bold">Inställningar</h1>
       <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
 
       <section className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4">
