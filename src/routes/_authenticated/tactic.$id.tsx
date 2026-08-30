@@ -32,7 +32,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
-import { exportPdf } from "@/lib/export-pdf";
+import { exportPdf, previewPdfUrl } from "@/lib/export-pdf";
+import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
@@ -1099,6 +1100,7 @@ function TacticEditor() {
             stepMs={STEP_MS / speed}
             busy={exporting !== null}
             onExport={(settings) => runExport(settings)}
+            onPreviewPdf={(settings) => previewPdfUrl(pdfOptions(settings))}
           />
         </div>
 
