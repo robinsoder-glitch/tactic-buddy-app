@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
+import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -34,6 +35,11 @@ const AuthenticatedBankRoute = AuthenticatedBankRouteImport.update({
   path: '/bank',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const TShareIdRoute = TShareIdRouteImport.update({
+  id: '/t/$shareId',
+  path: '/t/$shareId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedTacticIdRoute = AuthenticatedTacticIdRouteImport.update({
   id: '/tactic/$id',
   path: '/tactic/$id',
@@ -44,12 +50,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bank': typeof AuthenticatedBankRoute
+  '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
 export interface FileRoutesById {
@@ -58,19 +66,21 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
+  '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/bank' | '/tactic/$id'
+  fullPaths: '/' | '/auth' | '/bank' | '/t/$shareId' | '/tactic/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/bank' | '/tactic/$id'
+  to: '/' | '/auth' | '/bank' | '/t/$shareId' | '/tactic/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/bank'
+    | '/t/$shareId'
     | '/_authenticated/tactic/$id'
   fileRoutesById: FileRoutesById
 }
@@ -78,6 +88,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  TShareIdRoute: typeof TShareIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +121,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBankRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/t/$shareId': {
+      id: '/t/$shareId'
+      path: '/t/$shareId'
+      fullPath: '/t/$shareId'
+      preLoaderRoute: typeof TShareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/tactic/$id': {
       id: '/_authenticated/tactic/$id'
       path: '/tactic/$id'
@@ -137,6 +155,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  TShareIdRoute: TShareIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
