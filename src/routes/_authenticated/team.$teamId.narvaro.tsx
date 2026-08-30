@@ -97,6 +97,7 @@ function AttendancePage() {
           queryClient.invalidateQueries({ queryKey: ["attendance", teamId] });
         }}
       />
+      </>
     );
   }
 
