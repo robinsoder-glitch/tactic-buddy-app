@@ -15,7 +15,7 @@ import { QUALITY_PRESETS } from "@/lib/export-clip";
 import type { ExportQuality } from "@/lib/export-clip";
 
 export type ExportSettings = {
-  format: "gif" | "video";
+  format: "gif" | "video" | "pdf";
   fps: number;
   quality: ExportQuality;
 };
