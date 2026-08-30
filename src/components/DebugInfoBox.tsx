@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Bug, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import { BUILD_ID, BUILD_MODE, latestChunk } from "@/lib/build-info";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Felsökningsruta. Visas aldrig för vanliga användare i den publicerade appen –
- * bara i utvecklingsläge eller när någon uttryckligen öppnar appen med ?debug=1.
+ * Felsökningsruta. Visas aldrig för vanliga användare: bara i utvecklingsläge
+ * eller för en inloggad administratör. Vanliga användare får i stället
+ * begripliga svenska felmeddelanden med "Försök igen".
  */
 export function DebugInfoBox() {
   const [visible, setVisible] = useState(false);
@@ -13,19 +15,27 @@ export function DebugInfoBox() {
   const [chunk, setChunk] = useState<{ name: string; hash: string } | null>(null);
 
   useEffect(() => {
+    let active = true;
     if (BUILD_MODE !== "production") {
       setVisible(true);
       return;
     }
-    try {
-      if (new URLSearchParams(window.location.search).has("debug")) {
-        window.sessionStorage.setItem("taktik:debug", "1");
+    void (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (!data.user) return;
+        const { data: roles } = await supabase.from("user_roles").select("role").eq("role", "admin");
+        if (active) setVisible((roles ?? []).length > 0);
+      } catch {
+        if (active) setVisible(false);
       }
-      setVisible(window.sessionStorage.getItem("taktik:debug") === "1");
-    } catch {
-      setVisible(false);
-    }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
+
+
 
 
   useEffect(() => {
