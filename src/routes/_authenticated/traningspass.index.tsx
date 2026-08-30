@@ -19,7 +19,13 @@ import {
   type SessionDraft,
 } from "@/lib/coach-sessions";
 import { fetchTrainingSessions } from "@/lib/taktikbank";
-import { fetchSessionLinks, linkLabel } from "@/lib/event-planning";
+import {
+  addResourceToEvent,
+  eventOptionLabel,
+  fetchSessionLinks,
+  fetchUpcomingEvents,
+  linkLabel,
+} from "@/lib/event-planning";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccount } from "@/hooks/useAccount";
 import { useConfirm } from "@/components/ConfirmDelete";
