@@ -72,6 +72,36 @@ export const NO_ACCOUNT_TEXT = "Spelaren saknar kopplat konto. En ledare kan reg
 export const NO_REMINDER_TEXT =
   "Ingen digital påminnelse kan skickas eftersom spelaren saknar kopplat konto.";
 
+export const NO_PLAYER_LINK_TEXT =
+  "Ditt konto är inte kopplat till någon spelare ännu. Be en ledare i laget att koppla ditt konto till rätt spelare för att du ska kunna få och besvara kallelser.";
+export const COACH_ONLY_TEXT =
+  "Du är inloggad som ledare. Här visas bara kallelser som är kopplade till dig som spelare.";
+
+/** Förklarande text när listan med kallelser är tom. */
+export function emptyInviteMessage(input: {
+  hasPlayerLink: boolean;
+  isCoach: boolean;
+  showPast: boolean;
+}): string[] {
+  if (!input.hasPlayerLink) {
+    return input.isCoach ? [NO_PLAYER_LINK_TEXT, COACH_ONLY_TEXT] : [NO_PLAYER_LINK_TEXT];
+  }
+  if (input.showPast) return ["Inga tidigare kallelser."];
+  return ["Du har inga kallelser just nu."];
+}
+
+/** Är det inloggade kontot kopplat till minst ett spelarkort? */
+export async function hasLinkedPlayer(userId: string | null | undefined): Promise<boolean> {
+  if (!userId) return false;
+  const { data, error } = await supabase
+    .from("players")
+    .select("id")
+    .eq("member_user_id", userId)
+    .limit(1);
+  if (error) throw error;
+  return (data ?? []).length > 0;
+}
+
 /* ------------------------------ data ------------------------------ */
 
 type PlayerRow = { name: string | null; member_user_id: string | null } | null;
