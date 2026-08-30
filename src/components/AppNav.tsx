@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Home, Settings, Shield, Users } from "lucide-react";
+import { BookOpen, Dumbbell, GraduationCap, Home, Settings, Shield, Users } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 
 /** Paths where the global navigation should stay hidden. */
@@ -18,8 +18,12 @@ export function AppNav() {
   const items = [
     { to: "/", label: "Hem", icon: Home, exact: true as const },
     ...(isCoach || isAdmin
-      ? [{ to: "/taktikbank", label: "Taktikbank", icon: BookOpen, exact: false as const }]
+      ? [
+          { to: "/taktikbank", label: "Taktikbank", icon: BookOpen, exact: false as const },
+          { to: "/ovningsbank", label: "Övningsbank", icon: Dumbbell, exact: false as const },
+        ]
       : []),
+    { to: "/kunskapsbank", label: "Kunskapsbank", icon: GraduationCap, exact: false as const },
     isCoach
       ? { to: "/teams", label: "Mina lag", icon: Shield, exact: false as const }
       : firstTeam
@@ -27,6 +31,7 @@ export function AppNav() {
         : { to: "/onboarding", label: "Gå med", icon: Users, exact: false as const },
     { to: "/installningar", label: "Inställningar", icon: Settings, exact: false as const },
   ];
+
 
   return (
     <nav
