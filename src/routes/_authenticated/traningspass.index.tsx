@@ -423,24 +423,6 @@ function CreateSessionDialog({
                   onChange={(event) => set({ goal: event.target.value || null })}
                 />
               </div>
-              {coachTeams.length > 0 && (
-                <div className="space-y-1">
-                  <Label htmlFor="new-team">Dela med lag (frivilligt)</Label>
-                  <select
-                    id="new-team"
-                    className={selectClass}
-                    value={draft.team_id ?? ""}
-                    onChange={(event) => set({ team_id: event.target.value || null })}
-                  >
-                    <option value="">Bara jag</option>
-                    {coachTeams.map((item) => (
-                      <option key={item.team_id} value={item.team_id}>
-                        {item.team?.name ?? "Lag"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
             </>
           )}
 
