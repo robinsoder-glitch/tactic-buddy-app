@@ -25,6 +25,7 @@ import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
+import { Route as AuthenticatedTeamTeamIdLeadersRouteImport } from './routes/_authenticated/team.$teamId.leaders'
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
 import { Route as AuthenticatedTeamTeamIdPhotosRouteImport } from './routes/_authenticated/team.$teamId.photos'
 import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
@@ -113,6 +114,12 @@ const AuthenticatedTeamTeamIdCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdLeadersRoute =
+  AuthenticatedTeamTeamIdLeadersRouteImport.update({
+    id: '/leaders',
+    path: '/leaders',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdMatchesRoute =
   AuthenticatedTeamTeamIdMatchesRouteImport.update({
     id: '/matches',
@@ -147,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -166,6 +174,7 @@ export interface FileRoutesByTo {
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -188,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/_authenticated/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/_authenticated/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/taktikbank/'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/taktikbank'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
@@ -250,6 +262,7 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
+    | '/_authenticated/team/$teamId/leaders'
     | '/_authenticated/team/$teamId/matches'
     | '/_authenticated/team/$teamId/photos'
     | '/_authenticated/team/$teamId/training'
@@ -377,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdCalendarRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/leaders': {
+      id: '/_authenticated/team/$teamId/leaders'
+      path: '/leaders'
+      fullPath: '/team/$teamId/leaders'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdLeadersRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/matches': {
       id: '/_authenticated/team/$teamId/matches'
       path: '/matches'
@@ -404,6 +424,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
   AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
+  AuthenticatedTeamTeamIdLeadersRoute: typeof AuthenticatedTeamTeamIdLeadersRoute
   AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
   AuthenticatedTeamTeamIdPhotosRoute: typeof AuthenticatedTeamTeamIdPhotosRoute
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
@@ -414,6 +435,7 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
   {
     AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
     AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
+    AuthenticatedTeamTeamIdLeadersRoute: AuthenticatedTeamTeamIdLeadersRoute,
     AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
     AuthenticatedTeamTeamIdPhotosRoute: AuthenticatedTeamTeamIdPhotosRoute,
     AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
