@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, PenLine, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/skapa")({
+  beforeLoad: () => {
+    throw redirect({ to: "/taktik" });
+  },
   head: () => ({
     meta: [
       { title: "Ny övning – välj mall eller börja från tom plan" },

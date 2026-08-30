@@ -76,3 +76,12 @@
 
 - [x] Övningar i Träningsbanken kopplade till kunskapsartiklar (content_links)
 - [x] Kunskapsbanken: verifiera och testa att inga "Lägg till träning"-knappar finns kvar; automatisk versionsuppdatering
+
+## Etapp 8 – Ny huvudnavigation (aug 2026)
+- [x] Åtta flikar i ordning: Planera träning, Planera match, Taktik, Kunskap, Träningsbank, Mina kallelser, Mina lag, Inställningar
+- [x] Mobil: fyra val + Meny, alla sidor nås med högst två tryck
+- [x] Nya sidor: /planera-traning, /planera-match, /taktik (återanvänder befintlig tavla)
+- [x] Omdirigering från /skapa och /taktikbank till /taktik
+- [x] "Skapa träningspass" som primär knapp i Träningsbanken
+- [x] "Planerat träningsinnehåll" visas på aktivitetssidan
+- [x] Tester: navigation.test.ts (10 tester), hela sviten 166 gröna

@@ -6,161 +6,153 @@ import {
   ClipboardList,
   Dumbbell,
   GraduationCap,
-  Home,
-  MoreHorizontal,
+  Menu,
   Settings,
   Shield,
-  Users,
+  Trophy,
 } from "lucide-react";
+import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 
-/** Paths where the global navigation should stay hidden. */
+/** Sidor där huvudmenyn ska vara dold. */
 const HIDDEN_PREFIXES = ["/auth", "/t/", "/onboarding"];
 
-type NavItem = {
-  to: string;
-  label: string;
-  icon: typeof Home;
-  exact: boolean;
-  teamId?: string;
+const ICONS: Record<string, typeof Menu> = {
+  "/planera-traning": ClipboardList,
+  "/planera-match": Trophy,
+  "/taktik": BookOpen,
+  "/kunskapsbank": GraduationCap,
+  "/ovningsbank": Dumbbell,
+  "/mina-kallelser": CalendarDays,
+  "/teams": Shield,
+  "/installningar": Settings,
 };
 
 export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const { user, isCoach, isAdmin, memberships } = useAccount();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLLIElement>(null);
+  const { user } = useAccount();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLLIElement>(null);
 
-  useEffect(() => setMoreOpen(false), [pathname]);
+  useEffect(() => setMenuOpen(false), [pathname]);
 
   useEffect(() => {
-    if (!moreOpen) return;
+    if (!menuOpen) return;
     const onPointer = (event: PointerEvent) => {
-      if (!moreRef.current?.contains(event.target as Node)) setMoreOpen(false);
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
     };
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMoreOpen(false);
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
     document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("pointerdown", onPointer);
       document.removeEventListener("keydown", onKey);
     };
-  }, [moreOpen]);
+  }, [menuOpen]);
 
   if (!user) return null;
   if (HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix))) return null;
 
-  const approved = memberships.filter((item) => item.status === "approved");
-  const firstTeam = approved[0]?.team_id ?? null;
-  const canCoach = isCoach || isAdmin;
-
-  const teamItem: NavItem = isCoach
-    ? { to: "/teams", label: "Mina lag", icon: Shield, exact: false }
-    : firstTeam
-      ? { to: "/team/$teamId", label: "Mitt lag", icon: Users, exact: false, teamId: firstTeam }
-      : { to: "/onboarding", label: "Gå med", icon: Users, exact: false };
-
-  const settingsItem: NavItem = { to: "/installningar", label: "Inställningar", icon: Settings, exact: false };
-
-  /** Mobil: Hem, Taktik, Träning, Kunskap, Mer. */
-  const primary: NavItem[] = [
-    { to: "/", label: "Hem", icon: Home, exact: true },
-    ...(canCoach ? [{ to: "/taktikbank", label: "Taktik", icon: BookOpen, exact: false }] : []),
-    canCoach
-      ? { to: "/traningspass", label: "Träning", icon: ClipboardList, exact: false }
-      : teamItem,
-    { to: "/kunskapsbank", label: "Kunskap", icon: GraduationCap, exact: false },
-  ];
-
-  const secondary: NavItem[] = [
-    { to: "/mina-kallelser", label: "Mina kallelser", icon: CalendarDays, exact: false },
-    ...(canCoach ? [{ to: "/ovningsbank", label: "Träningsbank", icon: Dumbbell, exact: false }] : []),
-    ...(canCoach ? [teamItem] : []),
-    settingsItem,
-  ];
-
-  const barLink =
-    "relative flex min-h-[4rem] flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors before:absolute before:inset-x-1 before:top-1 before:bottom-1 before:-z-10 before:rounded-xl before:bg-transparent before:transition-colors hover:before:bg-accent data-[status=active]:text-primary-foreground data-[status=active]:before:bg-primary";
+  const primary = MAIN_TABS.filter((tab) => MOBILE_PRIMARY.includes(tab.to));
 
   const topLink =
-    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-[status=active]:bg-primary data-[status=active]:text-primary-foreground";
+    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
 
-  const renderLink = (item: NavItem, className: string, iconSize: string) => (
-    <Link
-      to={item.to}
-      {...(item.teamId ? { params: { teamId: item.teamId } } : {})}
-      activeOptions={{ exact: item.exact }}
-      className={className}
-    >
-      <item.icon className={`relative z-10 ${iconSize}`} aria-hidden />
-      <span className="relative z-10">{item.label}</span>
-    </Link>
-  );
+  const barLink =
+    "relative flex min-h-[4rem] w-full flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors";
+
+  const renderIcon = (to: string, size: string) => {
+    const Icon = ICONS[to] ?? Menu;
+    return <Icon className={`relative z-10 ${size}`} aria-hidden />;
+  };
 
   return (
     <>
-      {/* Dator: toppnavigation. */}
+      {/* Dator: alla åtta flikar i toppen. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav-top"
         className="fixed inset-x-0 top-0 z-40 hidden border-b border-border bg-background/95 backdrop-blur md:block supports-[backdrop-filter]:bg-background/85"
       >
-        <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
           <Link to="/" className="mr-2 font-display text-base font-bold text-foreground">
             Taktiktavlan
           </Link>
-          <ul className="flex flex-1 items-center gap-1">
-            {[...primary, ...secondary].map((item) => (
-              <li key={item.label}>{renderLink(item, topLink, "size-4")}</li>
-            ))}
+          <ul className="flex flex-1 flex-wrap items-center gap-1">
+            {MAIN_TABS.map((tab) => {
+              const active = isTabActive(pathname, tab);
+              return (
+                <li key={tab.to}>
+                  <Link
+                    to={tab.to}
+                    aria-current={active ? "page" : undefined}
+                    className={`${topLink} ${active ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+                  >
+                    {renderIcon(tab.to, "size-4")}
+                    <span>{tab.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
 
-      {/* Mobil: bottenmeny med fem val där sista är "Mer". */}
+      {/* Mobil: fyra val plus en meny med alla åtta. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav"
         className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-primary bg-background/95 backdrop-blur md:hidden supports-[backdrop-filter]:bg-background/85"
       >
         <ul className="mx-auto flex max-w-3xl items-stretch">
-          {primary.map((item) => (
-            <li key={item.label} className="min-w-0 flex-1">
-              {renderLink(item, barLink, "size-5")}
-            </li>
-          ))}
-          <li className="relative min-w-0 flex-1" ref={moreRef}>
+          {primary.map((tab) => {
+            const active = isTabActive(pathname, tab);
+            return (
+              <li key={tab.to} className="min-w-0 flex-1">
+                <Link
+                  to={tab.to}
+                  aria-current={active ? "page" : undefined}
+                  className={`${barLink} ${active ? "bg-primary text-primary-foreground" : ""}`}
+                >
+                  {renderIcon(tab.to, "size-5")}
+                  <span className="relative z-10">{tab.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+          <li className="relative min-w-0 flex-1" ref={menuRef}>
             <button
               type="button"
-              aria-expanded={moreOpen}
+              aria-expanded={menuOpen}
               aria-haspopup="menu"
-              aria-label="Fler sidor"
-              onClick={() => setMoreOpen((value) => !value)}
-              className={`${barLink} w-full ${moreOpen ? "text-primary" : ""}`}
+              onClick={() => setMenuOpen((value) => !value)}
+              className={`${barLink} ${menuOpen ? "text-primary" : ""}`}
             >
-              <MoreHorizontal className="relative z-10 size-5" aria-hidden />
-              <span className="relative z-10">Mer</span>
+              <Menu className="relative z-10 size-5" aria-hidden />
+              <span className="relative z-10">Meny</span>
             </button>
-            {moreOpen && (
+            {menuOpen && (
               <ul
                 role="menu"
-                aria-label="Mer"
-                className="absolute bottom-[calc(100%+0.5rem)] right-1 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+                aria-label="Meny"
+                className="absolute bottom-[calc(100%+0.5rem)] right-1 w-60 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
               >
-                {secondary.map((item) => (
-                  <li key={item.label} role="none">
-                    <Link
-                      role="menuitem"
-                      to={item.to}
-                      {...(item.teamId ? { params: { teamId: item.teamId } } : {})}
-                      activeOptions={{ exact: item.exact }}
-                      className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-foreground hover:bg-accent data-[status=active]:text-primary"
-                    >
-                      <item.icon className="size-4" aria-hidden />
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
+                {MAIN_TABS.map((tab) => {
+                  const active = isTabActive(pathname, tab);
+                  return (
+                    <li key={tab.to} role="none">
+                      <Link
+                        role="menuitem"
+                        to={tab.to}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-accent ${active ? "text-primary" : "text-foreground"}`}
+                      >
+                        {renderIcon(tab.to, "size-4")}
+                        {tab.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </li>

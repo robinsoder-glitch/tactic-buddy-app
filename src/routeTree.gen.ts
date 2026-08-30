@@ -17,7 +17,10 @@ import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/b
 import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPlaneraMatchRouteImport } from './routes/_authenticated/planera-match'
+import { Route as AuthenticatedPlaneraTraningRouteImport } from './routes/_authenticated/planera-traning'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
+import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated/taktik'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
@@ -87,9 +90,26 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlaneraMatchRoute =
+  AuthenticatedPlaneraMatchRouteImport.update({
+    id: '/planera-match',
+    path: '/planera-match',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlaneraTraningRoute =
+  AuthenticatedPlaneraTraningRouteImport.update({
+    id: '/planera-traning',
+    path: '/planera-traning',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSkapaRoute = AuthenticatedSkapaRouteImport.update({
   id: '/skapa',
   path: '/skapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTaktikRoute = AuthenticatedTaktikRouteImport.update({
+  id: '/taktik',
+  path: '/taktik',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTeamsRoute = AuthenticatedTeamsRouteImport.update({
@@ -259,7 +279,10 @@ export interface FileRoutesByFullPath {
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera-match': typeof AuthenticatedPlaneraMatchRoute
+  '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
+  '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
@@ -296,7 +319,10 @@ export interface FileRoutesByTo {
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera-match': typeof AuthenticatedPlaneraMatchRoute
+  '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
+  '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
@@ -333,7 +359,10 @@ export interface FileRoutesById {
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/planera-match': typeof AuthenticatedPlaneraMatchRoute
+  '/_authenticated/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
+  '/_authenticated/taktik': typeof AuthenticatedTaktikRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
@@ -372,7 +401,10 @@ export interface FileRouteTypes {
     | '/installningar'
     | '/mina-kallelser'
     | '/onboarding'
+    | '/planera-match'
+    | '/planera-traning'
     | '/skapa'
+    | '/taktik'
     | '/teams'
     | '/t/$shareId'
     | '/inbjudan/$token'
@@ -409,7 +441,10 @@ export interface FileRouteTypes {
     | '/installningar'
     | '/mina-kallelser'
     | '/onboarding'
+    | '/planera-match'
+    | '/planera-traning'
     | '/skapa'
+    | '/taktik'
     | '/teams'
     | '/t/$shareId'
     | '/inbjudan/$token'
@@ -445,7 +480,10 @@ export interface FileRouteTypes {
     | '/_authenticated/installningar'
     | '/_authenticated/mina-kallelser'
     | '/_authenticated/onboarding'
+    | '/_authenticated/planera-match'
+    | '/_authenticated/planera-traning'
     | '/_authenticated/skapa'
+    | '/_authenticated/taktik'
     | '/_authenticated/teams'
     | '/t/$shareId'
     | '/_authenticated/inbjudan/$token'
@@ -540,11 +578,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/planera-match': {
+      id: '/_authenticated/planera-match'
+      path: '/planera-match'
+      fullPath: '/planera-match'
+      preLoaderRoute: typeof AuthenticatedPlaneraMatchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planera-traning': {
+      id: '/_authenticated/planera-traning'
+      path: '/planera-traning'
+      fullPath: '/planera-traning'
+      preLoaderRoute: typeof AuthenticatedPlaneraTraningRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/skapa': {
       id: '/_authenticated/skapa'
       path: '/skapa'
       fullPath: '/skapa'
       preLoaderRoute: typeof AuthenticatedSkapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/taktik': {
+      id: '/_authenticated/taktik'
+      path: '/taktik'
+      fullPath: '/taktik'
+      preLoaderRoute: typeof AuthenticatedTaktikRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teams': {
@@ -799,7 +858,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPlaneraMatchRoute: typeof AuthenticatedPlaneraMatchRoute
+  AuthenticatedPlaneraTraningRoute: typeof AuthenticatedPlaneraTraningRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
+  AuthenticatedTaktikRoute: typeof AuthenticatedTaktikRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
@@ -821,7 +883,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPlaneraMatchRoute: AuthenticatedPlaneraMatchRoute,
+  AuthenticatedPlaneraTraningRoute: AuthenticatedPlaneraTraningRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
+  AuthenticatedTaktikRoute: AuthenticatedTaktikRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
