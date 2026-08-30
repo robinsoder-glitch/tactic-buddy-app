@@ -75,3 +75,4 @@
 - [x] Fliken "Träningspass" borttagen i Träningsbanken
 
 - [x] Övningar i Träningsbanken kopplade till kunskapsartiklar (content_links)
+- [x] Kunskapsbanken: verifiera och testa att inga "Lägg till träning"-knappar finns kvar; automatisk versionsuppdatering
