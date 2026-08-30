@@ -17,6 +17,49 @@ import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { supabase } from "@/integrations/supabase/client";
 
+const MODULE_RECOVERY_SCRIPT = `
+(() => {
+  const reloadKey = "app_preboot_chunk_reload_at";
+  const detailKey = "app_preboot_chunk_error";
+  const errorPattern = /importing a module script failed|failed to fetch dynamically imported module|error loading dynamically imported module|chunkloaderror|not a valid javascript mime type/i;
+
+  function showFallback(detail) {
+    const fallback = document.getElementById("module-load-fallback");
+    const message = document.getElementById("module-load-detail");
+    if (message) message.textContent = detail || "En del av appen kunde inte laddas.";
+    if (fallback) fallback.hidden = false;
+  }
+
+  function recover(detail) {
+    try { sessionStorage.setItem(detailKey, detail); } catch {}
+    let lastReload = 0;
+    try { lastReload = Number(sessionStorage.getItem(reloadKey) || 0); } catch {}
+
+    if (Date.now() - lastReload > 15000) {
+      try { sessionStorage.setItem(reloadKey, String(Date.now())); } catch {}
+      const url = new URL(location.href);
+      url.searchParams.set("v", Date.now().toString(36));
+      location.replace(url.toString());
+      return;
+    }
+    showFallback(detail);
+  }
+
+  addEventListener("error", (event) => {
+    const target = event.target;
+    const failedModule = target instanceof HTMLScriptElement && target.type === "module";
+    const message = event.message || (failedModule ? "Importing a module script failed" : "");
+    if (failedModule || errorPattern.test(message)) recover(message);
+  }, true);
+
+  addEventListener("unhandledrejection", (event) => {
+    const reason = event.reason;
+    const message = typeof reason === "string" ? reason : reason?.message || "";
+    if (errorPattern.test(message)) recover(message);
+  });
+})();
+`;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -117,6 +160,29 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <div
+          id="module-load-fallback"
+          hidden
+          role="alert"
+          className="fixed inset-x-0 top-0 z-[200] border-b border-destructive/40 bg-destructive px-4 py-3 text-destructive-foreground shadow-lg"
+        >
+          <div className="mx-auto flex max-w-3xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Appen kunde inte uppdateras</p>
+              <p id="module-load-detail" className="truncate text-xs opacity-90">
+                En del av appen kunde inte laddas.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="shrink-0 rounded-md bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              onClick={() => window.location.reload()}
+            >
+              Ladda om
+            </button>
+          </div>
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: MODULE_RECOVERY_SCRIPT }} />
         <Scripts />
       </body>
     </html>
