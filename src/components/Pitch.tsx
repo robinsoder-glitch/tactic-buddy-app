@@ -144,8 +144,31 @@ export function Pitch({
       }
       setPending(null);
     }
-    if (dragId.current) onMoveEnd?.();
+    if (dragId.current) {
+      if (dragStart.current && (tool === "run" || tool === "pass")) {
+        onObjectTrail?.(dragId.current, tool, dragStart.current);
+      }
+      onMoveEnd?.();
+    }
     dragId.current = null;
+    dragStart.current = null;
+  }
+
+  /** run-tool drags players, pass-tool drags the ball, select drags everything */
+  function canDragObject(object: FieldObject) {
+    if (tool === "select") return true;
+    if (tool === "run") return object.kind === "player";
+    if (tool === "pass") return object.kind === "ball";
+    return false;
+  }
+
+  function startObjectDrag(event: React.PointerEvent, object: FieldObject) {
+    if (!interactive || !canDragObject(object)) return;
+    event.stopPropagation();
+    svgRef.current?.setPointerCapture?.(event.pointerId);
+    dragId.current = object.id;
+    dragStart.current = { x: object.x, y: object.y };
+    onSelectObject?.(object.id);
   }
 
   const markLine = "var(--color-pitch-line)";
