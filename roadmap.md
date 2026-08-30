@@ -18,3 +18,5 @@
 - `/traningspass` lista, `/traningspass/$id` byggvy, `/traningspass/$id/visa` körschema med utskrift/PDF.
 - "Lägg till i träningspass" på taktikkort, övningar, målvaktsövningar och artiklar.
 - "Använd som mall" kopierar redaktionella pass (originalen orörda).
+
+- [x] Närvaro per händelse (event_attendance) och statistikvy per lag med CSV-export
