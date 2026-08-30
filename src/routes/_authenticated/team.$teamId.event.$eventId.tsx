@@ -279,7 +279,7 @@ function EventPage() {
               <Stat label="Kallade" value={counts.total} />
               <Stat label="Beräknat antal" value={expectedAttendance(counts)} />
               <Stat label="Saknar svar" value={counts.pending} />
-              <Stat label="Sista svarsdag" value={formatRespondBy(meta?.respond_by)} />
+              <Stat label="Svarat" value={counts.total - counts.pending} />
             </dl>
 
             {meta?.message && (
