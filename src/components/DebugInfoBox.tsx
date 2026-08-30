@@ -44,6 +44,8 @@ export function DebugInfoBox() {
     ["User agent", typeof navigator !== "undefined" ? navigator.userAgent : "—"],
   ] as const;
 
+  if (!visible) return null;
+
   if (!open) {
     return (
       <button
