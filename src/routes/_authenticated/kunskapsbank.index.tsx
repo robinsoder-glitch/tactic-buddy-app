@@ -223,77 +223,90 @@ function KunskapsbankPage() {
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setOnlyFavorites((value) => !value)}
-          aria-pressed={onlyFavorites}
-          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-          }`}
-        >
-          <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-        </button>
-        <FilterGroup
-          value={category}
-          onChange={setCategory}
-          options={[
-            ["all", "Alla kategorier"],
-            ...KB_CATEGORIES.map((item) => [item, KB_CATEGORY_LABELS[item]] as [string, string]),
-          ]}
-        />
-        <FilterGroup
-          value={level}
-          onChange={setLevel}
-          options={[
-            ["all", "Alla kunskapsnivåer"],
-            ...KB_LEVELS.map((item) => [item, KB_LEVEL_LABELS[item]] as [string, string]),
-          ]}
-        />
-        <FilterGroup
-          value={age}
-          onChange={setAge}
-          options={[
-            ["all", "Alla åldrar"],
-            ...[5, 6, 7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-          ]}
-        />
-      </div>
+      <FilterPanel
+        activeCount={
+          (onlyFavorites ? 1 : 0) +
+          [category, level, age].filter((value) => value !== "all").length +
+          selectedTags.length
+        }
+        onClear={() => {
+          setOnlyFavorites(false);
+          setCategory("all");
+          setLevel("all");
+          setAge("all");
+          setSelectedTags([]);
+        }}
+        primary={
+          <button
+            type="button"
+            onClick={() => setOnlyFavorites((value) => !value)}
+            aria-pressed={onlyFavorites}
+            className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+              onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            }`}
+          >
+            <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+          </button>
+        }
+      >
+        <FilterRow title="Kategori">
+          <FilterGroup
+            value={category}
+            onChange={setCategory}
+            options={[
+              ["all", "Alla kategorier"],
+              ...KB_CATEGORIES.map((item) => [item, KB_CATEGORY_LABELS[item]] as [string, string]),
+            ]}
+          />
+        </FilterRow>
+        <FilterRow title="Kunskapsnivå">
+          <FilterGroup
+            value={level}
+            onChange={setLevel}
+            options={[
+              ["all", "Alla kunskapsnivåer"],
+              ...KB_LEVELS.map((item) => [item, KB_LEVEL_LABELS[item]] as [string, string]),
+            ]}
+          />
+        </FilterRow>
+        <FilterRow title="Ålder">
+          <FilterGroup
+            value={age}
+            onChange={setAge}
+            options={[
+              ["all", "Alla åldrar"],
+              ...[5, 6, 7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+            ]}
+          />
+        </FilterRow>
+        {tagOptions.length > 0 && (
+          <FilterRow title="Taggar">
+            <div className="flex flex-wrap items-center gap-1">
+              {tagOptions.map((tag) => {
+                const active = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      setSelectedTags((current) =>
+                        current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag],
+                      )
+                    }
+                    className={`rounded-full border px-3 py-1 text-xs ${
+                      active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          </FilterRow>
+        )}
+      </FilterPanel>
 
-      {tagOptions.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-1" aria-label="Filtrera på taggar">
-          <span className="mr-1 text-xs tracking-wide text-muted-foreground">Taggar</span>
-          {tagOptions.map((tag) => {
-            const active = selectedTags.includes(tag);
-            return (
-              <button
-                key={tag}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  setSelectedTags((current) =>
-                    current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag],
-                  )
-                }
-                className={`rounded-full border px-3 py-1 text-xs ${
-                  active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-                }`}
-              >
-                {tag}
-              </button>
-            );
-          })}
-          {selectedTags.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSelectedTags([])}
-              className="rounded-full px-2 py-1 text-xs text-primary underline-offset-4 hover:underline"
-            >
-              Rensa taggar
-            </button>
-          )}
-        </div>
-      )}
 
       <section className="mt-4 space-y-3" aria-label="Artiklar">
         {articles.isLoading && <p className="text-sm text-muted-foreground">Laddar artiklar…</p>}
