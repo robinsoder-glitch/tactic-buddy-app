@@ -53,3 +53,8 @@
 - [x] Inställd aktivitet blockerar nya svar
 - [x] Tester för kallelser
 - [x] Kalendern och närvarosidan länkar till kallelsen
+
+## Etapp 6: Koppling bank → kalender
+- [ ] Koppla övning/målvaktsövning/taktik/artikel direkt till en träning i lagets kalender (välj aktivitet + minuter)
+- [ ] "Lägg till i träning" på alla kort i banken, inte bara träningspass
+- [ ] Byt namn: "Ny taktik" → "Ny övning" i hela appen
