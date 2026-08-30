@@ -1,7 +1,9 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, MapPin } from "lucide-react";
-import { fetchEvents, formatDateTime } from "@/lib/teams";
+import { CalendarDays, Download, MapPin } from "lucide-react";
+import { fetchEvents, fetchTeam, formatDateTime } from "@/lib/teams";
+import { downloadIcs } from "@/lib/ics";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/calendar")({
   component: CalendarPage,
@@ -10,14 +12,26 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/calendar")({
 function CalendarPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/calendar" });
   const events = useQuery({ queryKey: ["events", teamId, "all"], queryFn: () => fetchEvents(teamId) });
+  const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   const upcoming = (events.data ?? []).filter((event) => new Date(event.starts_at) >= new Date());
   const past = (events.data ?? []).filter((event) => new Date(event.starts_at) < new Date()).reverse();
 
   return (
     <section className="space-y-6">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-2xl font-bold uppercase">Kommande</h2>
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={(events.data ?? []).length === 0}
+          onClick={() => downloadIcs(events.data ?? [], team.data?.name ?? "Laget")}
+        >
+          <Download className="size-4" /> Lägg i kalendern (.ics)
+        </Button>
+      </div>
+      <div>
+
         <ul className="mt-3 space-y-2">
           {upcoming.length === 0 && (
             <li className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
