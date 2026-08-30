@@ -40,7 +40,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -49,6 +49,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          toast.success("Kontot är skapat! Bekräfta din e-postadress och logga sedan in.");
+          setMode("signin");
+          setPassword("");
+          return;
+        }
         toast.success("Konto skapat! Du är inloggad.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
