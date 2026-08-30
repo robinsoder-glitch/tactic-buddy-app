@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Circle,
   CircleDot,
+  Grid3x3,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -64,6 +65,8 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
 });
 
 const STEP_MS = 1400;
+const GRID = 0.05;
+const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
 type BankPlayer = {
@@ -132,7 +135,20 @@ function TacticEditor() {
 
   useEffect(() => {
     if (tactic.data) {
-      setFrames(tactic.data.frames);
+      setFrames(
+        tactic.data.frames.map((item) => {
+          let ballSeen = false;
+          return {
+            ...item,
+            objects: item.objects.filter((object) => {
+              if (object.kind !== "ball") return true;
+              if (ballSeen) return false;
+              ballSeen = true;
+              return true;
+            }),
+          };
+        }),
+      );
       setCurrent(0);
       setProgress(0);
       setDirty(false);
@@ -214,6 +230,7 @@ function TacticEditor() {
   }, [playing, speed, loop, frames.length]);
 
   const frame = frames[current];
+  const hasBall = (frame?.objects ?? []).some((object) => object.kind === "ball");
   const scrubbing = Math.abs(progress - current) > 0.001;
   const animating = playing || scrubbing;
   const displayedObjects = useMemo(
@@ -1015,20 +1032,23 @@ function BankChip({
   payload,
   label,
   onAdd,
+  disabled = false,
   children,
 }: {
   payload: string;
   label: string;
   onAdd: () => void;
+  disabled?: boolean;
   children: ReactNode;
 }) {
   return (
     <button
       type="button"
-      draggable
+      draggable={!disabled}
+      disabled={disabled}
       onDragStart={(event) => event.dataTransfer.setData("text/plain", payload)}
       onClick={onAdd}
-      className="w-16 shrink-0 rounded-xl border border-border bg-card p-2 text-center text-xs active:scale-95"
+      className="w-16 shrink-0 rounded-xl border border-border bg-card p-2 text-center text-xs active:scale-95 disabled:opacity-40"
     >
       <span className="mx-auto flex justify-center">{children}</span>
       <p className="mt-1 truncate">{label}</p>
