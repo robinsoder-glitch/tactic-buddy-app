@@ -45,9 +45,18 @@ function OnboardingPage() {
 
   async function saveCoach() {
     if (!user) return;
-    if (!birth) return toast.error("Ange ditt födelsedatum");
-    if (age(birth) < 18) return toast.error("Du måste vara minst 18 år för ett tränarkonto");
-    if (!confirmed) return toast.error("Du behöver intyga att uppgiften stämmer");
+    if (!birth) {
+      toast.error("Ange ditt födelsedatum");
+      return;
+    }
+    if (age(birth) < 18) {
+      toast.error("Du måste vara minst 18 år för ett tränarkonto");
+      return;
+    }
+    if (!confirmed) {
+      toast.error("Du behöver intyga att uppgiften stämmer");
+      return;
+    }
     setBusy(true);
     try {
       await updateProfile({ id: user.id, birth_date: birth, is_adult_confirmed: true });
@@ -63,7 +72,10 @@ function OnboardingPage() {
 
   async function savePlayer() {
     if (!user) return;
-    if (!code.trim()) return toast.error("Ange lagkoden du fått av din tränare");
+    if (!code.trim()) {
+      toast.error("Ange lagkoden du fått av din tränare");
+      return;
+    }
     setBusy(true);
     try {
       await claimRole(user.id, "player");
