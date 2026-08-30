@@ -13,14 +13,18 @@ export type FieldObject = {
   y: number; // 0..1
 };
 
+export type DrawingType = "run" | "pass" | "zone" | "circle";
+
 export type Drawing = {
   id: string;
-  type: "run" | "pass";
+  type: DrawingType;
+  color?: string | null;
   x1: number;
   y1: number;
   x2: number;
   y2: number;
 };
+
 
 export type Frame = {
   id: string;
