@@ -49,7 +49,7 @@ export function Pitch({
     if (!interactive) return;
     if (tool === "run" || tool === "pass") {
       const point = toNormalized(event);
-      (event.target as Element).setPointerCapture?.(event.pointerId);
+      svgRef.current?.setPointerCapture?.(event.pointerId);
       setPending({ x1: point.x, y1: point.y, x2: point.x, y2: point.y });
       event.preventDefault();
     } else if (tool === "select") {
@@ -185,7 +185,7 @@ export function Pitch({
                 onPointerDown={(event) => {
                   if (!interactive || tool !== "select") return;
                   event.stopPropagation();
-                  (event.target as Element).setPointerCapture?.(event.pointerId);
+                  svgRef.current?.setPointerCapture?.(event.pointerId);
                   dragId.current = object.id;
                   onSelectObject?.(object.id);
                 }}
@@ -204,7 +204,7 @@ export function Pitch({
               onPointerDown={(event) => {
                 if (!interactive || tool !== "select") return;
                 event.stopPropagation();
-                (event.target as Element).setPointerCapture?.(event.pointerId);
+                svgRef.current?.setPointerCapture?.(event.pointerId);
                 dragId.current = object.id;
                 onSelectObject?.(object.id);
               }}
