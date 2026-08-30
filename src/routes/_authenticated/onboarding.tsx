@@ -82,13 +82,7 @@ function OnboardingPage() {
       const team = await findTeamByCode(code);
       if (!team) throw new Error("Ingen lag hittades med den koden");
       await requestJoin(team.id, user.id);
-      const invited = await redeemTeamInvite(team.id);
       await queryClient.invalidateQueries();
-      if (invited === "coach") {
-        toast.success(`Du är nu ledare i ${team.name}.`);
-        navigate({ to: "/team/$teamId", params: { teamId: team.id } });
-        return;
-      }
       toast.success(`Ansökan skickad till ${team.name}. Vänta på att tränaren godkänner dig.`);
       navigate({ to: "/" });
     } catch (error) {
