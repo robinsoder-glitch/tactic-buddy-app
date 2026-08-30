@@ -408,7 +408,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
             <div className="min-w-0">
               <h3 className="truncate font-display text-xl font-semibold">{latest.name}</h3>
               <p className="text-xs text-muted-foreground">
-                {PITCH_SIZES[latest.pitch_type]?.label ?? latest.pitch_type} · {latest.frameCount} steg
+                {pitchTypeLabel(latest.pitch_type)} · {latest.frameCount} steg
               </p>
             </div>
           </Link>
