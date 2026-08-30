@@ -36,8 +36,10 @@ function SettingsPage() {
   const [birth, setBirth] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
+  const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
   useEffect(() => setPrefs(loadPrefs()), []);
+  useEffect(() => setTheme(loadTheme()), []);
   useEffect(() => {
     setName(profile?.display_name ?? "");
     setBirth(profile?.birth_date ?? "");
