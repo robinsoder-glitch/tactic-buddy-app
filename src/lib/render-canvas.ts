@@ -193,13 +193,20 @@ export function drawScene(
 
     ctx.beginPath();
     ctx.arc(cx, cy, tokenR, 0, Math.PI * 2);
-    ctx.fillStyle = object.team === "home" ? COLORS.home : COLORS.away;
+    ctx.fillStyle = object.gk
+      ? object.team === "home"
+        ? COLORS.gkHome
+        : COLORS.gkAway
+      : object.team === "home"
+        ? COLORS.home
+        : COLORS.away;
     ctx.fill();
-    ctx.lineWidth = w * 0.002;
-    ctx.strokeStyle = "rgba(0,0,0,0.35)";
+    ctx.lineWidth = object.gk ? w * 0.004 : w * 0.002;
+    ctx.strokeStyle = object.gk ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.35)";
     ctx.stroke();
 
-    const photo = object.photoUrl ? options.photos?.get(object.photoUrl) : undefined;
+    const photo =
+      object.photoUrl && !options.hideNames ? options.photos?.get(object.photoUrl) : undefined;
     if (photo) {
       ctx.save();
       ctx.beginPath();
@@ -208,14 +215,26 @@ export function drawScene(
       ctx.drawImage(photo, cx - tokenR, cy - tokenR, tokenR * 2, tokenR * 2);
       ctx.restore();
     } else {
-      ctx.fillStyle = object.team === "home" ? COLORS.homeText : COLORS.awayText;
+      const badge =
+        object.gk && object.number == null
+          ? "MV"
+          : object.number != null
+            ? String(object.number)
+            : options.hideNames
+              ? ""
+              : initials(object.label);
+      ctx.fillStyle = object.gk
+        ? COLORS.gkText
+        : object.team === "home"
+          ? COLORS.homeText
+          : COLORS.awayText;
       ctx.font = `700 ${tokenR}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(object.number != null ? String(object.number) : initials(object.label), cx, cy);
+      if (badge) ctx.fillText(badge, cx, cy);
     }
 
-    if (object.label) {
+    if (object.label && !options.hideNames) {
       ctx.font = `600 ${tokenR * 0.85}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
@@ -225,6 +244,7 @@ export function drawScene(
       ctx.fillStyle = "#ffffff";
       ctx.fillText(object.label, cx, cy + tokenR * 2);
     }
+
   }
 
   if (options.note) {
