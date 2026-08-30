@@ -175,13 +175,26 @@ function TaktikbankCard() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate font-display text-xs uppercase tracking-[0.25em] text-primary">
             {data.format} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
           </p>
           <h1 className="truncate font-display text-2xl font-bold uppercase">{data.title}</h1>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={isFavorite ? "Ta bort favorit" : "Spara som favorit"}
+          disabled={toggleFavorite.isPending}
+          onClick={() => toggleFavorite.mutate()}
+        >
+          <Star className={isFavorite ? "size-5 fill-primary text-primary" : "size-5"} />
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setPlanOpen(true)}>
+          <CalendarPlus className="mr-1 size-4" /> Träning
+        </Button>
       </header>
+
 
       <p className="mt-3 text-sm text-muted-foreground">{data.purpose}</p>
 
