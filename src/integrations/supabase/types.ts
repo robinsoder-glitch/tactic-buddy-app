@@ -160,6 +160,69 @@ export type Database = {
           },
         ]
       }
+      kb_articles: {
+        Row: {
+          age_max: number | null
+          age_min: number | null
+          category: string
+          coach_value: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          level: string
+          published_at: string | null
+          reviewed_at: string | null
+          source_name: string | null
+          source_url: string | null
+          status: string
+          summary: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          age_max?: number | null
+          age_min?: number | null
+          category: string
+          coach_value?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          level?: string
+          published_at?: string | null
+          reviewed_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          age_max?: number | null
+          age_min?: number | null
+          category?: string
+          coach_value?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          level?: string
+          published_at?: string | null
+          reviewed_at?: string | null
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       players: {
         Row: {
           birth_date: string | null
