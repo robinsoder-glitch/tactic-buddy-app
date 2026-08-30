@@ -430,7 +430,7 @@ function TacticEditor() {
     setSelectedId(null);
   }
 
-  function addFreePlayer(team: "home" | "away", gk: boolean) {
+  function addFreePlayer(team: "home" | "away", gk: boolean, x?: number, y?: number) {
     const existing = (frame?.objects ?? []).filter(
       (object) => object.kind === "player" && object.team === team && !object.playerId,
     );
@@ -443,10 +443,42 @@ function TacticEditor() {
       number,
       team,
       gk,
-      x: team === "home" ? 0.35 : 0.65,
-      y: 0.5,
+      x: x ?? (team === "home" ? 0.35 : 0.65),
+      y: y ?? 0.5,
     });
   }
+
+  function addBall(x = 0.5, y = 0.5) {
+    addObject({ id: uid(), kind: "ball", label: "", team: "home", x, y });
+  }
+
+  function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
+    addObject({
+      id: uid(),
+      kind: "player",
+      playerId: player.id,
+      label: player.name.split(" ")[0] ?? player.name,
+      number: player.number,
+      team: "home",
+      gk: player.gk,
+      photoUrl: player.photoUrl,
+      x,
+      y,
+    });
+  }
+
+  function dropPayload(raw: string, x: number, y: number) {
+    if (raw === "ball") return addBall(x, y);
+    if (raw.startsWith("free:")) {
+      const [, team, gk] = raw.split(":");
+      return addFreePlayer(team === "away" ? "away" : "home", gk === "gk", x, y);
+    }
+    if (raw.startsWith("player:")) {
+      const player = bank.find((item) => item.id === raw.slice(7));
+      if (player) addBankPlayer(player, x, y);
+    }
+  }
+
 
   if (tactic.isLoading || !tactic.data) {
     return <div className="grid min-h-screen place-items-center text-muted-foreground">Laddar taktik…</div>;
