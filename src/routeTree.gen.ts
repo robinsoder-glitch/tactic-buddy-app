@@ -33,6 +33,7 @@ import { Route as AuthenticatedTeamTeamIdLeadersRouteImport } from './routes/_au
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
 import { Route as AuthenticatedTeamTeamIdPhotosRouteImport } from './routes/_authenticated/team.$teamId.photos'
 import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
+import { Route as AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport } from './routes/_authenticated/team.$teamId.player.$playerId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -166,6 +167,12 @@ const AuthenticatedTeamTeamIdTrainingRoute =
     path: '/training',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdPlayerPlayerIdRoute =
+  AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport.update({
+    id: '/player/$playerId',
+    path: '/player/$playerId',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
   '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
+  '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -215,6 +223,7 @@ export interface FileRoutesByTo {
   '/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
+  '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -242,6 +251,7 @@ export interface FileRoutesById {
   '/_authenticated/team/$teamId/photos': typeof AuthenticatedTeamTeamIdPhotosRoute
   '/_authenticated/team/$teamId/training': typeof AuthenticatedTeamTeamIdTrainingRoute
   '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
+  '/_authenticated/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
     | '/team/$teamId/'
+    | '/team/$teamId/player/$playerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/photos'
     | '/team/$teamId/training'
     | '/team/$teamId'
+    | '/team/$teamId/player/$playerId'
   id:
     | '__root__'
     | '/'
@@ -319,6 +331,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team/$teamId/photos'
     | '/_authenticated/team/$teamId/training'
     | '/_authenticated/team/$teamId/'
+    | '/_authenticated/team/$teamId/player/$playerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdTrainingRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/player/$playerId': {
+      id: '/_authenticated/team/$teamId/player/$playerId'
+      path: '/player/$playerId'
+      fullPath: '/team/$teamId/player/$playerId'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
   }
 }
 
@@ -509,6 +529,7 @@ interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdPhotosRoute: typeof AuthenticatedTeamTeamIdPhotosRoute
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
   AuthenticatedTeamTeamIdIndexRoute: typeof AuthenticatedTeamTeamIdIndexRoute
+  AuthenticatedTeamTeamIdPlayerPlayerIdRoute: typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 
 const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren =
@@ -520,6 +541,8 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
     AuthenticatedTeamTeamIdPhotosRoute: AuthenticatedTeamTeamIdPhotosRoute,
     AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
     AuthenticatedTeamTeamIdIndexRoute: AuthenticatedTeamTeamIdIndexRoute,
+    AuthenticatedTeamTeamIdPlayerPlayerIdRoute:
+      AuthenticatedTeamTeamIdPlayerPlayerIdRoute,
   }
 
 const AuthenticatedTeamTeamIdRouteWithChildren =
