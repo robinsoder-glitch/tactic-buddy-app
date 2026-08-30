@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Download, MapPin } from "lucide-react";
 import { fetchEvents, fetchTeam, formatDateTime } from "@/lib/teams";
