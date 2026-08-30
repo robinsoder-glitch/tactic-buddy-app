@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MapPin, Plus, Repeat, Shirt, Trash2, Users } from "lucide-react";
@@ -34,6 +34,15 @@ type Props = {
   title: string;
 };
 
+type ScheduleForm = {
+  date: string;
+  start: string;
+  end: string;
+  meet: string;
+};
+
+const emptySchedule: ScheduleForm = { date: "", start: "", end: "", meet: "" };
+
 const MATCH_KINDS = [
   "Match S:t Eriks-Cupen – Stockholm",
   "Träningsmatch",
@@ -58,10 +67,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TeamEvent | null>(null);
   const [heading, setHeading] = useState("");
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [meetTime, setMeetTime] = useState("");
+  const [schedule, setSchedule] = useState<ScheduleForm>(emptySchedule);
   const [showErrors, setShowErrors] = useState(false);
   const [homeTeam, setHomeTeam] = useState("");
   const [awayTeam, setAwayTeam] = useState("");
@@ -81,12 +87,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
     queryFn: () => fetchEvents(teamId, type),
   });
 
-  const errors = validateEventTimes({
-    date,
-    start: startTime,
-    end: endTime,
-    meet: type === "match" ? meetTime : "",
-  });
+  const errors = validateEventTimes({ ...schedule, meet: type === "match" ? schedule.meet : "" });
   const visibleErrors = showErrors ? errors : {};
 
   useEffect(() => {
@@ -96,10 +97,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   function openNew() {
     setEditing(null);
     setHeading("");
-    setDate("");
-    setStartTime("");
-    setEndTime("");
-    setMeetTime("");
+    setSchedule(emptySchedule);
     setShowErrors(false);
     setHomeTeam(type === "match" ? (team.data?.name ?? "") : "");
     setAwayTeam("");
@@ -116,10 +114,12 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
     const start = splitLocal(event.starts_at);
     setEditing(event);
     setHeading(event.title ?? "");
-    setDate(start.date);
-    setStartTime(start.time);
-    setEndTime(splitLocal(event.ends_at).time);
-    setMeetTime(splitLocal(event.meet_at).time);
+    setSchedule({
+      date: start.date,
+      start: start.time,
+      end: splitLocal(event.ends_at).time,
+      meet: splitLocal(event.meet_at).time,
+    });
     setShowErrors(false);
     setHomeTeam(event.home_team ?? "");
     setAwayTeam(event.away_team ?? "");
@@ -131,13 +131,27 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
     setOpen(true);
   }
 
-  async function save() {
+  function updateSchedule(field: keyof ScheduleForm, value: string) {
+    setSchedule((current) => ({ ...current, [field]: value }));
+  }
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!userId) return;
-    if (hasErrors(errors)) {
+    const submitted = new FormData(event.currentTarget);
+    const submittedSchedule: ScheduleForm = {
+      date: String(submitted.get("date") ?? ""),
+      start: String(submitted.get("start") ?? ""),
+      end: String(submitted.get("end") ?? ""),
+      meet: type === "match" ? String(submitted.get("meet") ?? "") : "",
+    };
+    const submittedErrors = validateEventTimes(submittedSchedule);
+    setSchedule(submittedSchedule);
+    if (hasErrors(submittedErrors)) {
       setShowErrors(true);
       return;
     }
-    const startsAtIso = toIso(date, startTime);
+    const startsAtIso = toIso(submittedSchedule.date, submittedSchedule.start);
     if (!startsAtIso) {
       setShowErrors(true);
       return;
@@ -151,8 +165,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
         type,
         title: heading.trim() || null,
         starts_at: startsAtIso,
-        ends_at: endTime ? toIso(date, endTime) : null,
-        meet_at: type === "match" && meetTime ? toIso(date, meetTime) : null,
+        ends_at: submittedSchedule.end ? toIso(submittedSchedule.date, submittedSchedule.end) : null,
+        meet_at:
+          type === "match" && submittedSchedule.meet
+            ? toIso(submittedSchedule.date, submittedSchedule.meet)
+            : null,
         home_team: type === "match" ? homeTeam.trim() || null : null,
         away_team: type === "match" ? awayTeam.trim() || null : null,
         kit: type === "match" ? kit : null,
@@ -255,7 +272,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
           <DialogHeader>
             <DialogTitle>{type === "training" ? "Träningstillfälle" : "Match"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <form id="event-form" className="space-y-3" onSubmit={save} noValidate>
             {type === "match" && (
               <>
                 <div className="space-y-1.5">
@@ -300,10 +317,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
               <Label htmlFor="e-date">Datum</Label>
               <Input
                 id="e-date"
+                name="date"
                 type="date"
-                value={date}
+                value={schedule.date}
                 aria-invalid={Boolean(visibleErrors.date)}
-                onChange={(event) => setDate(event.target.value)}
+                onChange={(event) => updateSchedule("date", event.target.value)}
               />
               {visibleErrors.date && <p className="text-sm text-destructive">{visibleErrors.date}</p>}
             </div>
@@ -313,10 +331,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                 <Label htmlFor="e-time">Från</Label>
                 <Input
                   id="e-time"
+                  name="start"
                   type="time"
-                  value={startTime}
+                  value={schedule.start}
                   aria-invalid={Boolean(visibleErrors.start)}
-                  onChange={(event) => setStartTime(event.target.value)}
+                  onChange={(event) => updateSchedule("start", event.target.value)}
                 />
                 {visibleErrors.start && <p className="text-sm text-destructive">{visibleErrors.start}</p>}
               </div>
@@ -324,10 +343,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                 <Label htmlFor="e-end">Till (frivillig)</Label>
                 <Input
                   id="e-end"
+                  name="end"
                   type="time"
-                  value={endTime}
+                  value={schedule.end}
                   aria-invalid={Boolean(visibleErrors.end)}
-                  onChange={(event) => setEndTime(event.target.value)}
+                  onChange={(event) => updateSchedule("end", event.target.value)}
                 />
                 {visibleErrors.end && <p className="text-sm text-destructive">{visibleErrors.end}</p>}
               </div>
@@ -339,10 +359,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                   <Label htmlFor="e-meet">Samling (frivillig)</Label>
                   <Input
                     id="e-meet"
+                    name="meet"
                     type="time"
-                    value={meetTime}
+                    value={schedule.meet}
                     aria-invalid={Boolean(visibleErrors.meet)}
-                    onChange={(event) => setMeetTime(event.target.value)}
+                    onChange={(event) => updateSchedule("meet", event.target.value)}
                   />
                   {visibleErrors.meet && <p className="text-sm text-destructive">{visibleErrors.meet}</p>}
                 </div>
@@ -438,9 +459,9 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
                 onChange={(event) => setNotes(event.target.value)}
               />
             </div>
-          </div>
+          </form>
           <DialogFooter>
-            <Button onClick={save} disabled={busy}>
+            <Button type="submit" form="event-form" disabled={busy}>
               Spara
             </Button>
           </DialogFooter>
