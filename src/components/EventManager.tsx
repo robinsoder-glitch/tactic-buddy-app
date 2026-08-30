@@ -45,15 +45,6 @@ const REPEATS = [
   { value: "monthly", label: "Varje månad" },
 ] as const;
 
-function toLocalInput(value: string | null | undefined) {
-  if (!value) return "";
-  const date = new Date(value);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-    date.getHours(),
-  )}:${pad(date.getMinutes())}`;
-}
-
 function timeOnly(value: string | null) {
   if (!value) return null;
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
@@ -65,9 +56,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TeamEvent | null>(null);
   const [heading, setHeading] = useState("");
-  const [startsAt, setStartsAt] = useState("");
-  const [endsAt, setEndsAt] = useState("");
-  const [meetAt, setMeetAt] = useState("");
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [meetTime, setMeetTime] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
   const [homeTeam, setHomeTeam] = useState("");
   const [awayTeam, setAwayTeam] = useState("");
   const [kit, setKit] = useState<"home" | "away">("home");
@@ -86,6 +79,14 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
     queryFn: () => fetchEvents(teamId, type),
   });
 
+  const errors = validateEventTimes({
+    date,
+    start: startTime,
+    end: endTime,
+    meet: type === "match" ? meetTime : "",
+  });
+  const visibleErrors = showErrors ? errors : {};
+
   useEffect(() => {
     if (open && !editing && !location && homeGround) setLocation(homeGround);
   }, [open, editing, location, homeGround]);
@@ -93,9 +94,11 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   function openNew() {
     setEditing(null);
     setHeading("");
-    setStartsAt("");
-    setEndsAt("");
-    setMeetAt("");
+    setDate("");
+    setStartTime("");
+    setEndTime("");
+    setMeetTime("");
+    setShowErrors(false);
     setHomeTeam(type === "match" ? (team.data?.name ?? "") : "");
     setAwayTeam("");
     setKit("home");
@@ -108,11 +111,14 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
   }
 
   function openEdit(event: TeamEvent) {
+    const start = splitLocal(event.starts_at);
     setEditing(event);
     setHeading(event.title ?? "");
-    setStartsAt(toLocalInput(event.starts_at));
-    setEndsAt(toLocalInput(event.ends_at));
-    setMeetAt(toLocalInput(event.meet_at));
+    setDate(start.date);
+    setStartTime(start.time);
+    setEndTime(splitLocal(event.ends_at).time);
+    setMeetTime(splitLocal(event.meet_at).time);
+    setShowErrors(false);
     setHomeTeam(event.home_team ?? "");
     setAwayTeam(event.away_team ?? "");
     setKit((event.kit as "home" | "away") ?? "home");
@@ -125,12 +131,13 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
 
   async function save() {
     if (!userId) return;
-    if (!startsAt) {
-      toast.error("Ange datum och starttid");
+    if (hasErrors(errors)) {
+      setShowErrors(true);
       return;
     }
-    if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
-      toast.error("Sluttiden måste vara efter starttiden");
+    const startsAtIso = toIso(date, startTime);
+    if (!startsAtIso) {
+      setShowErrors(true);
       return;
     }
     setBusy(true);
@@ -141,9 +148,9 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
         userId,
         type,
         title: heading.trim() || null,
-        starts_at: new Date(startsAt).toISOString(),
-        ends_at: endsAt ? new Date(endsAt).toISOString() : null,
-        meet_at: type === "match" && meetAt ? new Date(meetAt).toISOString() : null,
+        starts_at: startsAtIso,
+        ends_at: endTime ? toIso(date, endTime) : null,
+        meet_at: type === "match" && meetTime ? toIso(date, meetTime) : null,
         home_team: type === "match" ? homeTeam.trim() || null : null,
         away_team: type === "match" ? awayTeam.trim() || null : null,
         kit: type === "match" ? kit : null,
@@ -161,6 +168,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
       setBusy(false);
     }
   }
+
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteEvent(id),
