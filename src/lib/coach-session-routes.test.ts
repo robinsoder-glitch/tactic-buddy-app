@@ -41,6 +41,16 @@ describe("mina träningspass – rutter och presentationsläge", () => {
 
   it("kan lägga till innehåll i träningspass direkt från listvyerna", () => {
     expect(read("src/routes/_authenticated/taktikbank.index.tsx")).toContain("AddToTrainingButton");
-    expect(read("src/components/KnowledgeLibrary.tsx")).toContain("AddToTrainingButton");
+    expect(read("src/routes/_authenticated/ovningsbank.index.tsx")).toContain("AddToTrainingButton");
+  });
+
+  it("har inga tilläggsknappar i Kunskapsbanken", () => {
+    expect(read("src/components/KnowledgeLibrary.tsx")).not.toContain("AddToTrainingButton");
+    expect(read("src/routes/_authenticated/kunskapsbank.$slug.tsx")).not.toContain("AddToTrainingButton");
+  });
+
+  it("kan koppla en träning till kalendern", () => {
+    expect(read("src/routes/_authenticated/traningspass.$id.index.tsx")).toContain("SessionSharing");
+    expect(read("src/components/SessionSharing.tsx")).toContain("Koppla till kalendern");
   });
 });

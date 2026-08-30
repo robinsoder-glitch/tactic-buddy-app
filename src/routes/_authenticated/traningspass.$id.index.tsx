@@ -24,6 +24,7 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { SessionSharing } from "@/components/SessionSharing";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -258,6 +259,8 @@ function SessionBuilder() {
         )}
       </section>
 
+      <SessionSharing sessionId={id} title={session.data.title} teamId={session.data.team_id} />
+
       <section className="mt-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">
@@ -270,7 +273,7 @@ function SessionBuilder() {
 
         {items.length === 0 && (
           <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Träningspasset är tomt. Lägg till samling, övningar och avslutning – eller lägg till innehåll direkt från
+            Träningen är tom. Lägg till samling, övningar och avslutning – eller lägg till innehåll direkt från
             Taktikbanken, Träningsbanken och Kunskapsbanken.
           </p>
         )}
