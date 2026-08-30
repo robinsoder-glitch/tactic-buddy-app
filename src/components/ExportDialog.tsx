@@ -241,7 +241,7 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport, onPreviewPdf 
                   min={6}
                   max={30}
                   step={1}
-                  onValueChange={([value]) => update({ margin: value })}
+                  onValueChange={([value]) => update({ margin: value ?? settings.margin })}
                 />
               </div>
 
@@ -252,7 +252,7 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport, onPreviewPdf 
                   min={40}
                   max={100}
                   step={5}
-                  onValueChange={([value]) => update({ scale: value / 100 })}
+                  onValueChange={([value]) => update({ scale: (value ?? 100) / 100 })}
                 />
               </div>
 
