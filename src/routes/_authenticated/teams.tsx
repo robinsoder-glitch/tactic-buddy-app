@@ -41,6 +41,7 @@ function TeamsPage() {
   const [clubName, setClubName] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
   const [gender, setGender] = useState("mixed");
+  const [homeGround, setHomeGround] = useState("");
 
   const teams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
   const clubs = useQuery({ queryKey: ["clubs"], queryFn: fetchClubs });
@@ -49,7 +50,7 @@ function TeamsPage() {
     mutationFn: () => {
       if (!userId) throw new Error("Inte inloggad");
       if (!name.trim()) throw new Error("Ange ett lagnamn");
-      return createTeam({ userId, name, clubId, clubName, ageGroup, gender });
+      return createTeam({ userId, name, clubId, clubName, ageGroup, gender, homeGround });
     },
     onSuccess: (id) => {
       setOpen(false);
@@ -119,6 +120,18 @@ function TeamsPage() {
             <div className="space-y-1.5">
               <Label htmlFor="age">Åldersgrupp</Label>
               <Input id="age" placeholder="T.ex. P14 eller 2012" value={ageGroup} onChange={(event) => setAgeGroup(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ground">Hemmaplan</Label>
+              <Input
+                id="ground"
+                placeholder="T.ex. Långholmens IP"
+                value={homeGround}
+                onChange={(event) => setHomeGround(event.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Föreslås automatiskt som plats för träningar och matcher.
+              </p>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {Object.entries(TEAM_GENDER_LABELS).map(([value, label]) => (
