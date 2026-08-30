@@ -8,8 +8,12 @@ const COLORS = {
   homeText: "#1d2a17",
   away: "#ef6f52",
   awayText: "#fdfcfa",
+  gkHome: "#d98bf0",
+  gkAway: "#6fa8e8",
+  gkText: "#20142a",
   pass: "#f2c14b",
 };
+
 
 function safeColor(ctx: CanvasRenderingContext2D, color: string, fallback: string) {
   try {
