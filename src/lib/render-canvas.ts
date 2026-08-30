@@ -76,7 +76,9 @@ export function drawScene(
     drawings: Drawing[];
     passT: number | null;
     note?: string | null;
+    hideNames?: boolean;
     photos?: PhotoMap;
+
     width: number;
     height: number;
   },
