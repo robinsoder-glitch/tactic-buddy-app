@@ -71,6 +71,7 @@ export type Database = {
           drawings: Json
           id: string
           name: string | null
+          note: string | null
           objects: Json
           position: number
           tactic_id: string
@@ -82,6 +83,7 @@ export type Database = {
           drawings?: Json
           id?: string
           name?: string | null
+          note?: string | null
           objects?: Json
           position?: number
           tactic_id: string
@@ -93,6 +95,7 @@ export type Database = {
           drawings?: Json
           id?: string
           name?: string | null
+          note?: string | null
           objects?: Json
           position?: number
           tactic_id?: string
@@ -113,24 +116,30 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_public: boolean
           name: string
           pitch_type: string
+          share_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           pitch_type?: string
+          share_id?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           pitch_type?: string
+          share_id?: string
           updated_at?: string
           user_id?: string
         }

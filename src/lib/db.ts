@@ -147,20 +147,22 @@ export type TacticDetail = {
   id: string;
   name: string;
   pitch_type: PitchType;
+  share_id?: string;
+  is_public?: boolean;
   frames: Frame[];
 };
 
 export async function fetchTactic(id: string): Promise<TacticDetail> {
   const { data, error } = await supabase
     .from("tactics")
-    .select("id, name, pitch_type")
+    .select("id, name, pitch_type, share_id, is_public")
     .eq("id", id)
     .single();
   if (error) throw error;
 
   const { data: frameRows, error: framesError } = await supabase
     .from("tactic_frames")
-    .select("id, name, objects, drawings, position")
+    .select("id, name, note, objects, drawings, position")
     .eq("tactic_id", id)
     .order("position");
   if (framesError) throw framesError;
@@ -168,6 +170,7 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
   const frames: Frame[] = (frameRows ?? []).map((row) => ({
     id: row.id as string,
     name: (row.name as string | null) ?? null,
+    note: (row.note as string | null) ?? null,
     objects: (row.objects as unknown as FieldObject[]) ?? [],
     drawings: (row.drawings as unknown as Drawing[]) ?? [],
   }));
@@ -176,6 +179,8 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
     id: data.id as string,
     name: data.name as string,
     pitch_type: data.pitch_type as PitchType,
+    share_id: data.share_id as string,
+    is_public: data.is_public as boolean,
     frames: frames.length ? frames : [{ id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] }],
   };
 }
@@ -192,6 +197,7 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
     user_id: userId,
     position: index,
     name: frame.name,
+    note: frame.note ?? null,
     objects: frame.objects as unknown as never,
     drawings: frame.drawings as unknown as never,
   }));
@@ -200,4 +206,40 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
   if (error) throw error;
 
   await supabase.from("tactics").update({ updated_at: new Date().toISOString() }).eq("id", tacticId);
+}
+
+export async function setTacticSharing(id: string, isPublic: boolean) {
+  const { error } = await supabase.from("tactics").update({ is_public: isPublic }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function fetchSharedTactic(shareId: string): Promise<TacticDetail> {
+  const { data, error } = await supabase
+    .from("tactics")
+    .select("id, name, pitch_type")
+    .eq("share_id", shareId)
+    .eq("is_public", true)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Taktiken är inte delad eller finns inte.");
+
+  const { data: frameRows, error: framesError } = await supabase
+    .from("tactic_frames")
+    .select("id, name, note, objects, drawings, position")
+    .eq("tactic_id", data.id)
+    .order("position");
+  if (framesError) throw framesError;
+
+  return {
+    id: data.id as string,
+    name: data.name as string,
+    pitch_type: data.pitch_type as PitchType,
+    frames: (frameRows ?? []).map((row) => ({
+      id: row.id as string,
+      name: (row.name as string | null) ?? null,
+      note: (row.note as string | null) ?? null,
+      objects: (row.objects as unknown as FieldObject[]) ?? [],
+      drawings: (row.drawings as unknown as Drawing[]) ?? [],
+    })),
+  };
 }

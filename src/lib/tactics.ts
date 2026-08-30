@@ -29,6 +29,7 @@ export type Drawing = {
 export type Frame = {
   id: string;
   name: string | null;
+  note?: string | null;
   objects: FieldObject[];
   drawings: Drawing[];
 };

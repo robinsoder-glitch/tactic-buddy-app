@@ -17,6 +17,7 @@ type Props = {
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
+  onMoveEnd?: () => void;
   onSelectObject?: (id: string | null) => void;
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
@@ -33,6 +34,7 @@ export function Pitch({
   drawColor,
   passT = null,
   onMoveObject,
+  onMoveEnd,
   onSelectObject,
   onAddDrawing,
   onRemoveDrawing,
@@ -87,6 +89,7 @@ export function Pitch({
       }
       setPending(null);
     }
+    if (dragId.current) onMoveEnd?.();
     dragId.current = null;
   }
 

@@ -7,6 +7,7 @@ import {
   CircleDot,
   ChevronLeft,
   ChevronRight,
+  Download,
   Eraser,
   FlipHorizontal2,
   MoveRight,
@@ -15,6 +16,8 @@ import {
   Plus,
   Repeat,
   Save,
+  Redo2,
+  Share2,
   Square,
   Trash2,
   Undo2,
@@ -22,12 +25,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchPlayers, fetchTactic, saveFrames } from "@/lib/db";
+import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
+import { exportGif, exportVideo } from "@/lib/export-clip";
 import { interpolateFrames, uid } from "@/lib/tactics";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/tactic/$id")({
   head: () => ({
@@ -73,7 +78,13 @@ function TacticEditor() {
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
-  const history = useRef<Frame[][]>([]);
+  const [past, setPast] = useState<Frame[][]>([]);
+  const [future, setFuture] = useState<Frame[][]>([]);
+  const [isPublic, setIsPublic] = useState(false);
+  const [exporting, setExporting] = useState<null | "gif" | "video">(null);
+  const framesRef = useRef<Frame[]>([]);
+  const dragSession = useRef(false);
+  framesRef.current = frames;
 
   useEffect(() => {
     if (tactic.data) {
@@ -81,6 +92,9 @@ function TacticEditor() {
       setCurrent(0);
       setProgress(0);
       setDirty(false);
+      setPast([]);
+      setFuture([]);
+      setIsPublic(Boolean(tactic.data.is_public));
     }
   }, [tactic.data]);
 
@@ -106,13 +120,19 @@ function TacticEditor() {
     return () => clearTimeout(timeout);
   }, [dirty, frames]);
 
-  const commit = useCallback((updater: (frames: Frame[]) => Frame[]) => {
-    setFrames((prev) => {
-      history.current = [...history.current.slice(-24), prev];
-      return updater(prev);
-    });
-    setDirty(true);
+  const pushHistory = useCallback(() => {
+    setPast((prev) => [...prev.slice(-49), framesRef.current]);
+    setFuture([]);
   }, []);
+
+  const commit = useCallback(
+    (updater: (frames: Frame[]) => Frame[]) => {
+      pushHistory();
+      setFrames((prev) => updater(prev));
+      setDirty(true);
+    },
+    [pushHistory],
+  );
 
   // Playback
   useEffect(() => {
@@ -174,6 +194,10 @@ function TacticEditor() {
   }
 
   function moveObject(objectId: string, x: number, y: number) {
+    if (!dragSession.current) {
+      dragSession.current = true;
+      pushHistory();
+    }
     setDirty(true);
     setFrames((prev) =>
       prev.map((item, index) =>
@@ -237,12 +261,97 @@ function TacticEditor() {
     setProgress(next);
   }
 
-  function undo() {
-    const previous = history.current.pop();
-    if (!previous) return;
-    setFrames(previous);
-    setCurrent((value) => Math.min(value, previous.length - 1));
+  const undo = useCallback(() => {
+    setPast((stack) => {
+      const previous = stack[stack.length - 1];
+      if (!previous) return stack;
+      setFuture((next) => [framesRef.current, ...next.slice(0, 49)]);
+      setFrames(previous);
+      setCurrent((value) => Math.min(value, previous.length - 1));
+      setProgress((value) => Math.min(value, previous.length - 1));
+      setDirty(true);
+      return stack.slice(0, -1);
+    });
+  }, []);
+
+  const redo = useCallback(() => {
+    setFuture((stack) => {
+      const next = stack[0];
+      if (!next) return stack;
+      setPast((prev) => [...prev.slice(-49), framesRef.current]);
+      setFrames(next);
+      setCurrent((value) => Math.min(value, next.length - 1));
+      setProgress((value) => Math.min(value, next.length - 1));
+      setDirty(true);
+      return stack.slice(1);
+    });
+  }, []);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "z") return;
+      const target = event.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
+      event.preventDefault();
+      if (event.shiftKey) redo();
+      else undo();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
+
+  function setNote(value: string) {
     setDirty(true);
+    setFrames((prev) => prev.map((item, index) => (index === current ? { ...item, note: value } : item)));
+  }
+
+  const shareUrl =
+    typeof window !== "undefined" && tactic.data?.share_id
+      ? `${window.location.origin}/t/${tactic.data.share_id}`
+      : "";
+
+  const share = useMutation({
+    mutationFn: async (next: boolean) => {
+      await setTacticSharing(id, next);
+      return next;
+    },
+    onSuccess: async (next) => {
+      setIsPublic(next);
+      queryClient.invalidateQueries({ queryKey: ["tactic", id] });
+      if (next && shareUrl) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          toast.success("Delningslänk kopierad");
+        } catch {
+          toast.success("Taktiken delas nu via länk");
+        }
+      } else {
+        toast.success("Delningen är avstängd");
+      }
+    },
+    onError: () => toast.error("Kunde inte ändra delningen"),
+  });
+
+  async function runExport(kind: "gif" | "video") {
+    if (!tactic.data) return;
+    setExporting(kind);
+    setPlaying(false);
+    try {
+      if (dirty) await save.mutateAsync();
+      const filename = tactic.data.name.replace(/[^a-z0-9åäö]+/gi, "-").toLowerCase() || "taktik";
+      const options = { frames, pitchType: tactic.data.pitch_type, stepMs: STEP_MS };
+      if (kind === "gif") {
+        await exportGif(options, filename);
+        toast.success("GIF nedladdad");
+      } else {
+        const extension = await exportVideo(options, filename);
+        toast.success(`Video nedladdad (.${extension})`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Exporten misslyckades");
+    } finally {
+      setExporting(null);
+    }
   }
 
   function mirror() {
@@ -305,6 +414,9 @@ function TacticEditor() {
         drawColor={tool === "zone" || tool === "circle" ? drawColor : undefined}
         passT={passT}
         onMoveObject={moveObject}
+        onMoveEnd={() => {
+          dragSession.current = false;
+        }}
         onSelectObject={setSelectedId}
         onAddDrawing={addDrawing}
         onRemoveDrawing={removeDrawing}
@@ -348,8 +460,11 @@ function TacticEditor() {
         )}
 
         <div className="ml-auto flex gap-1">
-          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo}>
+          <Button variant="ghost" size="icon" aria-label="Ångra" onClick={undo} disabled={past.length === 0}>
             <Undo2 className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Gör om" onClick={redo} disabled={future.length === 0}>
+            <Redo2 className="size-4" />
           </Button>
           <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
             <FlipHorizontal2 className="size-4" />
@@ -456,6 +571,54 @@ function TacticEditor() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <section className="rounded-xl border border-border bg-card p-3">
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground" htmlFor="step-note">
+          Anteckning för {frame?.name || `steg ${current + 1}`}
+        </label>
+        <Textarea
+          id="step-note"
+          rows={2}
+          value={frame?.note ?? ""}
+          onChange={(event) => setNote(event.target.value)}
+          placeholder="T.ex. Ytterbacken går på överlapp när sexan vänder spelet."
+          className="mt-2"
+        />
+        <p className="mt-1 text-xs text-muted-foreground">Visas under uppspelning och i delade länkar.</p>
+      </section>
+
+      <section className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
+        <Button
+          variant={isPublic ? "default" : "secondary"}
+          size="sm"
+          onClick={() => share.mutate(!isPublic)}
+          disabled={share.isPending}
+        >
+          <Share2 className="size-4" /> {isPublic ? "Delning på" : "Dela via länk"}
+        </Button>
+        {isPublic && shareUrl && (
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(shareUrl).then(
+                () => toast.success("Länk kopierad"),
+                () => toast.error("Kunde inte kopiera"),
+              );
+            }}
+            className="max-w-full truncate rounded-md border border-border px-2 py-1 text-xs text-muted-foreground"
+          >
+            {shareUrl}
+          </button>
+        )}
+        <div className="ml-auto flex gap-2">
+          <Button variant="secondary" size="sm" onClick={() => runExport("gif")} disabled={exporting !== null}>
+            <Download className="size-4" /> {exporting === "gif" ? "Skapar GIF…" : "GIF"}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => runExport("video")} disabled={exporting !== null}>
+            <Download className="size-4" /> {exporting === "video" ? "Spelar in…" : "Video"}
+          </Button>
+        </div>
+      </section>
 
       <section className="rounded-xl border border-border bg-card p-3">
         <div className="flex items-center gap-2">
