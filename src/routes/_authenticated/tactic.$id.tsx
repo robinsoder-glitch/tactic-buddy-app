@@ -601,6 +601,24 @@ function TacticEditor() {
     onError: () => toast.error("Kunde inte ändra delningen"),
   });
 
+  function pdfOptions(settings: ExportSettings) {
+    return {
+      frames,
+      pitchType: tactic.data?.pitch_type ?? "small",
+      title: tactic.data?.name ?? "Taktik",
+      teamName,
+      cover: settings.cover,
+      paper: settings.paper,
+      orientation: settings.orientation,
+      margin: settings.margin,
+      scale: settings.scale,
+      hideNames,
+      tokenScale: prefs.playerScale,
+      showPhotos: prefs.showPhotos,
+      width: Math.max(QUALITY_PRESETS[settings.quality].width, 900),
+    };
+  }
+
   async function runExport(settings: ExportSettings) {
     if (!tactic.data) return;
     const kind = settings.format;
