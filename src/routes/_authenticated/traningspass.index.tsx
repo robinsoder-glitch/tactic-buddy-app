@@ -394,26 +394,16 @@ function CreateSessionDialog({
                   onChange={(event) => set({ title: event.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label htmlFor="new-date">Datum (frivilligt)</Label>
-                  <Input
-                    id="new-date"
-                    type="date"
-                    value={draft.session_date ?? ""}
-                    onChange={(event) => set({ session_date: event.target.value || null })}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="new-age">Åldersgrupp</Label>
-                  <Input
-                    id="new-age"
-                    value={draft.age_group ?? ""}
-                    placeholder="T.ex. 8–9 år"
-                    onChange={(event) => set({ age_group: event.target.value || null })}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="new-date">Datum (frivilligt)</Label>
+                <Input
+                  id="new-date"
+                  type="date"
+                  value={draft.session_date ?? ""}
+                  onChange={(event) => set({ session_date: event.target.value || null })}
+                />
               </div>
+
               <div className="space-y-1">
                 <Label htmlFor="new-theme">Träningens tema</Label>
                 <Input
