@@ -55,6 +55,6 @@
 - [x] Kalendern och närvarosidan länkar till kallelsen
 
 ## Etapp 6: Koppling bank → kalender
-- [ ] Koppla övning/målvaktsövning/taktik/artikel direkt till en träning i lagets kalender (välj aktivitet + minuter)
-- [ ] "Lägg till i träning" på alla kort i banken, inte bara träningspass
-- [ ] Byt namn: "Ny taktik" → "Ny övning" i hela appen
+- [x] Koppla övning/målvaktsövning/taktik/artikel direkt till en träning i lagets kalender (välj aktivitet + minuter)
+- [x] "Lägg till i träning" på alla kort i banken, inte bara träningspass
+- [x] Byt namn: "Ny taktik" → "Ny övning" i hela appen
