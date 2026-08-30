@@ -149,18 +149,26 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
             <DialogTitle>Koppla innehåll till träningen</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <Button variant="secondary" className="w-full" asChild>
+              <Link to="/traningspass">
+                <Plus className="size-4" /> Skapa ett nytt träningspass
+              </Link>
+            </Button>
+
             {(
               [
-                ["tactic", tactics.data ?? []],
-                ["drill", drills.data ?? []],
-                ["session", sessions.data ?? []],
-              ] as [EventResourceKind, { id: string; title: string }[]][]
-            ).map(([kind, list]) => (
-              <section key={kind}>
-                <h3 className="font-display text-sm tracking-wide text-muted-foreground">
-                  {KIND_LABELS[kind]}
-                </h3>
+                ["Mina träningspass", "session", coachSessions.data ?? []],
+                ["Träningspass ur banken", "session", sessions.data ?? []],
+                ["Övningar", "drill", drills.data ?? []],
+                ["Taktikkort", "tactic", tactics.data ?? []],
+              ] as [string, EventResourceKind, { id: string; title: string }[]][]
+            ).map(([heading, kind, list]) => (
+              <section key={heading}>
+                <h3 className="font-display text-sm tracking-wide text-muted-foreground">{heading}</h3>
                 <ul className="mt-1 space-y-1">
+                  {list.length === 0 && (
+                    <li className="text-xs text-muted-foreground">Inget att välja här ännu.</li>
+                  )}
                   {list.map((item) => (
                     <li key={item.id}>
                       <button

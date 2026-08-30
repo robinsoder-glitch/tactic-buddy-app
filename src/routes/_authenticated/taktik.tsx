@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { TacticEditor } from "@/components/TacticEditor";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { createTactic, fetchTactics } from "@/lib/db";
+import { createTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
@@ -35,7 +35,16 @@ function TacticPage() {
   const cards = useQuery({ queryKey: ["tactic-cards"], queryFn: fetchTacticCards });
 
   const list = tactics.data ?? [];
-  const activeId = openId ?? list[0]?.id ?? null;
+
+  // Tavlan startar alltid tom – ingen tidigare taktik öppnas automatiskt.
+  const blank = useQuery({
+    queryKey: ["blank-tactic", user?.id],
+    queryFn: () => openBlankTactic(user!.id),
+    enabled: !!user && !openId,
+    staleTime: Infinity,
+  });
+
+  const activeId = openId ?? blank.data ?? null;
 
   const create = useMutation({
     mutationFn: () => createTactic(user!.id, "Min taktik", "full", null),
@@ -50,16 +59,18 @@ function TacticPage() {
     <main className="mx-auto max-w-5xl px-4 pb-28 pt-6 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Taktik</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Flytta spelare och boll på planen för att skapa och visa en taktik.
+        Börja med en tom plan – dra ut spelare och boll själv och bygg din taktik.
       </p>
 
       <section className="mt-4">
-        {tactics.isLoading && <p className="text-sm text-muted-foreground">Hämtar tavlan…</p>}
-        {!tactics.isLoading && !activeId && (
+        {(tactics.isLoading || blank.isLoading) && (
+          <p className="text-sm text-muted-foreground">Förbereder en tom tavla…</p>
+        )}
+        {!blank.isLoading && !activeId && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
-            <p className="text-sm text-muted-foreground">Du har ingen taktik ännu.</p>
+            <p className="text-sm text-muted-foreground">Tavlan kunde inte öppnas.</p>
             <Button className="mt-3" disabled={!user || create.isPending} onClick={() => create.mutate()}>
-              Skapa taktik och öppna tavlan
+              Skapa en ny tom tavla
             </Button>
           </div>
         )}

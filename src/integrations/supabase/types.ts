@@ -431,6 +431,7 @@ export type Database = {
           created_by: string
           event_id: string
           notes: string | null
+          planning_done: boolean
           team_id: string
           updated_at: string
         }
@@ -439,6 +440,7 @@ export type Database = {
           created_by: string
           event_id: string
           notes?: string | null
+          planning_done?: boolean
           team_id: string
           updated_at?: string
         }
@@ -447,6 +449,7 @@ export type Database = {
           created_by?: string
           event_id?: string
           notes?: string | null
+          planning_done?: boolean
           team_id?: string
           updated_at?: string
         }

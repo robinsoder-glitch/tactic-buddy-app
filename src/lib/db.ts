@@ -131,6 +131,33 @@ export async function createTactic(
   return data.id as string;
 }
 
+/**
+ * Öppnar en helt tom tavla. Återanvänder en tidigare tom tavla i stället för att
+ * skapa nya rader varje gång sidan besöks.
+ */
+export async function openBlankTactic(userId: string, name = "Tom tavla"): Promise<string> {
+  const { data, error } = await supabase
+    .from("tactics")
+    .select("id, tactic_frames(objects, drawings)")
+    .eq("user_id", userId)
+    .eq("name", name)
+    .order("updated_at", { ascending: false })
+    .limit(5);
+  if (error) throw error;
+
+  const empty = (data ?? []).find((row) => {
+    const frames = (row as unknown as { tactic_frames: { objects: unknown[]; drawings: unknown[] }[] })
+      .tactic_frames;
+    return (
+      frames.length <= 1 &&
+      frames.every((frame) => (frame.objects?.length ?? 0) === 0 && (frame.drawings?.length ?? 0) === 0)
+    );
+  });
+  if (empty) return (empty as { id: string }).id;
+
+  return createTactic(userId, name, "full", null);
+}
+
 export async function createTacticFromFrames(
   userId: string,
   name: string,

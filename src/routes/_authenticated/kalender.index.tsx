@@ -1,8 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, MapPin } from "lucide-react";
+import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
 import { formatDateTime } from "@/lib/teams";
+
+/** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
+const EVENT_STYLES = {
+  training: {
+    icon: Dumbbell,
+    label: "Träning",
+    card: "border-l-4 border-l-emerald-500",
+    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    icon_color: "text-emerald-600 dark:text-emerald-400",
+  },
+  match: {
+    icon: Trophy,
+    label: "Match",
+    card: "border-l-4 border-l-amber-500",
+    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    icon_color: "text-amber-600 dark:text-amber-400",
+  },
+} as const;
 
 export const Route = createFileRoute("/_authenticated/kalender/")({
   head: () => ({
@@ -43,32 +61,38 @@ function CalendarOverview() {
         </p>
       ) : (
         <ul className="mt-3 space-y-2">
-          {list.map((event) => (
-            <li key={event.id}>
-              <Link
-                to="/team/$teamId/event/$eventId"
-                params={{ teamId: event.team_id, eventId: event.id }}
-                className="flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50"
-              >
-                <CalendarDays className="mt-1 size-4 shrink-0 text-primary" />
-                <div className="min-w-0">
-                  <p className="font-medium">
-                    {event.title ?? (event.type === "match" ? "Match" : "Träning")}
-                    <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                      {event.type === "match" ? "Match" : "Träning"}
-                    </span>
-                  </p>
-                  <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                  {event.team_name && <p className="text-xs text-muted-foreground">{event.team_name}</p>}
-                  {event.location && (
-                    <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="size-3" /> {event.location}
+          {list.map((event) => {
+            const style = EVENT_STYLES[event.type === "match" ? "match" : "training"];
+            const Icon = style.icon;
+            return (
+              <li key={event.id}>
+                <Link
+                  to="/team/$teamId/event/$eventId"
+                  params={{ teamId: event.team_id, eventId: event.id }}
+                  className={`flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50 ${style.card}`}
+                >
+                  <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      {event.title ?? style.label}
+                      <span
+                        className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold ${style.badge}`}
+                      >
+                        {style.label}
+                      </span>
                     </p>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
+                    <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
+                    {event.team_name && <p className="text-xs text-muted-foreground">{event.team_name}</p>}
+                    {event.location && (
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="size-3" /> {event.location}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
