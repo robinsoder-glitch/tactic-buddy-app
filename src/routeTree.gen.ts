@@ -28,6 +28,7 @@ import { Route as AuthenticatedTaktikbankCardIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_authenticated/taktikbank.regler'
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_authenticated/traningspass.index'
+import { Route as AuthenticatedTraningspassIdRouteImport } from './routes/_authenticated/traningspass.$id'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
@@ -141,6 +142,12 @@ const AuthenticatedTraningspassIndexRoute =
     path: '/traningspass/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTraningspassIdRoute =
+  AuthenticatedTraningspassIdRouteImport.update({
+    id: '/traningspass/$id',
+    path: '/traningspass/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeamTeamIdIndexRoute =
   AuthenticatedTeamTeamIdIndexRouteImport.update({
     id: '/',
@@ -185,15 +192,15 @@ const AuthenticatedTeamTeamIdTrainingRoute =
   } as any)
 const AuthenticatedTraningspassIdIndexRoute =
   AuthenticatedTraningspassIdIndexRouteImport.update({
-    id: '/traningspass/$id/',
-    path: '/traningspass/$id/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTraningspassIdRoute,
   } as any)
 const AuthenticatedTraningspassIdVisaRoute =
   AuthenticatedTraningspassIdVisaRouteImport.update({
-    id: '/traningspass/$id/visa',
-    path: '/traningspass/$id/visa',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/visa',
+    path: '/visa',
+    getParentRoute: () => AuthenticatedTraningspassIdRoute,
   } as any)
 const AuthenticatedTeamTeamIdPlayerPlayerIdRoute =
   AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport.update({
@@ -217,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/_authenticated/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
     | '/team/$teamId'
+    | '/traningspass/$id'
     | '/kunskapsbank/'
     | '/ovningsbank/'
     | '/taktikbank/'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/$cardId'
     | '/_authenticated/taktikbank/regler'
     | '/_authenticated/team/$teamId'
+    | '/_authenticated/traningspass/$id'
     | '/_authenticated/kunskapsbank/'
     | '/_authenticated/ovningsbank/'
     | '/_authenticated/taktikbank/'
@@ -528,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraningspassIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/traningspass/$id': {
+      id: '/_authenticated/traningspass/$id'
+      path: '/traningspass/$id'
+      fullPath: '/traningspass/$id'
+      preLoaderRoute: typeof AuthenticatedTraningspassIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/team/$teamId/': {
       id: '/_authenticated/team/$teamId/'
       path: '/'
@@ -579,17 +597,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/traningspass/$id/': {
       id: '/_authenticated/traningspass/$id/'
-      path: '/traningspass/$id'
+      path: '/'
       fullPath: '/traningspass/$id/'
       preLoaderRoute: typeof AuthenticatedTraningspassIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedTraningspassIdRoute
     }
     '/_authenticated/traningspass/$id/visa': {
       id: '/_authenticated/traningspass/$id/visa'
-      path: '/traningspass/$id/visa'
+      path: '/visa'
       fullPath: '/traningspass/$id/visa'
       preLoaderRoute: typeof AuthenticatedTraningspassIdVisaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedTraningspassIdRoute
     }
     '/_authenticated/team/$teamId/player/$playerId': {
       id: '/_authenticated/team/$teamId/player/$playerId'
@@ -630,6 +648,23 @@ const AuthenticatedTeamTeamIdRouteWithChildren =
     AuthenticatedTeamTeamIdRouteChildren,
   )
 
+interface AuthenticatedTraningspassIdRouteChildren {
+  AuthenticatedTraningspassIdVisaRoute: typeof AuthenticatedTraningspassIdVisaRoute
+  AuthenticatedTraningspassIdIndexRoute: typeof AuthenticatedTraningspassIdIndexRoute
+}
+
+const AuthenticatedTraningspassIdRouteChildren: AuthenticatedTraningspassIdRouteChildren =
+  {
+    AuthenticatedTraningspassIdVisaRoute: AuthenticatedTraningspassIdVisaRoute,
+    AuthenticatedTraningspassIdIndexRoute:
+      AuthenticatedTraningspassIdIndexRoute,
+  }
+
+const AuthenticatedTraningspassIdRouteWithChildren =
+  AuthenticatedTraningspassIdRoute._addFileChildren(
+    AuthenticatedTraningspassIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
@@ -642,12 +677,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTaktikbankCardIdRoute: typeof AuthenticatedTaktikbankCardIdRoute
   AuthenticatedTaktikbankReglerRoute: typeof AuthenticatedTaktikbankReglerRoute
   AuthenticatedTeamTeamIdRoute: typeof AuthenticatedTeamTeamIdRouteWithChildren
+  AuthenticatedTraningspassIdRoute: typeof AuthenticatedTraningspassIdRouteWithChildren
   AuthenticatedKunskapsbankIndexRoute: typeof AuthenticatedKunskapsbankIndexRoute
   AuthenticatedOvningsbankIndexRoute: typeof AuthenticatedOvningsbankIndexRoute
   AuthenticatedTaktikbankIndexRoute: typeof AuthenticatedTaktikbankIndexRoute
   AuthenticatedTraningspassIndexRoute: typeof AuthenticatedTraningspassIndexRoute
-  AuthenticatedTraningspassIdVisaRoute: typeof AuthenticatedTraningspassIdVisaRoute
-  AuthenticatedTraningspassIdIndexRoute: typeof AuthenticatedTraningspassIdIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -662,12 +696,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTaktikbankCardIdRoute: AuthenticatedTaktikbankCardIdRoute,
   AuthenticatedTaktikbankReglerRoute: AuthenticatedTaktikbankReglerRoute,
   AuthenticatedTeamTeamIdRoute: AuthenticatedTeamTeamIdRouteWithChildren,
+  AuthenticatedTraningspassIdRoute:
+    AuthenticatedTraningspassIdRouteWithChildren,
   AuthenticatedKunskapsbankIndexRoute: AuthenticatedKunskapsbankIndexRoute,
   AuthenticatedOvningsbankIndexRoute: AuthenticatedOvningsbankIndexRoute,
   AuthenticatedTaktikbankIndexRoute: AuthenticatedTaktikbankIndexRoute,
   AuthenticatedTraningspassIndexRoute: AuthenticatedTraningspassIndexRoute,
-  AuthenticatedTraningspassIdVisaRoute: AuthenticatedTraningspassIdVisaRoute,
-  AuthenticatedTraningspassIdIndexRoute: AuthenticatedTraningspassIdIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
