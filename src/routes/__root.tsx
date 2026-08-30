@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AppNav } from "@/components/AppNav";
+import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
+import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -138,10 +140,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ChunkErrorBanner />
       <div className="min-h-screen pb-[76px]">
         <Outlet />
       </div>
       <AppNav />
+      <DebugInfoBox />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
