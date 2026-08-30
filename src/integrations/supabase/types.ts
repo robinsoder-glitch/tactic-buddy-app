@@ -1223,6 +1223,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_team_invite: { Args: { _token: string }; Returns: string }
       find_team_by_code: {
         Args: { _code: string }
         Returns: {
@@ -1247,7 +1248,6 @@ export type Database = {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
       }
-      redeem_team_invite: { Args: { _team_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "coach" | "player"
