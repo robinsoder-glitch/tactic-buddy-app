@@ -142,13 +142,19 @@ function TacticEditor() {
   }, [playing, speed, loop, frames.length]);
 
   const frame = frames[current];
+  const scrubbing = Math.abs(progress - current) > 0.001;
+  const animating = playing || scrubbing;
   const displayedObjects = useMemo(
-    () => (playing ? interpolateFrames(frames, progress) : (frame?.objects ?? [])),
-    [playing, frames, progress, frame],
+    () => (animating ? interpolateFrames(frames, progress) : (frame?.objects ?? [])),
+    [animating, frames, progress, frame],
   );
-  const displayedDrawings = playing
-    ? (frames[activeFrameIndex(progress, frames.length)]?.drawings ?? [])
+  const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
+  const segmentT = progress - segmentIndex;
+  const displayedDrawings = animating
+    ? (frames[segmentIndex]?.drawings ?? [])
     : (frame?.drawings ?? []);
+  const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
+
 
   function addObject(object: FieldObject) {
     commit((prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })));
