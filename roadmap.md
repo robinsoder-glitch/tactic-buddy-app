@@ -12,3 +12,9 @@
 ## Kvar
 - Inget öppet.
 
+
+## Mina träningspass (klart)
+- Tabeller `coach_sessions` + `coach_session_items` med RLS per tränare.
+- `/traningspass` lista, `/traningspass/$id` byggvy, `/traningspass/$id/visa` körschema med utskrift/PDF.
+- "Lägg till i träningspass" på taktikkort, övningar, målvaktsövningar och artiklar.
+- "Använd som mall" kopierar redaktionella pass (originalen orörda).

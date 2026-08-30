@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
 import { doneCount, loadProgress, resetSession, toggleBlock, type SessionProgress } from "@/lib/session-progress";
@@ -20,6 +20,8 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
+import { AddToSessionButton } from "@/components/AddToSessionDialog";
+import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,6 +77,8 @@ function OvningsbankPage() {
   const [difficulty, setDifficulty] = useState("all");
   const [age, setAge] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const navigate = useNavigate();
+  const [templateError, setTemplateError] = useState<string | null>(null);
   const [progress, setProgress] = useState<SessionProgress>({});
   useEffect(() => setProgress(loadProgress()), []);
   const [openSession, setOpenSession] = useState<string | null>(
@@ -308,6 +312,15 @@ function OvningsbankPage() {
                   <RelatedContent
                     sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
                   />
+                  <div className="mt-3">
+                    <AddToSessionButton
+                      kind="drill"
+                      resourceId={drill.id}
+                      title={drill.title}
+                      defaultMinutes={drill.default_minutes ?? 10}
+                      size="sm"
+                    />
+                  </div>
                 </div>
                 <FavoriteButton
                   active={favoriteSet.has(`drill:${drill.id}`)}
@@ -365,6 +378,9 @@ function OvningsbankPage() {
                 active={favoriteSet.has(`goalkeeper:${card.id}`)}
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
+              <div className="mt-3">
+                <AddToSessionButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+              </div>
             </article>
           ))}
           {!keepers.isLoading && visibleKeepers.length === 0 && (
@@ -407,6 +423,25 @@ function OvningsbankPage() {
                     active={favoriteSet.has(`session:${session.id}`)}
                     onClick={() => toggleFavorite.mutate({ kind: "session", id: session.id })}
                   />
+                </div>
+                <div className="mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    aria-label={`Använd ${session.title} som mall`}
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        const newId = await createFromTemplate(session, user.id);
+                        navigate({ to: "/traningspass/$id", params: { id: newId } });
+                      } catch {
+                        setTemplateError("Det gick inte att skapa ett träningspass från mallen. Försök igen.");
+                      }
+                    }}
+                  >
+                    Använd som mall
+                  </Button>
+                  {templateError && <p className="mt-2 text-sm text-destructive">{templateError}</p>}
                 </div>
                 {open && (
                   <>
