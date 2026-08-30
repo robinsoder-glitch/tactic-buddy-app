@@ -118,6 +118,8 @@ function TacticEditor() {
     enabled: !!teamId,
   });
   const personal = useQuery({ queryKey: ["players"], queryFn: fetchPlayers, enabled: !teamId });
+  const { memberships } = useAccount();
+  const teamName = memberships.find((item) => item.team_id === teamId)?.team?.name ?? null;
 
   const bank: BankPlayer[] = useMemo(() => {
     if (teamId) {
