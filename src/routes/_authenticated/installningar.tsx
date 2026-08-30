@@ -111,6 +111,30 @@ function SettingsPage() {
           checked={prefs.grid}
           onChange={(value) => patchPrefs({ grid: value })}
         />
+        <PrefRow
+          label="Visa spelarfoton på planen"
+          hint="Av: symbolen visar tröjnummer eller initialer istället för bild."
+          checked={prefs.showPhotos}
+          onChange={(value) => patchPrefs({ showPhotos: value })}
+        />
+        <PrefRow
+          label="Repetera animationen"
+          hint="Spelar upp taktiken om och om igen tills du pausar."
+          checked={prefs.loop}
+          onChange={(value) => patchPrefs({ loop: value })}
+        />
+        <PrefRow
+          label="Starta uppspelning direkt"
+          hint="Animationen startar automatiskt när du öppnar en taktik."
+          checked={prefs.autoplay}
+          onChange={(value) => patchPrefs({ autoplay: value })}
+        />
+        <PrefRow
+          label="Fråga innan steg tas bort"
+          hint="Skyddar mot att råka radera ett steg i tidslinjen."
+          checked={prefs.confirmDelete}
+          onChange={(value) => patchPrefs({ confirmDelete: value })}
+        />
         <div>
           <Label htmlFor="speed">Standardhastighet: {prefs.speed}x</Label>
           <input
@@ -124,6 +148,32 @@ function SettingsPage() {
             className="mt-2 w-full accent-primary"
           />
         </div>
+        <div>
+          <Label htmlFor="scale">Storlek på spelarsymboler: {Math.round(prefs.playerScale * 100)}%</Label>
+          <input
+            id="scale"
+            type="range"
+            min={0.7}
+            max={1.6}
+            step={0.1}
+            value={prefs.playerScale}
+            onChange={(event) => patchPrefs({ playerScale: Number(event.target.value) })}
+            className="mt-2 w-full accent-primary"
+          />
+          <p className="text-xs text-muted-foreground">100 % = en spelares armspännvidd (~1,4 m) i planens skala.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Label className="flex-1">Rutnätets finhet</Label>
+          <select
+            value={String(prefs.gridStep)}
+            onChange={(event) => patchPrefs({ gridStep: Number(event.target.value) })}
+            className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+          >
+            <option value="0.025">Fint</option>
+            <option value="0.05">Normalt</option>
+            <option value="0.1">Grovt</option>
+          </select>
+        </div>
         <div className="flex items-center gap-2">
           <Label className="flex-1">Standardplan</Label>
           <select
@@ -135,6 +185,9 @@ function SettingsPage() {
             <option value="full">Helplan (11)</option>
           </select>
         </div>
+        <Button variant="outline" onClick={() => { setPrefs(DEFAULT_PREFS); savePrefs(DEFAULT_PREFS); toast.success("Standardvärden återställda"); }}>
+          Återställ standardvärden
+        </Button>
       </section>
 
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
