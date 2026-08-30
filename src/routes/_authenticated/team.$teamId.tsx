@@ -49,8 +49,7 @@ const SUB_LINKS = [
 
 function TeamLayout() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId" });
-  const { status, isApproved, loading, role } = useTeamRole(teamId);
-  const isCoachRole = role === "coach" || role === "admin";
+  const { status, isApproved, loading, isCoach: isCoachRole } = useTeamRole(teamId);
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   if (!loading && status === "pending") {
