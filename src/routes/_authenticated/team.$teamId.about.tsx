@@ -4,8 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Copy } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { uploadPlayerPhoto } from "@/lib/db";
-import { fetchTeam, TEAM_GENDER_LABELS, updateTeam } from "@/lib/teams";
+import { fetchTeam, TEAM_GENDER_LABELS, updateTeam, uploadTeamMedia } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +37,7 @@ function AboutPage() {
   async function save(file?: File | null) {
     setBusy(true);
     try {
-      const photo_path = file && userId ? await uploadPlayerPhoto(userId, file) : (team.data?.photo_path ?? null);
+      const photo_path = file && userId ? await uploadTeamMedia(teamId, file, "team") : (team.data?.photo_path ?? null);
       await updateTeam(teamId, { name, age_group: ageGroup || null, gender, about: about || null, photo_path });
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["teams"] });
