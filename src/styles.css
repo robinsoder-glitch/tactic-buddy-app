@@ -58,8 +58,55 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Ljust standardtema: mjuk grön bakgrund, vita kort, djupgrön primärfärg. */
 :root {
   --radius: 0.75rem;
+  --background: #f5f8f2;
+  --foreground: #1e2b23;
+  --card: #ffffff;
+  --card-foreground: #1e2b23;
+  --popover: #ffffff;
+  --popover-foreground: #1e2b23;
+  --primary: #2f6b4f;
+  --primary-foreground: #ffffff;
+  --secondary: #e6eee2;
+  --secondary-foreground: #1e2b23;
+  --muted: #eaf0e6;
+  --muted-foreground: #55665c;
+  --accent: #e0ebdb;
+  --accent-foreground: #1e2b23;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #d7e2d2;
+  --input: #d7e2d2;
+  --ring: #2f6b4f;
+  --pitch: oklch(0.62 0.11 152);
+  --pitch-line: oklch(1 0 0 / 85%);
+  --team-home: #2f6b4f;
+  --team-home-foreground: #ffffff;
+  --team-away: #c0392b;
+  --team-away-foreground: #ffffff;
+  --team-gk: #8e44ad;
+  --team-gk-foreground: #ffffff;
+  --team-gk-away: #2b6cb0;
+
+  --chart-1: #2f6b4f;
+  --chart-2: #c0392b;
+  --chart-3: #b8860b;
+  --chart-4: #2b6cb0;
+  --chart-5: #8e44ad;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e2b23;
+  --sidebar-primary: #2f6b4f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6eee2;
+  --sidebar-accent-foreground: #1e2b23;
+  --sidebar-border: #d7e2d2;
+  --sidebar-ring: #2f6b4f;
+}
+
+/* Mörkt tema behålls som valbart alternativ. */
+.dark {
   --background: oklch(0.19 0.024 160);
   --foreground: oklch(0.97 0.01 120);
   --card: oklch(0.24 0.028 162);
@@ -102,11 +149,6 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 120);
   --sidebar-border: oklch(0.34 0.03 162);
   --sidebar-ring: oklch(0.86 0.21 128);
-}
-
-.dark {
-  --background: oklch(0.19 0.024 160);
-  --foreground: oklch(0.97 0.01 120);
 }
 
 @layer base {
