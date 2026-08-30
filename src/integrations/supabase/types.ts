@@ -421,7 +421,10 @@ export type Database = {
           event_id: string
           id: string
           kind: string
+          minutes: number | null
+          note: string | null
           resource_id: string
+          sort_order: number
           team_id: string
           updated_at: string
         }
@@ -431,7 +434,10 @@ export type Database = {
           event_id: string
           id?: string
           kind?: string
+          minutes?: number | null
+          note?: string | null
           resource_id: string
+          sort_order?: number
           team_id: string
           updated_at?: string
         }
@@ -441,7 +447,10 @@ export type Database = {
           event_id?: string
           id?: string
           kind?: string
+          minutes?: number | null
+          note?: string | null
           resource_id?: string
+          sort_order?: number
           team_id?: string
           updated_at?: string
         }
