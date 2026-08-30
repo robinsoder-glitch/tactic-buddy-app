@@ -348,15 +348,22 @@ function TacticEditor() {
       };
       const next = [...prev];
       next.splice(current + 1, 0, copy);
-      return next;
+      return renumber(next);
     });
     setCurrent((value) => value + 1);
     setProgress(current + 1);
   }
 
+  // Keep auto-generated step names ("Steg N") sequential after add/remove; custom names are untouched
+  function renumber(list: Frame[]) {
+    return list.map((item, index) =>
+      item.name && /^Steg \d+$/.test(item.name) ? { ...item, name: `Steg ${index + 1}` } : item,
+    );
+  }
+
   function deleteFrame(index: number) {
     if (frames.length <= 1) return;
-    commit((prev) => prev.filter((_, i) => i !== index));
+    commit((prev) => renumber(prev.filter((_, i) => i !== index)));
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
