@@ -125,6 +125,23 @@ export async function createTactic(
   return data.id as string;
 }
 
+export async function createTacticFromFrames(
+  userId: string,
+  name: string,
+  pitchType: PitchType,
+  teamId: string | null,
+  frames: Frame[],
+) {
+  const { data, error } = await supabase
+    .from("tactics")
+    .insert({ user_id: userId, name, pitch_type: pitchType, team_id: teamId ?? null })
+    .select("id")
+    .single();
+  if (error) throw error;
+  await saveFrames(data.id as string, userId, frames);
+  return data.id as string;
+}
+
 
 export async function renameTactic(id: string, name: string) {
   const { error } = await supabase.from("tactics").update({ name }).eq("id", id);
