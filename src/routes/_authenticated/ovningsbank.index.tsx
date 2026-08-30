@@ -192,6 +192,9 @@ function OvningsbankPage() {
           <p className="font-display text-xs tracking-[0.3em] text-primary">Så tränar ni det</p>
           <h1 className="font-display text-3xl font-bold">Träningsbank</h1>
         </div>
+        <Button asChild className="ml-auto">
+          <Link to="/traningspass">Skapa träningspass</Link>
+        </Button>
       </header>
 
       <p className="mt-2 text-sm text-muted-foreground">
