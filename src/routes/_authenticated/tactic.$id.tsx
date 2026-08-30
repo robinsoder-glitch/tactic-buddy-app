@@ -36,6 +36,12 @@ import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
 import { interpolateFrames, uid } from "@/lib/tactics";
+import {
+  entry as historyEntry,
+  loadHistory,
+  saveHistory,
+  type HistoryEntry,
+} from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
@@ -157,12 +163,13 @@ function TacticEditor() {
       setCurrent(0);
       setProgress(0);
       setDirty(false);
-      pastRef.current = [];
-      futureRef.current = [];
-      setHistorySize({ past: 0, future: 0 });
+      const stored = loadHistory(id);
+      pastRef.current = stored.past;
+      futureRef.current = stored.future;
+      setHistorySize(historyMeta(stored.past, stored.future));
       setIsPublic(Boolean(tactic.data.is_public));
     }
-  }, [tactic.data]);
+  }, [tactic.data, id]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -186,15 +193,23 @@ function TacticEditor() {
     return () => clearTimeout(timeout);
   }, [dirty, frames]);
 
-  const pushHistory = useCallback(() => {
-    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
-    futureRef.current = [];
-    setHistorySize({ past: pastRef.current.length, future: 0 });
-  }, []);
+  const persistHistory = useCallback(() => {
+    saveHistory(id, { past: pastRef.current, future: futureRef.current });
+    setHistorySize(historyMeta(pastRef.current, futureRef.current));
+  }, [id]);
+
+  const pushHistory = useCallback(
+    (label = "Ändring") => {
+      pastRef.current = [...pastRef.current.slice(-29), historyEntry(label, framesRef.current)];
+      futureRef.current = [];
+      persistHistory();
+    },
+    [persistHistory],
+  );
 
   const commit = useCallback(
-    (updater: (frames: Frame[]) => Frame[]) => {
-      pushHistory();
+    (updater: (frames: Frame[]) => Frame[], label = "Ändring") => {
+      pushHistory(label);
       setFrames((prev) => updater(prev));
       setDirty(true);
     },
@@ -261,12 +276,16 @@ function TacticEditor() {
 
 
   function addObject(object: FieldObject) {
-    commit((prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })));
+    commit(
+      (prev) => prev.map((item) => ({ ...item, objects: [...item.objects, object] })),
+      "Lade till objekt",
+    );
   }
 
   function removeObject(objectId: string) {
     commit((prev) =>
       prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
+      "Tog bort objekt",
     );
     setSelectedId(null);
   }
@@ -291,7 +310,7 @@ function TacticEditor() {
     const y = snapValue(rawY);
     if (!dragSession.current) {
       dragSession.current = true;
-      pushHistory();
+      pushHistory("Flyttade objekt");
     }
     setDirty(true);
     setFrames((prev) =>
@@ -337,6 +356,7 @@ function TacticEditor() {
       prev.map((item, index) =>
         index === current ? { ...item, drawings: [...item.drawings, { ...drawing, id: uid() }] } : item,
       ),
+      "Ritade markering",
     );
   }
 
@@ -347,6 +367,7 @@ function TacticEditor() {
           ? { ...item, drawings: item.drawings.filter((d) => d.id !== drawingId) }
           : item,
       ),
+      "Tog bort markering",
     );
   }
 
@@ -363,7 +384,7 @@ function TacticEditor() {
       const next = [...prev];
       next.splice(current + 1, 0, copy);
       return renumber(next);
-    });
+    }, "Nytt steg");
     setCurrent((value) => value + 1);
     setProgress(current + 1);
   }
@@ -378,7 +399,7 @@ function TacticEditor() {
   function deleteFrame(index: number) {
     if (frames.length <= 1) return;
     if (prefs.confirmDelete && !window.confirm("Ta bort det här steget?")) return;
-    commit((prev) => renumber(prev.filter((_, i) => i !== index)));
+    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort steg");
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
@@ -394,30 +415,33 @@ function TacticEditor() {
     const previous = pastRef.current[pastRef.current.length - 1];
     if (!previous) return;
     pastRef.current = pastRef.current.slice(0, -1);
-    futureRef.current = [framesRef.current, ...futureRef.current.slice(0, 49)];
-    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
-    setFrames(previous);
-    setCurrent((value) => Math.min(value, previous.length - 1));
-    setProgress((value) => Math.min(value, previous.length - 1));
+    futureRef.current = [
+      historyEntry(previous.label, framesRef.current),
+      ...futureRef.current.slice(0, 29),
+    ];
+    persistHistory();
+    setFrames(previous.frames);
+    setCurrent((value) => Math.min(value, previous.frames.length - 1));
+    setProgress((value) => Math.min(value, previous.frames.length - 1));
     setDirty(true);
-  }, []);
+  }, [persistHistory]);
 
   const redo = useCallback(() => {
     const next = futureRef.current[0];
     if (!next) return;
     futureRef.current = futureRef.current.slice(1);
-    pastRef.current = [...pastRef.current.slice(-49), framesRef.current];
-    setHistorySize({ past: pastRef.current.length, future: futureRef.current.length });
-    setFrames(next);
-    setCurrent((value) => Math.min(value, next.length - 1));
-    setProgress((value) => Math.min(value, next.length - 1));
+    pastRef.current = [...pastRef.current.slice(-29), historyEntry(next.label, framesRef.current)];
+    persistHistory();
+    setFrames(next.frames);
+    setCurrent((value) => Math.min(value, next.frames.length - 1));
+    setProgress((value) => Math.min(value, next.frames.length - 1));
     setDirty(true);
-  }, []);
+  }, [persistHistory]);
 
   const nudge = useCallback(
     (dx: number, dy: number) => {
       if (!selectedId) return;
-      pushHistory();
+      pushHistory("Finjusterade position");
       setDirty(true);
       setFrames((prev) =>
         prev.map((item, index) =>
