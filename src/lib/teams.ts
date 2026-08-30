@@ -509,3 +509,58 @@ export function formatDateTime(value: string) {
     minute: "2-digit",
   });
 }
+
+/* ---------------- leader invites ---------------- */
+
+export type TeamInvite = {
+  id: string;
+  team_id: string;
+  email: string;
+  role: "coach" | "player";
+  created_at: string;
+};
+
+export async function fetchTeamInvites(teamId: string): Promise<TeamInvite[]> {
+  const { data, error } = await supabase
+    .from("team_invites")
+    .select("id, team_id, email, role, created_at")
+    .eq("team_id", teamId)
+    .order("created_at");
+  if (error) throw error;
+  return (data ?? []) as TeamInvite[];
+}
+
+export async function addTeamInvite(input: {
+  teamId: string;
+  userId: string;
+  email: string;
+  role?: "coach" | "player";
+}) {
+  const email = input.email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Ange en giltig e-postadress");
+  const { error } = await supabase.from("team_invites").insert({
+    team_id: input.teamId,
+    created_by: input.userId,
+    email,
+    role: input.role ?? "coach",
+  });
+  if (error && error.code !== "23505") throw error;
+}
+
+export async function removeTeamInvite(id: string) {
+  const { error } = await supabase.from("team_invites").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Turn an approved member into a leader (or back to a player). */
+export async function setMemberRole(id: string, role: "coach" | "player") {
+  const { error } = await supabase.from("team_members").update({ role }).eq("id", id);
+  if (error) throw error;
+}
+
+/** Redeem a pending leader invite for the signed-in user. Returns the granted role. */
+export async function redeemTeamInvite(teamId: string): Promise<"coach" | "player" | null> {
+  const { data, error } = await supabase.rpc("redeem_team_invite", { _team_id: teamId });
+  if (error) throw error;
+  return (data as "coach" | "player" | null) ?? null;
+}
