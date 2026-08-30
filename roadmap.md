@@ -10,7 +10,7 @@
 - [x] Rollförklaring, ägaröverlåtelse och begripliga svenska felmeddelanden
 - [x] Omfattande test av bildintegritet (spelarbilder, lagbilder, direkta URL:er) – src/lib/photo-access.test.ts
 - [x] Verifiera att rollkontroller är SECURITY DEFINER med låst search_path + minimerade EXECUTE-rättigheter
-- [ ] Genomgång av sajten: prioriterade förbättringsförslag (se Etapp 2–5 nedan)
+- [x] Genomgång av sajten: prioriterade förbättringsförslag (se Etapp 2–5 nedan)
 
 
 ## Etapp 2: Ljust designsystem
@@ -52,3 +52,4 @@
 - [x] Påminnelse som intern notis (inga mejl/SMS/push)
 - [x] Inställd aktivitet blockerar nya svar
 - [x] Tester för kallelser
+- [x] Kalendern och närvarosidan länkar till kallelsen

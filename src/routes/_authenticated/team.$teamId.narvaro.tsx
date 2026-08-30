@@ -76,6 +76,14 @@ function AttendancePage() {
 
   if (selected) {
     return (
+      <>
+      <Link
+        to="/team/$teamId/event/$eventId"
+        params={{ teamId, eventId: selected.id }}
+        className="mt-4 inline-block text-sm text-primary underline"
+      >
+        Visa kallelsen och deltagarsvaren
+      </Link>
       <EventAttendance
         teamId={teamId}
         userId={userId}
@@ -89,6 +97,7 @@ function AttendancePage() {
           queryClient.invalidateQueries({ queryKey: ["attendance", teamId] });
         }}
       />
+      </>
     );
   }
 
