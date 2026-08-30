@@ -43,7 +43,11 @@ function TeamsPage() {
   const [gender, setGender] = useState("mixed");
   const [homeGround, setHomeGround] = useState("");
 
+  const [showArchived, setShowArchived] = useState(false);
   const teams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
+  const allTeams = teams.data ?? [];
+  const archivedCount = allTeams.filter((team) => team.archived_at).length;
+  const visibleTeams = showArchived ? allTeams : allTeams.filter((team) => !team.archived_at);
   const clubs = useQuery({ queryKey: ["clubs"], queryFn: fetchClubs });
 
   const create = useMutation({
@@ -158,12 +162,21 @@ function TeamsPage() {
 
       <section className="mt-6 space-y-3">
         {teams.isLoading && <p className="text-sm text-muted-foreground">Laddar lag…</p>}
-        {teams.data?.length === 0 && (
+        {archivedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowArchived((value) => !value)}
+            className="text-xs text-muted-foreground underline"
+          >
+            {showArchived ? "Dölj arkiverade lag" : `Visa arkiverade lag (${archivedCount})`}
+          </button>
+        )}
+        {visibleTeams.length === 0 && !teams.isLoading && (
           <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Inga lag än. Skapa ditt första lag!
           </p>
         )}
-        {teams.data?.map((team) => (
+        {visibleTeams.map((team) => (
           <Link
             key={team.id}
             to="/team/$teamId"
@@ -178,7 +191,14 @@ function TeamsPage() {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="truncate font-display text-xl font-semibold">{team.name}</h2>
+              <h2 className="truncate font-display text-xl font-semibold">
+                {team.name}
+                {team.archived_at && (
+                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 align-middle text-[10px] uppercase text-muted-foreground">
+                    Arkiverat
+                  </span>
+                )}
+              </h2>
               <p className="text-xs text-muted-foreground">
                 {[team.club?.name, team.age_group, TEAM_GENDER_LABELS[team.gender]].filter(Boolean).join(" · ")}
               </p>
