@@ -100,6 +100,7 @@ export type Database = {
           created_at: string
           gender: string | null
           id: string
+          is_goalkeeper: boolean
           member_user_id: string | null
           name: string
           number: number | null
@@ -114,6 +115,7 @@ export type Database = {
           created_at?: string
           gender?: string | null
           id?: string
+          is_goalkeeper?: boolean
           member_user_id?: string | null
           name: string
           number?: number | null
@@ -128,6 +130,7 @@ export type Database = {
           created_at?: string
           gender?: string | null
           id?: string
+          is_goalkeeper?: boolean
           member_user_id?: string | null
           name?: string
           number?: number | null
@@ -296,6 +299,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          created_by: string
+          id: string
+          path: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          path: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          path?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_photos_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
