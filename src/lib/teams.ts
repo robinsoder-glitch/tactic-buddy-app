@@ -66,6 +66,7 @@ export type TeamEvent = {
   series_id: string | null;
   location: string | null;
   notes: string | null;
+  cancelled_at?: string | null;
 };
 
 /* ---------------- team media ---------------- */
@@ -401,10 +402,19 @@ export async function deleteTeamPhoto(photo: { id: string; path: string }) {
 
 /* ---------------- events ---------------- */
 
+const EVENT_COLUMNS =
+  "id, team_id, type, title, starts_at, ends_at, meet_at, home_team, away_team, kit, match_kind, series_id, location, notes, cancelled_at";
+
+export async function fetchEvent(id: string): Promise<TeamEvent> {
+  const { data, error } = await supabase.from("events").select(EVENT_COLUMNS).eq("id", id).single();
+  if (error) throw error;
+  return data as TeamEvent;
+}
+
 export async function fetchEvents(teamId: string, type?: "training" | "match"): Promise<TeamEvent[]> {
   let query = supabase
     .from("events")
-    .select("id, team_id, type, title, starts_at, ends_at, meet_at, home_team, away_team, kit, match_kind, series_id, location, notes")
+    .select(EVENT_COLUMNS)
     .eq("team_id", teamId)
     .order("starts_at");
   if (type) query = query.eq("type", type);

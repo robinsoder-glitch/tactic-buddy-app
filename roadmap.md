@@ -41,3 +41,14 @@
 - [ ] Aria-label på ikonknappar
 - [ ] Inställningar delade i Profil, Taktiktavla, Utseende, Integritet, Konto
 - [ ] Visningsnamn i profilen i stället för e-post
+
+## Etapp 1: Kallelser och deltagarsvar
+- [x] Datamodell: event_invitations, event_invitation_log, app_notifications, events.cancelled_at
+- [x] RLS: ledare hanterar lagets kallelser, spelare läser/svarar bara på sin egen
+- [x] Skapa/hantera kallelse på aktivitetens detaljsida
+- [x] Deltagaröversikt: Kommer / Kommer inte / Kanske / Ej svarat med filter och nyckeltal
+- [x] Ledare registrerar och korrigerar svar med ändringshistorik
+- [x] Sidan "Mina kallelser"
+- [x] Påminnelse som intern notis (inga mejl/SMS/push)
+- [x] Inställd aktivitet blockerar nya svar
+- [x] Tester för kallelser

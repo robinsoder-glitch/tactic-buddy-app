@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Download, MapPin } from "lucide-react";
 import { fetchEvents, fetchTeam, formatDateTime } from "@/lib/teams";
@@ -39,23 +39,35 @@ function CalendarPage() {
             </li>
           )}
           {upcoming.map((event) => (
-            <li key={event.id} className="flex gap-3 rounded-xl border border-border bg-card p-3">
-              <CalendarDays className="mt-1 size-4 shrink-0 text-primary" />
-              <div className="min-w-0">
-                <p className="font-medium">
-                  {event.title ?? (event.type === "training" ? "Träning" : "Match")}
-                  <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                    {event.type === "training" ? "Träning" : "Match"}
-                  </span>
-                </p>
-                <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                {event.location && (
-                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MapPin className="size-3" /> {event.location}
+            <li key={event.id}>
+              <Link
+                to="/team/$teamId/event/$eventId"
+                params={{ teamId, eventId: event.id }}
+                className="flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50"
+              >
+                <CalendarDays className="mt-1 size-4 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <p className="font-medium">
+                    {event.title ?? (event.type === "training" ? "Träning" : "Match")}
+                    <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                      {event.type === "training" ? "Träning" : "Match"}
+                    </span>
+                    {event.cancelled_at && (
+                      <span className="ml-2 rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                        Inställd
+                      </span>
+                    )}
                   </p>
-                )}
-                {event.notes && <p className="mt-1 text-sm text-muted-foreground">{event.notes}</p>}
-              </div>
+                  <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
+                  {event.location && (
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="size-3" /> {event.location}
+                    </p>
+                  )}
+                  {event.notes && <p className="mt-1 text-sm text-muted-foreground">{event.notes}</p>}
+                  <p className="mt-1 text-xs text-muted-foreground">Kallelse och deltagare →</p>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

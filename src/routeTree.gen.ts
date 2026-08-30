@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
 import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
+import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
@@ -41,6 +42,7 @@ import { Route as AuthenticatedTeamTeamIdStatistikRouteImport } from './routes/_
 import { Route as AuthenticatedTeamTeamIdTrainingRouteImport } from './routes/_authenticated/team.$teamId.training'
 import { Route as AuthenticatedTraningspassIdIndexRouteImport } from './routes/_authenticated/traningspass.$id.index'
 import { Route as AuthenticatedTraningspassIdVisaRouteImport } from './routes/_authenticated/traningspass.$id.visa'
+import { Route as AuthenticatedTeamTeamIdEventEventIdRouteImport } from './routes/_authenticated/team.$teamId.event.$eventId'
 import { Route as AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport } from './routes/_authenticated/team.$teamId.player.$playerId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +73,12 @@ const AuthenticatedInstallningarRoute =
   AuthenticatedInstallningarRouteImport.update({
     id: '/installningar',
     path: '/installningar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMinaKallelserRoute =
+  AuthenticatedMinaKallelserRouteImport.update({
+    id: '/mina-kallelser',
+    path: '/mina-kallelser',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
@@ -223,6 +231,12 @@ const AuthenticatedTraningspassIdVisaRoute =
     path: '/visa',
     getParentRoute: () => AuthenticatedTraningspassIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdEventEventIdRoute =
+  AuthenticatedTeamTeamIdEventEventIdRouteImport.update({
+    id: '/event/$eventId',
+    path: '/event/$eventId',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdPlayerPlayerIdRoute =
   AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport.update({
     id: '/player/$playerId',
@@ -236,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
+  '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -262,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
+  '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRoutesByTo {
@@ -270,6 +286,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
+  '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
@@ -294,6 +311,7 @@ export interface FileRoutesByTo {
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id': typeof AuthenticatedTraningspassIdIndexRoute
+  '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRoutesById {
@@ -304,6 +322,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bank': typeof AuthenticatedBankRoute
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
+  '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
@@ -330,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/_authenticated/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
+  '/_authenticated/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/_authenticated/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 export interface FileRouteTypes {
@@ -340,6 +360,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/bank'
     | '/installningar'
+    | '/mina-kallelser'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -366,6 +387,7 @@ export interface FileRouteTypes {
     | '/traningspass/$id/visa'
     | '/team/$teamId/'
     | '/traningspass/$id/'
+    | '/team/$teamId/event/$eventId'
     | '/team/$teamId/player/$playerId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -374,6 +396,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/bank'
     | '/installningar'
+    | '/mina-kallelser'
     | '/onboarding'
     | '/skapa'
     | '/teams'
@@ -398,6 +421,7 @@ export interface FileRouteTypes {
     | '/traningspass/$id/visa'
     | '/team/$teamId'
     | '/traningspass/$id'
+    | '/team/$teamId/event/$eventId'
     | '/team/$teamId/player/$playerId'
   id:
     | '__root__'
@@ -407,6 +431,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/bank'
     | '/_authenticated/installningar'
+    | '/_authenticated/mina-kallelser'
     | '/_authenticated/onboarding'
     | '/_authenticated/skapa'
     | '/_authenticated/teams'
@@ -433,6 +458,7 @@ export interface FileRouteTypes {
     | '/_authenticated/traningspass/$id/visa'
     | '/_authenticated/team/$teamId/'
     | '/_authenticated/traningspass/$id/'
+    | '/_authenticated/team/$teamId/event/$eventId'
     | '/_authenticated/team/$teamId/player/$playerId'
   fileRoutesById: FileRoutesById
 }
@@ -485,6 +511,13 @@ declare module '@tanstack/react-router' {
       path: '/installningar'
       fullPath: '/installningar'
       preLoaderRoute: typeof AuthenticatedInstallningarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mina-kallelser': {
+      id: '/_authenticated/mina-kallelser'
+      path: '/mina-kallelser'
+      fullPath: '/mina-kallelser'
+      preLoaderRoute: typeof AuthenticatedMinaKallelserRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -669,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraningspassIdVisaRouteImport
       parentRoute: typeof AuthenticatedTraningspassIdRoute
     }
+    '/_authenticated/team/$teamId/event/$eventId': {
+      id: '/_authenticated/team/$teamId/event/$eventId'
+      path: '/event/$eventId'
+      fullPath: '/team/$teamId/event/$eventId'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdEventEventIdRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/player/$playerId': {
       id: '/_authenticated/team/$teamId/player/$playerId'
       path: '/player/$playerId'
@@ -689,6 +729,7 @@ interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdStatistikRoute: typeof AuthenticatedTeamTeamIdStatistikRoute
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
   AuthenticatedTeamTeamIdIndexRoute: typeof AuthenticatedTeamTeamIdIndexRoute
+  AuthenticatedTeamTeamIdEventEventIdRoute: typeof AuthenticatedTeamTeamIdEventEventIdRoute
   AuthenticatedTeamTeamIdPlayerPlayerIdRoute: typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
 
@@ -704,6 +745,8 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
       AuthenticatedTeamTeamIdStatistikRoute,
     AuthenticatedTeamTeamIdTrainingRoute: AuthenticatedTeamTeamIdTrainingRoute,
     AuthenticatedTeamTeamIdIndexRoute: AuthenticatedTeamTeamIdIndexRoute,
+    AuthenticatedTeamTeamIdEventEventIdRoute:
+      AuthenticatedTeamTeamIdEventEventIdRoute,
     AuthenticatedTeamTeamIdPlayerPlayerIdRoute:
       AuthenticatedTeamTeamIdPlayerPlayerIdRoute,
   }
@@ -734,6 +777,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
+  AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
@@ -754,6 +798,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBankRoute: AuthenticatedBankRoute,
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
+  AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,

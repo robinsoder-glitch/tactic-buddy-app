@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string | null
+          event_id: string | null
+          id: string
+          kind: string
+          read_at: string | null
+          team_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          team_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_id?: string | null
+          id?: string
+          kind?: string
+          read_at?: string | null
+          team_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_notifications_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clubs: {
         Row: {
           city: string | null
@@ -239,6 +293,127 @@ export type Database = {
           },
         ]
       }
+      event_invitation_log: {
+        Row: {
+          changed_by: string | null
+          changed_role: string
+          created_at: string
+          from_status: string | null
+          id: string
+          invitation_id: string
+          team_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_role?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          invitation_id: string
+          team_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          changed_role?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          invitation_id?: string
+          team_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitation_log_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "event_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitation_log_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_invitations: {
+        Row: {
+          comment: string | null
+          created_at: string
+          created_by: string
+          event_id: string
+          id: string
+          last_reminder_at: string | null
+          message: string | null
+          player_id: string
+          respond_by: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          created_by: string
+          event_id: string
+          id?: string
+          last_reminder_at?: string | null
+          message?: string | null
+          player_id: string
+          respond_by?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          id?: string
+          last_reminder_at?: string | null
+          message?: string | null
+          player_id?: string
+          respond_by?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_invitations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitations_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_resources: {
         Row: {
           created_at: string
@@ -290,6 +465,7 @@ export type Database = {
       events: {
         Row: {
           away_team: string | null
+          cancelled_at: string | null
           created_at: string
           created_by: string
           ends_at: string | null
@@ -309,6 +485,7 @@ export type Database = {
         }
         Insert: {
           away_team?: string | null
+          cancelled_at?: string | null
           created_at?: string
           created_by: string
           ends_at?: string | null
@@ -328,6 +505,7 @@ export type Database = {
         }
         Update: {
           away_team?: string | null
+          cancelled_at?: string | null
           created_at?: string
           created_by?: string
           ends_at?: string | null
@@ -1240,6 +1418,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_my_player: { Args: { _player_id: string }; Returns: boolean }
       is_team_coach: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean

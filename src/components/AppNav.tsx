@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BookOpen,
+  CalendarDays,
   ClipboardList,
   Dumbbell,
   GraduationCap,
@@ -72,6 +73,7 @@ export function AppNav() {
   ];
 
   const secondary: NavItem[] = [
+    { to: "/mina-kallelser", label: "Mina kallelser", icon: CalendarDays, exact: false },
     ...(canCoach ? [{ to: "/ovningsbank", label: "Övningsbank", icon: Dumbbell, exact: false }] : []),
     ...(canCoach ? [teamItem] : []),
     settingsItem,

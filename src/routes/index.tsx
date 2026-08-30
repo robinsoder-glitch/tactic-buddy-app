@@ -255,6 +255,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   });
 
   const coachTeams = approved.filter((item) => item.role === "coach");
+  const activeTeam = coachTeams[0] ?? approved[0] ?? null;
 
   const visible = useMemo(() => {
     const list = (tactics.data ?? []).filter((tactic) => {
@@ -339,16 +340,31 @@ function TacticsDashboard({ userId }: { userId: string }) {
         </Link>
       )}
 
-      <section className="mt-5 grid grid-cols-2 gap-3">
-        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom plan eller mall" primary />
-        <QuickCard to="/taktikbank" icon={<BookOpen className="size-5" />} title="Taktikbank" text="Färdiga övningar" />
-        <QuickCard to="/bank" icon={<Users className="size-5" />} title="Spelarbank" text="Namn, nummer, bilder" />
+      <section className="mt-5 grid gap-3 sm:grid-cols-3">
+        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Börja med tom plan eller mall" primary />
+        <QuickCard to="/taktikbank" icon={<BookOpen className="size-5" />} title="Övningsbank" text="Färdiga övningar att köra" />
         {isCoach ? (
-          <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mina lag" text="Trupp och kalender" />
+          <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mitt lag" text="Trupp, kalender och närvaro" />
         ) : (
-          <QuickCard to="/installningar" icon={<Shield className="size-5" />} title="Inställningar" text="Profil och app" />
+          <QuickCard to="/bank" icon={<Users className="size-5" />} title="Spelarbank" text="Namn, nummer och bilder" />
         )}
       </section>
+
+      {activeTeam && (
+        <Link
+          to="/team/$teamId"
+          params={{ teamId: activeTeam.team_id }}
+          className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-4"
+        >
+          <Shield className="size-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Aktivt lag</p>
+            <p className="truncate font-display text-lg font-semibold">
+              {activeTeam.team?.name ?? "Laget"}
+            </p>
+          </div>
+        </Link>
+      )}
 
       {(isAdmin || approved.length > 0) && (
         <nav className="mt-3 flex flex-wrap gap-2">
