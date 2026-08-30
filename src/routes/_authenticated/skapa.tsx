@@ -245,31 +245,7 @@ function CreatePage() {
   );
 }
 
-function StartCard({
-  icon,
-  title,
-  description,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary"
-    >
-      <span className="grid size-10 place-items-center rounded-lg bg-primary/15 text-primary">{icon}</span>
-      <span>
-        <span className="block font-display text-lg font-semibold">{title}</span>
-        <span className="block text-sm text-muted-foreground">{description}</span>
-      </span>
-    </button>
-  );
-}
+
 
 function Chip({
   active,
