@@ -17,6 +17,7 @@ import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/b
 import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPlaneraTraningRouteImport } from './routes/_authenticated/planera-traning'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
@@ -87,6 +88,12 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlaneraTraningRoute =
+  AuthenticatedPlaneraTraningRouteImport.update({
+    id: '/planera-traning',
+    path: '/planera-traning',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSkapaRoute = AuthenticatedSkapaRouteImport.update({
   id: '/skapa',
   path: '/skapa',
@@ -259,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
@@ -296,6 +304,7 @@ export interface FileRoutesByTo {
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
@@ -333,6 +342,7 @@ export interface FileRoutesById {
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/t/$shareId': typeof TShareIdRoute
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/installningar'
     | '/mina-kallelser'
     | '/onboarding'
+    | '/planera-traning'
     | '/skapa'
     | '/teams'
     | '/t/$shareId'
@@ -409,6 +420,7 @@ export interface FileRouteTypes {
     | '/installningar'
     | '/mina-kallelser'
     | '/onboarding'
+    | '/planera-traning'
     | '/skapa'
     | '/teams'
     | '/t/$shareId'
@@ -445,6 +457,7 @@ export interface FileRouteTypes {
     | '/_authenticated/installningar'
     | '/_authenticated/mina-kallelser'
     | '/_authenticated/onboarding'
+    | '/_authenticated/planera-traning'
     | '/_authenticated/skapa'
     | '/_authenticated/teams'
     | '/t/$shareId'
@@ -538,6 +551,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planera-traning': {
+      id: '/_authenticated/planera-traning'
+      path: '/planera-traning'
+      fullPath: '/planera-traning'
+      preLoaderRoute: typeof AuthenticatedPlaneraTraningRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/skapa': {
@@ -799,6 +819,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPlaneraTraningRoute: typeof AuthenticatedPlaneraTraningRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
@@ -821,6 +842,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPlaneraTraningRoute: AuthenticatedPlaneraTraningRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
