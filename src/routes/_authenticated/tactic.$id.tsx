@@ -238,6 +238,16 @@ function TacticEditor() {
     setSelectedId(null);
   }
 
+  function updateObject(objectId: string, patch: Partial<FieldObject>) {
+    commit((prev) =>
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.map((o) => (o.id === objectId ? { ...o, ...patch } : o)),
+      })),
+    );
+  }
+
+
   function moveObject(objectId: string, x: number, y: number) {
     if (!dragSession.current) {
       dragSession.current = true;
