@@ -9,7 +9,9 @@ export type ExportOptions = {
   stepMs?: number;
   fps?: number;
   width?: number;
+  hideNames?: boolean;
 };
+
 
 function setup(pitchType: PitchType, width: number) {
   const { w, h } = PITCH_SIZES[pitchType];
