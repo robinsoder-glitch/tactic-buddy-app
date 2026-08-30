@@ -70,7 +70,13 @@ export function AppNav() {
     { to: "/kunskapsbank", label: "Kunskapsbank", icon: GraduationCap, exact: false },
   ];
 
-  const secondary: NavItem[] = [teamItem, settingsItem];
+  const secondary: NavItem[] = [
+    ...(isCoach || isAdmin
+      ? [{ to: "/traningspass", label: "Mina träningspass", icon: ClipboardList, exact: false }]
+      : []),
+    teamItem,
+    settingsItem,
+  ];
 
   const linkClass =
     "relative flex min-h-[4rem] flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors before:absolute before:inset-x-1 before:top-1 before:bottom-1 before:-z-10 before:rounded-xl before:bg-transparent before:transition-colors hover:before:bg-accent data-[status=active]:text-primary-foreground data-[status=active]:before:bg-primary";
