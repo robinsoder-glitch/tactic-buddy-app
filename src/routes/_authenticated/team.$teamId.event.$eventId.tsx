@@ -182,7 +182,7 @@ function EventPage() {
   function openDialog() {
     const invited = new Set(list.map((item) => item.player_id));
     setSelected((players.data ?? []).map((player) => player.id).filter((id) => !invited.has(id)));
-    setRespondBy(respondByInputValue(meta?.respond_by));
+    setMessage(meta?.message ?? "");
     setMessage(meta?.message ?? "");
     setCreating(true);
   }
