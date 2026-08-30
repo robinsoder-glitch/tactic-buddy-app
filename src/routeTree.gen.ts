@@ -24,6 +24,7 @@ import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authen
 import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
 import { Route as AuthenticatedKunskapsbankSlugRouteImport } from './routes/_authenticated/kunskapsbank.$slug'
 import { Route as AuthenticatedOvningsbankIndexRouteImport } from './routes/_authenticated/ovningsbank.index'
+import { Route as AuthenticatedOvningsbankDrillIdRouteImport } from './routes/_authenticated/ovningsbank.$drillId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 import { Route as AuthenticatedTaktikbankIndexRouteImport } from './routes/_authenticated/taktikbank.index'
 import { Route as AuthenticatedTaktikbankCardIdRouteImport } from './routes/_authenticated/taktikbank.$cardId'
@@ -123,6 +124,12 @@ const AuthenticatedOvningsbankIndexRoute =
   AuthenticatedOvningsbankIndexRouteImport.update({
     id: '/ovningsbank/',
     path: '/ovningsbank/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOvningsbankDrillIdRoute =
+  AuthenticatedOvningsbankDrillIdRouteImport.update({
+    id: '/ovningsbank/$drillId',
+    path: '/ovningsbank/$drillId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTacticIdRoute = AuthenticatedTacticIdRouteImport.update({
@@ -257,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
@@ -293,6 +301,7 @@ export interface FileRoutesByTo {
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
@@ -329,6 +338,7 @@ export interface FileRoutesById {
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/_authenticated/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/_authenticated/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
@@ -367,6 +377,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kunskapsbank/$slug'
+    | '/ovningsbank/$drillId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kunskapsbank/$slug'
+    | '/ovningsbank/$drillId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
@@ -438,6 +450,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kunskapsbank/$slug'
+    | '/_authenticated/ovningsbank/$drillId'
     | '/_authenticated/tactic/$id'
     | '/_authenticated/taktikbank/$cardId'
     | '/_authenticated/taktikbank/regler'
@@ -574,6 +587,13 @@ declare module '@tanstack/react-router' {
       path: '/ovningsbank'
       fullPath: '/ovningsbank/'
       preLoaderRoute: typeof AuthenticatedOvningsbankIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ovningsbank/$drillId': {
+      id: '/_authenticated/ovningsbank/$drillId'
+      path: '/ovningsbank/$drillId'
+      fullPath: '/ovningsbank/$drillId'
+      preLoaderRoute: typeof AuthenticatedOvningsbankDrillIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tactic/$id': {
@@ -783,6 +803,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
+  AuthenticatedOvningsbankDrillIdRoute: typeof AuthenticatedOvningsbankDrillIdRoute
   AuthenticatedTacticIdRoute: typeof AuthenticatedTacticIdRoute
   AuthenticatedTaktikbankCardIdRoute: typeof AuthenticatedTaktikbankCardIdRoute
   AuthenticatedTaktikbankReglerRoute: typeof AuthenticatedTaktikbankReglerRoute
@@ -804,6 +825,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
+  AuthenticatedOvningsbankDrillIdRoute: AuthenticatedOvningsbankDrillIdRoute,
   AuthenticatedTacticIdRoute: AuthenticatedTacticIdRoute,
   AuthenticatedTaktikbankCardIdRoute: AuthenticatedTaktikbankCardIdRoute,
   AuthenticatedTaktikbankReglerRoute: AuthenticatedTaktikbankReglerRoute,
