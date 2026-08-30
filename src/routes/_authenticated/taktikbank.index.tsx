@@ -301,8 +301,6 @@ function TaktikbankPage() {
               </button>
             </div>
           ))}
-
-          ))}
           {!tactics.isLoading && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
           )}
