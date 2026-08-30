@@ -347,30 +347,65 @@ function TacticEditor() {
     );
   }
 
-  // Dragging with the run/pass tool: object already moved via moveObject (history pushed at drag start),
-  // so here we only append the trail line in the same undo step.
+  // Dragging with the run/pass tool means "from here to there during the next step":
+  // the object stays at its start position in this frame, the arrow is drawn here, and the
+  // end position is written into the next frame (created when we are on the last one).
+  // History was already pushed at drag start by moveObject, so this stays one undo step.
   function objectTrail(objectId: string, type: "run" | "pass", from: { x: number; y: number }) {
     const currentFrame = framesRef.current[current];
     const object = currentFrame?.objects.find((item) => item.id === objectId);
     if (!object) return;
     const x1 = snapValue(from.x);
     const y1 = snapValue(from.y);
-    const distance = Math.hypot(object.x - x1, object.y - y1);
-    if (distance < 0.02) return;
+    const x2 = object.x;
+    const y2 = object.y;
+    if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
     setDirty(true);
-    setFrames((prev) =>
-      prev.map((item, index) =>
-        index === current
-          ? {
-              ...item,
-              drawings: [
-                ...item.drawings,
-                { id: uid(), type, color: null, x1, y1, x2: object.x, y2: object.y },
-              ],
-            }
-          : item,
-      ),
-    );
+    setFrames((prev) => {
+      const next = [...prev];
+      const source = next[current];
+      if (!source) return prev;
+
+      // 1. Keep the start position in the current frame and add the trail arrow.
+      next[current] = {
+        ...source,
+        objects: source.objects.map((item) =>
+          item.id === objectId ? { ...item, x: x1, y: y1 } : item,
+        ),
+        drawings: [...source.drawings, { id: uid(), type, color: null, x1, y1, x2, y2 }],
+      };
+
+      // 2. Make sure a following frame exists to hold the end position.
+      if (current === next.length - 1) {
+        next.push({
+          id: uid(),
+          name: `Steg ${next.length + 1}`,
+          objects: next[current]!.objects.map((item) => ({ ...item })),
+          drawings: [],
+        });
+      }
+
+      // 3. Write the end position into the next frame, and into later frames that still
+      //    carry the old start position so the chain does not snap back.
+      for (let index = current + 1; index < next.length; index += 1) {
+        const frame = next[index]!;
+        const target = frame.objects.find((item) => item.id === objectId);
+        if (!target) break;
+        const isNext = index === current + 1;
+        const untouched = Math.hypot(target.x - x1, target.y - y1) < 0.001;
+        if (!isNext && !untouched) break;
+        next[index] = {
+          ...frame,
+          objects: frame.objects.map((item) =>
+            item.id === objectId ? { ...item, x: x2, y: y2 } : item,
+          ),
+        };
+      }
+
+      return renumber(next);
+    });
+    setCurrent(current + 1);
+    setProgress(current + 1);
   }
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
