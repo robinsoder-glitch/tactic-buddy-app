@@ -20,20 +20,19 @@ import { Input } from "@/components/ui/input";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
 
-
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
   head: () => ({
     meta: [
-      { title: "Taktikbank 5 mot 5 – kort, övningar och pass" },
+      { title: "Taktikbank 5 mot 5 – taktikkort för barnfotboll" },
       {
         name: "description",
         content:
-          "Färdiga taktikkort, målvaktskort, övningar och träningspass för barnfotboll 5 mot 5 och 7 mot 7.",
+          "Färdiga taktikkort med animationer för barnfotboll 5 mot 5 och 7 mot 7 – så ska laget och spelarna agera.",
       },
-      { property: "og:title", content: "Taktikbank 5 mot 5 – kort, övningar och pass" },
+      { property: "og:title", content: "Taktikbank 5 mot 5 – taktikkort för barnfotboll" },
       {
         property: "og:description",
-        content: "Animerade taktikkort med coachfrågor, övningar och färdiga träningspass.",
+        content: "Animerade taktikkort med coachfrågor och barnfraser.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -42,14 +41,11 @@ export const Route = createFileRoute("/_authenticated/taktikbank/")({
   component: TaktikbankPage,
 });
 
-const TABS = ["Taktikkort"] as const;
-type Tab = (typeof TABS)[number];
-
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [tab] = useState<Tab>("Taktikkort");
+
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<string>("all");
   const [moment, setMoment] = useState<string>("all");
