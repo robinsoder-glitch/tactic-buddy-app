@@ -20,6 +20,7 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
+import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
