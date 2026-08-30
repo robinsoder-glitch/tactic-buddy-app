@@ -11,6 +11,7 @@ export type Team = {
   age_group: string | null;
   gender: string;
   about: string | null;
+  home_ground: string | null;
   photo_path: string | null;
   join_code: string;
   club_id: string | null;
@@ -55,6 +56,13 @@ export type TeamEvent = {
   type: "training" | "match";
   title: string | null;
   starts_at: string;
+  ends_at: string | null;
+  meet_at: string | null;
+  home_team: string | null;
+  away_team: string | null;
+  kit: string | null;
+  match_kind: string | null;
+  series_id: string | null;
   location: string | null;
   notes: string | null;
 };
@@ -139,7 +147,7 @@ export async function fetchProfile(userId: string) {
 export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, photo_path, join_code, club_id, created_by, clubs(id, name)")
+    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, clubs(id, name)")
     .order("created_at", { ascending: false });
   if (error) throw error;
 
@@ -156,7 +164,7 @@ export async function fetchMyTeams(): Promise<Team[]> {
 export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, photo_path, join_code, club_id, created_by, clubs(id, name)")
+    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, club_id, created_by, clubs(id, name)")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -180,6 +188,7 @@ export async function createTeam(input: {
   name: string;
   ageGroup: string;
   gender: string;
+  homeGround?: string | null;
 }) {
   let clubId = input.clubId;
   if (!clubId && input.clubName.trim()) {
@@ -200,6 +209,7 @@ export async function createTeam(input: {
       name: input.name.trim(),
       age_group: input.ageGroup.trim() || null,
       gender: input.gender,
+      home_ground: input.homeGround?.trim() || null,
     })
     .select("id")
     .single();
@@ -216,7 +226,7 @@ export async function createTeam(input: {
   return data.id as string;
 }
 
-export async function updateTeam(id: string, patch: Partial<Pick<Team, "name" | "age_group" | "gender" | "about" | "photo_path">>) {
+export async function updateTeam(id: string, patch: Partial<Pick<Team, "name" | "age_group" | "gender" | "about" | "home_ground" | "photo_path">>) {
   const { error } = await supabase.from("teams").update(patch).eq("id", id);
   if (error) throw error;
 }
@@ -393,7 +403,7 @@ export async function deleteTeamPhoto(photo: { id: string; path: string }) {
 export async function fetchEvents(teamId: string, type?: "training" | "match"): Promise<TeamEvent[]> {
   let query = supabase
     .from("events")
-    .select("id, team_id, type, title, starts_at, location, notes")
+    .select("id, team_id, type, title, starts_at, ends_at, meet_at, home_team, away_team, kit, match_kind, series_id, location, notes")
     .eq("team_id", teamId)
     .order("starts_at");
   if (type) query = query.eq("type", type);
@@ -409,13 +419,27 @@ export async function saveEvent(input: {
   type: "training" | "match";
   title: string | null;
   starts_at: string;
+  ends_at?: string | null;
+  meet_at?: string | null;
+  home_team?: string | null;
+  away_team?: string | null;
+  kit?: string | null;
+  match_kind?: string | null;
   location: string | null;
   notes: string | null;
+  repeat?: "none" | "weekly" | "monthly";
+  repeatCount?: number;
 }) {
   const patch = {
     type: input.type,
     title: input.title,
     starts_at: input.starts_at,
+    ends_at: input.ends_at ?? null,
+    meet_at: input.meet_at ?? null,
+    home_team: input.home_team ?? null,
+    away_team: input.away_team ?? null,
+    kit: input.kit ?? null,
+    match_kind: input.match_kind ?? null,
     location: input.location,
     notes: input.notes,
   };
@@ -424,13 +448,31 @@ export async function saveEvent(input: {
     if (error) throw error;
     return input.id;
   }
-  const { data, error } = await supabase
-    .from("events")
-    .insert({ ...patch, team_id: input.teamId, created_by: input.userId })
-    .select("id")
-    .single();
+  const repeat = input.repeat ?? "none";
+  const occurrences = repeat === "none" ? 1 : Math.max(1, Math.min(input.repeatCount ?? 8, 52));
+  const seriesId = repeat === "none" ? null : crypto.randomUUID();
+
+  const shift = (iso: string | null, index: number) => {
+    if (!iso) return null;
+    const date = new Date(iso);
+    if (repeat === "weekly") date.setDate(date.getDate() + index * 7);
+    if (repeat === "monthly") date.setMonth(date.getMonth() + index);
+    return date.toISOString();
+  };
+
+  const rows = Array.from({ length: occurrences }, (_, index) => ({
+    ...patch,
+    starts_at: shift(patch.starts_at, index)!,
+    ends_at: shift(patch.ends_at, index),
+    meet_at: shift(patch.meet_at, index),
+    series_id: seriesId,
+    team_id: input.teamId,
+    created_by: input.userId,
+  }));
+
+  const { data, error } = await supabase.from("events").insert(rows).select("id");
   if (error) throw error;
-  return data.id as string;
+  return data?.[0]?.id as string;
 }
 
 export async function deleteEvent(id: string) {
