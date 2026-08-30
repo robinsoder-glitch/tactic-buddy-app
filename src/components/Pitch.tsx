@@ -22,6 +22,8 @@ type Props = {
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onMoveEnd?: () => void;
+  /** called when an object was dragged with the run/pass tool: draw a trail from start to end */
+  onObjectTrail?: (objectId: string, type: "run" | "pass", from: { x: number; y: number }) => void;
   onSelectObject?: (id: string | null) => void;
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
