@@ -83,7 +83,6 @@ function TaktikbankCard() {
   const [loop, setLoop] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [loopPause, setLoopPause] = useState(0.6);
-  const [planOpen, setPlanOpen] = useState(false);
 
   const isFavorite = (favorites.data ?? []).some(
     (item) => item.kind === "tactic" && item.resource_id === cardId,
@@ -197,9 +196,6 @@ function TaktikbankCard() {
         >
           <Star className={isFavorite ? "size-5 fill-primary text-primary" : "size-5"} />
         </Button>
-        <Button variant="outline" size="sm" onClick={() => setPlanOpen(true)}>
-          <CalendarPlus className="mr-1 size-4" /> Träning
-        </Button>
       </header>
 
 
@@ -307,19 +303,6 @@ function TaktikbankCard() {
         </p>
       </div>
 
-      <PlanTrainingDialog
-        open={planOpen}
-        onOpenChange={setPlanOpen}
-        cardId={cardId}
-        cardTitle={data.title}
-        purpose={data.purpose ?? ""}
-        teams={teams.data ?? []}
-        userId={user?.id ?? null}
-        onCreated={(teamId) => {
-          setPlanOpen(false);
-          navigate({ to: "/team/$teamId/training", params: { teamId } });
-        }}
-      />
 
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
