@@ -77,6 +77,8 @@ function OvningsbankPage() {
   const [difficulty, setDifficulty] = useState("all");
   const [age, setAge] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const navigate = useNavigate();
+  const [templateError, setTemplateError] = useState<string | null>(null);
   const [progress, setProgress] = useState<SessionProgress>({});
   useEffect(() => setProgress(loadProgress()), []);
   const [openSession, setOpenSession] = useState<string | null>(
