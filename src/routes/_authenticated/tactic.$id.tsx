@@ -292,6 +292,32 @@ function TacticEditor() {
     );
   }
 
+  // Dragging with the run/pass tool: object already moved via moveObject (history pushed at drag start),
+  // so here we only append the trail line in the same undo step.
+  function objectTrail(objectId: string, type: "run" | "pass", from: { x: number; y: number }) {
+    const currentFrame = framesRef.current[current];
+    const object = currentFrame?.objects.find((item) => item.id === objectId);
+    if (!object) return;
+    const x1 = snapValue(from.x);
+    const y1 = snapValue(from.y);
+    const distance = Math.hypot(object.x - x1, object.y - y1);
+    if (distance < 0.02) return;
+    setDirty(true);
+    setFrames((prev) =>
+      prev.map((item, index) =>
+        index === current
+          ? {
+              ...item,
+              drawings: [
+                ...item.drawings,
+                { id: uid(), type, color: null, x1, y1, x2: object.x, y2: object.y },
+              ],
+            }
+          : item,
+      ),
+    );
+  }
+
   function addDrawing(drawing: Omit<Drawing, "id">) {
     commit((prev) =>
       prev.map((item, index) =>
