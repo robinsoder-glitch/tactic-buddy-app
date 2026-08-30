@@ -125,8 +125,9 @@ export async function buildTacticPdf(options: PdfExportOptions) {
     doc.setFontSize(16);
     doc.text(options.title, margin, margin);
     doc.setFontSize(10);
+    const label = frame.name && frame.name.trim() !== `Steg ${index + 1}` ? ` · ${frame.name}` : "";
     doc.text(
-      `Steg ${index + 1} av ${frames.length}${frame.name ? ` · ${frame.name}` : ""}`,
+      `Steg ${index + 1} av ${frames.length}${label}`,
       margin,
       margin + 6,
     );
