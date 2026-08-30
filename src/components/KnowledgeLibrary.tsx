@@ -14,6 +14,7 @@ import {
   knowledgeCategories,
   knowledgeFormatLabel,
 } from "@/lib/knowledge";
+import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { Input } from "@/components/ui/input";
 
 function Chips({
