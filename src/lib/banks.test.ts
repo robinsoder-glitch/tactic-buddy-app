@@ -115,7 +115,7 @@ describe("Kunskapsbanken", () => {
   });
 
   it("filtrerar på kategori, nivå, ålder och sökord", () => {
-    const list = [article(), article({ id: "a2", category: "technique", level: "advanced", age_min: 11, age_max: null, title: "Finter" })];
+    const list = [article(), article({ id: "a2", category: "technique", level: "advanced", age_min: 11, age_max: null, title: "Finter", summary: "Teknikövningar", coach_value: "Fler finter", tags: ["teknik"] })];
     expect(filterArticles(list, { category: "technique" })).toHaveLength(1);
     expect(filterArticles(list, { level: "basic" })).toHaveLength(1);
     expect(filterArticles(list, { age: "12" }).map((item) => item.id)).toEqual(["a2"]);
