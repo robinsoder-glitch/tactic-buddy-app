@@ -19,9 +19,12 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
+import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
+import { Route as AuthenticatedOvningsbankIndexRouteImport } from './routes/_authenticated/ovningsbank.index'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 import { Route as AuthenticatedTaktikbankIndexRouteImport } from './routes/_authenticated/taktikbank.index'
 import { Route as AuthenticatedTaktikbankCardIdRouteImport } from './routes/_authenticated/taktikbank.$cardId'
+import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_authenticated/taktikbank.regler'
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
@@ -81,6 +84,18 @@ const TShareIdRoute = TShareIdRouteImport.update({
   path: '/t/$shareId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedKunskapsbankIndexRoute =
+  AuthenticatedKunskapsbankIndexRouteImport.update({
+    id: '/kunskapsbank/',
+    path: '/kunskapsbank/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOvningsbankIndexRoute =
+  AuthenticatedOvningsbankIndexRouteImport.update({
+    id: '/ovningsbank/',
+    path: '/ovningsbank/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTacticIdRoute = AuthenticatedTacticIdRouteImport.update({
   id: '/tactic/$id',
   path: '/tactic/$id',
@@ -96,6 +111,12 @@ const AuthenticatedTaktikbankCardIdRoute =
   AuthenticatedTaktikbankCardIdRouteImport.update({
     id: '/taktikbank/$cardId',
     path: '/taktikbank/$cardId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTaktikbankReglerRoute =
+  AuthenticatedTaktikbankReglerRouteImport.update({
+    id: '/taktikbank/regler',
+    path: '/taktikbank/regler',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeamTeamIdRoute = AuthenticatedTeamTeamIdRouteImport.update({
@@ -158,7 +179,10 @@ export interface FileRoutesByFullPath {
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
+  '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
+  '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
@@ -180,6 +204,9 @@ export interface FileRoutesByTo {
   '/t/$shareId': typeof TShareIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
+  '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
+  '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
+  '/ovningsbank': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
@@ -203,7 +230,10 @@ export interface FileRoutesById {
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/_authenticated/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
+  '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
+  '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
+  '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
@@ -227,7 +257,10 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
+    | '/taktikbank/regler'
     | '/team/$teamId'
+    | '/kunskapsbank/'
+    | '/ovningsbank/'
     | '/taktikbank/'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
@@ -249,6 +282,9 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
+    | '/taktikbank/regler'
+    | '/kunskapsbank'
+    | '/ovningsbank'
     | '/taktikbank'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
@@ -271,7 +307,10 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/_authenticated/tactic/$id'
     | '/_authenticated/taktikbank/$cardId'
+    | '/_authenticated/taktikbank/regler'
     | '/_authenticated/team/$teamId'
+    | '/_authenticated/kunskapsbank/'
+    | '/_authenticated/ovningsbank/'
     | '/_authenticated/taktikbank/'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
@@ -361,6 +400,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/kunskapsbank/': {
+      id: '/_authenticated/kunskapsbank/'
+      path: '/kunskapsbank'
+      fullPath: '/kunskapsbank/'
+      preLoaderRoute: typeof AuthenticatedKunskapsbankIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ovningsbank/': {
+      id: '/_authenticated/ovningsbank/'
+      path: '/ovningsbank'
+      fullPath: '/ovningsbank/'
+      preLoaderRoute: typeof AuthenticatedOvningsbankIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tactic/$id': {
       id: '/_authenticated/tactic/$id'
       path: '/tactic/$id'
@@ -380,6 +433,13 @@ declare module '@tanstack/react-router' {
       path: '/taktikbank/$cardId'
       fullPath: '/taktikbank/$cardId'
       preLoaderRoute: typeof AuthenticatedTaktikbankCardIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/taktikbank/regler': {
+      id: '/_authenticated/taktikbank/regler'
+      path: '/taktikbank/regler'
+      fullPath: '/taktikbank/regler'
+      preLoaderRoute: typeof AuthenticatedTaktikbankReglerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/team/$teamId': {
@@ -476,7 +536,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTacticIdRoute: typeof AuthenticatedTacticIdRoute
   AuthenticatedTaktikbankCardIdRoute: typeof AuthenticatedTaktikbankCardIdRoute
+  AuthenticatedTaktikbankReglerRoute: typeof AuthenticatedTaktikbankReglerRoute
   AuthenticatedTeamTeamIdRoute: typeof AuthenticatedTeamTeamIdRouteWithChildren
+  AuthenticatedKunskapsbankIndexRoute: typeof AuthenticatedKunskapsbankIndexRoute
+  AuthenticatedOvningsbankIndexRoute: typeof AuthenticatedOvningsbankIndexRoute
   AuthenticatedTaktikbankIndexRoute: typeof AuthenticatedTaktikbankIndexRoute
 }
 
@@ -489,7 +552,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTacticIdRoute: AuthenticatedTacticIdRoute,
   AuthenticatedTaktikbankCardIdRoute: AuthenticatedTaktikbankCardIdRoute,
+  AuthenticatedTaktikbankReglerRoute: AuthenticatedTaktikbankReglerRoute,
   AuthenticatedTeamTeamIdRoute: AuthenticatedTeamTeamIdRouteWithChildren,
+  AuthenticatedKunskapsbankIndexRoute: AuthenticatedKunskapsbankIndexRoute,
+  AuthenticatedOvningsbankIndexRoute: AuthenticatedOvningsbankIndexRoute,
   AuthenticatedTaktikbankIndexRoute: AuthenticatedTaktikbankIndexRoute,
 }
 

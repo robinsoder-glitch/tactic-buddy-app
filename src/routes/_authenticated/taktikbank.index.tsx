@@ -4,13 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, ChevronRight, Search, Star } from "lucide-react";
 import {
   addFavorite,
-  fetchDistrictProfiles,
-  fetchDrills,
   fetchFavorites,
-  fetchGoalkeeperCards,
-  fetchRulesets,
   fetchTacticCards,
-  fetchTrainingSessions,
   removeFavorite,
   GAME_MOMENT_LABELS,
   PHASE_LABELS,
@@ -22,23 +17,22 @@ import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RulesView } from "@/components/rules/RulesView";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
   head: () => ({
     meta: [
-      { title: "Taktikbank 5 mot 5 – kort, övningar och pass" },
+      { title: "Taktikbank 5 mot 5 – taktikkort för barnfotboll" },
       {
         name: "description",
         content:
-          "Färdiga taktikkort, målvaktskort, övningar och träningspass för barnfotboll 5 mot 5 och 7 mot 7.",
+          "Färdiga taktikkort med animationer för barnfotboll 5 mot 5 och 7 mot 7 – så ska laget och spelarna agera.",
       },
-      { property: "og:title", content: "Taktikbank 5 mot 5 – kort, övningar och pass" },
+      { property: "og:title", content: "Taktikbank 5 mot 5 – taktikkort för barnfotboll" },
       {
         property: "og:description",
-        content: "Animerade taktikkort med coachfrågor, övningar och färdiga träningspass.",
+        content: "Animerade taktikkort med coachfrågor och barnfraser.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -47,14 +41,11 @@ export const Route = createFileRoute("/_authenticated/taktikbank/")({
   component: TaktikbankPage,
 });
 
-const TABS = ["Taktikkort", "Målvakt", "Övningar", "Pass", "Regler"] as const;
-type Tab = (typeof TABS)[number];
-
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<Tab>("Taktikkort");
+
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<string>("all");
   const [moment, setMoment] = useState<string>("all");
@@ -68,19 +59,7 @@ function TaktikbankPage() {
 
   const tactics = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
   const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
-  const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed && tab === "Målvakt" });
-  const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: allowed && tab === "Övningar" });
-  const sessions = useQuery({
-    queryKey: ["tb-sessions"],
-    queryFn: fetchTrainingSessions,
-    enabled: allowed && tab === "Pass",
-  });
-  const rulesets = useQuery({ queryKey: ["tb-rules"], queryFn: fetchRulesets, enabled: allowed && tab === "Regler" });
-  const districts = useQuery({
-    queryKey: ["tb-districts"],
-    queryFn: fetchDistrictProfiles,
-    enabled: allowed && tab === "Regler",
-  });
+
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
@@ -183,23 +162,13 @@ function TaktikbankPage() {
         </div>
       </header>
 
-      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        {TABS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTab(item)}
-            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
-              tab === item ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </nav>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Taktikbanken förklarar hur laget och spelarna ska agera i olika situationer.
+      </p>
 
-      {tab === "Taktikkort" && (
-        <section className="mt-4 space-y-3">
+
+      <section className="mt-4 space-y-3">
+
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -307,120 +276,24 @@ function TaktikbankPage() {
           {!tactics.isLoading && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
           )}
-        </section>
-      )}
+      </section>
 
-      {tab === "Målvakt" && (
-        <section className="mt-4 space-y-3">
-          {keepers.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(keepers.data ?? []).map((card) => (
-            <article key={card.id} className="rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-lg font-semibold">{card.title}</h2>
-              <p className="text-sm text-muted-foreground">{card.purpose}</p>
-              {card.data.trigger && (
-                <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Startsignal: </span>
-                  {card.data.trigger}
-                </p>
-              )}
-              {card.data.childCues?.length ? (
-                <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Barnfraser: </span>
-                  {card.data.childCues.join(" · ")}
-                </p>
-              ) : null}
-              {card.data.steps?.length ? (
-                <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
-                  {card.data.steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-              ) : null}
-              {card.data.commonErrors?.length ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Vanliga fel: {card.data.commonErrors.join(" · ")}
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      )}
 
-      {tab === "Övningar" && (
-        <section className="mt-4 space-y-3">
-          {drills.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(drills.data ?? []).map((drill) => (
-            <article key={drill.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
-                <span className="text-xs text-muted-foreground">{drill.default_minutes} min</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{drill.purpose}</p>
-              {drill.data.linkedTacticIds?.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {drill.data.linkedTacticIds.map((tacticId) => (
-                    <Link
-                      key={tacticId}
-                      to="/taktikbank/$cardId"
-                      params={{ cardId: tacticId }}
-                      className="rounded-full border border-border px-3 py-1 text-xs text-primary"
-                    >
-                      Taktikkort
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      )}
+      <section className="mt-8 rounded-xl border border-border/60 bg-card/50 p-4">
+        <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
+        <div className="mt-2 flex flex-wrap gap-2 text-sm">
+          <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+            Övningsbank
+          </Link>
+          <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+            Kunskapsbank
+          </Link>
+          <Link to="/taktikbank/regler" className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+            Regler
+          </Link>
+        </div>
+      </section>
 
-      {tab === "Pass" && (
-        <section className="mt-4 space-y-3">
-          {sessions.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(sessions.data ?? []).map((session) => (
-            <article key={session.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-lg font-semibold">{session.title}</h2>
-                <span className="text-xs text-muted-foreground">{session.total_minutes} min</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{session.theme}</p>
-              <ol className="mt-3 space-y-2 text-sm">
-                {session.data.blocks
-                  .slice()
-                  .sort((a, b) => a.order - b.order)
-                  .map((block) => (
-                    <li key={block.order} className="rounded-lg border border-border/60 px-3 py-2">
-                      <div className="flex justify-between gap-3">
-                        <span className="font-medium">{block.activity}</span>
-                        <span className="text-xs text-muted-foreground">{block.minutes} min</span>
-                      </div>
-                      {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
-                    </li>
-                  ))}
-              </ol>
-              {session.data.coachLimit && (
-                <p className="mt-2 text-xs text-muted-foreground">{session.data.coachLimit}</p>
-              )}
-            </article>
-          ))}
-        </section>
-      )}
-
-      {tab === "Regler" && (
-        <section className="mt-4">
-          {(rulesets.isLoading || districts.isLoading) && (
-            <p className="text-sm text-muted-foreground">Laddar…</p>
-          )}
-          {!rulesets.isLoading && !districts.isLoading && (
-            <RulesView
-              rulesets={rulesets.data ?? []}
-              districts={districts.data ?? []}
-              isAdmin={isAdmin}
-            />
-          )}
-        </section>
-      )}
     </main>
   );
 }
