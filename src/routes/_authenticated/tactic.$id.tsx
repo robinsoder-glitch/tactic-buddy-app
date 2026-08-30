@@ -643,6 +643,7 @@ function TacticEditor() {
           onMoveEnd={() => {
             dragSession.current = false;
           }}
+          onObjectTrail={objectTrail}
           onSelectObject={setSelectedId}
           onAddDrawing={addDrawing}
           onRemoveDrawing={removeDrawing}
