@@ -86,6 +86,7 @@ export function Pitch({
   passT = null,
   onMoveObject,
   onMoveEnd,
+  onObjectTrail,
   onSelectObject,
   onAddDrawing,
   onRemoveDrawing,
