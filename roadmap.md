@@ -1,11 +1,11 @@
 # Roadmap – granskning 2026-08-30
 
 ## Etapp 1: Säkerhet, integritet och städning
-- [ ] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
-- [ ] Lagets skapare syns som ägare/ledare
-- [ ] Personliga inbjudningar: engångstoken, utgångstid, återkallande. Lagkod ger aldrig ledarroll
+- [x] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
+- [x] Lagets skapare syns som ägare/ledare
+- [x] Personliga inbjudningar: engångstoken, utgångstid, återkallande. Lagkod ger aldrig ledarroll
 - [ ] Minimera barnuppgifter: födelseår i stället för fullt datum, foto opt-in med samtycke
-- [ ] Ny lagkod ("Skapa ny kod") och kodens giltighet i Om laget
+- [x] Ny lagkod ("Skapa ny kod") och kodens giltighet i Om laget
 - [ ] Dölj all felsökningsinfo för vanliga användare (klart tidigare, verifiera)
 
 ## Etapp 2: Ljust designsystem
