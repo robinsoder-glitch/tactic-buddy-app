@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
+import { exportPdf } from "@/lib/export-pdf";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
@@ -157,7 +158,7 @@ function TacticEditor() {
   const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
 
   const [isPublic, setIsPublic] = useState(false);
-  const [exporting, setExporting] = useState<null | "gif" | "video">(null);
+  const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
   const framesRef = useRef<Frame[]>([]);
   const dragSession = useRef(false);
   framesRef.current = frames;
@@ -621,7 +622,21 @@ function TacticEditor() {
         tokenScale: prefs.playerScale,
         showPhotos: prefs.showPhotos,
       };
-      if (kind === "gif") {
+      if (kind === "pdf") {
+        await exportPdf(
+          {
+            frames,
+            pitchType: tactic.data.pitch_type,
+            title: tactic.data.name,
+            hideNames,
+            tokenScale: prefs.playerScale,
+            showPhotos: prefs.showPhotos,
+            width: Math.max(preset.width, 900),
+          },
+          filename,
+        );
+        toast.success("PDF nedladdad");
+      } else if (kind === "gif") {
         await exportGif(options, filename);
         toast.success("GIF nedladdad");
       } else {

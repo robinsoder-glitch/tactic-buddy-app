@@ -15,7 +15,7 @@ import { QUALITY_PRESETS } from "@/lib/export-clip";
 import type { ExportQuality } from "@/lib/export-clip";
 
 export type ExportSettings = {
-  format: "gif" | "video";
+  format: "gif" | "video" | "pdf";
   fps: number;
   quality: ExportQuality;
 };
@@ -86,36 +86,44 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport }: Props) {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Format</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {(["gif", "video"] as const).map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  variant={settings.format === value ? "default" : "secondary"}
-                  onClick={() => update({ format: value })}
-                >
-                  {value === "gif" ? "GIF" : "MP4 / WebM"}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Bildhastighet</Label>
-            <div className="grid grid-cols-4 gap-2">
-              {FPS_CHOICES.map((value) => (
+            <div className="grid grid-cols-3 gap-2">
+              {(["gif", "video", "pdf"] as const).map((value) => (
                 <Button
                   key={value}
                   type="button"
                   size="sm"
-                  variant={settings.fps === value ? "default" : "secondary"}
-                  onClick={() => update({ fps: value })}
+                  variant={settings.format === value ? "default" : "secondary"}
+                  onClick={() => update({ format: value })}
                 >
-                  {value}
+                  {value === "gif" ? "GIF" : value === "video" ? "MP4 / WebM" : "PDF"}
                 </Button>
               ))}
             </div>
+            {settings.format === "pdf" && (
+              <p className="text-xs text-muted-foreground">
+                En sida per steg med planbild, spelarlista och anteckning.
+              </p>
+            )}
           </div>
+
+          {settings.format !== "pdf" && (
+            <div className="space-y-2">
+              <Label>Bildhastighet</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {FPS_CHOICES.map((value) => (
+                  <Button
+                    key={value}
+                    type="button"
+                    size="sm"
+                    variant={settings.fps === value ? "default" : "secondary"}
+                    onClick={() => update({ fps: value })}
+                  >
+                    {value}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Kvalitet</Label>
