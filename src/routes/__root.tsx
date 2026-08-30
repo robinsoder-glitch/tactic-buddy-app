@@ -16,7 +16,7 @@ import { AppNav } from "@/components/AppNav";
 import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { supabase } from "@/integrations/supabase/client";
-import { THEME_BOOT_SCRIPT } from "@/lib/theme";
+import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
 
 const MODULE_RECOVERY_SCRIPT = `
 (() => {
