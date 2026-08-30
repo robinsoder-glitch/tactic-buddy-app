@@ -298,117 +298,21 @@ function TaktikbankPage() {
         </section>
       )}
 
-      {tab === "Målvakt" && (
-        <section className="mt-4 space-y-3">
-          {keepers.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(keepers.data ?? []).map((card) => (
-            <article key={card.id} className="rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-lg font-semibold">{card.title}</h2>
-              <p className="text-sm text-muted-foreground">{card.purpose}</p>
-              {card.data.trigger && (
-                <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Startsignal: </span>
-                  {card.data.trigger}
-                </p>
-              )}
-              {card.data.childCues?.length ? (
-                <p className="mt-2 text-sm">
-                  <span className="text-muted-foreground">Barnfraser: </span>
-                  {card.data.childCues.join(" · ")}
-                </p>
-              ) : null}
-              {card.data.steps?.length ? (
-                <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
-                  {card.data.steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-              ) : null}
-              {card.data.commonErrors?.length ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Vanliga fel: {card.data.commonErrors.join(" · ")}
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      )}
+      <section className="mt-8 rounded-xl border border-border/60 bg-card/50 p-4">
+        <h2 className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
+        <div className="mt-2 flex flex-wrap gap-2 text-sm">
+          <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+            Övningsbank
+          </Link>
+          <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+            Kunskapsbank
+          </Link>
+          <Link to="/taktikbank/regler" className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+            Regler
+          </Link>
+        </div>
+      </section>
 
-      {tab === "Övningar" && (
-        <section className="mt-4 space-y-3">
-          {drills.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(drills.data ?? []).map((drill) => (
-            <article key={drill.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
-                <span className="text-xs text-muted-foreground">{drill.default_minutes} min</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{drill.purpose}</p>
-              {drill.data.linkedTacticIds?.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {drill.data.linkedTacticIds.map((tacticId) => (
-                    <Link
-                      key={tacticId}
-                      to="/taktikbank/$cardId"
-                      params={{ cardId: tacticId }}
-                      className="rounded-full border border-border px-3 py-1 text-xs text-primary"
-                    >
-                      Taktikkort
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </article>
-          ))}
-        </section>
-      )}
-
-      {tab === "Pass" && (
-        <section className="mt-4 space-y-3">
-          {sessions.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {(sessions.data ?? []).map((session) => (
-            <article key={session.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-lg font-semibold">{session.title}</h2>
-                <span className="text-xs text-muted-foreground">{session.total_minutes} min</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{session.theme}</p>
-              <ol className="mt-3 space-y-2 text-sm">
-                {session.data.blocks
-                  .slice()
-                  .sort((a, b) => a.order - b.order)
-                  .map((block) => (
-                    <li key={block.order} className="rounded-lg border border-border/60 px-3 py-2">
-                      <div className="flex justify-between gap-3">
-                        <span className="font-medium">{block.activity}</span>
-                        <span className="text-xs text-muted-foreground">{block.minutes} min</span>
-                      </div>
-                      {block.focus && <p className="text-xs text-muted-foreground">{block.focus}</p>}
-                    </li>
-                  ))}
-              </ol>
-              {session.data.coachLimit && (
-                <p className="mt-2 text-xs text-muted-foreground">{session.data.coachLimit}</p>
-              )}
-            </article>
-          ))}
-        </section>
-      )}
-
-      {tab === "Regler" && (
-        <section className="mt-4">
-          {(rulesets.isLoading || districts.isLoading) && (
-            <p className="text-sm text-muted-foreground">Laddar…</p>
-          )}
-          {!rulesets.isLoading && !districts.isLoading && (
-            <RulesView
-              rulesets={rulesets.data ?? []}
-              districts={districts.data ?? []}
-              isAdmin={isAdmin}
-            />
-          )}
-        </section>
-      )}
     </main>
   );
 }
