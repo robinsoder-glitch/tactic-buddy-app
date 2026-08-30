@@ -21,6 +21,7 @@ function AboutPage() {
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   const [about, setAbout] = useState("");
+  const [homeGround, setHomeGround] = useState("");
   const [name, setName] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
   const [gender, setGender] = useState("mixed");
@@ -29,6 +30,7 @@ function AboutPage() {
   useEffect(() => {
     if (!team.data) return;
     setAbout(team.data.about ?? "");
+    setHomeGround(team.data.home_ground ?? "");
     setName(team.data.name);
     setAgeGroup(team.data.age_group ?? "");
     setGender(team.data.gender);
@@ -38,7 +40,7 @@ function AboutPage() {
     setBusy(true);
     try {
       const photo_path = file && userId ? await uploadTeamMedia(teamId, file, "team") : (team.data?.photo_path ?? null);
-      await updateTeam(teamId, { name, age_group: ageGroup || null, gender, about: about || null, photo_path });
+      await updateTeam(teamId, { name, age_group: ageGroup || null, gender, about: about || null, home_ground: homeGround || null, photo_path });
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["teams"] });
       toast.success("Sparat");
@@ -102,6 +104,15 @@ function AboutPage() {
             {label}
           </button>
         ))}
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="t-ground">Hemmaplan</Label>
+        <Input
+          id="t-ground"
+          placeholder="T.ex. Långholmens IP"
+          value={homeGround}
+          onChange={(event) => setHomeGround(event.target.value)}
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="t-about">Beskrivning</Label>

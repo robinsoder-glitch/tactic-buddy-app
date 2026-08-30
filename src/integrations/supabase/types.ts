@@ -94,12 +94,18 @@ export type Database = {
       }
       events: {
         Row: {
+          away_team: string | null
           created_at: string
           created_by: string
           ends_at: string | null
+          home_team: string | null
           id: string
+          kit: string | null
           location: string | null
+          match_kind: string | null
+          meet_at: string | null
           notes: string | null
+          series_id: string | null
           starts_at: string
           team_id: string
           title: string | null
@@ -107,12 +113,18 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          away_team?: string | null
           created_at?: string
           created_by: string
           ends_at?: string | null
+          home_team?: string | null
           id?: string
+          kit?: string | null
           location?: string | null
+          match_kind?: string | null
+          meet_at?: string | null
           notes?: string | null
+          series_id?: string | null
           starts_at: string
           team_id: string
           title?: string | null
@@ -120,12 +132,18 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          away_team?: string | null
           created_at?: string
           created_by?: string
           ends_at?: string | null
+          home_team?: string | null
           id?: string
+          kit?: string | null
           location?: string | null
+          match_kind?: string | null
+          meet_at?: string | null
           notes?: string | null
+          series_id?: string | null
           starts_at?: string
           team_id?: string
           title?: string | null
@@ -367,6 +385,30 @@ export type Database = {
           purpose?: string | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tb_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          resource_id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -628,6 +670,7 @@ export type Database = {
           created_at: string
           created_by: string
           gender: string
+          home_ground: string | null
           id: string
           join_code: string
           name: string
@@ -641,6 +684,7 @@ export type Database = {
           created_at?: string
           created_by: string
           gender?: string
+          home_ground?: string | null
           id?: string
           join_code?: string
           name: string
@@ -654,6 +698,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           gender?: string
+          home_ground?: string | null
           id?: string
           join_code?: string
           name?: string
