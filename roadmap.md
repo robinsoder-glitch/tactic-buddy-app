@@ -8,6 +8,9 @@
 - [x] Ny lagkod ("Skapa ny kod") och kodens giltighet i Om laget
 - [x] Dölj all felsökningsinfo för vanliga användare (bara admin eller utvecklingsläge)
 - [x] Rollförklaring, ägaröverlåtelse och begripliga svenska felmeddelanden
+- [x] Omfattande test av bildintegritet (spelarbilder, lagbilder, direkta URL:er) – src/lib/photo-access.test.ts
+- [x] Verifiera att rollkontroller är SECURITY DEFINER med låst search_path + minimerade EXECUTE-rättigheter
+- [ ] Genomgång av sajten: prioriterade förbättringsförslag (se Etapp 2–5 nedan)
 
 
 ## Etapp 2: Ljust designsystem
