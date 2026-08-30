@@ -14,6 +14,8 @@ type Props = {
   selectedId?: string | null;
   interactive?: boolean;
   drawColor?: string | undefined;
+  /** hide player names on the pitch (numbers/initials still shown) */
+  hideNames?: boolean;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
   onMoveObject?: (id: string, x: number, y: number) => void;
@@ -23,6 +25,19 @@ type Props = {
   onRemoveDrawing?: (id: string) => void;
 };
 
+export function tokenFill(object: FieldObject) {
+  if (object.gk) {
+    return object.team === "home" ? "var(--color-team-gk)" : "var(--color-team-gk-away)";
+  }
+  return object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)";
+}
+
+function tokenText(object: FieldObject) {
+  if (object.gk) return "var(--color-team-gk-foreground)";
+  return object.team === "home"
+    ? "var(--color-team-home-foreground)"
+    : "var(--color-team-away-foreground)";
+}
 
 export function Pitch({
   pitchType,
@@ -32,6 +47,7 @@ export function Pitch({
   selectedId = null,
   interactive = true,
   drawColor,
+  hideNames = false,
   passT = null,
   onMoveObject,
   onMoveEnd,
@@ -46,6 +62,7 @@ export function Pitch({
 
   const tokenR = w * 0.031;
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
+
 
   function toNormalized(event: React.PointerEvent) {
     const rect = svgRef.current?.getBoundingClientRect();
