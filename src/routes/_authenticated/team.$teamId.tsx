@@ -49,7 +49,8 @@ const SUB_LINKS = [
 
 function TeamLayout() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId" });
-  const { status, isApproved, loading } = useTeamRole(teamId);
+  const { status, isApproved, loading, role } = useTeamRole(teamId);
+  const isCoachRole = role === "coach" || role === "admin";
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   if (!loading && status === "pending") {
@@ -77,8 +78,11 @@ function TeamLayout() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
-      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <ArrowLeft className="size-4" /> Tillbaka
+      <Link
+        to={isCoachRole ? "/teams" : "/"}
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" aria-hidden /> {isCoachRole ? "Mina lag" : "Tillbaka"}
       </Link>
 
       <header className="mt-3 flex items-center gap-3">
