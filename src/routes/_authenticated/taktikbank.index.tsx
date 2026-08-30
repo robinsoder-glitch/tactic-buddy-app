@@ -201,16 +201,27 @@ function TaktikbankPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Sök på titel eller syfte"
+              placeholder="Sök på titel, syfte, coachfråga eller barnfras"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
           <div className="flex flex-wrap gap-2 text-sm">
+            <button
+              type="button"
+              onClick={() => setOnlyFavorites((value) => !value)}
+              className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                onlyFavorites
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+            </button>
             <FilterGroup
               value={format}
               onChange={setFormat}
-              options={[["all", "Alla format"], ...formats.map((item) => [item, item] as [string, string])]}
+              options={[["all", "Alla spelformer"], ...formats.map((item) => [item, item] as [string, string])]}
             />
             <FilterGroup
               value={moment}
@@ -218,6 +229,14 @@ function TaktikbankPage() {
               options={[
                 ["all", "Alla moment"],
                 ...moments.map((item) => [item, label(GAME_MOMENT_LABELS, item)] as [string, string]),
+              ]}
+            />
+            <FilterGroup
+              value={phase}
+              onChange={setPhase}
+              options={[
+                ["all", "Alla faser"],
+                ...phases.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
               ]}
             />
             <FilterGroup
@@ -230,26 +249,59 @@ function TaktikbankPage() {
                 ["3", "Nivå 3"],
               ]}
             />
+            <FilterGroup
+              value={age}
+              onChange={setAge}
+              options={[
+                ["all", "Alla åldrar"],
+                ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+              ]}
+            />
+            <FilterGroup
+              value={role}
+              onChange={setRole}
+              options={[
+                ["all", "Alla spelartyper"],
+                ...roles.map((item) => [item, label(ROLE_LABELS, item)] as [string, string]),
+              ]}
+            />
           </div>
 
           {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktikkort…</p>}
           {filtered.map((card) => (
-            <Link
+            <div
               key={card.id}
-              to="/taktikbank/$cardId"
-              params={{ cardId: card.id }}
-              className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
+              className="flex items-center gap-2 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
             >
-              <div className="min-w-0 flex-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {card.format} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
-                  {label(PHASE_LABELS, card.phase)} · nivå {card.difficulty}
-                </p>
-                <h2 className="font-display text-lg font-semibold">{card.title}</h2>
-                <p className="truncate text-sm text-muted-foreground">{card.purpose}</p>
-              </div>
-              <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-            </Link>
+              <Link
+                to="/taktikbank/$cardId"
+                params={{ cardId: card.id }}
+                className="flex min-w-0 flex-1 items-center gap-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {card.format} · {label(GAME_MOMENT_LABELS, card.game_moment)} ·{" "}
+                    {label(PHASE_LABELS, card.phase)} · nivå {card.difficulty}
+                  </p>
+                  <h2 className="font-display text-lg font-semibold">{card.title}</h2>
+                  <p className="truncate text-sm text-muted-foreground">{card.purpose}</p>
+                </div>
+                <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+              </Link>
+              <button
+                type="button"
+                aria-label={favoriteSet.has(`tactic:${card.id}`) ? "Ta bort favorit" : "Spara som favorit"}
+                aria-pressed={favoriteSet.has(`tactic:${card.id}`)}
+                onClick={() => toggleFavorite.mutate({ kind: "tactic", id: card.id })}
+                className="shrink-0 rounded-full p-2 text-muted-foreground hover:text-primary"
+              >
+                <Star
+                  className={`size-5 ${favoriteSet.has(`tactic:${card.id}`) ? "fill-primary text-primary" : ""}`}
+                />
+              </button>
+            </div>
+          ))}
+
           ))}
           {!tactics.isLoading && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
