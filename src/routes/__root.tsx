@@ -137,7 +137,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="min-h-screen pb-[76px]">
+        <Outlet />
+      </div>
+      <AppNav />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
