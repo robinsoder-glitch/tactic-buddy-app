@@ -425,7 +425,7 @@ export function cardToFrames(card: TacticCardData, mirrored = false): Frame[] {
 
 /* ---------- kopplingar till träningstillfällen ---------- */
 
-export type EventResourceKind = "tactic" | "drill" | "session";
+export type EventResourceKind = "tactic" | "drill" | "session" | "goalkeeper" | "article";
 
 export type EventResource = {
   id: string;
@@ -433,13 +433,15 @@ export type EventResource = {
   team_id: string;
   kind: EventResourceKind;
   resource_id: string;
+  minutes: number | null;
+  note: string | null;
 };
 
 export async function fetchEventResources(eventIds: string[]): Promise<EventResource[]> {
   if (eventIds.length === 0) return [];
   const { data, error } = await supabase
     .from("event_resources")
-    .select("id, event_id, team_id, kind, resource_id")
+    .select("id, event_id, team_id, kind, resource_id, minutes, note")
     .in("event_id", eventIds);
   if (error) throw error;
   return (data ?? []) as unknown as EventResource[];
