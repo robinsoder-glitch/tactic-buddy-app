@@ -27,6 +27,7 @@ import { Route as AuthenticatedTaktikbankIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedTaktikbankCardIdRouteImport } from './routes/_authenticated/taktikbank.$cardId'
 import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_authenticated/taktikbank.regler'
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
+import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_authenticated/traningspass.index'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
@@ -132,6 +133,12 @@ const AuthenticatedTeamTeamIdRoute = AuthenticatedTeamTeamIdRouteImport.update({
   path: '/team/$teamId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTraningspassIndexRoute =
+  AuthenticatedTraningspassIndexRouteImport.update({
+    id: '/traningspass/',
+    path: '/traningspass/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeamTeamIdIndexRoute =
   AuthenticatedTeamTeamIdIndexRouteImport.update({
     id: '/',
@@ -199,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
+  '/traningspass/': typeof AuthenticatedTraningspassIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -225,6 +233,7 @@ export interface FileRoutesByTo {
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
+  '/traningspass': typeof AuthenticatedTraningspassIndexRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -254,6 +263,7 @@ export interface FileRoutesById {
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
+  '/_authenticated/traningspass/': typeof AuthenticatedTraningspassIndexRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/kunskapsbank/'
     | '/ovningsbank/'
     | '/taktikbank/'
+    | '/traningspass/'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/leaders'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/kunskapsbank'
     | '/ovningsbank'
     | '/taktikbank'
+    | '/traningspass'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/leaders'
@@ -337,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/kunskapsbank/'
     | '/_authenticated/ovningsbank/'
     | '/_authenticated/taktikbank/'
+    | '/_authenticated/traningspass/'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
     | '/_authenticated/team/$teamId/leaders'
@@ -482,6 +495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/traningspass/': {
+      id: '/_authenticated/traningspass/'
+      path: '/traningspass'
+      fullPath: '/traningspass/'
+      preLoaderRoute: typeof AuthenticatedTraningspassIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/team/$teamId/': {
       id: '/_authenticated/team/$teamId/'
       path: '/'
@@ -585,6 +605,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedKunskapsbankIndexRoute: typeof AuthenticatedKunskapsbankIndexRoute
   AuthenticatedOvningsbankIndexRoute: typeof AuthenticatedOvningsbankIndexRoute
   AuthenticatedTaktikbankIndexRoute: typeof AuthenticatedTaktikbankIndexRoute
+  AuthenticatedTraningspassIndexRoute: typeof AuthenticatedTraningspassIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -602,6 +623,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedKunskapsbankIndexRoute: AuthenticatedKunskapsbankIndexRoute,
   AuthenticatedOvningsbankIndexRoute: AuthenticatedOvningsbankIndexRoute,
   AuthenticatedTaktikbankIndexRoute: AuthenticatedTaktikbankIndexRoute,
+  AuthenticatedTraningspassIndexRoute: AuthenticatedTraningspassIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
