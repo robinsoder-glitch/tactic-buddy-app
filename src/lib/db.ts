@@ -78,12 +78,15 @@ export type TacticSummary = {
   pitch_type: PitchType;
   updated_at: string;
   frameCount: number;
+  share_id: string | null;
+  is_public: boolean;
+  team_id: string | null;
 };
 
 export async function fetchTactics(): Promise<TacticSummary[]> {
   const { data, error } = await supabase
     .from("tactics")
-    .select("id, name, pitch_type, updated_at, tactic_frames(count)")
+    .select("id, name, pitch_type, updated_at, share_id, is_public, team_id, tactic_frames(count)")
     .order("updated_at", { ascending: false });
   if (error) throw error;
 
@@ -95,6 +98,9 @@ export async function fetchTactics(): Promise<TacticSummary[]> {
       pitch_type: row.pitch_type as PitchType,
       updated_at: row.updated_at as string,
       frameCount: counts?.[0]?.count ?? 0,
+      share_id: (row.share_id as string | null) ?? null,
+      is_public: Boolean(row.is_public),
+      team_id: (row.team_id as string | null) ?? null,
     };
   });
 }
@@ -267,4 +273,24 @@ export async function fetchSharedTactic(shareId: string): Promise<TacticDetail> 
       drawings: (row.drawings as unknown as Drawing[]) ?? [],
     })),
   };
+}
+
+/** First frame of every tactic, used for list thumbnails. */
+export async function fetchTacticPreviews(): Promise<Record<string, Frame>> {
+  const { data, error } = await supabase
+    .from("tactic_frames")
+    .select("id, tactic_id, name, note, objects, drawings")
+    .eq("position", 0);
+  if (error) throw error;
+  const map: Record<string, Frame> = {};
+  for (const row of data ?? []) {
+    map[row.tactic_id as string] = {
+      id: row.id as string,
+      name: (row.name as string | null) ?? null,
+      note: (row.note as string | null) ?? null,
+      objects: (row.objects as unknown as FieldObject[]) ?? [],
+      drawings: (row.drawings as unknown as Drawing[]) ?? [],
+    };
+  }
+  return map;
 }
