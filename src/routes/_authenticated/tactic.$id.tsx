@@ -32,7 +32,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
-import { exportPdf } from "@/lib/export-pdf";
+import { exportPdf, previewPdfUrl } from "@/lib/export-pdf";
+import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
@@ -118,6 +119,8 @@ function TacticEditor() {
     enabled: !!teamId,
   });
   const personal = useQuery({ queryKey: ["players"], queryFn: fetchPlayers, enabled: !teamId });
+  const { memberships } = useAccount();
+  const teamName = memberships.find((item) => item.team_id === teamId)?.team?.name ?? null;
 
   const bank: BankPlayer[] = useMemo(() => {
     if (teamId) {
@@ -601,6 +604,24 @@ function TacticEditor() {
     onError: () => toast.error("Kunde inte ändra delningen"),
   });
 
+  function pdfOptions(settings: ExportSettings) {
+    return {
+      frames,
+      pitchType: tactic.data?.pitch_type ?? "small",
+      title: tactic.data?.name ?? "Taktik",
+      teamName,
+      cover: settings.cover,
+      paper: settings.paper,
+      orientation: settings.orientation,
+      margin: settings.margin,
+      scale: settings.scale,
+      hideNames,
+      tokenScale: prefs.playerScale,
+      showPhotos: prefs.showPhotos,
+      width: Math.max(QUALITY_PRESETS[settings.quality].width, 900),
+    };
+  }
+
   async function runExport(settings: ExportSettings) {
     if (!tactic.data) return;
     const kind = settings.format;
@@ -623,18 +644,7 @@ function TacticEditor() {
         showPhotos: prefs.showPhotos,
       };
       if (kind === "pdf") {
-        await exportPdf(
-          {
-            frames,
-            pitchType: tactic.data.pitch_type,
-            title: tactic.data.name,
-            hideNames,
-            tokenScale: prefs.playerScale,
-            showPhotos: prefs.showPhotos,
-            width: Math.max(preset.width, 900),
-          },
-          filename,
-        );
+        await exportPdf(pdfOptions(settings), filename);
         toast.success("PDF nedladdad");
       } else if (kind === "gif") {
         await exportGif(options, filename);
@@ -800,6 +810,7 @@ function TacticEditor() {
       <div className="flex flex-wrap items-center gap-2">
         <ToolButton active={tool === "select"} onClick={() => setTool("select")} label="Flytta">
           <MoveRight className="size-4" />
+          <span className="text-xs font-semibold">Flytta</span>
         </ToolButton>
         <ToolButton active={tool === "run"} onClick={() => setTool("run")} label="Löpning">
           <span className="text-xs font-semibold">Löpning</span>
@@ -1090,6 +1101,7 @@ function TacticEditor() {
             stepMs={STEP_MS / speed}
             busy={exporting !== null}
             onExport={(settings) => runExport(settings)}
+            onPreviewPdf={(settings) => previewPdfUrl(pdfOptions(settings))}
           />
         </div>
 
