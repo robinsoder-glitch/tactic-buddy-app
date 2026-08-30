@@ -656,106 +656,111 @@ function TacticEditor() {
         </div>
       )}
 
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="secondary" className="w-full">
-            <Users className="size-4" /> Spelarbank
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{teamId ? "Lagets trupp" : "Din spelarbank"}</SheetTitle>
-          </SheetHeader>
+      <section className="rounded-2xl border border-border bg-card/60 p-3">
+        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+          <Users className="size-4" />
+          {teamId ? "Lagets trupp" : "Din spelarbank"} – dra ut på planen eller tryck för att lägga till
+        </div>
 
-          <div className="flex flex-wrap gap-2 px-4 pb-3">
-            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", false)}>
-              <UserPlus className="size-4" /> Egen spelare
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("home", true)}>
-              <Shield className="size-4" /> Målvakt
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", false)}>
-              <UserPlus className="size-4" /> Motspelare
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => addFreePlayer("away", true)}>
-              <Shield className="size-4" /> Motst. målvakt
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() =>
-                addObject({ id: uid(), kind: "ball", label: "", team: "home", x: 0.5, y: 0.5 })
-              }
-            >
-              <CircleDot className="size-4" /> Boll
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 p-4 pt-0 sm:grid-cols-4">
-            {bank.map((player) => {
-              const used = onPitchPlayerIds.has(player.id);
-              return (
-                <button
-                  key={player.id}
-                  type="button"
-                  disabled={used}
-                  onClick={() =>
-                    addObject({
-                      id: uid(),
-                      kind: "player",
-                      playerId: player.id,
-                      label: player.name.split(" ")[0] ?? player.name,
-                      number: player.number,
-                      team: "home",
-                      gk: player.gk,
-                      photoUrl: player.photoUrl,
-                      x: 0.4,
-                      y: 0.5,
-                    })
-                  }
-                  className={`rounded-xl border border-border p-2 text-center text-xs ${
-                    used ? "opacity-40" : "bg-card"
-                  }`}
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {bank.map((player) => {
+            const used = onPitchPlayerIds.has(player.id);
+            return (
+              <button
+                key={player.id}
+                type="button"
+                draggable={!used}
+                onDragStart={(event) => event.dataTransfer.setData("text/plain", `player:${player.id}`)}
+                disabled={used}
+                onClick={() => addBankPlayer(player)}
+                className={`w-16 shrink-0 rounded-xl border border-border p-2 text-center text-xs ${
+                  used ? "opacity-40" : "bg-card active:scale-95"
+                }`}
+              >
+                <div
+                  className="mx-auto grid size-11 place-items-center overflow-hidden rounded-full"
+                  style={{
+                    background: player.gk ? "var(--color-team-gk)" : "var(--color-team-home)",
+                    color: player.gk
+                      ? "var(--color-team-gk-foreground)"
+                      : "var(--color-team-home-foreground)",
+                  }}
                 >
-                  <div
-                    className="mx-auto grid size-12 place-items-center overflow-hidden rounded-full"
-                    style={{
-                      background: player.gk ? "var(--color-team-gk)" : "var(--color-team-home)",
-                      color: player.gk
-                        ? "var(--color-team-gk-foreground)"
-                        : "var(--color-team-home-foreground)",
-                    }}
-                  >
-                    {player.photoUrl ? (
-                      <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
-                    ) : (
-                      <span className="font-display text-base font-bold">
-                        {player.number ?? (player.gk ? "MV" : "•")}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 truncate">{player.name}</p>
-                </button>
-              );
-            })}
-            {bank.length === 0 && (
-              <p className="col-span-full text-center text-sm text-muted-foreground">
-                {teamId ? (
-                  "Inga spelare i truppen än – lägg till dem under fliken Truppen."
-                ) : (
-                  <>
-                    Inga spelare än.{" "}
-                    <Link to="/bank" className="underline">
-                      Fyll på banken
-                    </Link>
-                    .
-                  </>
-                )}
-              </p>
+                  {player.photoUrl ? (
+                    <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
+                  ) : (
+                    <span className="font-display text-base font-bold">
+                      {player.number ?? (player.gk ? "MV" : "•")}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 truncate">{player.name}</p>
+              </button>
+            );
+          })}
+
+          <BankChip payload="free:home" label="Anonym" onAdd={() => addFreePlayer("home", false)}>
+            <span
+              className="grid size-11 place-items-center rounded-full"
+              style={{
+                background: "var(--color-team-home)",
+                color: "var(--color-team-home-foreground)",
+              }}
+            >
+              <UserPlus className="size-5" />
+            </span>
+          </BankChip>
+          <BankChip payload="free:home:gk" label="Målvakt" onAdd={() => addFreePlayer("home", true)}>
+            <span
+              className="grid size-11 place-items-center rounded-full"
+              style={{ background: "var(--color-team-gk)", color: "var(--color-team-gk-foreground)" }}
+            >
+              <Shield className="size-5" />
+            </span>
+          </BankChip>
+          <BankChip payload="free:away" label="Motst." onAdd={() => addFreePlayer("away", false)}>
+            <span
+              className="grid size-11 place-items-center rounded-full"
+              style={{
+                background: "var(--color-team-away)",
+                color: "var(--color-team-away-foreground)",
+              }}
+            >
+              <UserPlus className="size-5" />
+            </span>
+          </BankChip>
+          <BankChip payload="free:away:gk" label="Motst. MV" onAdd={() => addFreePlayer("away", true)}>
+            <span
+              className="grid size-11 place-items-center rounded-full"
+              style={{ background: "var(--color-team-gk)", color: "var(--color-team-gk-foreground)" }}
+            >
+              <Shield className="size-5" />
+            </span>
+          </BankChip>
+          <BankChip payload="ball" label="Boll" onAdd={() => addBall()}>
+            <span className="grid size-11 place-items-center rounded-full bg-background">
+              <CircleDot className="size-6" />
+            </span>
+          </BankChip>
+        </div>
+
+        {bank.length === 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {teamId ? (
+              "Inga spelare i truppen än – lägg till dem under fliken Truppen."
+            ) : (
+              <>
+                Inga sparade spelare än.{" "}
+                <Link to="/bank" className="underline">
+                  Fyll på banken
+                </Link>
+                .
+              </>
             )}
-          </div>
-        </SheetContent>
-      </Sheet>
+          </p>
+        )}
+      </section>
+
 
 
       <section className="rounded-xl border border-border bg-card p-3">
