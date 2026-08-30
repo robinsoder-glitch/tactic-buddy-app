@@ -60,17 +60,42 @@ const STEP_MS = 1500;
 function TaktikbankCard() {
   const { cardId } = Route.useParams();
   const { isCoach, isAdmin, loading } = useAccount();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const allowed = isCoach || isAdmin;
   const card = useQuery({
     queryKey: ["tb-tactic", cardId],
     queryFn: () => fetchTacticCard(cardId),
     enabled: allowed,
   });
+  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
+  const teams = useQuery({ queryKey: ["my-teams"], queryFn: fetchMyTeams, enabled: allowed });
 
   const [mirrored, setMirrored] = useState(false);
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loop, setLoop] = useState(true);
+  const [speed, setSpeed] = useState(1);
+  const [loopPause, setLoopPause] = useState(0.6);
+  const [planOpen, setPlanOpen] = useState(false);
+
+  const isFavorite = (favorites.data ?? []).some(
+    (item) => item.kind === "tactic" && item.resource_id === cardId,
+  );
+
+  const toggleFavorite = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Inte inloggad");
+      if (isFavorite) await removeFavorite(user.id, "tactic", cardId);
+      else await addFavorite(user.id, "tactic", cardId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tb-favorites"] });
+      toast.success(isFavorite ? "Borttagen från favoriter" : "Sparad som favorit");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const frames = useMemo(
     () => (card.data ? cardToFrames(card.data.data, mirrored) : []),
@@ -84,23 +109,36 @@ function TaktikbankCard() {
   useEffect(() => {
     if (!playing || frames.length < 2) return;
     let raf = 0;
-    const startedAt = performance.now();
-    const from = progress >= frames.length - 1 ? 0 : progress;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let startedAt = performance.now();
+    let from = progress >= frames.length - 1 ? 0 : progress;
     const tick = (now: number) => {
-      const value = from + (now - startedAt) / STEP_MS;
+      const value = from + ((now - startedAt) / STEP_MS) * speed;
       if (value >= frames.length - 1) {
         setProgress(frames.length - 1);
-        setPlaying(false);
-        if (loop) setTimeout(() => setProgress(0), 400);
+        if (!loop) {
+          setPlaying(false);
+          return;
+        }
+        timer = setTimeout(() => {
+          setProgress(0);
+          from = 0;
+          startedAt = performance.now();
+          raf = requestAnimationFrame(tick);
+        }, loopPause * 1000);
         return;
       }
       setProgress(value);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (timer) clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, loop, frames.length]);
+  }, [playing, loop, loopPause, speed, frames.length]);
+
 
   if (loading || card.isLoading) {
     return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
