@@ -1,21 +1,27 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, ChevronRight, Search } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, BookOpen, ChevronRight, Search, Star } from "lucide-react";
 import {
+  addFavorite,
   fetchDistrictProfiles,
   fetchDrills,
+  fetchFavorites,
   fetchGoalkeeperCards,
   fetchRulesets,
   fetchTacticCards,
   fetchTrainingSessions,
+  removeFavorite,
   GAME_MOMENT_LABELS,
   PHASE_LABELS,
   label,
+  type FavoriteKind,
 } from "@/lib/taktikbank";
 import { useAccount } from "@/hooks/useAccount";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
   head: () => ({
