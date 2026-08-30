@@ -223,56 +223,85 @@ function OvningsbankPage() {
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setOnlyFavorites((value) => !value)}
-          aria-pressed={onlyFavorites}
-          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-          }`}
-        >
-          <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-        </button>
-        {tab === "Övningar" && (
+      <FilterPanel
+        activeCount={
+          (onlyFavorites ? 1 : 0) +
+          (tab === "Övningar"
+            ? [age, format, area, difficulty].filter((value) => value !== "all").length
+            : 0)
+        }
+        onClear={() => {
+          setOnlyFavorites(false);
+          setAge("all");
+          setFormat("all");
+          setArea("all");
+          setDifficulty("all");
+        }}
+        primary={
+          <button
+            type="button"
+            onClick={() => setOnlyFavorites((value) => !value)}
+            aria-pressed={onlyFavorites}
+            className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+              onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            }`}
+          >
+            <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+          </button>
+        }
+      >
+        {tab === "Övningar" ? (
           <>
-            <FilterGroup
-              value={age}
-              onChange={setAge}
-              options={[
-                ["all", "Alla åldrar"],
-                ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={format}
-              onChange={setFormat}
-              options={[
-                ["all", "Alla spelformer"],
-                ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={area}
-              onChange={setArea}
-              options={[
-                ["all", "Alla träningsområden"],
-                ...areas.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
-              ]}
-            />
-            <FilterGroup
-              value={difficulty}
-              onChange={setDifficulty}
-              options={[
-                ["all", "Alla svårighetsgrader"],
-                ["1", "Nivå 1"],
-                ["2", "Nivå 2"],
-                ["3", "Nivå 3"],
-              ]}
-            />
+            <FilterRow title="Ålder">
+              <FilterGroup
+                value={age}
+                onChange={setAge}
+                options={[
+                  ["all", "Alla åldrar"],
+                  ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Spelform">
+              <FilterGroup
+                value={format}
+                onChange={setFormat}
+                options={[
+                  ["all", "Alla spelformer"],
+                  ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Träningsområde">
+              <FilterGroup
+                value={area}
+                onChange={setArea}
+                options={[
+                  ["all", "Alla träningsområden"],
+                  ...areas.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Svårighetsgrad">
+              <FilterGroup
+                value={difficulty}
+                onChange={setDifficulty}
+                options={[
+                  ["all", "Alla svårighetsgrader"],
+                  ["1", "Nivå 1"],
+                  ["2", "Nivå 2"],
+                  ["3", "Nivå 3"],
+                ]}
+              />
+            </FilterRow>
           </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Fler filter finns för fliken Övningar. Här söker du på titel och syfte.
+          </p>
         )}
-      </div>
+      </FilterPanel>
+
 
       {tab === "Övningar" && (
         <section className="mt-4 space-y-3" aria-label="Övningar">
