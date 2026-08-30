@@ -301,10 +301,10 @@ export function Pitch({
 
         {passBalls.map((ball) => (
           <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
-            <circle r={tokenR * 0.55} fill="white" stroke="oklch(0.2 0 0)" strokeWidth={w * 0.002} />
-            <circle r={tokenR * 0.22} fill="oklch(0.2 0 0)" />
+            <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
           </g>
         ))}
+
 
 
         {objects.map((object) => {
