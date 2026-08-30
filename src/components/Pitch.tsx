@@ -90,6 +90,100 @@ export function Pitch({
     dragId.current = null;
   }
 
+  const markLine = "var(--color-pitch-line)";
+  const boxDepth = pitchType === "full" ? 16.5 : 9;
+  const boxWidth = pitchType === "full" ? 40.3 : 20;
+  const goalDepth = pitchType === "full" ? 5.5 : 3;
+  const goalWidth = pitchType === "full" ? 18.3 : 9;
+  const circleR = pitchType === "full" ? 9.15 : 6;
+
+  function shapeColor(drawing: Pick<Drawing, "type" | "color">) {
+    if (drawing.color) return drawing.color;
+    return drawing.type === "pass" ? PASS_COLOR : markLine;
+  }
+
+  function renderShape(drawing: Drawing, key: string, preview = false) {
+    const color = shapeColor(drawing);
+    const x1 = drawing.x1 * w;
+    const y1 = drawing.y1 * h;
+    const x2 = drawing.x2 * w;
+    const y2 = drawing.y2 * h;
+    const erasable = !preview && tool === "erase";
+    const common = {
+      style: { cursor: erasable ? "pointer" : "default" },
+      onPointerDown: (event: React.PointerEvent) => {
+        if (erasable) {
+          event.stopPropagation();
+          onRemoveDrawing?.(drawing.id);
+        }
+      },
+      opacity: preview ? 0.8 : 1,
+    };
+
+    if (drawing.type === "zone") {
+      return (
+        <rect
+          key={key}
+          x={Math.min(x1, x2)}
+          y={Math.min(y1, y2)}
+          width={Math.abs(x2 - x1)}
+          height={Math.abs(y2 - y1)}
+          fill={color}
+          fillOpacity={0.18}
+          stroke={color}
+          strokeWidth={w * 0.004}
+          strokeDasharray={`${w * 0.012} ${w * 0.01}`}
+          rx={w * 0.006}
+          {...common}
+        />
+      );
+    }
+
+    if (drawing.type === "circle") {
+      return (
+        <ellipse
+          key={key}
+          cx={(x1 + x2) / 2}
+          cy={(y1 + y2) / 2}
+          rx={Math.abs(x2 - x1) / 2}
+          ry={Math.abs(y2 - y1) / 2}
+          fill={color}
+          fillOpacity={0.14}
+          stroke={color}
+          strokeWidth={w * 0.004}
+          {...common}
+        />
+      );
+    }
+
+    return (
+      <line
+        key={key}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={color}
+        strokeWidth={w * 0.005}
+        strokeLinecap="round"
+        strokeDasharray={drawing.type === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
+        markerEnd={preview ? undefined : drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"}
+        {...common}
+      />
+    );
+  }
+
+  const passBalls =
+    passT == null
+      ? []
+      : drawings
+          .filter((drawing) => drawing.type === "pass")
+          .map((drawing) => ({
+            id: drawing.id,
+            x: (drawing.x1 + (drawing.x2 - drawing.x1) * passT) * w,
+            y: (drawing.y1 + (drawing.y2 - drawing.y1) * passT) * h,
+          }));
+
 
   return (
     <div
