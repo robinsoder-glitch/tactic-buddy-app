@@ -206,6 +206,16 @@ function RootComponent() {
     return () => subscription.unsubscribe();
   }, [queryClient, router]);
 
+  useEffect(() => {
+    applyTheme(loadTheme());
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      if (loadTheme() === "system") applyTheme("system");
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
