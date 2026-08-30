@@ -1,15 +1,48 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshCw, AlertTriangle } from "lucide-react";
 import {
   canAutoReload,
   checkBuildVersion,
+  fetchDeployedSignature,
   hardReload,
   isChunkLoadError,
 } from "@/lib/build-info";
 
 export function ChunkErrorBanner() {
   const [detail, setDetail] = useState<string | null>(null);
+  const [newVersion, setNewVersion] = useState(false);
   const [reloading, setReloading] = useState(false);
+  const signature = useRef<string | null>(null);
+
+  // Kontrollerar regelbundet om servern har en nyare version.
+  useEffect(() => {
+    if (import.meta.env.DEV) return;
+    let stopped = false;
+
+    const check = async () => {
+      if (stopped || document.visibilityState !== "visible") return;
+      const current = await fetchDeployedSignature();
+      if (stopped || !current) return;
+      if (signature.current === null) {
+        signature.current = current;
+        return;
+      }
+      if (current !== signature.current) setNewVersion(true);
+    };
+
+    void check();
+    const timer = window.setInterval(() => void check(), 60000);
+    const onVisible = () => void check();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, []);
+
 
   useEffect(() => {
     // New build deployed while this tab was open → refresh silently once.
