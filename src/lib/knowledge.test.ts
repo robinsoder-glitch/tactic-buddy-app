@@ -45,7 +45,7 @@ describe("kunskapsbanken", () => {
     expect(filterKnowledge([base, other], { format: "format_3v3" })[0]?.id).toBe("1");
   });
   it("filtrerar på fritext och utvalda", () => {
-    expect(filterKnowledge([base, other], { query: "småspel" })).toHaveLength(1);
+    expect(filterKnowledge([base, other], { query: "spelförståelse" })).toHaveLength(1);
     expect(filterKnowledge([base, other], { onlyFeatured: true })).toHaveLength(1);
   });
   it("visar svenska åldersetiketter", () => {
