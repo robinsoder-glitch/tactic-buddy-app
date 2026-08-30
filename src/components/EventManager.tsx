@@ -32,6 +32,10 @@ type Props = {
   isCoach: boolean;
   type: "training" | "match";
   title: string;
+  /** Text på knappen som öppnar formuläret. */
+  newLabel?: string;
+  /** Bekräftelse som visas när aktiviteten sparats. */
+  savedMessage?: string;
 };
 
 type ScheduleForm = {
@@ -61,7 +65,7 @@ function timeOnly(value: string | null) {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
+export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage }: Props) {
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -180,6 +184,12 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
         repeatCount,
       });
       await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      toast.success(
+        savedMessage ??
+          (type === "training"
+            ? "Träningen har lagts till i kalendern."
+            : "Matchen har lagts till i kalendern."),
+      );
       setOpen(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Kunde inte spara");
@@ -200,7 +210,7 @@ export function EventManager({ teamId, userId, isCoach, type, title }: Props) {
         <h2 className="font-display text-2xl font-bold">{title}</h2>
         {isCoach && (
           <Button size="sm" onClick={openNew}>
-            <Plus className="size-4" /> Nytt
+            <Plus className="size-4" /> {newLabel ?? "Nytt"}
           </Button>
         )}
       </div>
