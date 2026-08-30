@@ -138,7 +138,10 @@ function BankPage() {
               })
             }
             onDelete={() => {
-              if (window.confirm(`Ta bort ${player.name}?`)) remove.mutate(player.id);
+              void confirm({
+                title: "Radera spelare",
+                description: `${player.name} tas bort från din spelarbank permanent.`,
+              }).then((ok) => ok && remove.mutate(player.id));
             }}
           />
         ))}

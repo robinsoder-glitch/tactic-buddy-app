@@ -35,6 +35,7 @@ import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
 import { PITCH_SIZES } from "@/lib/tactics";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
+import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -73,6 +74,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { confirm, confirmDialog } = useConfirm();
   const { user, loading } = useAuth();
   const account = useAccount();
   const navigate = useNavigate();
@@ -518,7 +520,10 @@ function TacticsDashboard({ userId }: { userId: string }) {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() => {
-                        if (window.confirm(`Ta bort "${tactic.name}"?`)) remove.mutate(tactic.id);
+                        void confirm({
+                          title: "Radera taktik",
+                          description: `Taktiken "${tactic.name}" och alla dess steg tas bort permanent. Det går inte att ångra.`,
+                        }).then((ok) => ok && remove.mutate(tactic.id));
                       }}
                     >
                       <Trash2 className="size-4 text-destructive" /> Ta bort
