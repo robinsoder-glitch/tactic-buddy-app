@@ -78,6 +78,9 @@ export type KnowledgeFilter = {
   category?: string;
   age?: string;
   format?: string;
+  level?: string;
+  language?: string;
+  source?: string;
   onlyFeatured?: boolean;
 };
 
@@ -85,6 +88,24 @@ export function knowledgeCategories(articles: KnowledgeArticle[]): string[] {
   return Array.from(new Set(articles.map((a) => a.category).filter(Boolean))).sort((a, b) =>
     a.localeCompare(b, "sv"),
   );
+}
+
+function distinctValues(articles: KnowledgeArticle[], key: "level" | "language" | "source_name"): string[] {
+  return Array.from(new Set(articles.map((a) => a[key]).filter((v): v is string => Boolean(v)))).sort((a, b) =>
+    a.localeCompare(b, "sv"),
+  );
+}
+
+export function knowledgeLevels(articles: KnowledgeArticle[]): string[] {
+  return distinctValues(articles, "level");
+}
+
+export function knowledgeLanguages(articles: KnowledgeArticle[]): string[] {
+  return distinctValues(articles, "language");
+}
+
+export function knowledgeSources(articles: KnowledgeArticle[]): string[] {
+  return distinctValues(articles, "source_name");
 }
 
 export function filterKnowledge(articles: KnowledgeArticle[], filter: KnowledgeFilter): KnowledgeArticle[] {
@@ -99,6 +120,9 @@ export function filterKnowledge(articles: KnowledgeArticle[], filter: KnowledgeF
     ) {
       return false;
     }
+    if (filter.level && filter.level !== "all" && article.level !== filter.level) return false;
+    if (filter.language && filter.language !== "all" && article.language !== filter.language) return false;
+    if (filter.source && filter.source !== "all" && article.source_name !== filter.source) return false;
     const needle = (filter.query ?? "").trim().toLowerCase();
     if (!needle) return true;
     const haystack = [

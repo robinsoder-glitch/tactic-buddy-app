@@ -13,6 +13,9 @@ import {
   knowledgeAgeLabel,
   knowledgeCategories,
   knowledgeFormatLabel,
+  knowledgeLanguages,
+  knowledgeLevels,
+  knowledgeSources,
 } from "@/lib/knowledge";
 import { AddToSessionButton } from "@/components/AddToSessionDialog";
 import { Input } from "@/components/ui/input";
@@ -52,8 +55,12 @@ export function KnowledgeLibrary() {
   const [category, setCategory] = useState("all");
   const [age, setAge] = useState("all");
   const [format, setFormat] = useState("all");
+  const [level, setLevel] = useState("all");
+  const [language, setLanguage] = useState("all");
+  const [source, setSource] = useState("all");
   const [onlyFeatured, setOnlyFeatured] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -78,12 +85,15 @@ export function KnowledgeLibrary() {
 
   const all = articles.data ?? [];
   const categories = useMemo(() => knowledgeCategories(all), [all]);
+  const levels = useMemo(() => knowledgeLevels(all), [all]);
+  const languages = useMemo(() => knowledgeLanguages(all), [all]);
+  const sources = useMemo(() => knowledgeSources(all), [all]);
   const list = useMemo(
     () =>
-      filterKnowledge(all, { query, category, age, format, onlyFeatured }).filter(
+      filterKnowledge(all, { query, category, age, format, level, language, source, onlyFeatured }).filter(
         (article) => !onlyFavorites || favoriteSet.has(article.id),
       ),
-    [all, query, category, age, format, onlyFeatured, onlyFavorites, favoriteSet],
+    [all, query, category, age, format, level, language, source, onlyFeatured, onlyFavorites, favoriteSet],
   );
 
   return (
@@ -108,6 +118,38 @@ export function KnowledgeLibrary() {
         />
         <Chips label="Ålder" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
         <Chips label="Spelform" value={format} onChange={setFormat} options={KNOWLEDGE_FORMAT_OPTIONS} />
+        {levels.length > 1 && (
+          <Chips
+            label="Nivå"
+            value={level}
+            onChange={setLevel}
+            options={[["all", "Alla nivåer"], ...levels.map((item) => [item, item] as [string, string])]}
+          />
+        )}
+        {languages.length > 1 && (
+          <Chips
+            label="Språk"
+            value={language}
+            onChange={setLanguage}
+            options={[["all", "Alla språk"], ...languages.map((item) => [item, item] as [string, string])]}
+          />
+        )}
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Källa
+          <select
+            aria-label="Filtrera på källa"
+            value={source}
+            onChange={(event) => setSource(event.target.value)}
+            className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground"
+          >
+            <option value="all">Alla källor</option>
+            {sources.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           aria-pressed={onlyFeatured}
