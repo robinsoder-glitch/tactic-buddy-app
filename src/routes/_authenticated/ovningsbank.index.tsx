@@ -308,6 +308,15 @@ function OvningsbankPage() {
                   <RelatedContent
                     sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
                   />
+                  <div className="mt-3">
+                    <AddToSessionButton
+                      kind="drill"
+                      resourceId={drill.id}
+                      title={drill.title}
+                      defaultMinutes={drill.default_minutes ?? 10}
+                      size="sm"
+                    />
+                  </div>
                 </div>
                 <FavoriteButton
                   active={favoriteSet.has(`drill:${drill.id}`)}
