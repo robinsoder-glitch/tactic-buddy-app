@@ -40,3 +40,8 @@ export function parseGameFormat(value: string | null | undefined): GameFormatId 
   }
   return null;
 }
+
+/** Modern svensk text för planstorleken på ett taktikkort. */
+export function pitchTypeLabel(pitchType: PitchType): string {
+  return pitchType === "full" ? "9 mot 9 / 11 mot 11" : "5 mot 5 / 7 mot 7";
+}

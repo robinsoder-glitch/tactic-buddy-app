@@ -30,3 +30,11 @@ describe("game-format", () => {
     expect(parseGameFormat("okänt")).toBeNull();
   });
 });
+
+describe("pitchTypeLabel", () => {
+  it("beskriver planstorlek i modern text", async () => {
+    const { pitchTypeLabel } = await import("./game-format");
+    expect(pitchTypeLabel("small")).toBe("5 mot 5 / 7 mot 7");
+    expect(pitchTypeLabel("full")).toBe("9 mot 9 / 11 mot 11");
+  });
+});
