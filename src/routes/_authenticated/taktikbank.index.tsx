@@ -406,21 +406,17 @@ function TaktikbankPage() {
       )}
 
       {tab === "Regler" && (
-        <section className="mt-4 space-y-3">
+        <section className="mt-4">
           {(rulesets.isLoading || districts.isLoading) && (
             <p className="text-sm text-muted-foreground">Laddar…</p>
           )}
-          {(rulesets.data ?? []).map((rule) => (
-            <RuleCard key={rule.id} format={rule.format} season={rule.season} data={rule.data} />
-          ))}
-          {(districts.data ?? []).map((district) => (
-            <article key={district.id} className="rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-lg font-semibold">{district.name}</h2>
-              <pre className="mt-2 whitespace-pre-wrap break-words text-xs text-muted-foreground">
-                {readable(district.data)}
-              </pre>
-            </article>
-          ))}
+          {!rulesets.isLoading && !districts.isLoading && (
+            <RulesView
+              rulesets={rulesets.data ?? []}
+              districts={districts.data ?? []}
+              isAdmin={isAdmin}
+            />
+          )}
         </section>
       )}
     </main>
