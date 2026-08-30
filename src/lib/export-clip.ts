@@ -51,6 +51,7 @@ export async function exportGif(options: ExportOptions, filename: string) {
     drawScene(ctx, {
       pitchType,
       ...scene,
+      hideNames: options.hideNames ?? false,
       photos,
       width: canvas.width,
       height: canvas.height,
@@ -111,6 +112,7 @@ export async function exportVideo(options: ExportOptions, filename: string) {
     drawScene(ctx, {
       pitchType,
       ...scene,
+      hideNames: options.hideNames ?? false,
       photos,
       width: canvas.width,
       height: canvas.height,
