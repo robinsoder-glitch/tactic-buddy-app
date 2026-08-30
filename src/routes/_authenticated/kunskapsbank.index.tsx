@@ -24,6 +24,7 @@ import {
   type KbArticle,
 } from "@/lib/kunskapsbank";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
+import { KnowledgeLibrary } from "@/components/KnowledgeLibrary";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
