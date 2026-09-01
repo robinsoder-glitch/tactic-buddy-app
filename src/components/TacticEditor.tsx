@@ -588,6 +588,9 @@ export function TacticEditor({ id }: { id: string }) {
     setProgress((value) => Math.min(value, previous.frames.length - 1));
     setDirty(true);
   }, [persistHistory]);
+  undoRef.current = undo;
+
+
 
   const redo = useCallback(() => {
     const next = futureRef.current[0];
