@@ -89,12 +89,15 @@ function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
   };
 }
 
-function formatTime(seconds: number) {
+/** Enkel tidsvisning på svenska, t.ex. "3,2 s" eller "1 min 05 s". */
+function secondsLabel(seconds: number) {
   const safe = Math.max(0, seconds);
+  if (safe < 60) return `${safe.toFixed(1).replace(".", ",")} s`;
   const mins = Math.floor(safe / 60);
-  const rest = safe - mins * 60;
-  return `${mins}:${rest.toFixed(1).padStart(4, "0")}`;
+  const rest = Math.round(safe - mins * 60);
+  return `${mins} min ${String(rest).padStart(2, "0")} s`;
 }
+
 
 type BankPlayer = {
   id: string;
