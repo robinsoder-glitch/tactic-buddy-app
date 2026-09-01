@@ -61,6 +61,14 @@ function TacticPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Börja med en tom plan – dra ut spelare och boll själv och bygg din taktik.
       </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button size="sm" variant="secondary" asChild>
+          <Link to="/planera-match">Koppla en taktik till en match</Link>
+        </Button>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Taktiker används i matchplaneringen. Övningar för träning finns i Träningsbanken.
+      </p>
 
       <section className="mt-4">
         {(tactics.isLoading || blank.isLoading) && (
