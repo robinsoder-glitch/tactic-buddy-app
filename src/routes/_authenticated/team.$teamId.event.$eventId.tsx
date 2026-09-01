@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { EventCoaches } from "@/components/EventCoaches";
 import { EventResources } from "@/components/EventResources";
 import { PlanningDoneToggle } from "@/components/PlanningDoneToggle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -237,6 +238,10 @@ function EventPage() {
           </Button>
         )}
       </header>
+
+      <div className="mt-6">
+        <EventCoaches eventId={eventId} teamId={teamId} userId={userId} canEdit={isCoach} />
+      </div>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-4">
         <h2 className="font-display text-xl font-bold">Planerat träningsinnehåll</h2>
