@@ -378,7 +378,7 @@ export function TacticEditor({ id }: { id: string }) {
       if (current === next.length - 1) {
         next.push({
           id: uid(),
-          name: `Steg ${next.length + 1}`,
+          name: null,
           objects: next[current]!.objects.map((item) => ({ ...item })),
           drawings: [],
         });
@@ -433,35 +433,33 @@ export function TacticEditor({ id }: { id: string }) {
       if (!source) return prev;
       const copy: Frame = {
         id: uid(),
-        name: `Steg ${prev.length + 1}`,
+        name: null,
         objects: source.objects.map((object) => ({ ...object })),
         drawings: [],
       };
       const next = [...prev];
       next.splice(current + 1, 0, copy);
       return renumber(next);
-    }, "Nytt steg");
+    }, "Ny sekvens");
     setCurrent((value) => value + 1);
     setProgress(current + 1);
   }
 
-  // Keep auto-generated step names ("Steg N") sequential after add/remove; custom names are untouched
+  // Auto-generated names are derived from the position (Startläge / Sekvens N); custom names stay.
   function renumber(list: Frame[]) {
-    return list.map((item, index) =>
-      item.name && /^Steg \d+$/.test(item.name) ? { ...item, name: `Steg ${index + 1}` } : item,
-    );
+    return list.map((item) => (isAutoName(item.name) ? { ...item, name: null } : item));
   }
 
   async function deleteFrame(index: number) {
     if (frames.length <= 1) return;
     if (prefs.confirmDelete) {
       const ok = await confirm({
-        title: "Radera steg",
-        description: `Steg ${index + 1} tas bort med alla positioner, pilar och anteckningar i det steget.`,
+        title: `Radera ${frameLabel(index).toLowerCase()}`,
+        description: `${frameLabel(index)} tas bort med alla positioner, pilar och anteckningar i det steget.`,
       });
       if (!ok) return;
     }
-    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort steg");
+    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort sekvens");
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
@@ -1072,7 +1070,7 @@ export function TacticEditor({ id }: { id: string }) {
 
       <section className="rounded-xl border border-border bg-card p-3">
         <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
-          Anteckning för {frame?.name || `steg ${current + 1}`}
+          Anteckning för {frame?.name || frameLabel(current)}
         </label>
         <Textarea
           id="step-note"
@@ -1146,7 +1144,7 @@ export function TacticEditor({ id }: { id: string }) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Föregående steg"
+            aria-label="Föregående sekvens"
             onClick={() => goToStep(current - 1)}
             disabled={current === 0}
           >
@@ -1163,7 +1161,7 @@ export function TacticEditor({ id }: { id: string }) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Nästa steg"
+            aria-label="Nästa sekvens"
             onClick={() => goToStep(current + 1)}
             disabled={current >= frames.length - 1}
           >
@@ -1184,7 +1182,9 @@ export function TacticEditor({ id }: { id: string }) {
           >
             <Repeat className="size-4" />
           </Button>
-          <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
+          <span className="ml-auto text-xs text-muted-foreground">
+            Startläge + {Math.max(frames.length - 1, 0)} sekvenser
+          </span>
         </div>
 
         <div className="relative mt-3">
@@ -1231,7 +1231,7 @@ export function TacticEditor({ id }: { id: string }) {
           </label>
         </div>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          Piltangenter ← → spolar 0,1 s (Skift = helt steg), Home/End hoppar till start/slut.
+          Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
         </p>
 
 
@@ -1249,7 +1249,7 @@ export function TacticEditor({ id }: { id: string }) {
                 type="button"
                 onClick={() => goToStep(index)}
                 onDoubleClick={() => {
-                  const value = window.prompt("Namn på steget", item.name ?? "");
+                  const value = window.prompt("Namn på sekvensen", item.name ?? "");
                   if (value !== null) {
                     commit((prev) =>
                       prev.map((f, i) => (i === index ? { ...f, name: value } : f)),
@@ -1257,12 +1257,12 @@ export function TacticEditor({ id }: { id: string }) {
                   }
                 }}
               >
-                {item.name || `Steg ${index + 1}`}
+                {item.name || frameLabel(index)}
               </button>
               {frames.length > 1 && (
                 <button
                   type="button"
-                  aria-label="Ta bort steg"
+                  aria-label="Ta bort sekvens"
                   onClick={() => void deleteFrame(index)}
                   className="text-muted-foreground hover:text-destructive"
                 >
@@ -1272,12 +1272,12 @@ export function TacticEditor({ id }: { id: string }) {
             </div>
           ))}
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
-            <Plus className="size-4" /> Steg
+            <Plus className="size-4" /> Ny sekvens
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Flytta spelarna i varje steg – appen animerar mjukt mellan stegen. Dubbeltryck på ett steg för
-          att döpa om det.
+          Placera spelarna i Startläge. Varje ny sekvens utgår från föregående slutläge – flytta bara
+          det som ska röra sig. Dubbeltryck på en sekvens för att döpa om den.
         </p>
       </section>
       {confirmDialog}
