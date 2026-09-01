@@ -3,7 +3,7 @@ export type Team = "home" | "away";
 
 export type FieldObject = {
   id: string;
-  kind: "player" | "ball" | "cone";
+  kind: "player" | "ball" | "cone" | "goal";
   playerId?: string | null;
   label: string;
   number?: number | null;

@@ -360,6 +360,49 @@ export function Pitch({
           const cy = object.y * h;
           const isSelected = selectedId === object.id;
 
+          if (object.kind === "cone") {
+            const size = tokenR * 1.1;
+            return (
+              <g
+                key={object.id}
+                transform={`translate(${cx} ${cy})`}
+                style={{ cursor: interactive ? "grab" : "default" }}
+                onPointerDown={(event) => startObjectDrag(event, object)}
+              >
+                <path
+                  d={`M 0 ${-size} L ${size * 0.7} ${size * 0.55} L ${-size * 0.7} ${size * 0.55} Z`}
+                  fill="oklch(0.75 0.19 55)"
+                  stroke="rgba(0,0,0,0.4)"
+                  strokeWidth={w * 0.0015}
+                />
+              </g>
+            );
+          }
+
+          if (object.kind === "goal") {
+            const gw = tokenR * 3.2;
+            const gh = tokenR * 1.2;
+            return (
+              <g
+                key={object.id}
+                transform={`translate(${cx} ${cy})`}
+                style={{ cursor: interactive ? "grab" : "default" }}
+                onPointerDown={(event) => startObjectDrag(event, object)}
+              >
+                <rect
+                  x={-gw / 2}
+                  y={-gh / 2}
+                  width={gw}
+                  height={gh}
+                  fill="rgba(255,255,255,0.14)"
+                  stroke="#ffffff"
+                  strokeWidth={w * 0.003}
+                  rx={w * 0.002}
+                />
+              </g>
+            );
+          }
+
           if (object.kind === "ball") {
             return (
               <g
