@@ -140,6 +140,9 @@ export function TacticEditor({ id }: { id: string }) {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [current, setCurrent] = useState(0);
   const [tool, setTool] = useState<Tool>("select");
+  const [mode, setMode] = useState<EditorMode>(loadMode);
+  const advanced = mode === "advanced";
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() => loadPrefs().speed);
