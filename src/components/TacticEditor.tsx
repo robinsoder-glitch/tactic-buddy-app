@@ -334,8 +334,9 @@ export function TacticEditor({ id }: { id: string }) {
   );
   const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
   const segmentT = progress - segmentIndex;
+  // Vägarna hör till målsekvensen: under övergången visas den sekvens vi är på väg mot.
   const displayedDrawings = animating
-    ? (frames[segmentIndex]?.drawings ?? [])
+    ? drawingsAtProgress(frames, progress)
     : (frame?.drawings ?? []);
   const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
 
