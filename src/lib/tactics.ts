@@ -22,6 +22,8 @@ export type Drawing = {
   id: string;
   type: DrawingType;
   color?: string | null;
+  /** Löp-/passvägar hör ihop med objektet de beskriver, så de kan uppdateras i stället för att dubbleras. */
+  objectId?: string | null;
   x1: number;
   y1: number;
   x2: number;
