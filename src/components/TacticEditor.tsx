@@ -38,6 +38,7 @@ import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
 import { drawingsAtProgress, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
+import { appendSequence, applyTrail, insertSequenceAfter } from "@/lib/sequences";
 import {
   entry as historyEntry,
   loadHistory,
@@ -462,26 +463,7 @@ export function TacticEditor({ id }: { id: string }) {
     setMovementTip(false);
     setDirty(true);
     // Vägen hör till den aktiva sekvensen och ersätter objektets tidigare väg där.
-    setFrames((prev) =>
-      prev.map((item, index) =>
-        index === current
-          ? {
-              ...item,
-              objects: item.objects.map((o) => (o.id === objectId ? { ...o, x: x2, y: y2 } : o)),
-              drawings: [
-                ...item.drawings.filter(
-                  (drawing) =>
-                    !(
-                      (drawing.type === "run" || drawing.type === "pass") &&
-                      drawing.objectId === objectId
-                    ),
-                ),
-                { id: uid(), type, color: null, objectId, x1, y1, x2, y2 },
-              ],
-            }
-          : item,
-      ),
-    );
+    setFrames((prev) => applyTrail(prev, current, objectId, type, { x: x1, y: y1 }, { x: x2, y: y2 }));
     toast.success(`${object.label || "Objektet"} rör sig i ${frameLabel(current)}`, {
       action: { label: "Ångra", onClick: () => undoRef.current() },
     });
@@ -510,36 +492,14 @@ export function TacticEditor({ id }: { id: string }) {
   /** Ny sekvens läggs alltid sist, oavsett vilket kort som är markerat. */
   function addFrame() {
     const target = framesRef.current.length;
-    commit((prev) => {
-      const source = prev[prev.length - 1];
-      if (!source) return prev;
-      const copy: Frame = {
-        id: uid(),
-        name: null,
-        objects: source.objects.map((object) => ({ ...object })),
-        drawings: [],
-      };
-      return renumber([...prev, copy]);
-    }, "Ny sekvens");
+    commit((prev) => renumber(appendSequence(prev)), "Ny sekvens");
     setCurrent(target);
     setProgress(target);
   }
 
   /** Avancerat: infoga en sekvens direkt efter den aktiva. */
   function insertFrameAfterCurrent() {
-    commit((prev) => {
-      const source = prev[current];
-      if (!source) return prev;
-      const copy: Frame = {
-        id: uid(),
-        name: null,
-        objects: source.objects.map((object) => ({ ...object })),
-        drawings: [],
-      };
-      const next = [...prev];
-      next.splice(current + 1, 0, copy);
-      return renumber(next);
-    }, "Infogade sekvens");
+    commit((prev) => renumber(insertSequenceAfter(prev, current)), "Infogade sekvens");
     setCurrent(current + 1);
     setProgress(current + 1);
   }
