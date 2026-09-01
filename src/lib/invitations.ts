@@ -332,3 +332,36 @@ export async function setEventCancelled(eventId: string, cancelled: boolean) {
     .eq("id", eventId);
   if (error) throw error;
 }
+
+/** Kallelser grupperas per aktivitet så att samma träning bara visas en gång. */
+export type InvitationGroup = {
+  eventId: string;
+  teamId: string;
+  teamName?: string;
+  event: MyInvitation["event"];
+  invitations: MyInvitation[];
+};
+
+export function groupInvitationsByEvent(list: MyInvitation[]): InvitationGroup[] {
+  const groups = new Map<string, InvitationGroup>();
+  for (const invitation of list) {
+    const existing = groups.get(invitation.event_id);
+    if (existing) {
+      existing.invitations.push(invitation);
+      continue;
+    }
+    groups.set(invitation.event_id, {
+      eventId: invitation.event_id,
+      teamId: invitation.team_id,
+      teamName: invitation.teamName,
+      event: invitation.event,
+      invitations: [invitation],
+    });
+  }
+  return [...groups.values()];
+}
+
+/** Sant när kontot är kopplat till flera spelare – då måste namnet visas per svar. */
+export function hasMultiplePlayers(list: MyInvitation[]): boolean {
+  return new Set(list.map((item) => item.player_id ?? item.playerName ?? "")).size > 1;
+}
