@@ -97,15 +97,15 @@
 - [x] transitionPaths tillhör målsekvensen; Spela detta steg N = N-1 → N
 - [x] Stabila UUID:n, parallell interpolation, test som failar om drag ändrar antal sekvenser
 ### Prioritet 2 – Navigering
-- [ ] /taktikbank ren listvy utan databasskrivningar
-- [ ] /skapa visar val (Tom taktik / Mall) innan något skapas
-- [ ] Startsidan: "Ny taktik" + separat "Skapa träningspass"
+- [x] /taktikbank ren listvy utan databasskrivningar
+- [x] /skapa visar val (Tom taktik / Mall) innan något skapas
+- [x] Startsidan: "Ny taktik" + separat "Skapa träningspass"
 ### Prioritet 3 – Kalender och sidfel
-- [ ] Typ-badge och titel separat (aldrig MatchMatch), Inställd som egen badge
-- [ ] Matchsidans rubrik "Matchplanering", matchspecifika placeholders
-- [ ] Kallelser grupperade per aktivitet, spelarnamn vid flera kopplingar, tomläge "Inga tidigare kallelser"
-- [ ] Lagägare i ledarlistan, en Skapa träning-knapp, tooltips/aria-label, lösenordsdialog
+- [x] Typ-badge och titel separat (aldrig MatchMatch), Inställd som egen badge
+- [x] Matchsidans rubrik "Matchplanering", matchspecifika placeholders
+- [x] Kallelser grupperade per aktivitet, spelarnamn vid flera kopplingar, tomläge "Inga tidigare kallelser"
+- [x] Lagägare i ledarlistan, en Skapa träning-knapp, tooltips/aria-label, lösenordsdialog
 ### Prioritet 4 – Kunskapsbanken
-- [ ] Filter: Sök, Ämne, Åldersgrupp, Nivå (nivåmappning Grund/Fortsättning/Fördjupning)
-- [ ] 12 artiklar + "Visa fler", förenklade kort
-- [ ] Artikelsidan enligt ny ordning, borttagna redaktionella fält
+- [x] Filter: Sök, Ämne, Åldersgrupp, Nivå (nivåmappning Grund/Fortsättning/Fördjupning)
+- [x] 12 artiklar + "Visa fler", förenklade kort
+- [x] Artikelsidan enligt ny ordning, borttagna redaktionella fält
