@@ -58,6 +58,25 @@ const GRID_FALLBACK = 0.05;
 const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
+export type EditorMode = "simple" | "advanced";
+const MODE_KEY = "taktiktavla:mode";
+
+function loadMode(): EditorMode {
+  if (typeof window === "undefined") return "simple";
+  return window.localStorage.getItem(MODE_KEY) === "advanced" ? "advanced" : "simple";
+}
+
+/** Startläge är uppställningen, sekvenserna beskriver rörelserna efter den. */
+export function frameLabel(index: number) {
+  return index === 0 ? "Startläge" : `Sekvens ${index}`;
+}
+
+/** Gamla automatiska namn ("Steg N") ska inte längre visas som egna namn. */
+function isAutoName(name: string | null | undefined) {
+  return !name || /^Steg \d+$/.test(name) || /^Sekvens \d+$/.test(name) || name === "Startläge";
+}
+
+
 function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
   return {
     past: past.length,
