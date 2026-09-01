@@ -178,11 +178,12 @@ export function Pitch({
   }
 
   const markLine = "var(--color-pitch-line)";
-  const boxDepth = pitchType === "full" ? 16.5 : 9;
-  const boxWidth = pitchType === "full" ? 40.3 : 20;
-  const goalDepth = pitchType === "full" ? 5.5 : 3;
-  const goalWidth = pitchType === "full" ? 18.3 : 9;
-  const circleR = pitchType === "full" ? 9.15 : 6;
+  const partial = pitchType === "half" || pitchType === "third";
+  const boxDepth = pitchType === "small" ? 9 : 16.5;
+  const boxWidth = pitchType === "small" ? 20 : 40.3;
+  const goalDepth = pitchType === "small" ? 3 : 5.5;
+  const goalWidth = pitchType === "small" ? 9 : 18.3;
+  const circleR = pitchType === "small" ? 6 : 9.15;
 
   function shapeColor(drawing: Pick<Drawing, "type" | "color">) {
     if (drawing.color) return drawing.color;
@@ -311,13 +312,25 @@ export function Pitch({
 
         <g fill="none" stroke={markLine} strokeWidth={w * 0.0025}>
           <rect x={1} y={1} width={w - 2} height={h - 2} />
-          <line x1={w / 2} y1={1} x2={w / 2} y2={h - 1} />
-          <circle cx={w / 2} cy={h / 2} r={circleR} />
-          <circle cx={w / 2} cy={h / 2} r={w * 0.004} fill={markLine} />
-          <rect x={1} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
-          <rect x={w - 1 - boxDepth} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
-          <rect x={1} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
-          <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+          {partial ? (
+            <>
+              {pitchType === "half" && (
+                <path d={`M 1 ${h / 2 - circleR} A ${circleR} ${circleR} 0 0 1 1 ${h / 2 + circleR}`} />
+              )}
+              <rect x={w - 1 - boxDepth} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
+              <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+            </>
+          ) : (
+            <>
+              <line x1={w / 2} y1={1} x2={w / 2} y2={h - 1} />
+              <circle cx={w / 2} cy={h / 2} r={circleR} />
+              <circle cx={w / 2} cy={h / 2} r={w * 0.004} fill={markLine} />
+              <rect x={1} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
+              <rect x={w - 1 - boxDepth} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
+              <rect x={1} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+              <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+            </>
+          )}
         </g>
 
         {gridStep ? (
