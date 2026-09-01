@@ -30,7 +30,9 @@ import {
   sumMinutes,
   upcomingOfType,
 } from "@/lib/planning";
+import { fetchDrills, type Drill } from "@/lib/taktikbank";
 import { formatDateTime } from "@/lib/teams";
+
 
 export const Route = createFileRoute("/_authenticated/planera-traning")({
   head: () => ({
@@ -146,11 +148,37 @@ function PlanTrainingPage() {
     onError: () => toast.error("Det gick inte att spara träningsplaneringen."),
   });
 
+  const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills });
+
+  const addDrill = useMutation({
+    mutationFn: async (drill: Drill) => {
+      if (!user || !selected) throw new Error("Välj en träning först.");
+      await addResourceToEvent({
+        eventId: selected.id,
+        teamId: selected.team_id,
+        userId: user.id,
+        kind: "drill",
+        resourceId: drill.id,
+        minutes: drill.default_minutes ?? null,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-resources"] });
+      toast.success("Övningen lades till i träningen.");
+    },
+    onError: () => toast.error("Det gick inte att lägga till övningen."),
+  });
+
   const sessionList = (sessions.data ?? []).filter((session) =>
     `${session.title} ${session.theme ?? ""} ${session.goal ?? ""}`
       .toLowerCase()
       .includes(query.trim().toLowerCase()),
   );
+
+  const drillList = (drills.data ?? []).filter((drill) =>
+    `${drill.title} ${drill.purpose ?? ""}`.toLowerCase().includes(query.trim().toLowerCase()),
+  );
+
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
@@ -309,7 +337,23 @@ function PlanTrainingPage() {
                 </Button>
               </div>
             )}
-            <ul className="mt-3 space-y-2">
+            {selected ? (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary bg-primary/10 p-4">
+                <div className="min-w-0">
+                  <p className="font-semibold">{selected.title ?? "Träning"}</p>
+                  <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selected.team_name ?? "Lag"}
+                    {selected.location ? ` · ${selected.location}` : ""}
+                  </p>
+                </div>
+                <Button size="sm" variant="secondary" onClick={() => setEventId(null)}>
+                  Byt träning
+                </Button>
+              </div>
+            ) : null}
+            <ul className={`mt-3 space-y-2 ${selected ? "hidden" : ""}`}>
+
               {trainings.map((event) => {
                 const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
                 const active = event.id === eventId;
@@ -412,7 +456,44 @@ function PlanTrainingPage() {
                     );
                   })}
                 </ul>
+
+                <h3 className="mt-6 font-display text-lg font-semibold">Övningar ur Träningsbanken</h3>
+                <p className="text-sm text-muted-foreground">
+                  Lägg enskilda övningar direkt i den här träningen.
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {drills.isLoading && <li className="text-sm text-muted-foreground">Hämtar övningar…</li>}
+                  {!drills.isLoading && drillList.length === 0 && (
+                    <li className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+                      Inga övningar matchar sökningen.
+                    </li>
+                  )}
+                  {drillList.slice(0, 12).map((drill) => (
+                    <li
+                      key={drill.id}
+                      className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-card p-4"
+                    >
+                      <div className="min-w-0">
+                        <Link
+                          to="/ovningsbank/$drillId"
+                          params={{ drillId: drill.id }}
+                          className="font-semibold text-primary underline-offset-4 hover:underline"
+                        >
+                          {drill.title}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">
+                          {drill.default_minutes ? `${drill.default_minutes} min` : "Tid ej angiven"}
+                          {drill.purpose ? ` · ${drill.purpose}` : ""}
+                        </p>
+                      </div>
+                      <Button size="sm" onClick={() => addDrill.mutate(drill)} disabled={addDrill.isPending}>
+                        Lägg till i träningen
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
               </div>
+
 
               <div>
                 <h2 className="font-display text-xl font-semibold">Steg 4 – Granska och spara</h2>

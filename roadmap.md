@@ -85,3 +85,6 @@
 - [x] "Skapa träningspass" som primär knapp i Träningsbanken
 - [x] "Planerat träningsinnehåll" visas på aktivitetssidan
 - [x] Tester: navigation.test.ts (10 tester), hela sviten 166 gröna
+
+## Kvar att göra (från spec 2026-09-01)
+- [ ] Instruktion 6: rätta sekvens- och animationsfel i Taktiktavlan enligt uppladdad specifikation.
