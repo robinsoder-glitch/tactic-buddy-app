@@ -212,12 +212,13 @@ function BankPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Lag</Label>
+                  <Label>Symbolfärg</Label>
                   <div className="flex gap-2">
                     {(["home", "away"] as const).map((team) => (
                       <button
                         key={team}
                         type="button"
+                        aria-pressed={editing.team === team}
                         onClick={() => setEditing({ ...editing, team })}
                         className={`flex-1 rounded-md border px-2 py-2 text-sm ${
                           editing.team === team
@@ -225,11 +226,13 @@ function BankPage() {
                             : "border-border text-muted-foreground"
                         }`}
                       >
-                        {team === "home" ? "Hemma" : "Borta"}
+                        {team === "home" ? "Eget lag" : "Motståndare"}
                       </button>
                     ))}
                   </div>
+                  <p className="text-xs text-muted-foreground">Styr bara färgen på symbolen på taktiktavlan.</p>
                 </div>
+
               </div>
             </div>
           )}
