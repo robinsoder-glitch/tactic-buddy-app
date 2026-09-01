@@ -162,6 +162,10 @@ export function TacticEditor({ id }: { id: string }) {
   const futureRef = useRef<HistoryEntry[]>([]);
   const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
 
+  const [placeMode, setPlaceMode] = useState<null | "home" | "away">(null);
+  const [movementTip, setMovementTip] = useState(false);
+  const [presenting, setPresenting] = useState(false);
+  const [playUntil, setPlayUntil] = useState<number | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
   const framesRef = useRef<Frame[]>([]);
@@ -226,6 +230,16 @@ export function TacticEditor({ id }: { id: string }) {
     return () => clearTimeout(timeout);
   }, [dirty, frames]);
 
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (presenting) setPresenting(false);
+      else if (placeMode) setPlaceMode(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [presenting, placeMode]);
+
   const persistHistory = useCallback(() => {
     saveHistory(id, { past: pastRef.current, future: futureRef.current });
     setHistorySize(historyMeta(pastRef.current, futureRef.current));
@@ -255,20 +269,22 @@ export function TacticEditor({ id }: { id: string }) {
     let raf = 0;
     const startedAt = performance.now();
     const from = progress >= frames.length - 1 ? 0 : progress;
-    const total = ((frames.length - 1 - from) * STEP_MS) / speed;
+    const limit = playUntil ?? frames.length - 1;
+    const total = ((limit - from) * STEP_MS) / speed;
 
     const tick = (now: number) => {
       const elapsed = now - startedAt;
       const value = from + (elapsed / STEP_MS) * speed;
-      if (value >= frames.length - 1) {
-        if (loop) {
+      if (value >= limit) {
+        if (loop && playUntil == null) {
           setProgress(0);
           setPlaying(false);
           setTimeout(() => setPlaying(true), 60);
         } else {
-          setProgress(frames.length - 1);
-          setCurrent(frames.length - 1);
+          setProgress(limit);
+          setCurrent(Math.round(limit));
           setPlaying(false);
+          setPlayUntil(null);
         }
         return;
       }
@@ -280,7 +296,7 @@ export function TacticEditor({ id }: { id: string }) {
     void total;
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, speed, loop, frames.length]);
+  }, [playing, speed, loop, frames.length, playUntil]);
 
   // Autostart playback when the user has enabled it in settings
   const autoplayed = useRef(false);
@@ -406,6 +422,7 @@ export function TacticEditor({ id }: { id: string }) {
     const x2 = object.x;
     const y2 = object.y;
     if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
+    setMovementTip(false);
     setDirty(true);
     setFrames((prev) => {
       const next = [...prev];
@@ -452,6 +469,10 @@ export function TacticEditor({ id }: { id: string }) {
     });
     setCurrent(current + 1);
     setProgress(current + 1);
+    toast.success(
+      `${object.label || "Objektet"} flyttas i ${frameLabel(current + 1)}`,
+      { action: { label: "Ångra", onClick: () => undoRef.current() } },
+    );
   }
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
@@ -551,6 +572,8 @@ export function TacticEditor({ id }: { id: string }) {
     setProgress(next);
   }
 
+  const undoRef = useRef<() => void>(() => {});
+
   const undo = useCallback(() => {
     const previous = pastRef.current[pastRef.current.length - 1];
     if (!previous) return;
@@ -565,6 +588,9 @@ export function TacticEditor({ id }: { id: string }) {
     setProgress((value) => Math.min(value, previous.frames.length - 1));
     setDirty(true);
   }, [persistHistory]);
+  undoRef.current = undo;
+
+
 
   const redo = useCallback(() => {
     const next = futureRef.current[0];
@@ -814,6 +840,35 @@ export function TacticEditor({ id }: { id: string }) {
     });
   }
 
+  /** Placeringsläge: varje tryck på planen lägger ut nästa spelare. */
+  function placeAt(x: number, y: number) {
+    if (!placeMode) return;
+    addFreePlayer(placeMode, false, snapValue(x), snapValue(y));
+    toast.success(placeMode === "home" ? "Spelare tillagd." : "Motståndare tillagd.");
+  }
+
+  function startFirstMovement() {
+    addFrame();
+    setTool("select");
+    setMovementTip(true);
+    toast.success("Sekvens 1 skapad.");
+  }
+
+  function playStep() {
+    if (current < 1) return;
+    setProgress(current - 1);
+    setPlayUntil(current);
+    setPlaying(true);
+  }
+
+  function playAll() {
+    if (frames.length < 2) return;
+    setProgress(0);
+    setCurrent(0);
+    setPlayUntil(null);
+    setPlaying(true);
+  }
+
   function dropPayload(raw: string, rawX: number, rawY: number) {
     const x = snapValue(rawX);
     const y = snapValue(rawY);
@@ -945,11 +1000,81 @@ export function TacticEditor({ id }: { id: string }) {
             dragSession.current = false;
           }}
           onObjectTrail={objectTrail}
+          {...(placeMode ? { onPlaceAt: placeAt } : {})}
           onSelectObject={setSelectedId}
           onAddDrawing={addDrawing}
           onRemoveDrawing={removeDrawing}
         />
       </div>
+
+      {placeMode ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary bg-primary/10 px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            Tryck på planen för att lägga ut {placeMode === "home" ? "spelare" : "motståndare"}.
+          </span>
+          <Button size="sm" onClick={() => setPlaceMode(null)}>
+            Klar
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+          {(frame?.objects.length ?? 0) === 0 && current === 0 && (
+            <span className="w-full text-xs text-muted-foreground">
+              Börja här – lägg ut spelarna och bollen där situationen börjar.
+            </span>
+          )}
+          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("home")}>
+            <UserPlus className="size-4" /> Egen spelare
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("away")}>
+            <UserPlus className="size-4" /> Motståndare
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              if (hasBall) {
+                toast.info("Bollen finns redan – dra den på planen för att flytta den.");
+                return;
+              }
+              addBall();
+            }}
+          >
+            <CircleDot className="size-4" /> Boll
+          </Button>
+
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {frames.length === 1 ? (
+              <Button size="sm" disabled={(frame?.objects.length ?? 0) === 0} onClick={startFirstMovement}>
+                <Plus className="size-4" /> Skapa första rörelsen
+              </Button>
+            ) : (
+              <>
+                <Button size="sm" variant="secondary" onClick={playStep} disabled={current < 1}>
+                  <Play className="size-4" /> Spela detta steg
+                </Button>
+                <Button size="sm" onClick={playAll}>
+                  <Play className="size-4" /> Spela allt
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setPresenting(true)}>
+                  Visa för laget
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {movementTip && (
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-muted px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            Flytta nu de spelare eller den boll som ska röra sig. Resten står kvar automatiskt.
+          </span>
+          <Button size="sm" variant="ghost" onClick={() => setMovementTip(false)}>
+            Stäng
+          </Button>
+        </div>
+      )}
 
 
       <div className="flex flex-wrap items-center gap-2">
@@ -1413,6 +1538,12 @@ export function TacticEditor({ id }: { id: string }) {
               >
                 {item.name || frameLabel(index)}
               </button>
+              {index > 0 &&
+                JSON.stringify(frames[index - 1]?.objects) === JSON.stringify(item.objects) && (
+                  <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
+                    Inga förändringar
+                  </span>
+                )}
               {frames.length > 1 && (
                 <button
                   type="button"
@@ -1435,6 +1566,61 @@ export function TacticEditor({ id }: { id: string }) {
           det som ska röra sig. Dubbeltryck på en sekvens för att döpa om den.
         </p>
       </section>
+      {presenting && (
+        <div className="fixed inset-0 z-50 flex flex-col gap-3 bg-background p-4">
+          <div className="flex items-center gap-2">
+            <h2 className="min-w-0 flex-1 truncate font-display text-lg font-bold">
+              {frames[current]?.name || frameLabel(current)}
+            </h2>
+            <Button size="sm" variant="secondary" onClick={() => setPresenting(false)}>
+              Stäng
+            </Button>
+          </div>
+          <div className="mx-auto w-full max-w-5xl flex-1">
+            <Pitch
+              pitchType={tactic.data.pitch_type}
+              objects={displayedObjects}
+              drawings={displayedDrawings}
+              interactive={false}
+              hideNames={hideNames}
+              tokenScale={prefs.playerScale}
+              showPhotos={prefs.showPhotos}
+              passT={passT}
+            />
+            {frames[current]?.note && (
+              <p className="mt-2 text-center text-sm text-muted-foreground">{frames[current]?.note}</p>
+            )}
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label="Föregående sekvens"
+              onClick={() => goToStep(current - 1)}
+              disabled={current === 0}
+            >
+              <ChevronLeft className="size-5" />
+            </Button>
+            <Button
+              size="icon"
+              aria-label={playing ? "Pausa" : "Spela allt"}
+              onClick={() => (playing ? setPlaying(false) : playAll())}
+              disabled={frames.length < 2}
+            >
+              {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label="Nästa sekvens"
+              onClick={() => goToStep(current + 1)}
+              disabled={current >= frames.length - 1}
+            >
+              <ChevronRight className="size-5" />
+            </Button>
+          </div>
+        </div>
+      )}
       {confirmDialog}
     </main>
   );

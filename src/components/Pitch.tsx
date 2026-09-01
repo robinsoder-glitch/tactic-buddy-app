@@ -24,6 +24,8 @@ type Props = {
   gridStep?: number | null;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
+  /** placeringsläge: varje tryck på planen lägger ut ett nytt objekt */
+  onPlaceAt?: (x: number, y: number) => void;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onMoveEnd?: () => void;
   /** called when an object was dragged with the run/pass tool: draw a trail from start to end */
@@ -90,6 +92,7 @@ export function Pitch({
   showPhotos = true,
   gridStep = null,
   passT = null,
+  onPlaceAt,
   onMoveObject,
   onMoveEnd,
   onObjectTrail,
@@ -119,6 +122,12 @@ export function Pitch({
 
   function handlePointerDown(event: React.PointerEvent) {
     if (!interactive) return;
+    if (onPlaceAt) {
+      const point = toNormalized(event);
+      onPlaceAt(point.x, point.y);
+      event.preventDefault();
+      return;
+    }
     if (isShapeTool) {
       const point = toNormalized(event);
       svgRef.current?.setPointerCapture?.(event.pointerId);
