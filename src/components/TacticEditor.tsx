@@ -1502,27 +1502,33 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-mono tabular-nums text-foreground">{formatTime(currentSeconds)}</span>
-          <span>/ {formatTime(totalSeconds)}</span>
-          <label className="ml-auto flex items-center gap-1">
-            <span>Sök till</span>
-            <input
-              type="number"
-              aria-label="Hoppa till tid (sekunder)"
-              min={0}
-              max={Number(totalSeconds.toFixed(1))}
-              step={0.1}
-              value={Number(currentSeconds.toFixed(1))}
-              disabled={frames.length < 2}
-              onChange={(event) => seekSeconds(Number(event.target.value))}
-              className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
-            />
-            <span>s</span>
-          </label>
+          <span className="tabular-nums text-foreground">
+            {secondsLabel(currentSeconds)} av {secondsLabel(totalSeconds)}
+          </span>
+          {advanced && (
+            <label className="ml-auto flex items-center gap-1">
+              <span>Sök till</span>
+              <input
+                type="number"
+                aria-label="Hoppa till tid (sekunder)"
+                min={0}
+                max={Number(totalSeconds.toFixed(1))}
+                step={0.1}
+                value={Number(currentSeconds.toFixed(1))}
+                disabled={frames.length < 2}
+                onChange={(event) => seekSeconds(Number(event.target.value))}
+                className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
+              />
+              <span>s</span>
+            </label>
+          )}
         </div>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
-        </p>
+        {advanced && (
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
+          </p>
+        )}
+
 
 
 
