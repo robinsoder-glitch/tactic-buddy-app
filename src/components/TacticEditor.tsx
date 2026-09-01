@@ -412,6 +412,7 @@ export function TacticEditor({ id }: { id: string }) {
     const x2 = object.x;
     const y2 = object.y;
     if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
+    setMovementTip(false);
     setDirty(true);
     setFrames((prev) => {
       const next = [...prev];
@@ -818,6 +819,35 @@ export function TacticEditor({ id }: { id: string }) {
       x,
       y,
     });
+  }
+
+  /** Placeringsläge: varje tryck på planen lägger ut nästa spelare. */
+  function placeAt(x: number, y: number) {
+    if (!placeMode) return;
+    addFreePlayer(placeMode, false, snapValue(x), snapValue(y));
+    toast.success(placeMode === "home" ? "Spelare tillagd." : "Motståndare tillagd.");
+  }
+
+  function startFirstMovement() {
+    addFrame();
+    setTool("select");
+    setMovementTip(true);
+    toast.success("Sekvens 1 skapad.");
+  }
+
+  function playStep() {
+    if (current < 1) return;
+    setProgress(current - 1);
+    setPlayUntil(current);
+    setPlaying(true);
+  }
+
+  function playAll() {
+    if (frames.length < 2) return;
+    setProgress(0);
+    setCurrent(0);
+    setPlayUntil(null);
+    setPlaying(true);
   }
 
   function dropPayload(raw: string, rawX: number, rawY: number) {
