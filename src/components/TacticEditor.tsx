@@ -37,7 +37,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
-import { interpolateFrames, uid } from "@/lib/tactics";
+import { drawingsAtProgress, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
 import {
   entry as historyEntry,
   loadHistory,
