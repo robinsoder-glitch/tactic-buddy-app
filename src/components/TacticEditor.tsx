@@ -230,6 +230,16 @@ export function TacticEditor({ id }: { id: string }) {
     return () => clearTimeout(timeout);
   }, [dirty, frames]);
 
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (presenting) setPresenting(false);
+      else if (placeMode) setPlaceMode(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [presenting, placeMode]);
+
   const persistHistory = useCallback(() => {
     saveHistory(id, { past: pastRef.current, future: futureRef.current });
     setHistorySize(historyMeta(pastRef.current, futureRef.current));
@@ -981,11 +991,81 @@ export function TacticEditor({ id }: { id: string }) {
             dragSession.current = false;
           }}
           onObjectTrail={objectTrail}
+          {...(placeMode ? { onPlaceAt: placeAt } : {})}
           onSelectObject={setSelectedId}
           onAddDrawing={addDrawing}
           onRemoveDrawing={removeDrawing}
         />
       </div>
+
+      {placeMode ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary bg-primary/10 px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            Tryck på planen för att lägga ut {placeMode === "home" ? "spelare" : "motståndare"}.
+          </span>
+          <Button size="sm" onClick={() => setPlaceMode(null)}>
+            Klar
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+          {(frame?.objects.length ?? 0) === 0 && current === 0 && (
+            <span className="w-full text-xs text-muted-foreground">
+              Börja här – lägg ut spelarna och bollen där situationen börjar.
+            </span>
+          )}
+          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("home")}>
+            <UserPlus className="size-4" /> Egen spelare
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("away")}>
+            <UserPlus className="size-4" /> Motståndare
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              if (hasBall) {
+                toast.info("Bollen finns redan – dra den på planen för att flytta den.");
+                return;
+              }
+              addBall();
+            }}
+          >
+            <CircleDot className="size-4" /> Boll
+          </Button>
+
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {frames.length === 1 ? (
+              <Button size="sm" disabled={(frame?.objects.length ?? 0) === 0} onClick={startFirstMovement}>
+                <Plus className="size-4" /> Skapa första rörelsen
+              </Button>
+            ) : (
+              <>
+                <Button size="sm" variant="secondary" onClick={playStep} disabled={current < 1}>
+                  <Play className="size-4" /> Spela detta steg
+                </Button>
+                <Button size="sm" onClick={playAll}>
+                  <Play className="size-4" /> Spela allt
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setPresenting(true)}>
+                  Visa för laget
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {movementTip && (
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-muted px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            Flytta nu de spelare eller den boll som ska röra sig. Resten står kvar automatiskt.
+          </span>
+          <Button size="sm" variant="ghost" onClick={() => setMovementTip(false)}>
+            Stäng
+          </Button>
+        </div>
+      )}
 
 
       <div className="flex flex-wrap items-center gap-2">
@@ -1471,6 +1551,61 @@ export function TacticEditor({ id }: { id: string }) {
           det som ska röra sig. Dubbeltryck på en sekvens för att döpa om den.
         </p>
       </section>
+      {presenting && (
+        <div className="fixed inset-0 z-50 flex flex-col gap-3 bg-background p-4">
+          <div className="flex items-center gap-2">
+            <h2 className="min-w-0 flex-1 truncate font-display text-lg font-bold">
+              {frames[current]?.name || frameLabel(current)}
+            </h2>
+            <Button size="sm" variant="secondary" onClick={() => setPresenting(false)}>
+              Stäng
+            </Button>
+          </div>
+          <div className="mx-auto w-full max-w-5xl flex-1">
+            <Pitch
+              pitchType={tactic.data.pitch_type}
+              objects={displayedObjects}
+              drawings={displayedDrawings}
+              interactive={false}
+              hideNames={hideNames}
+              tokenScale={prefs.playerScale}
+              showPhotos={prefs.showPhotos}
+              passT={passT}
+            />
+            {frames[current]?.note && (
+              <p className="mt-2 text-center text-sm text-muted-foreground">{frames[current]?.note}</p>
+            )}
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label="Föregående sekvens"
+              onClick={() => goToStep(current - 1)}
+              disabled={current === 0}
+            >
+              <ChevronLeft className="size-5" />
+            </Button>
+            <Button
+              size="icon"
+              aria-label={playing ? "Pausa" : "Spela allt"}
+              onClick={() => (playing ? setPlaying(false) : playAll())}
+              disabled={frames.length < 2}
+            >
+              {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label="Nästa sekvens"
+              onClick={() => goToStep(current + 1)}
+              disabled={current >= frames.length - 1}
+            >
+              <ChevronRight className="size-5" />
+            </Button>
+          </div>
+        </div>
+      )}
       {confirmDialog}
     </main>
   );
