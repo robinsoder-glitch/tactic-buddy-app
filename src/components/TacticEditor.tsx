@@ -37,7 +37,8 @@ import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
-import { interpolateFrames, uid } from "@/lib/tactics";
+import { drawingsAtProgress, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
+import { appendSequence, applyTrail, insertSequenceAfter } from "@/lib/sequences";
 import {
   entry as historyEntry,
   loadHistory,
@@ -178,7 +179,8 @@ export function TacticEditor({ id }: { id: string }) {
   useEffect(() => {
     if (tactic.data) {
       setFrames(
-        tactic.data.frames.map((item) => {
+        // Äldre taktiker sparade vägen i källsekvensen – normaliseras till målsekvensen vid läsning.
+        normalizeTransitionPaths(tactic.data.frames).map((item) => {
           let ballSeen = false;
           return {
             ...item,
@@ -334,8 +336,9 @@ export function TacticEditor({ id }: { id: string }) {
   );
   const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
   const segmentT = progress - segmentIndex;
+  // Vägarna hör till målsekvensen: under övergången visas den sekvens vi är på väg mot.
   const displayedDrawings = animating
-    ? (frames[segmentIndex]?.drawings ?? [])
+    ? drawingsAtProgress(frames, progress)
     : (frame?.drawings ?? []);
   const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
 
@@ -437,58 +440,33 @@ export function TacticEditor({ id }: { id: string }) {
     const y1 = snapValue(from.y);
     const x2 = object.x;
     const y2 = object.y;
+
+    // Startläget är uppställningen: här ska ingen sekvens skapas i bakgrunden.
+    if (current === 0) {
+      setFrames((prev) =>
+        prev.map((item, index) =>
+          index === 0
+            ? {
+                ...item,
+                objects: item.objects.map((o) => (o.id === objectId ? { ...o, x: x1, y: y1 } : o)),
+              }
+            : item,
+        ),
+      );
+      toast.info("Skapa första rörelsen innan du ritar en löpning eller passning.", {
+        action: { label: "Skapa första rörelsen", onClick: () => addFrame() },
+      });
+      return;
+    }
+
     if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
     setMovementTip(false);
     setDirty(true);
-    setFrames((prev) => {
-      const next = [...prev];
-      const source = next[current];
-      if (!source) return prev;
-
-      // 1. Keep the start position in the current frame and add the trail arrow.
-      next[current] = {
-        ...source,
-        objects: source.objects.map((item) =>
-          item.id === objectId ? { ...item, x: x1, y: y1 } : item,
-        ),
-        drawings: [...source.drawings, { id: uid(), type, color: null, x1, y1, x2, y2 }],
-      };
-
-      // 2. Make sure a following frame exists to hold the end position.
-      if (current === next.length - 1) {
-        next.push({
-          id: uid(),
-          name: null,
-          objects: next[current]!.objects.map((item) => ({ ...item })),
-          drawings: [],
-        });
-      }
-
-      // 3. Write the end position into the next frame, and into later frames that still
-      //    carry the old start position so the chain does not snap back.
-      for (let index = current + 1; index < next.length; index += 1) {
-        const frame = next[index]!;
-        const target = frame.objects.find((item) => item.id === objectId);
-        if (!target) break;
-        const isNext = index === current + 1;
-        const untouched = Math.hypot(target.x - x1, target.y - y1) < 0.001;
-        if (!isNext && !untouched) break;
-        next[index] = {
-          ...frame,
-          objects: frame.objects.map((item) =>
-            item.id === objectId ? { ...item, x: x2, y: y2 } : item,
-          ),
-        };
-      }
-
-      return renumber(next);
+    // Vägen hör till den aktiva sekvensen och ersätter objektets tidigare väg där.
+    setFrames((prev) => applyTrail(prev, current, objectId, type, { x: x1, y: y1 }, { x: x2, y: y2 }));
+    toast.success(`${object.label || "Objektet"} rör sig i ${frameLabel(current)}`, {
+      action: { label: "Ångra", onClick: () => undoRef.current() },
     });
-    setCurrent(current + 1);
-    setProgress(current + 1);
-    toast.success(
-      `${object.label || "Objektet"} flyttas i ${frameLabel(current + 1)}`,
-      { action: { label: "Ångra", onClick: () => undoRef.current() } },
-    );
   }
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
@@ -511,21 +489,18 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
+  /** Ny sekvens läggs alltid sist, oavsett vilket kort som är markerat. */
   function addFrame() {
-    commit((prev) => {
-      const source = prev[current];
-      if (!source) return prev;
-      const copy: Frame = {
-        id: uid(),
-        name: null,
-        objects: source.objects.map((object) => ({ ...object })),
-        drawings: [],
-      };
-      const next = [...prev];
-      next.splice(current + 1, 0, copy);
-      return renumber(next);
-    }, "Ny sekvens");
-    setCurrent((value) => value + 1);
+    const target = framesRef.current.length;
+    commit((prev) => renumber(appendSequence(prev)), "Ny sekvens");
+    setCurrent(target);
+    setProgress(target);
+  }
+
+  /** Avancerat: infoga en sekvens direkt efter den aktiva. */
+  function insertFrameAfterCurrent() {
+    commit((prev) => renumber(insertSequenceAfter(prev, current)), "Infogade sekvens");
+    setCurrent(current + 1);
     setProgress(current + 1);
   }
 
@@ -1604,6 +1579,17 @@ export function TacticEditor({ id }: { id: string }) {
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
             <Plus className="size-4" /> Ny sekvens
           </Button>
+          {advanced && frames.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="shrink-0"
+              onClick={insertFrameAfterCurrent}
+              title="Infoga sekvens efter denna"
+            >
+              <Plus className="size-4" /> Infoga sekvens efter denna
+            </Button>
+          )}
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           Placera spelarna i Startläge. Varje ny sekvens utgår från föregående slutläge – flytta bara

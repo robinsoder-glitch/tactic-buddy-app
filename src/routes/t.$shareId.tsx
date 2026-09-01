@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Pause, Play, Repeat } from "lucide-react";
 import { fetchSharedTactic } from "@/lib/db";
-import { interpolateFrames } from "@/lib/tactics";
+import { drawingsAtProgress, interpolateFrames } from "@/lib/tactics";
 import { Pitch } from "@/components/Pitch";
 import { Button } from "@/components/ui/button";
 
@@ -92,7 +92,7 @@ function SharedTactic() {
       <Pitch
         pitchType={tactic.data.pitch_type}
         objects={objects}
-        drawings={frame?.drawings ?? []}
+        drawings={drawingsAtProgress(frames, progress)}
         interactive={false}
         passT={passT}
       />

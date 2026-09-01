@@ -88,3 +88,24 @@
 
 ## Kvar att göra (från spec 2026-09-01)
 - [ ] Instruktion 6: rätta sekvens- och animationsfel i Taktiktavlan enligt uppladdad specifikation.
+
+## Spec 2026-09-02 (nattlig instruktion)
+### Prioritet 1 – Taktiktavlans sekvenser
+- [x] Startläge separerat, sekvens = målpositioner efter övergången
+- [x] "Ny sekvens" lägger alltid sist; "Infoga sekvens efter denna" endast i Avancerad
+- [x] Flytta/Löpning/Passning skapar aldrig sekvens, skriver till aktiv sekvens
+- [x] transitionPaths tillhör målsekvensen; Spela detta steg N = N-1 → N
+- [x] Stabila UUID:n, parallell interpolation, test som failar om drag ändrar antal sekvenser
+### Prioritet 2 – Navigering
+- [ ] /taktikbank ren listvy utan databasskrivningar
+- [ ] /skapa visar val (Tom taktik / Mall) innan något skapas
+- [ ] Startsidan: "Ny taktik" + separat "Skapa träningspass"
+### Prioritet 3 – Kalender och sidfel
+- [ ] Typ-badge och titel separat (aldrig MatchMatch), Inställd som egen badge
+- [ ] Matchsidans rubrik "Matchplanering", matchspecifika placeholders
+- [ ] Kallelser grupperade per aktivitet, spelarnamn vid flera kopplingar, tomläge "Inga tidigare kallelser"
+- [ ] Lagägare i ledarlistan, en Skapa träning-knapp, tooltips/aria-label, lösenordsdialog
+### Prioritet 4 – Kunskapsbanken
+- [ ] Filter: Sök, Ämne, Åldersgrupp, Nivå (nivåmappning Grund/Fortsättning/Fördjupning)
+- [ ] 12 artiklar + "Visa fler", förenklade kort
+- [ ] Artikelsidan enligt ny ordning, borttagna redaktionella fält

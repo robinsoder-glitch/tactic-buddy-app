@@ -22,6 +22,8 @@ export type Drawing = {
   id: string;
   type: DrawingType;
   color?: string | null;
+  /** Löp-/passvägar hör ihop med objektet de beskriver, så de kan uppdateras i stället för att dubbleras. */
+  objectId?: string | null;
   x1: number;
   y1: number;
   x2: number;
@@ -108,4 +110,64 @@ export function interpolateFrames(frames: Frame[], progress: number): FieldObjec
 
 export function activeFrameIndex(progress: number, frameCount: number) {
   return Math.min(Math.max(Math.round(progress), 0), Math.max(frameCount - 1, 0));
+}
+
+/** Löp- och passvägar hör till målsekvensen: Sekvens N innehåller vägarna från N-1 in i N. */
+export function isPathDrawing(drawing: Drawing) {
+  return drawing.type === "run" || drawing.type === "pass";
+}
+
+/**
+ * Vägarna som ska visas vid en viss tidpunkt i uppspelningen.
+ * Under övergången från sekvens N till N+1 visas målsekvensens vägar.
+ */
+export function drawingsAtProgress(frames: Frame[], progress: number): Drawing[] {
+  if (frames.length === 0) return [];
+  if (frames.length === 1) return frames[0]!.drawings;
+  const segment = Math.min(Math.floor(progress), frames.length - 2);
+  const target = frames[Math.max(segment, 0) + 1]!;
+  const source = frames[Math.max(segment, 0)]!;
+  // Målsekvensens vägar plus källans statiska markeringar (zoner/cirklar).
+  return [...source.drawings.filter((item) => !isPathDrawing(item)), ...target.drawings];
+}
+
+/**
+ * Bakåtkompatibilitet: äldre taktiker sparade vägen i källsekvensen.
+ * Flyttar sådana vägar till målsekvensen utan att röra övrig data.
+ */
+export function normalizeTransitionPaths(frames: Frame[]): Frame[] {
+  if (frames.length < 2) return frames;
+  const near = (a: number, b: number) => Math.abs(a - b) < 0.03;
+  const result = frames.map((frame) => ({ ...frame, drawings: [...frame.drawings] }));
+  let changed = false;
+
+  for (let index = 0; index < result.length - 1; index += 1) {
+    const source = result[index]!;
+    const target = result[index + 1]!;
+    const keep: Drawing[] = [];
+    for (const drawing of source.drawings) {
+      if (!isPathDrawing(drawing)) {
+        keep.push(drawing);
+        continue;
+      }
+      const owner = source.objects.find(
+        (object) => near(object.x, drawing.x1) && near(object.y, drawing.y1),
+      );
+      const ends = owner
+        ? target.objects.find(
+            (object) =>
+              object.id === owner.id && near(object.x, drawing.x2) && near(object.y, drawing.y2),
+          )
+        : undefined;
+      if (owner && ends) {
+        target.drawings.push({ ...drawing, objectId: owner.id });
+        changed = true;
+      } else {
+        keep.push(drawing);
+      }
+    }
+    source.drawings = keep;
+  }
+
+  return changed ? result : frames;
 }

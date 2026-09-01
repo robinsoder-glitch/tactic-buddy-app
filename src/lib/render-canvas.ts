@@ -1,4 +1,4 @@
-import { PITCH_SIZES, initials, interpolateFrames } from "./tactics";
+import { PITCH_SIZES, drawingsAtProgress, initials, interpolateFrames } from "./tactics";
 import type { Drawing, FieldObject, Frame, PitchType } from "./tactics";
 
 const COLORS = {
@@ -323,7 +323,7 @@ export function sceneAt(frames: Frame[], progress: number) {
   const frame = frames[segmentIndex] ?? frames[0];
   return {
     objects: interpolateFrames(frames, progress),
-    drawings: frame?.drawings ?? [],
+    drawings: drawingsAtProgress(frames, progress),
     passT: frames.length > 1 ? Math.min(Math.max(progress - segmentIndex, 0), 1) : null,
     note: frame?.note ?? null,
   };
