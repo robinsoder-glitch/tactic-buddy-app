@@ -92,6 +92,7 @@ export function Pitch({
   showPhotos = true,
   gridStep = null,
   passT = null,
+  onPlaceAt,
   onMoveObject,
   onMoveEnd,
   onObjectTrail,
@@ -121,6 +122,12 @@ export function Pitch({
 
   function handlePointerDown(event: React.PointerEvent) {
     if (!interactive) return;
+    if (onPlaceAt) {
+      const point = toNormalized(event);
+      onPlaceAt(point.x, point.y);
+      event.preventDefault();
+      return;
+    }
     if (isShapeTool) {
       const point = toNormalized(event);
       svgRef.current?.setPointerCapture?.(event.pointerId);
