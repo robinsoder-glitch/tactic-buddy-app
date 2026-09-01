@@ -1112,6 +1112,7 @@ export function TacticEditor({ id }: { id: string }) {
       )}
 
 
+      {advanced && (
       <section className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
         <Button
           variant={isPublic ? "default" : "secondary"}
@@ -1167,6 +1168,7 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
 
       </section>
+      )}
 
       <section className="rounded-xl border border-border bg-card p-3">
         <div className="flex items-center gap-2">
@@ -1198,10 +1200,11 @@ export function TacticEditor({ id }: { id: string }) {
           </Button>
           <button
             type="button"
+            aria-label="Hastighet"
             onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
             className="rounded-md border border-border px-2 py-1 text-xs font-semibold"
           >
-            {speed}x
+            {speed === 0.5 ? "Långsam" : speed === 2 ? "Snabb" : "Normal"}
           </button>
           <Button
             variant={loop ? "default" : "ghost"}
