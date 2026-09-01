@@ -913,27 +913,32 @@ export function TacticEditor({ id }: { id: string }) {
           >
             <Redo2 className="size-4" />
           </Button>
-          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
-            <Checkbox
-              checked={hideNames}
-              onCheckedChange={(value) => setHideNames(value === true)}
-              aria-label="Dölj namn på spelare"
-            />
-            {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            Dölj namn
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
-            <Checkbox
-              checked={snap}
-              onCheckedChange={(value) => setSnap(value === true)}
-              aria-label="Snäpp till rutnät"
-            />
-            <Grid3x3 className="size-4" />
-            Rutnät
-          </label>
-          <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
-            <FlipHorizontal2 className="size-4" />
-          </Button>
+          {advanced && (
+            <>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+                <Checkbox
+                  checked={hideNames}
+                  onCheckedChange={(value) => setHideNames(value === true)}
+                  aria-label="Dölj namn på spelare"
+                />
+                {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                Dölj namn
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+                <Checkbox
+                  checked={snap}
+                  onCheckedChange={(value) => setSnap(value === true)}
+                  aria-label="Snäpp till rutnät"
+                />
+                <Grid3x3 className="size-4" />
+                Rutnät
+              </label>
+              <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" />
+              </Button>
+            </>
+          )}
+
           <Button
             variant="ghost"
             size="icon"
