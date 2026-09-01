@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Download, MapPin } from "lucide-react";
+import { eventDisplayTitle, eventTypeLabel } from "@/lib/event-labels";
 import { fetchEvents, fetchTeam, formatDateTime } from "@/lib/teams";
 import { downloadIcs } from "@/lib/ics";
 import { Button } from "@/components/ui/button";
