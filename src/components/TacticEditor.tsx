@@ -58,6 +58,25 @@ const GRID_FALLBACK = 0.05;
 const FINE_STEP = 0.01;
 const MARK_COLORS = ["oklch(0.75 0.19 55)", "oklch(0.72 0.2 25)", "oklch(0.8 0.16 200)", "oklch(0.95 0 0)"];
 
+export type EditorMode = "simple" | "advanced";
+const MODE_KEY = "taktiktavla:mode";
+
+function loadMode(): EditorMode {
+  if (typeof window === "undefined") return "simple";
+  return window.localStorage.getItem(MODE_KEY) === "advanced" ? "advanced" : "simple";
+}
+
+/** Startläge är uppställningen, sekvenserna beskriver rörelserna efter den. */
+export function frameLabel(index: number) {
+  return index === 0 ? "Startläge" : `Sekvens ${index}`;
+}
+
+/** Gamla automatiska namn ("Steg N") ska inte längre visas som egna namn. */
+function isAutoName(name: string | null | undefined) {
+  return !name || /^Steg \d+$/.test(name) || /^Sekvens \d+$/.test(name) || name === "Startläge";
+}
+
+
 function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
   return {
     past: past.length,
@@ -121,6 +140,9 @@ export function TacticEditor({ id }: { id: string }) {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [current, setCurrent] = useState(0);
   const [tool, setTool] = useState<Tool>("select");
+  const [mode, setMode] = useState<EditorMode>(loadMode);
+  const advanced = mode === "advanced";
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() => loadPrefs().speed);
@@ -356,7 +378,7 @@ export function TacticEditor({ id }: { id: string }) {
       if (current === next.length - 1) {
         next.push({
           id: uid(),
-          name: `Steg ${next.length + 1}`,
+          name: null,
           objects: next[current]!.objects.map((item) => ({ ...item })),
           drawings: [],
         });
@@ -411,35 +433,33 @@ export function TacticEditor({ id }: { id: string }) {
       if (!source) return prev;
       const copy: Frame = {
         id: uid(),
-        name: `Steg ${prev.length + 1}`,
+        name: null,
         objects: source.objects.map((object) => ({ ...object })),
         drawings: [],
       };
       const next = [...prev];
       next.splice(current + 1, 0, copy);
       return renumber(next);
-    }, "Nytt steg");
+    }, "Ny sekvens");
     setCurrent((value) => value + 1);
     setProgress(current + 1);
   }
 
-  // Keep auto-generated step names ("Steg N") sequential after add/remove; custom names are untouched
+  // Auto-generated names are derived from the position (Startläge / Sekvens N); custom names stay.
   function renumber(list: Frame[]) {
-    return list.map((item, index) =>
-      item.name && /^Steg \d+$/.test(item.name) ? { ...item, name: `Steg ${index + 1}` } : item,
-    );
+    return list.map((item) => (isAutoName(item.name) ? { ...item, name: null } : item));
   }
 
   async function deleteFrame(index: number) {
     if (frames.length <= 1) return;
     if (prefs.confirmDelete) {
       const ok = await confirm({
-        title: "Radera steg",
-        description: `Steg ${index + 1} tas bort med alla positioner, pilar och anteckningar i det steget.`,
+        title: `Radera ${frameLabel(index).toLowerCase()}`,
+        description: `${frameLabel(index)} tas bort med alla positioner, pilar och anteckningar i det steget.`,
       });
       if (!ok) return;
     }
-    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort steg");
+    commit((prev) => renumber(prev.filter((_, i) => i !== index)), "Tog bort sekvens");
     setCurrent((value) => Math.max(0, Math.min(value, frames.length - 2)));
     setProgress((value) => Math.max(0, Math.min(value, frames.length - 2)));
   }
@@ -775,6 +795,24 @@ export function TacticEditor({ id }: { id: string }) {
         <span className="text-xs text-muted-foreground">
           {save.isPending ? "Sparar…" : dirty ? "Osparat" : "Sparat"}
         </span>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-pressed={advanced}
+          onClick={() => {
+            const next: EditorMode = advanced ? "simple" : "advanced";
+            setMode(next);
+            if (next === "simple" && tool === "zone") setTool("select");
+            try {
+              window.localStorage.setItem(MODE_KEY, next);
+            } catch {
+              /* ignorera blockerad lagring */
+            }
+          }}
+        >
+          {advanced ? "Byt till Enkel" : "Byt till Avancerad"}
+        </Button>
+
         <Button variant="ghost" size="icon" aria-label="Spara" onClick={() => save.mutate()}>
           <Save className="size-5" />
         </Button>
@@ -830,11 +868,13 @@ export function TacticEditor({ id }: { id: string }) {
         <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
           <span className="text-xs font-semibold">Passning</span>
         </ToolButton>
-        <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
-          <Square className="size-4" />
-        </ToolButton>
+        {advanced && (
+          <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
+            <Square className="size-4" />
+          </ToolButton>
+        )}
 
-        {tool === "zone" && (
+        {advanced && tool === "zone" && (
           <div className="flex items-center gap-1" role="group" aria-label="Färg på markering">
             {MARK_COLORS.map((color) => (
               <button
@@ -850,6 +890,7 @@ export function TacticEditor({ id }: { id: string }) {
             ))}
           </div>
         )}
+
 
         <div className="ml-auto flex gap-1">
           <Button
@@ -872,27 +913,32 @@ export function TacticEditor({ id }: { id: string }) {
           >
             <Redo2 className="size-4" />
           </Button>
-          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
-            <Checkbox
-              checked={hideNames}
-              onCheckedChange={(value) => setHideNames(value === true)}
-              aria-label="Dölj namn på spelare"
-            />
-            {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            Dölj namn
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
-            <Checkbox
-              checked={snap}
-              onCheckedChange={(value) => setSnap(value === true)}
-              aria-label="Snäpp till rutnät"
-            />
-            <Grid3x3 className="size-4" />
-            Rutnät
-          </label>
-          <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
-            <FlipHorizontal2 className="size-4" />
-          </Button>
+          {advanced && (
+            <>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+                <Checkbox
+                  checked={hideNames}
+                  onCheckedChange={(value) => setHideNames(value === true)}
+                  aria-label="Dölj namn på spelare"
+                />
+                {hideNames ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                Dölj namn
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2 text-xs font-semibold">
+                <Checkbox
+                  checked={snap}
+                  onCheckedChange={(value) => setSnap(value === true)}
+                  aria-label="Snäpp till rutnät"
+                />
+                <Grid3x3 className="size-4" />
+                Rutnät
+              </label>
+              <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" />
+              </Button>
+            </>
+          )}
+
           <Button
             variant="ghost"
             size="icon"
@@ -1048,21 +1094,25 @@ export function TacticEditor({ id }: { id: string }) {
 
 
 
-      <section className="rounded-xl border border-border bg-card p-3">
-        <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
-          Anteckning för {frame?.name || `steg ${current + 1}`}
-        </label>
-        <Textarea
-          id="step-note"
-          rows={2}
-          value={frame?.note ?? ""}
-          onChange={(event) => setNote(event.target.value)}
-          placeholder="T.ex. Ytterbacken går på överlapp när sexan vänder spelet."
-          className="mt-2"
-        />
-        <p className="mt-1 text-xs text-muted-foreground">Visas under uppspelning och i delade länkar.</p>
-      </section>
+      {advanced && (
+        <section className="rounded-xl border border-border bg-card p-3">
+          <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
+            Anteckning för {frame?.name || frameLabel(current)}
+          </label>
+          <Textarea
+            id="step-note"
+            rows={2}
+            value={frame?.note ?? ""}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="T.ex. Ytterbacken går på överlapp när sexan vänder spelet."
+            className="mt-2"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">Visas under uppspelning och i delade länkar.</p>
+        </section>
+      )}
 
+
+      {advanced && (
       <section className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
         <Button
           variant={isPublic ? "default" : "secondary"}
@@ -1118,13 +1168,14 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
 
       </section>
+      )}
 
       <section className="rounded-xl border border-border bg-card p-3">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Föregående steg"
+            aria-label="Föregående sekvens"
             onClick={() => goToStep(current - 1)}
             disabled={current === 0}
           >
@@ -1141,7 +1192,7 @@ export function TacticEditor({ id }: { id: string }) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Nästa steg"
+            aria-label="Nästa sekvens"
             onClick={() => goToStep(current + 1)}
             disabled={current >= frames.length - 1}
           >
@@ -1149,10 +1200,11 @@ export function TacticEditor({ id }: { id: string }) {
           </Button>
           <button
             type="button"
+            aria-label="Hastighet"
             onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
             className="rounded-md border border-border px-2 py-1 text-xs font-semibold"
           >
-            {speed}x
+            {speed === 0.5 ? "Långsam" : speed === 2 ? "Snabb" : "Normal"}
           </button>
           <Button
             variant={loop ? "default" : "ghost"}
@@ -1162,7 +1214,9 @@ export function TacticEditor({ id }: { id: string }) {
           >
             <Repeat className="size-4" />
           </Button>
-          <span className="ml-auto text-xs text-muted-foreground">{frames.length} steg</span>
+          <span className="ml-auto text-xs text-muted-foreground">
+            Startläge + {Math.max(frames.length - 1, 0)} sekvenser
+          </span>
         </div>
 
         <div className="relative mt-3">
@@ -1209,7 +1263,7 @@ export function TacticEditor({ id }: { id: string }) {
           </label>
         </div>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          Piltangenter ← → spolar 0,1 s (Skift = helt steg), Home/End hoppar till start/slut.
+          Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
         </p>
 
 
@@ -1227,7 +1281,7 @@ export function TacticEditor({ id }: { id: string }) {
                 type="button"
                 onClick={() => goToStep(index)}
                 onDoubleClick={() => {
-                  const value = window.prompt("Namn på steget", item.name ?? "");
+                  const value = window.prompt("Namn på sekvensen", item.name ?? "");
                   if (value !== null) {
                     commit((prev) =>
                       prev.map((f, i) => (i === index ? { ...f, name: value } : f)),
@@ -1235,12 +1289,12 @@ export function TacticEditor({ id }: { id: string }) {
                   }
                 }}
               >
-                {item.name || `Steg ${index + 1}`}
+                {item.name || frameLabel(index)}
               </button>
               {frames.length > 1 && (
                 <button
                   type="button"
-                  aria-label="Ta bort steg"
+                  aria-label="Ta bort sekvens"
                   onClick={() => void deleteFrame(index)}
                   className="text-muted-foreground hover:text-destructive"
                 >
@@ -1250,12 +1304,12 @@ export function TacticEditor({ id }: { id: string }) {
             </div>
           ))}
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
-            <Plus className="size-4" /> Steg
+            <Plus className="size-4" /> Ny sekvens
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Flytta spelarna i varje steg – appen animerar mjukt mellan stegen. Dubbeltryck på ett steg för
-          att döpa om det.
+          Placera spelarna i Startläge. Varje ny sekvens utgår från föregående slutläge – flytta bara
+          det som ska röra sig. Dubbeltryck på en sekvens för att döpa om den.
         </p>
       </section>
       {confirmDialog}
