@@ -96,22 +96,15 @@ function KnowledgeArticlePage() {
               <Star className={`size-5 ${isFavorite ? "fill-current text-primary" : ""}`} />
             </button>
           </div>
-          {data.title_original && data.title_original !== data.title_sv && (
-            <p className="mt-1 text-sm text-muted-foreground">Originaltitel: {data.title_original}</p>
-          )}
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             {data.source_name && <span className="rounded-full border border-border px-2 py-0.5">{data.source_name}</span>}
             {data.level && <span className="rounded-full border border-border px-2 py-0.5">{data.level}</span>}
-            {data.evidence_level && (
-              <span className="rounded-full border border-border px-2 py-0.5">Underlag: {data.evidence_level}</span>
-            )}
             {data.reading_minutes ? (
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-3.5" /> {data.reading_minutes} min
               </span>
             ) : null}
-            {data.checked_date && <span>Kontrollerad {data.checked_date}</span>}
           </div>
 
           <section className="mt-5 rounded-xl border border-border bg-card p-4">
@@ -154,18 +147,6 @@ function KnowledgeArticlePage() {
             </ul>
           </section>
 
-          <section className="mt-3 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Källa och kontroll</h2>
-            <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
-              {sourceCheck(data).map(([term, value]) => (
-                <div key={term}>
-                  <dt className="text-xs text-muted-foreground">{term}</dt>
-                  <dd className="font-medium">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
           <details className="mt-3 rounded-xl border border-border bg-card p-4">
             <summary className="cursor-pointer text-sm font-semibold">Hela sammanfattningen</summary>
             <p className="mt-2 text-sm">{data.summary_sv}</p>
@@ -199,7 +180,6 @@ function KnowledgeArticlePage() {
             Läs originalkällan <ExternalLink className="size-3.5" />
           </a>
 
-          {data.copyright_note && <p className="mt-3 text-xs text-muted-foreground">{data.copyright_note}</p>}
 
           <div className="mt-4">
           </div>

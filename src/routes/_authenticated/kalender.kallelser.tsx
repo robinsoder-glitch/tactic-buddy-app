@@ -8,6 +8,8 @@ import {
   canRespondSelf,
   emptyInviteMessage,
   hasLinkedPlayer,
+  hasMultiplePlayers,
+  groupInvitationsByEvent,
   fetchMyInvitations,
   inviteStatusLabel,
   respondToInvitation,
@@ -16,6 +18,7 @@ import {
 } from "@/lib/invitations";
 import { formatDateTime } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
+import { eventDisplayTitle, eventTypeLabel } from "@/lib/event-labels";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/kalender/kallelser")({
@@ -100,66 +103,71 @@ function MyInvitesPage() {
       )}
 
       <ul className="mt-4 space-y-3">
-        {list.map((invitation) => {
-          const cancelled = Boolean(invitation.event.cancelled_at);
-          const mine = canRespondSelf(invitation, userId);
+        {groupInvitationsByEvent(list).map((group) => {
+          const cancelled = Boolean(group.event.cancelled_at);
+          const showNames = hasMultiplePlayers(list);
           return (
-            <li key={invitation.id} className="rounded-2xl border border-border bg-card p-4">
+            <li key={group.eventId} className="rounded-2xl border border-border bg-card p-4">
               {cancelled && (
                 <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-destructive/15 px-3 py-1 text-xs font-semibold text-destructive">
                   <Ban className="size-3.5" /> Inställd
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                {invitation.event.type === "match" ? "Match" : "Träning"}
-                {invitation.teamName ? ` · ${invitation.teamName}` : ""}
+                {eventTypeLabel(group.event)}
+                {group.teamName ? ` · ${group.teamName}` : ""}
               </p>
-              <h2 className="font-display text-xl font-semibold">
-                {invitation.event.title ??
-                  (invitation.event.type === "match"
-                    ? `${invitation.event.home_team ?? "Hemma"} – ${invitation.event.away_team ?? "Borta"}`
-                    : "Träning")}
-              </h2>
+              <h2 className="font-display text-xl font-semibold">{eventDisplayTitle(group.event)}</h2>
               <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <CalendarDays className="size-4" />
-                  {formatDateTime(invitation.event.starts_at)}
+                  {formatDateTime(group.event.starts_at)}
                 </span>
-                {invitation.event.location && (
+                {group.event.location && (
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="size-4" />
-                    {invitation.event.location}
+                    {group.event.location}
                   </span>
                 )}
               </p>
-              {invitation.message && <p className="mt-2 text-sm">{invitation.message}</p>}
-              <p className="mt-2 text-sm font-semibold">
-                Ditt svar: {inviteStatusLabel(invitation.status)}
-              </p>
 
-              {mine && !cancelled ? (
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {(["attending", "declined", "maybe"] as InviteStatus[]).map((status) => (
-                    <Button
-                      key={status}
-                      className="h-12"
-                      variant={invitation.status === status ? "default" : "secondary"}
-                      disabled={respond.isPending}
-                      onClick={() => respond.mutate({ invitation, status })}
-                    >
-                      {inviteStatusLabel(status)}
-                    </Button>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {cancelled ? "Aktiviteten är inställd. Nya svar är stängda." : NO_ACCOUNT_TEXT}
-                </p>
-              )}
+              {group.invitations.map((invitation) => {
+                const mine = canRespondSelf(invitation, userId);
+                return (
+                  <div key={invitation.id} className="mt-3 border-t border-border/60 pt-3 first:border-0">
+                    {showNames && (
+                      <p className="text-sm font-semibold">{invitation.playerName ?? "Spelare"}</p>
+                    )}
+                    {invitation.message && <p className="mt-1 text-sm">{invitation.message}</p>}
+                    <p className="mt-1 text-sm font-semibold">
+                      Ditt svar: {inviteStatusLabel(invitation.status)}
+                    </p>
+                    {mine && !cancelled ? (
+                      <div className="mt-2 grid grid-cols-3 gap-2">
+                        {(["attending", "declined", "maybe"] as InviteStatus[]).map((status) => (
+                          <Button
+                            key={status}
+                            className="h-12"
+                            variant={invitation.status === status ? "default" : "secondary"}
+                            disabled={respond.isPending}
+                            onClick={() => respond.mutate({ invitation, status })}
+                          >
+                            {inviteStatusLabel(status)}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {cancelled ? "Aktiviteten är inställd. Nya svar är stängda." : NO_ACCOUNT_TEXT}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
 
               <Link
                 to="/team/$teamId/event/$eventId"
-                params={{ teamId: invitation.team_id, eventId: invitation.event_id }}
+                params={{ teamId: group.teamId, eventId: group.eventId }}
                 className="mt-3 inline-block text-sm text-primary underline"
               >
                 Visa aktiviteten

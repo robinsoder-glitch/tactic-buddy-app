@@ -22,8 +22,6 @@ export const MOBILE_PRIMARY = ["/planera-traning", "/planera-match", "/taktik", 
 
 /** Gamla adresser som ska leda vidare till rätt ny sida. */
 export const LEGACY_REDIRECTS: Record<string, string> = {
-  "/skapa": "/taktik",
-  "/taktikbank": "/taktik",
   "/bank": "/teams",
   "/mina-kallelser": "/kalender/kallelser",
 };

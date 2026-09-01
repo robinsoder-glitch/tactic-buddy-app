@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, PenLine, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -19,18 +19,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/skapa")({
-  beforeLoad: () => {
-    throw redirect({ to: "/taktik" });
-  },
   head: () => ({
     meta: [
-      { title: "Ny övning – välj mall eller börja från tom plan" },
+      { title: "Ny taktik – välj mall eller börja från tom plan" },
       {
         name: "description",
         content:
           "Starta en ny taktik: utgå från en färdig mall ur taktikbanken eller bygg din egen från en tom plan.",
       },
-      { property: "og:title", content: "Ny övning – välj mall eller börja från tom plan" },
+      { property: "og:title", content: "Ny taktik – välj mall eller börja från tom plan" },
       {
         property: "og:description",
         content: "Färdiga taktikmallar eller en tom plan – välj hur du vill börja.",
@@ -46,7 +43,7 @@ function CreatePage() {
   const { user } = useAuth();
   const account = useAccount();
   const navigate = useNavigate();
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [step, setStep] = useState<"choose" | "blank" | "template">("choose");
   const [name, setName] = useState("");
   const [format, setFormat] = useState<GameFormatId>("5v5");
   const [teamId, setTeamId] = useState<string>("");
@@ -60,7 +57,7 @@ function CreatePage() {
   const cards = useQuery({
     queryKey: ["tb-tactics"],
     queryFn: fetchTacticCards,
-    enabled: showTemplates && canUseBank,
+    enabled: step === "template" && canUseBank,
   });
 
   const filtered = useMemo(() => {
@@ -75,7 +72,7 @@ function CreatePage() {
     mutationFn: () =>
       createTactic(
         user!.id,
-        name.trim() || `Ny övning ${gameFormatLabel(format)}`,
+        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
         pitchTypeForFormat(format),
         teamId || null,
       ),
@@ -109,17 +106,45 @@ function CreatePage() {
           variant="ghost"
           size="icon"
           aria-label="Tillbaka"
-          onClick={() => (showTemplates ? setShowTemplates(false) : navigate({ to: "/" }))}
+          onClick={() => (step === "choose" ? navigate({ to: "/" }) : setStep("choose"))}
         >
           <ArrowLeft className="size-5" />
         </Button>
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="font-display text-3xl font-bold">Ny övning</h1>
+          <h1 className="font-display text-3xl font-bold">Ny taktik</h1>
         </div>
       </header>
 
-      {!showTemplates && (
+      {step === "choose" && (
+        <section className="mt-6 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setStep("blank")}
+            className="rounded-2xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
+          >
+            <PenLine className="size-5 text-primary" />
+            <h2 className="mt-2 font-display text-xl font-semibold">Tom taktik</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Börja med en tom plan och placera spelare och boll själv.
+            </p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setStep("template")}
+            disabled={!canUseBank}
+            className="rounded-2xl border border-border bg-card p-5 text-left transition-colors hover:border-primary disabled:opacity-50"
+          >
+            <Sparkles className="size-5 text-primary" />
+            <h2 className="mt-2 font-display text-xl font-semibold">Utgå från mall</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Välj ett färdigt taktikkort och gör det till din egen taktik.
+            </p>
+          </button>
+        </section>
+      )}
+
+      {step === "blank" && (
         <section className="mt-6 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold" htmlFor="tactic-name">
@@ -190,7 +215,7 @@ function CreatePage() {
                 Vill du hellre utgå från något färdigt?
               </p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" onClick={() => setShowTemplates(true)}>
+                <Button variant="secondary" onClick={() => setStep("template")}>
                   <Sparkles className="mr-2 size-4" /> Välj färdig mall
                 </Button>
                 <Button variant="ghost" asChild>
@@ -204,7 +229,7 @@ function CreatePage() {
         </section>
       )}
 
-      {showTemplates && (
+      {step === "template" && (
         <section className="mt-6">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

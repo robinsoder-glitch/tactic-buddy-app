@@ -29,8 +29,9 @@ describe("huvudmenyn", () => {
   });
 
   it("leder gamla adresser till rätt ny sida", () => {
-    expect(LEGACY_REDIRECTS["/skapa"]).toBe("/taktik");
-    expect(LEGACY_REDIRECTS["/taktikbank"]).toBe("/taktik");
+    // /skapa och /taktikbank är egna sidor igen och ska aldrig omdirigeras.
+    expect(LEGACY_REDIRECTS["/skapa"]).toBeUndefined();
+    expect(LEGACY_REDIRECTS["/taktikbank"]).toBeUndefined();
     expect(LEGACY_REDIRECTS["/mina-kallelser"]).toBe("/kalender/kallelser");
   });
 

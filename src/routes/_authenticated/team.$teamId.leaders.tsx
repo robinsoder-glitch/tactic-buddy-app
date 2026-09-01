@@ -113,7 +113,9 @@ function LeadersPage() {
     return (
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Ledare</h2>
-        {leaders.length === 0 && <p className="text-sm text-muted-foreground">Inga ledare ännu.</p>}
+        {leaders.length === 0 && (
+          <p className="text-sm text-muted-foreground">Inga ytterligare ledare i laget ännu.</p>
+        )}
         {leaders.map((leader) => (
           <div key={leader.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
             {leader.user_id === ownerId ? (
@@ -137,7 +139,7 @@ function LeadersPage() {
         <h2 className="text-xl font-semibold">Lagets ledare</h2>
         {leaders.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Inga ledare ännu. Lagets ägare läggs till automatiskt när laget skapas.
+            Inga ytterligare ledare ännu. Lagets ägare läggs till automatiskt när laget skapas.
           </p>
         )}
         {leaders.map((leader) => (

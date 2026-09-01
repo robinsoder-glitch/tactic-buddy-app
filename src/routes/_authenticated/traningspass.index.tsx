@@ -188,9 +188,11 @@ function MySessionsPage() {
           <p className="font-display text-xs tracking-[0.3em] text-primary">Planera träningen</p>
           <h1 className="font-display text-3xl font-bold">Mina träningar</h1>
         </div>
-        <Button onClick={() => setCreateOpen(true)} aria-label="Skapa träning">
-          <Plus className="size-4" /> Skapa träning
-        </Button>
+        {mine.length > 0 && (
+          <Button onClick={() => setCreateOpen(true)} aria-label="Skapa träning">
+            <Plus className="size-4" /> Skapa träning
+          </Button>
+        )}
       </header>
 
       <p className="mt-3 text-sm text-muted-foreground">

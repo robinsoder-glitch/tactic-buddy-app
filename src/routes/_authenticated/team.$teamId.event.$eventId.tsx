@@ -244,7 +244,9 @@ function EventPage() {
       </div>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-4">
-        <h2 className="font-display text-xl font-bold">Planerat träningsinnehåll</h2>
+        <h2 className="font-display text-xl font-bold">
+          {event.data?.type === "match" ? "Matchplanering" : "Planerat träningsinnehåll"}
+        </h2>
         <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
         {event.data?.type !== "match" && (
           <PlanningDoneToggle eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />

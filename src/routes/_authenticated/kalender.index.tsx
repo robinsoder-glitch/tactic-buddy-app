@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
 import { formatDateTime } from "@/lib/teams";
+import { eventDisplayTitle, eventTypeLabel, isCancelled } from "@/lib/event-labels";
 
 /** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
 const EVENT_STYLES = {
@@ -74,12 +75,17 @@ function CalendarOverview() {
                   <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
                   <div className="min-w-0">
                     <p className="font-medium">
-                      {event.title ?? style.label}
+                      {eventDisplayTitle(event)}
                       <span
                         className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold ${style.badge}`}
                       >
-                        {style.label}
+                        {eventTypeLabel(event)}
                       </span>
+                      {isCancelled(event) && (
+                        <span className="ml-2 rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                          Inställd
+                        </span>
+                      )}
                     </p>
                     <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
                     {event.team_name && <p className="text-xs text-muted-foreground">{event.team_name}</p>}

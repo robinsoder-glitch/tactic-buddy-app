@@ -1,21 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Clock, Search, Sparkles, Star } from "lucide-react";
+import { BookOpen, Clock, Search, Star } from "lucide-react";
 import { toast } from "sonner";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import {
   KNOWLEDGE_AGE_OPTIONS,
-  KNOWLEDGE_FORMAT_OPTIONS,
   fetchKnowledgeArticles,
   filterKnowledge,
   knowledgeAgeLabel,
   knowledgeCategories,
-  knowledgeFormatLabel,
-  knowledgeLanguages,
   knowledgeLevels,
-  knowledgeSources,
 } from "@/lib/knowledge";
 import { Input } from "@/components/ui/input";
 
@@ -49,16 +45,15 @@ function Chips({
   );
 }
 
+const PAGE_SIZE = 12;
+
 export function KnowledgeLibrary() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [age, setAge] = useState("all");
-  const [format, setFormat] = useState("all");
   const [level, setLevel] = useState("all");
-  const [language, setLanguage] = useState("all");
-  const [source, setSource] = useState("all");
-  const [onlyFeatured, setOnlyFeatured] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
 
   const { user } = useAuth();
@@ -85,15 +80,17 @@ export function KnowledgeLibrary() {
   const all = articles.data ?? [];
   const categories = useMemo(() => knowledgeCategories(all), [all]);
   const levels = useMemo(() => knowledgeLevels(all), [all]);
-  const languages = useMemo(() => knowledgeLanguages(all), [all]);
-  const sources = useMemo(() => knowledgeSources(all), [all]);
   const list = useMemo(
     () =>
-      filterKnowledge(all, { query, category, age, format, level, language, source, onlyFeatured }).filter(
+      filterKnowledge(all, { query, category, age, level }).filter(
         (article) => !onlyFavorites || favoriteSet.has(article.id),
       ),
-    [all, query, category, age, format, level, language, source, onlyFeatured, onlyFavorites, favoriteSet],
+    [all, query, category, age, level, onlyFavorites, favoriteSet],
   );
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, category, age, level, onlyFavorites]);
+  const shown = list.slice(0, visible);
 
   return (
     <section aria-label="Granskade artiklar" className="mt-4">
@@ -115,8 +112,7 @@ export function KnowledgeLibrary() {
           onChange={setCategory}
           options={[["all", "Alla kategorier"], ...categories.map((item) => [item, item] as [string, string])]}
         />
-        <Chips label="Ålder" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
-        <Chips label="Spelform" value={format} onChange={setFormat} options={KNOWLEDGE_FORMAT_OPTIONS} />
+        <Chips label="Åldersgrupp" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
         {levels.length > 1 && (
           <Chips
             label="Nivå"
@@ -125,40 +121,6 @@ export function KnowledgeLibrary() {
             options={[["all", "Alla nivåer"], ...levels.map((item) => [item, item] as [string, string])]}
           />
         )}
-        {languages.length > 1 && (
-          <Chips
-            label="Språk"
-            value={language}
-            onChange={setLanguage}
-            options={[["all", "Alla språk"], ...languages.map((item) => [item, item] as [string, string])]}
-          />
-        )}
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          Källa
-          <select
-            aria-label="Filtrera på källa"
-            value={source}
-            onChange={(event) => setSource(event.target.value)}
-            className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground"
-          >
-            <option value="all">Alla källor</option>
-            {sources.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          aria-pressed={onlyFeatured}
-          onClick={() => setOnlyFeatured((value) => !value)}
-          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-            onlyFeatured ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-          }`}
-        >
-          <Sparkles className="size-3.5" /> Utvalda
-        </button>
         <button
           type="button"
           aria-pressed={onlyFavorites}
@@ -176,7 +138,7 @@ export function KnowledgeLibrary() {
       </p>
 
       <div className="mt-2 space-y-3">
-        {list.map((article) => (
+        {shown.map((article) => (
           <div key={article.id} className="relative">
           <button
             type="button"
@@ -198,24 +160,32 @@ export function KnowledgeLibrary() {
           >
             <p className="text-xs tracking-wide text-muted-foreground">
               {article.category} · {knowledgeAgeLabel(article)}
-              {knowledgeFormatLabel(article) ? ` · ${knowledgeFormatLabel(article)}` : ""}
+              {article.level ? ` · ${article.level}` : ""}
             </p>
             <h3 className="mt-1 font-display text-lg font-semibold">{article.title_sv}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{article.summary_sv}</p>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              {article.source_name && <span>Källa: {article.source_name}</span>}
               {article.reading_minutes ? (
                 <span className="inline-flex items-center gap-1">
                   <Clock className="size-3.5" /> {article.reading_minutes} min
                 </span>
               ) : null}
-              {article.featured && <span className="rounded-full border border-border px-2 py-0.5">Utvald</span>}
             </div>
           </Link>
           <div className="mt-2">
           </div>
           </div>
         ))}
+
+        {list.length > shown.length && (
+          <button
+            type="button"
+            onClick={() => setVisible((value) => value + PAGE_SIZE)}
+            className="w-full rounded-xl border border-border px-4 py-3 text-sm font-semibold hover:border-primary"
+          >
+            Visa fler artiklar ({list.length - shown.length} kvar)
+          </button>
+        )}
 
         {!articles.isLoading && list.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">

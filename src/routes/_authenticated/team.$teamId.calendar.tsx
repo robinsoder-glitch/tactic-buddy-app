@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Download, MapPin } from "lucide-react";
+import { eventDisplayTitle, eventTypeLabel } from "@/lib/event-labels";
 import { fetchEvents, fetchTeam, formatDateTime } from "@/lib/teams";
 import { downloadIcs } from "@/lib/ics";
 import { Button } from "@/components/ui/button";
@@ -48,9 +49,9 @@ function CalendarPage() {
                 <CalendarDays className="mt-1 size-4 shrink-0 text-primary" />
                 <div className="min-w-0">
                   <p className="font-medium">
-                    {event.title ?? (event.type === "training" ? "Träning" : "Match")}
+                    {eventDisplayTitle(event)}
                     <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                      {event.type === "training" ? "Träning" : "Match"}
+                      {eventTypeLabel(event)}
                     </span>
                     {event.cancelled_at && (
                       <span className="ml-2 rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
@@ -79,7 +80,7 @@ function CalendarPage() {
           <ul className="mt-3 space-y-2">
             {past.map((event) => (
               <li key={event.id} className="rounded-xl border border-border/60 p-3 text-sm text-muted-foreground">
-                {event.title ?? (event.type === "training" ? "Träning" : "Match")} · {formatDateTime(event.starts_at)}
+                {eventDisplayTitle(event)} · {formatDateTime(event.starts_at)}
               </li>
             ))}
           </ul>
