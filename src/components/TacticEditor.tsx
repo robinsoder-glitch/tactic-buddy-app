@@ -46,6 +46,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
+import { formationsForPitch, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
@@ -313,6 +314,41 @@ export function TacticEditor({ id }: { id: string }) {
       "Lade till objekt",
     );
   }
+
+  /** Ersätter eget lags spelare med vald formation i alla steg. */
+  function applyFormation(formation: Formation) {
+    const gkFirst = [...bank].sort((a, b) => Number(b.gk) - Number(a.gk));
+    const lineup: FieldObject[] = formation.slots.map((slot, index) => {
+      const player = slot.gk ? gkFirst[0] : gkFirst.filter((item) => !item.gk)[index - 1];
+      return {
+        id: uid(),
+        kind: "player",
+        playerId: player?.id ?? null,
+        label: player?.name ?? "",
+        number: player?.number ?? null,
+        team: "home",
+        gk: Boolean(slot.gk),
+        photoUrl: player?.photoUrl ?? null,
+        x: slot.x,
+        y: slot.y,
+      };
+    });
+
+    commit(
+      (prev) =>
+        prev.map((item) => ({
+          ...item,
+          objects: [
+            ...item.objects.filter((object) => !(object.kind === "player" && object.team === "home")),
+            ...lineup.map((object) => ({ ...object })),
+          ],
+        })),
+      `Formation ${formation.label}`,
+    );
+    toast.success(`Formation ${formation.label} placerad.`);
+  }
+
+
 
   function removeObject(objectId: string) {
     commit((prev) =>
@@ -859,6 +895,23 @@ export function TacticEditor({ id }: { id: string }) {
           ))}
         </div>
       )}
+
+      {advanced && (
+        <div className="mb-2 flex flex-wrap items-center gap-2" role="group" aria-label="Formation">
+          <span className="text-xs font-semibold text-muted-foreground">Formation:</span>
+          {formationsForPitch(tactic.data.pitch_type).map((formation) => (
+            <Button
+              key={formation.id}
+              size="sm"
+              variant="secondary"
+              onClick={() => applyFormation(formation)}
+            >
+              {formation.label}
+            </Button>
+          ))}
+        </div>
+      )}
+
 
       <div
         onDragOver={(event) => {
