@@ -505,7 +505,26 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
+  /** Ny sekvens läggs alltid sist, oavsett vilket kort som är markerat. */
   function addFrame() {
+    const target = framesRef.current.length;
+    commit((prev) => {
+      const source = prev[prev.length - 1];
+      if (!source) return prev;
+      const copy: Frame = {
+        id: uid(),
+        name: null,
+        objects: source.objects.map((object) => ({ ...object })),
+        drawings: [],
+      };
+      return renumber([...prev, copy]);
+    }, "Ny sekvens");
+    setCurrent(target);
+    setProgress(target);
+  }
+
+  /** Avancerat: infoga en sekvens direkt efter den aktiva. */
+  function insertFrameAfterCurrent() {
     commit((prev) => {
       const source = prev[current];
       if (!source) return prev;
@@ -518,8 +537,8 @@ export function TacticEditor({ id }: { id: string }) {
       const next = [...prev];
       next.splice(current + 1, 0, copy);
       return renumber(next);
-    }, "Ny sekvens");
-    setCurrent((value) => value + 1);
+    }, "Infogade sekvens");
+    setCurrent(current + 1);
     setProgress(current + 1);
   }
 
