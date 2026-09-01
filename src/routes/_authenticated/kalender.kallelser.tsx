@@ -16,6 +16,7 @@ import {
 } from "@/lib/invitations";
 import { formatDateTime } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
+import { eventDisplayTitle, eventTypeLabel } from "@/lib/event-labels";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/kalender/kallelser")({
@@ -111,14 +112,11 @@ function MyInvitesPage() {
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                {invitation.event.type === "match" ? "Match" : "Träning"}
+                {eventTypeLabel(invitation.event)}
                 {invitation.teamName ? ` · ${invitation.teamName}` : ""}
               </p>
               <h2 className="font-display text-xl font-semibold">
-                {invitation.event.title ??
-                  (invitation.event.type === "match"
-                    ? `${invitation.event.home_team ?? "Hemma"} – ${invitation.event.away_team ?? "Borta"}`
-                    : "Träning")}
+                {eventDisplayTitle(invitation.event)}
               </h2>
               <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
