@@ -117,6 +117,11 @@ function BankPage() {
         <h1 className="font-display text-3xl font-bold">Spelarbank</h1>
       </header>
 
+      <p className="mt-2 text-sm text-muted-foreground">
+        Spelarbanken är dina egna figurer för taktiktavlan – den är skild från lagets trupp. Trupplistan med
+        registrerade spelare, närvaro och statistik finns under Mina lag.
+      </p>
+
       <div className="mt-4 flex gap-2">
         <Input placeholder="Sök spelare" value={query} onChange={(event) => setQuery(event.target.value)} />
         <Button onClick={() => setEditing({ ...emptyPlayer })}>
@@ -149,7 +154,7 @@ function BankPage() {
         ))}
         {players.data?.length === 0 && (
           <p className="col-span-full rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Banken är tom. Lägg till din första spelare.
+            Banken är tom. Lägg till din första spelare så kan du dra ut den på taktiktavlan.
           </p>
         )}
       </section>
@@ -212,12 +217,13 @@ function BankPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Lag</Label>
+                  <Label>Symbolfärg</Label>
                   <div className="flex gap-2">
                     {(["home", "away"] as const).map((team) => (
                       <button
                         key={team}
                         type="button"
+                        aria-pressed={editing.team === team}
                         onClick={() => setEditing({ ...editing, team })}
                         className={`flex-1 rounded-md border px-2 py-2 text-sm ${
                           editing.team === team
@@ -225,11 +231,13 @@ function BankPage() {
                             : "border-border text-muted-foreground"
                         }`}
                       >
-                        {team === "home" ? "Hemma" : "Borta"}
+                        {team === "home" ? "Eget lag" : "Motståndare"}
                       </button>
                     ))}
                   </div>
+                  <p className="text-xs text-muted-foreground">Styr bara färgen på symbolen på taktiktavlan.</p>
                 </div>
+
               </div>
             </div>
           )}
@@ -279,7 +287,7 @@ function PlayerCard({
         <p className="mt-2 truncate text-sm font-medium">{player.name}</p>
         <p className="text-xs text-muted-foreground">
           {player.number != null ? `#${player.number} · ` : ""}
-          {player.team === "away" ? "Borta" : "Hemma"}
+          {player.team === "away" ? "Motståndare" : "Eget lag"}
         </p>
       </button>
       <button

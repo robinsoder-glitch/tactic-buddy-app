@@ -260,7 +260,11 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                 {event.notes && <p className="mt-2 text-sm text-muted-foreground">{event.notes}</p>}
               </button>
               {isCoach && (
-                <Button size="icon" variant="ghost" onClick={() => {
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  aria-label={type === "match" ? "Radera matchen" : "Radera träningen"}
+                  onClick={() => {
                     void confirm({
                       title: type === "match" ? "Radera match" : "Radera träning",
                       description: "Händelsen tas bort från lagets kalender permanent.",

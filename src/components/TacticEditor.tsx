@@ -89,12 +89,15 @@ function historyMeta(past: HistoryEntry[], future: HistoryEntry[]) {
   };
 }
 
-function formatTime(seconds: number) {
+/** Enkel tidsvisning på svenska, t.ex. "3,2 s" eller "1 min 05 s". */
+function secondsLabel(seconds: number) {
   const safe = Math.max(0, seconds);
+  if (safe < 60) return `${safe.toFixed(1).replace(".", ",")} s`;
   const mins = Math.floor(safe / 60);
-  const rest = safe - mins * 60;
-  return `${mins}:${rest.toFixed(1).padStart(4, "0")}`;
+  const rest = Math.round(safe - mins * 60);
+  return `${mins} min ${String(rest).padStart(2, "0")} s`;
 }
+
 
 type BankPlayer = {
   id: string;
@@ -239,6 +242,19 @@ export function TacticEditor({ id }: { id: string }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [presenting, placeMode]);
+
+  /** Helskärm när tavlan visas för laget – särskilt viktigt på mobil. */
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const element = document.documentElement;
+    if (presenting) {
+      void element.requestFullscreen?.().catch(() => undefined);
+    } else if (document.fullscreenElement) {
+      void document.exitFullscreen?.().catch(() => undefined);
+    }
+  }, [presenting]);
+
+
 
   const persistHistory = useCallback(() => {
     saveHistory(id, { past: pastRef.current, future: futureRef.current });
@@ -788,11 +804,29 @@ export function TacticEditor({ id }: { id: string }) {
     setSelectedId(null);
   }
 
+  /** Förskjuter nya objekt så att de aldrig hamnar ovanpå varandra. */
+  function freeSpot(x: number, y: number): { x: number; y: number } {
+    const taken = frame?.objects ?? [];
+    const min = 0.055;
+    let cx = x;
+    let cy = y;
+    for (let step = 0; step < 40; step += 1) {
+      const clash = taken.some((object) => Math.hypot(object.x - cx, object.y - cy) < min);
+      if (!clash) break;
+      const angle = step * 0.9;
+      const radius = min + Math.floor(step / 8) * min;
+      cx = Math.min(0.95, Math.max(0.05, x + Math.cos(angle) * radius));
+      cy = Math.min(0.95, Math.max(0.05, y + Math.sin(angle) * radius));
+    }
+    return { x: cx, y: cy };
+  }
+
   function addFreePlayer(team: "home" | "away", gk: boolean, x?: number, y?: number) {
     const existing = (frame?.objects ?? []).filter(
       (object) => object.kind === "player" && object.team === team && !object.playerId,
     );
     const number = gk ? 1 : existing.filter((object) => !object.gk).length + 2;
+    const spot = freeSpot(x ?? (team === "home" ? 0.35 : 0.65), y ?? 0.5);
     addObject({
       id: uid(),
       kind: "player",
@@ -801,8 +835,8 @@ export function TacticEditor({ id }: { id: string }) {
       number,
       team,
       gk,
-      x: x ?? (team === "home" ? 0.35 : 0.65),
-      y: y ?? 0.5,
+      x: spot.x,
+      y: spot.y,
     });
   }
 
@@ -815,17 +849,19 @@ export function TacticEditor({ id }: { id: string }) {
   }
 
   function addMaterial(kind: "cone" | "goal", x = 0.5, y = 0.5) {
+    const spot = freeSpot(x, y);
     addObject({
       id: uid(),
       kind,
       label: "",
       team: "home",
-      x: snapValue(x),
-      y: snapValue(y),
+      x: snapValue(spot.x),
+      y: snapValue(spot.y),
     });
   }
 
   function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
+    const spot = freeSpot(x, y);
     addObject({
       id: uid(),
       kind: "player",
@@ -835,10 +871,11 @@ export function TacticEditor({ id }: { id: string }) {
       team: "home",
       gk: player.gk,
       photoUrl: player.photoUrl,
-      x,
-      y,
+      x: spot.x,
+      y: spot.y,
     });
   }
+
 
   /** Placeringsläge: varje tryck på planen lägger ut nästa spelare. */
   function placeAt(x: number, y: number) {
@@ -1091,6 +1128,7 @@ export function TacticEditor({ id }: { id: string }) {
         {advanced && (
           <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
             <Square className="size-4" />
+            <span className="text-xs font-semibold">Zon</span>
           </ToolButton>
         )}
 
@@ -1153,23 +1191,23 @@ export function TacticEditor({ id }: { id: string }) {
                 <Grid3x3 className="size-4" />
                 Rutnät
               </label>
-              <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
-                <FlipHorizontal2 className="size-4" />
+              <Button variant="ghost" size="sm" aria-label="Spegelvänd planen" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" /> Spegelvänd
               </Button>
             </>
           )}
 
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             aria-label="Lägg till boll"
             disabled={hasBall}
             onClick={() => addBall()}
           >
-            <CircleDot className="size-4" />
+            <CircleDot className="size-4" /> Boll
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Rensa plan" onClick={clearPitch}>
-            <Trash2 className="size-4 text-destructive" />
+          <Button variant="ghost" size="sm" aria-label="Rensa planen" onClick={clearPitch}>
+            <Trash2 className="size-4 text-destructive" /> Rensa
           </Button>
         </div>
       </div>
@@ -1481,27 +1519,33 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-mono tabular-nums text-foreground">{formatTime(currentSeconds)}</span>
-          <span>/ {formatTime(totalSeconds)}</span>
-          <label className="ml-auto flex items-center gap-1">
-            <span>Sök till</span>
-            <input
-              type="number"
-              aria-label="Hoppa till tid (sekunder)"
-              min={0}
-              max={Number(totalSeconds.toFixed(1))}
-              step={0.1}
-              value={Number(currentSeconds.toFixed(1))}
-              disabled={frames.length < 2}
-              onChange={(event) => seekSeconds(Number(event.target.value))}
-              className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
-            />
-            <span>s</span>
-          </label>
+          <span className="tabular-nums text-foreground">
+            {secondsLabel(currentSeconds)} av {secondsLabel(totalSeconds)}
+          </span>
+          {advanced && (
+            <label className="ml-auto flex items-center gap-1">
+              <span>Sök till</span>
+              <input
+                type="number"
+                aria-label="Hoppa till tid (sekunder)"
+                min={0}
+                max={Number(totalSeconds.toFixed(1))}
+                step={0.1}
+                value={Number(currentSeconds.toFixed(1))}
+                disabled={frames.length < 2}
+                onChange={(event) => seekSeconds(Number(event.target.value))}
+                className="w-16 rounded-md border border-border bg-background px-2 py-1 text-right font-mono text-foreground"
+              />
+              <span>s</span>
+            </label>
+          )}
         </div>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
-        </p>
+        {advanced && (
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Piltangenter ← → spolar 0,1 s (Skift = hel sekvens), Home/End hoppar till start/slut.
+          </p>
+        )}
+
 
 
 

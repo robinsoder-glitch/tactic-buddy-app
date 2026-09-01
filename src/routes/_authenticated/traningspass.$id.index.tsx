@@ -106,6 +106,15 @@ function SessionBuilder() {
     onError: () => toast.error("Det gick inte att ändra status."),
   });
 
+  const readinessProblems = (() => {
+    const problems: string[] = [];
+    if (items.length === 0) problems.push("Passet saknar innehåll.");
+    if (items.length > 0 && totalMinutes(items) === 0) problems.push("Ingen tid är satt på delarna.");
+    if (!session.data?.session_date) problems.push("Datum saknas.");
+    if (!session.data?.goal?.trim()) problems.push("Målsättningen är tom.");
+    return problems;
+  })();
+
   const saveOrder = useMutation({
     mutationFn: (next: CoachSessionItem[]) => saveItemOrder(next),
     onSuccess: invalidate,
@@ -249,7 +258,22 @@ function SessionBuilder() {
                     ? "Markera träningspasset som utkast"
                     : "Markera träningspasset som genomfört"
                 }
-                onClick={() => setStatus.mutate(session.data?.status === "done" ? "draft" : "done")}
+                onClick={() => {
+                  if (session.data?.status === "done") {
+                    setStatus.mutate("draft");
+                    return;
+                  }
+                  const problems = readinessProblems;
+                  if (problems.length === 0) {
+                    setStatus.mutate("done");
+                    return;
+                  }
+                  void confirm({
+                    title: "Kontrollera passet först",
+                    description: `Innan du markerar passet som genomfört: ${problems.join(" ")} Vill du markera det ändå?`,
+                    confirmLabel: "Markera ändå",
+                  }).then((ok) => ok && setStatus.mutate("done"));
+                }}
               >
                 {session.data.status === "done" ? "Markera som utkast" : "Markera som genomfört"}
               </Button>
