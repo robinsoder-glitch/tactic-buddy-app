@@ -91,11 +91,11 @@
 
 ## Spec 2026-09-02 (nattlig instruktion)
 ### Prioritet 1 – Taktiktavlans sekvenser
-- [ ] Startläge separerat, sekvens = målpositioner efter övergången
-- [ ] "Ny sekvens" lägger alltid sist; "Infoga sekvens efter denna" endast i Avancerad
-- [ ] Flytta/Löpning/Passning skapar aldrig sekvens, skriver till aktiv sekvens
-- [ ] transitionPaths tillhör målsekvensen; Spela detta steg N = N-1 → N
-- [ ] Stabila UUID:n, parallell interpolation, test som failar om drag ändrar antal sekvenser
+- [x] Startläge separerat, sekvens = målpositioner efter övergången
+- [x] "Ny sekvens" lägger alltid sist; "Infoga sekvens efter denna" endast i Avancerad
+- [x] Flytta/Löpning/Passning skapar aldrig sekvens, skriver till aktiv sekvens
+- [x] transitionPaths tillhör målsekvensen; Spela detta steg N = N-1 → N
+- [x] Stabila UUID:n, parallell interpolation, test som failar om drag ändrar antal sekvenser
 ### Prioritet 2 – Navigering
 - [ ] /taktikbank ren listvy utan databasskrivningar
 - [ ] /skapa visar val (Tom taktik / Mall) innan något skapas
