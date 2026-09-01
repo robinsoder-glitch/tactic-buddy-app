@@ -162,6 +162,10 @@ export function TacticEditor({ id }: { id: string }) {
   const futureRef = useRef<HistoryEntry[]>([]);
   const [historySize, setHistorySize] = useState({ past: 0, future: 0, undoLabel: "", redoLabel: "" });
 
+  const [placeMode, setPlaceMode] = useState<null | "home" | "away">(null);
+  const [movementTip, setMovementTip] = useState(false);
+  const [presenting, setPresenting] = useState(false);
+  const [playUntil, setPlayUntil] = useState<number | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
   const framesRef = useRef<Frame[]>([]);
@@ -255,20 +259,22 @@ export function TacticEditor({ id }: { id: string }) {
     let raf = 0;
     const startedAt = performance.now();
     const from = progress >= frames.length - 1 ? 0 : progress;
-    const total = ((frames.length - 1 - from) * STEP_MS) / speed;
+    const limit = playUntil ?? frames.length - 1;
+    const total = ((limit - from) * STEP_MS) / speed;
 
     const tick = (now: number) => {
       const elapsed = now - startedAt;
       const value = from + (elapsed / STEP_MS) * speed;
-      if (value >= frames.length - 1) {
-        if (loop) {
+      if (value >= limit) {
+        if (loop && playUntil == null) {
           setProgress(0);
           setPlaying(false);
           setTimeout(() => setPlaying(true), 60);
         } else {
-          setProgress(frames.length - 1);
-          setCurrent(frames.length - 1);
+          setProgress(limit);
+          setCurrent(Math.round(limit));
           setPlaying(false);
+          setPlayUntil(null);
         }
         return;
       }
@@ -280,7 +286,7 @@ export function TacticEditor({ id }: { id: string }) {
     void total;
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, speed, loop, frames.length]);
+  }, [playing, speed, loop, frames.length, playUntil]);
 
   // Autostart playback when the user has enabled it in settings
   const autoplayed = useRef(false);
