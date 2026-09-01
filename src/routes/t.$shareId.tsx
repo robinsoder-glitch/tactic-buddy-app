@@ -92,7 +92,7 @@ function SharedTactic() {
       <Pitch
         pitchType={tactic.data.pitch_type}
         objects={objects}
-        drawings={frame?.drawings ?? []}
+        drawings={drawingsAtProgress(frames, progress)}
         interactive={false}
         passT={passT}
       />

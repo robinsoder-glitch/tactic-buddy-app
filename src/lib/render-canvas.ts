@@ -1,4 +1,4 @@
-import { PITCH_SIZES, initials, interpolateFrames } from "./tactics";
+import { PITCH_SIZES, drawingsAtProgress, initials, interpolateFrames } from "./tactics";
 import type { Drawing, FieldObject, Frame, PitchType } from "./tactics";
 
 const COLORS = {
