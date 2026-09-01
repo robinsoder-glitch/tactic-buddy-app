@@ -243,6 +243,19 @@ export function TacticEditor({ id }: { id: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [presenting, placeMode]);
 
+  /** Helskärm när tavlan visas för laget – särskilt viktigt på mobil. */
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const element = document.documentElement;
+    if (presenting) {
+      void element.requestFullscreen?.().catch(() => undefined);
+    } else if (document.fullscreenElement) {
+      void document.exitFullscreen?.().catch(() => undefined);
+    }
+  }, [presenting]);
+
+
+
   const persistHistory = useCallback(() => {
     saveHistory(id, { past: pastRef.current, future: futureRef.current });
     setHistorySize(historyMeta(pastRef.current, futureRef.current));
