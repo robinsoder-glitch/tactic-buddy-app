@@ -353,7 +353,7 @@ export function groupInvitationsByEvent(list: MyInvitation[]): InvitationGroup[]
     groups.set(invitation.event_id, {
       eventId: invitation.event_id,
       teamId: invitation.team_id,
-      teamName: invitation.teamName,
+      teamName: invitation.teamName ?? undefined,
       event: invitation.event,
       invitations: [invitation],
     });
