@@ -178,7 +178,8 @@ export function TacticEditor({ id }: { id: string }) {
   useEffect(() => {
     if (tactic.data) {
       setFrames(
-        tactic.data.frames.map((item) => {
+        // Äldre taktiker sparade vägen i källsekvensen – normaliseras till målsekvensen vid läsning.
+        normalizeTransitionPaths(tactic.data.frames).map((item) => {
           let ballSeen = false;
           return {
             ...item,
@@ -1618,6 +1619,17 @@ export function TacticEditor({ id }: { id: string }) {
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
             <Plus className="size-4" /> Ny sekvens
           </Button>
+          {advanced && frames.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="shrink-0"
+              onClick={insertFrameAfterCurrent}
+              title="Infoga sekvens efter denna"
+            >
+              <Plus className="size-4" /> Infoga sekvens efter denna
+            </Button>
+          )}
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           Placera spelarna i Startläge. Varje ny sekvens utgår från föregående slutläge – flytta bara
