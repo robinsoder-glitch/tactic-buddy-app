@@ -210,6 +210,29 @@ export function drawScene(
       continue;
     }
 
+    if (object.kind === "cone") {
+      const size = tokenR * 1.1;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size);
+      ctx.lineTo(cx + size * 0.7, cy + size * 0.55);
+      ctx.lineTo(cx - size * 0.7, cy + size * 0.55);
+      ctx.closePath();
+      ctx.fillStyle = "#f59e42";
+      ctx.fill();
+      continue;
+    }
+
+    if (object.kind === "goal") {
+      const gw = tokenR * 3.2;
+      const gh = tokenR * 1.2;
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      ctx.fillRect(cx - gw / 2, cy - gh / 2, gw, gh);
+      ctx.lineWidth = w * 0.003;
+      ctx.strokeStyle = "#ffffff";
+      ctx.strokeRect(cx - gw / 2, cy - gh / 2, gw, gh);
+      continue;
+    }
+
     ctx.beginPath();
     ctx.arc(cx, cy, tokenR, 0, Math.PI * 2);
     ctx.fillStyle = object.gk

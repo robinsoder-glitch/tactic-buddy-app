@@ -45,6 +45,7 @@ import {
   type HistoryEntry,
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
+import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
@@ -741,6 +742,17 @@ export function TacticEditor({ id }: { id: string }) {
     addObject({ id: uid(), kind: "ball", label: "", team: "home", x: snapValue(x), y: snapValue(y) });
   }
 
+  function addMaterial(kind: "cone" | "goal", x = 0.5, y = 0.5) {
+    addObject({
+      id: uid(),
+      kind,
+      label: "",
+      team: "home",
+      x: snapValue(x),
+      y: snapValue(y),
+    });
+  }
+
   function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
     addObject({
       id: uid(),
@@ -760,6 +772,8 @@ export function TacticEditor({ id }: { id: string }) {
     const x = snapValue(rawX);
     const y = snapValue(rawY);
     if (raw === "ball") return addBall(x, y);
+    if (raw === "cone") return addMaterial("cone", x, y);
+    if (raw === "goal") return addMaterial("goal", x, y);
     if (raw.startsWith("free:")) {
       const [, team, gk] = raw.split(":");
       return addFreePlayer(team === "away" ? "away" : "home", gk === "gk", x, y);
@@ -1073,6 +1087,23 @@ export function TacticEditor({ id }: { id: string }) {
               <CircleDot className="size-6" />
             </span>
           </BankChip>
+          {advanced && (
+            <>
+              <BankChip payload="cone" label="Kon" onAdd={() => addMaterial("cone")}>
+                <span
+                  className="grid size-11 place-items-center rounded-full text-lg"
+                  style={{ background: "oklch(0.75 0.19 55)", color: "#20140a" }}
+                >
+                  ▲
+                </span>
+              </BankChip>
+              <BankChip payload="goal" label="Minimål" onAdd={() => addMaterial("goal")}>
+                <span className="grid size-11 place-items-center rounded-full border-2 border-foreground/60 text-xs font-bold">
+                  MÅL
+                </span>
+              </BankChip>
+            </>
+          )}
         </div>
 
         {bank.length === 0 && (
@@ -1273,12 +1304,22 @@ export function TacticEditor({ id }: { id: string }) {
           {frames.map((item, index) => (
             <div
               key={item.id}
-              className={`flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-sm ${
+              className={`flex w-32 shrink-0 flex-col gap-1 rounded-lg border p-2 text-sm ${
                 index === current ? "border-primary bg-primary/15" : "border-border"
               }`}
             >
               <button
                 type="button"
+                className="overflow-hidden rounded-md border border-border/60"
+                aria-label={`Visa ${item.name || frameLabel(index)}`}
+                onClick={() => goToStep(index)}
+              >
+                <TacticThumb pitchType={tactic.data.pitch_type} frame={item} width={220} />
+              </button>
+              <div className="flex items-center justify-between gap-1">
+              <button
+                type="button"
+                className="truncate text-left text-xs font-semibold"
                 onClick={() => goToStep(index)}
                 onDoubleClick={() => {
                   const value = window.prompt("Namn på sekvensen", item.name ?? "");
@@ -1301,6 +1342,7 @@ export function TacticEditor({ id }: { id: string }) {
                   <Trash2 className="size-3.5" />
                 </button>
               )}
+              </div>
             </div>
           ))}
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
