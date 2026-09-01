@@ -1094,20 +1094,23 @@ export function TacticEditor({ id }: { id: string }) {
 
 
 
-      <section className="rounded-xl border border-border bg-card p-3">
-        <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
-          Anteckning för {frame?.name || frameLabel(current)}
-        </label>
-        <Textarea
-          id="step-note"
-          rows={2}
-          value={frame?.note ?? ""}
-          onChange={(event) => setNote(event.target.value)}
-          placeholder="T.ex. Ytterbacken går på överlapp när sexan vänder spelet."
-          className="mt-2"
-        />
-        <p className="mt-1 text-xs text-muted-foreground">Visas under uppspelning och i delade länkar.</p>
-      </section>
+      {advanced && (
+        <section className="rounded-xl border border-border bg-card p-3">
+          <label className="text-xs font-semibold tracking-wide text-muted-foreground" htmlFor="step-note">
+            Anteckning för {frame?.name || frameLabel(current)}
+          </label>
+          <Textarea
+            id="step-note"
+            rows={2}
+            value={frame?.note ?? ""}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="T.ex. Ytterbacken går på överlapp när sexan vänder spelet."
+            className="mt-2"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">Visas under uppspelning och i delade länkar.</p>
+        </section>
+      )}
+
 
       <section className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
         <Button
