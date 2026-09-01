@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, KeyRound, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
+import { ArrowLeft, KeyRound, Lock, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
@@ -82,7 +82,9 @@ function SettingsPage() {
         <ArrowLeft className="size-4" aria-hidden /> Tillbaka
       </Link>
       <h1 className="mt-3 font-display text-3xl font-bold">Inställningar</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {profile?.display_name?.trim() || "Namnlös profil"}
+      </p>
 
       <section className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
@@ -262,8 +264,27 @@ function SettingsPage() {
 
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+          <Lock className="size-4 text-primary" /> Integritet
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Vi sparar så lite som möjligt om barn. Foton är alltid frivilliga och syns bara för laget. Av spelarens
+          födelsedatum använder appen bara åldersgruppen.
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>Bilder ligger i ett privat utrymme och nås bara av lagets medlemmar.</li>
+          <li>Lagkoden ger aldrig ledarrättigheter – ledare bjuds in personligen.</li>
+          <li>Delade taktiklänkar innehåller inga spelarnamn eller foton.</li>
+        </ul>
+        <p className="text-xs text-muted-foreground">
+          Vill du att uppgifter tas bort? Radera spelaren eller laget, så försvinner även bilderna.
+        </p>
+      </section>
+
+      <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <KeyRound className="size-4 text-primary" /> Konto
         </h2>
+        <p className="text-sm text-muted-foreground">Inloggad som {user?.email}</p>
         <Button variant="secondary" onClick={sendReset}>
           Byt lösenord
         </Button>
