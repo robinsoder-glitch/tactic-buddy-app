@@ -868,11 +868,13 @@ export function TacticEditor({ id }: { id: string }) {
         <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
           <span className="text-xs font-semibold">Passning</span>
         </ToolButton>
-        <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
-          <Square className="size-4" />
-        </ToolButton>
+        {advanced && (
+          <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
+            <Square className="size-4" />
+          </ToolButton>
+        )}
 
-        {tool === "zone" && (
+        {advanced && tool === "zone" && (
           <div className="flex items-center gap-1" role="group" aria-label="Färg på markering">
             {MARK_COLORS.map((color) => (
               <button
@@ -888,6 +890,7 @@ export function TacticEditor({ id }: { id: string }) {
             ))}
           </div>
         )}
+
 
         <div className="ml-auto flex gap-1">
           <Button
