@@ -337,7 +337,7 @@ export async function setEventCancelled(eventId: string, cancelled: boolean) {
 export type InvitationGroup = {
   eventId: string;
   teamId: string;
-  teamName?: string;
+  teamName?: string | undefined;
   event: MyInvitation["event"];
   invitations: MyInvitation[];
 };
