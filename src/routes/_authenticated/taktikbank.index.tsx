@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, ChevronRight, Search, Star } from "lucide-react";
 import {
@@ -23,9 +23,6 @@ import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 
 
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/taktik" });
-  },
   head: () => ({
     meta: [
       { title: "Taktikbank 5 mot 5 – taktikkort för barnfotboll" },

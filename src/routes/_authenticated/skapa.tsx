@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, PenLine, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -19,18 +19,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/skapa")({
-  beforeLoad: () => {
-    throw redirect({ to: "/taktik" });
-  },
   head: () => ({
     meta: [
-      { title: "Ny övning – välj mall eller börja från tom plan" },
+      { title: "Ny taktik – välj mall eller börja från tom plan" },
       {
         name: "description",
         content:
           "Starta en ny taktik: utgå från en färdig mall ur taktikbanken eller bygg din egen från en tom plan.",
       },
-      { property: "og:title", content: "Ny övning – välj mall eller börja från tom plan" },
+      { property: "og:title", content: "Ny taktik – välj mall eller börja från tom plan" },
       {
         property: "og:description",
         content: "Färdiga taktikmallar eller en tom plan – välj hur du vill börja.",
@@ -75,7 +72,7 @@ function CreatePage() {
     mutationFn: () =>
       createTactic(
         user!.id,
-        name.trim() || `Ny övning ${gameFormatLabel(format)}`,
+        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
         pitchTypeForFormat(format),
         teamId || null,
       ),
@@ -115,7 +112,7 @@ function CreatePage() {
         </Button>
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
-          <h1 className="font-display text-3xl font-bold">Ny övning</h1>
+          <h1 className="font-display text-3xl font-bold">Ny taktik</h1>
         </div>
       </header>
 
