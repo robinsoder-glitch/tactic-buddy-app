@@ -1128,6 +1128,7 @@ export function TacticEditor({ id }: { id: string }) {
         {advanced && (
           <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
             <Square className="size-4" />
+            <span className="text-xs font-semibold">Zon</span>
           </ToolButton>
         )}
 
@@ -1190,23 +1191,23 @@ export function TacticEditor({ id }: { id: string }) {
                 <Grid3x3 className="size-4" />
                 Rutnät
               </label>
-              <Button variant="ghost" size="icon" aria-label="Spegelvänd" onClick={mirror}>
-                <FlipHorizontal2 className="size-4" />
+              <Button variant="ghost" size="sm" aria-label="Spegelvänd planen" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" /> Spegelvänd
               </Button>
             </>
           )}
 
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             aria-label="Lägg till boll"
             disabled={hasBall}
             onClick={() => addBall()}
           >
-            <CircleDot className="size-4" />
+            <CircleDot className="size-4" /> Boll
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Rensa plan" onClick={clearPitch}>
-            <Trash2 className="size-4 text-destructive" />
+          <Button variant="ghost" size="sm" aria-label="Rensa planen" onClick={clearPitch}>
+            <Trash2 className="size-4 text-destructive" /> Rensa
           </Button>
         </div>
       </div>
