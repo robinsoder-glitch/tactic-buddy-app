@@ -45,6 +45,7 @@ import {
   type HistoryEntry,
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
+import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
@@ -1303,12 +1304,22 @@ export function TacticEditor({ id }: { id: string }) {
           {frames.map((item, index) => (
             <div
               key={item.id}
-              className={`flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-sm ${
+              className={`flex w-32 shrink-0 flex-col gap-1 rounded-lg border p-2 text-sm ${
                 index === current ? "border-primary bg-primary/15" : "border-border"
               }`}
             >
               <button
                 type="button"
+                className="overflow-hidden rounded-md border border-border/60"
+                aria-label={`Visa ${item.name || frameLabel(index)}`}
+                onClick={() => goToStep(index)}
+              >
+                <TacticThumb pitchType={tactic.data.pitch_type} frame={item} width={220} />
+              </button>
+              <div className="flex items-center justify-between gap-1">
+              <button
+                type="button"
+                className="truncate text-left text-xs font-semibold"
                 onClick={() => goToStep(index)}
                 onDoubleClick={() => {
                   const value = window.prompt("Namn på sekvensen", item.name ?? "");
@@ -1331,6 +1342,7 @@ export function TacticEditor({ id }: { id: string }) {
                   <Trash2 className="size-3.5" />
                 </button>
               )}
+              </div>
             </div>
           ))}
           <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
