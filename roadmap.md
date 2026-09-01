@@ -87,7 +87,7 @@
 - [x] Tester: navigation.test.ts (10 tester), hela sviten 166 gröna
 
 ## Kvar att göra (från spec 2026-09-01)
-- [ ] Instruktion 6: rätta sekvens- och animationsfel i Taktiktavlan enligt uppladdad specifikation.
+- [x] Instruktion 6: rätta sekvens- och animationsfel i Taktiktavlan enligt uppladdad specifikation.
 
 ## Spec 2026-09-02 (nattlig instruktion)
 ### Prioritet 1 – Taktiktavlans sekvenser
