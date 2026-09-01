@@ -788,11 +788,29 @@ export function TacticEditor({ id }: { id: string }) {
     setSelectedId(null);
   }
 
+  /** Förskjuter nya objekt så att de aldrig hamnar ovanpå varandra. */
+  function freeSpot(x: number, y: number): { x: number; y: number } {
+    const taken = frame?.objects ?? [];
+    const min = 0.055;
+    let cx = x;
+    let cy = y;
+    for (let step = 0; step < 40; step += 1) {
+      const clash = taken.some((object) => Math.hypot(object.x - cx, object.y - cy) < min);
+      if (!clash) break;
+      const angle = step * 0.9;
+      const radius = min + Math.floor(step / 8) * min;
+      cx = Math.min(0.95, Math.max(0.05, x + Math.cos(angle) * radius));
+      cy = Math.min(0.95, Math.max(0.05, y + Math.sin(angle) * radius));
+    }
+    return { x: cx, y: cy };
+  }
+
   function addFreePlayer(team: "home" | "away", gk: boolean, x?: number, y?: number) {
     const existing = (frame?.objects ?? []).filter(
       (object) => object.kind === "player" && object.team === team && !object.playerId,
     );
     const number = gk ? 1 : existing.filter((object) => !object.gk).length + 2;
+    const spot = freeSpot(x ?? (team === "home" ? 0.35 : 0.65), y ?? 0.5);
     addObject({
       id: uid(),
       kind: "player",
@@ -801,8 +819,8 @@ export function TacticEditor({ id }: { id: string }) {
       number,
       team,
       gk,
-      x: x ?? (team === "home" ? 0.35 : 0.65),
-      y: y ?? 0.5,
+      x: spot.x,
+      y: spot.y,
     });
   }
 
@@ -815,17 +833,19 @@ export function TacticEditor({ id }: { id: string }) {
   }
 
   function addMaterial(kind: "cone" | "goal", x = 0.5, y = 0.5) {
+    const spot = freeSpot(x, y);
     addObject({
       id: uid(),
       kind,
       label: "",
       team: "home",
-      x: snapValue(x),
-      y: snapValue(y),
+      x: snapValue(spot.x),
+      y: snapValue(spot.y),
     });
   }
 
   function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
+    const spot = freeSpot(x, y);
     addObject({
       id: uid(),
       kind: "player",
@@ -835,10 +855,11 @@ export function TacticEditor({ id }: { id: string }) {
       team: "home",
       gk: player.gk,
       photoUrl: player.photoUrl,
-      x,
-      y,
+      x: spot.x,
+      y: spot.y,
     });
   }
+
 
   /** Placeringsläge: varje tryck på planen lägger ut nästa spelare. */
   function placeAt(x: number, y: number) {
