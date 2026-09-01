@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchPlayers, fetchTactic, saveFrames, setTacticSharing } from "@/lib/db";
+import { fetchPlayers, fetchTactic, saveFrames, setTacticPitchType, setTacticSharing } from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
 import { exportPdf, previewPdfUrl } from "@/lib/export-pdf";
@@ -44,7 +44,8 @@ import {
   saveHistory,
   type HistoryEntry,
 } from "@/lib/tactic-history";
-import type { Drawing, FieldObject, Frame } from "@/lib/tactics";
+import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
+import { PITCH_SIZES } from "@/lib/tactics";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
@@ -192,6 +193,15 @@ export function TacticEditor({ id }: { id: string }) {
       setIsPublic(Boolean(tactic.data.is_public));
     }
   }, [tactic.data, id]);
+
+  const changePitch = useMutation({
+    mutationFn: (pitchType: PitchType) => setTacticPitchType(id, pitchType),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
+      void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+    },
+    onError: () => toast.error("Det gick inte att byta plantyp."),
+  });
 
   const save = useMutation({
     mutationFn: async () => {
@@ -831,6 +841,24 @@ export function TacticEditor({ id }: { id: string }) {
           <Save className="size-5" />
         </Button>
       </header>
+
+      {advanced && (
+        <div className="mb-2 flex flex-wrap items-center gap-2" role="group" aria-label="Planlayout">
+          <span className="text-xs font-semibold text-muted-foreground">Plan:</span>
+          {(Object.keys(PITCH_SIZES) as PitchType[]).map((key) => (
+            <Button
+              key={key}
+              size="sm"
+              variant={tactic.data!.pitch_type === key ? "default" : "secondary"}
+              aria-pressed={tactic.data!.pitch_type === key}
+              disabled={changePitch.isPending}
+              onClick={() => changePitch.mutate(key)}
+            >
+              {PITCH_SIZES[key].label}
+            </Button>
+          ))}
+        </div>
+      )}
 
       <div
         onDragOver={(event) => {
