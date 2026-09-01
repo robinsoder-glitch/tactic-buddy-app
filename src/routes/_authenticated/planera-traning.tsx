@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/hooks/useAccount";
 import { addResourceToEvent, fetchUpcomingEvents } from "@/lib/event-planning";
+import { EventCoaches } from "@/components/EventCoaches";
+import { coachSummary, fetchEventCoaches } from "@/lib/event-coaches";
 import {
   fetchAllSessionItems,
   fetchCoachSessions,
@@ -87,6 +89,19 @@ function PlanTrainingPage() {
   /** Planeringsstatus för varje träningstillfälle. */
   function statusFor(id: string) {
     return planningStatus(id, plans.data ?? [], resources.data ?? []);
+  }
+
+  const coaches = useQuery({
+    queryKey: ["event-coaches", trainings.map((item) => item.id).join(",")],
+    queryFn: () => fetchEventCoaches(trainings.map((item) => item.id)),
+    enabled: trainings.length > 0,
+  });
+
+  /** Öppnar planeringen för ett valt träningstillfälle. */
+  function openPlanning(id: string) {
+    setEventId(id);
+    setView("plan");
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const sessions = useQuery({ queryKey: ["coach-sessions"], queryFn: fetchCoachSessions });
@@ -198,13 +213,21 @@ function PlanTrainingPage() {
                   key={event.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
                 >
-                  <div className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => openPlanning(event.id)}
+                    className="min-w-0 flex-1 text-left"
+                  >
                     <p className="font-semibold">{event.title ?? "Träning"}</p>
                     <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
                     <p className="text-xs text-muted-foreground">
                       {event.team_name ?? "Lag"} · {plannedLabel(count)}
                     </p>
-                  </div>
+                    <p className="text-xs text-muted-foreground">
+                      {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
+                    </p>
+                    <p className="mt-1 text-xs font-semibold text-primary">Tryck för att planera</p>
+                  </button>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}>
                       {badge.text}
@@ -306,7 +329,10 @@ function PlanTrainingPage() {
                         {event.team_name ?? "Lag"}
                         {event.location ? ` · ${event.location}` : ""}
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">{plannedLabel(count)}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {plannedLabel(count)} ·{" "}
+                        {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
+                      </p>
                     </button>
                   </li>
                 );
@@ -317,7 +343,19 @@ function PlanTrainingPage() {
           {selected && (
             <>
               <div>
-                <h2 className="font-display text-xl font-semibold">Steg 2 – Välj träningsinnehåll</h2>
+                <h2 className="font-display text-xl font-semibold">Steg 2 – Ansvariga tränare</h2>
+                <div className="mt-3">
+                  <EventCoaches
+                    eventId={selected.id}
+                    teamId={selected.team_id}
+                    userId={user?.id ?? null}
+                    canEdit={coachTeams.some((item) => item.team_id === selected.team_id)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h2 className="font-display text-xl font-semibold">Steg 3 – Välj träningsinnehåll</h2>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button variant="secondary" asChild>
                     <Link to="/ovningsbank">Välj från Träningsbanken</Link>
@@ -377,7 +415,7 @@ function PlanTrainingPage() {
               </div>
 
               <div>
-                <h2 className="font-display text-xl font-semibold">Steg 3 – Granska och spara</h2>
+                <h2 className="font-display text-xl font-semibold">Steg 4 – Granska och spara</h2>
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <p className="font-semibold">{selected.title ?? "Träning"}</p>
                   <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
