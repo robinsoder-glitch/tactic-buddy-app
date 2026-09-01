@@ -30,17 +30,17 @@
 - [x] Mina taktiker: spelform i modern text, hela kortet klickbart, meny (Byt namn, Duplicera, Dela, Exportera, Radera)
 - [x] Filterpanel "Fler filter" + "Rensa filter" + antal aktiva filter i alla banker
 - [x] Övningsbank: nyckeltal på kort (spelare, yta, tid, utrustning), riktiga detaljsidor
-- [ ] Kunskapsbank: fylligare intern sammanfattning (Passar dig som, Huvudbudskap, Praktiska råd, Vad artikeln inte svarar på, källkontroll)
-- [ ] Editorn: förskjutning av nya spelare, "Lägg till steg", tydliga verktygsetiketter, enklare tidsvisning, "Sparat"-indikator, helskärm på mobil
-- [ ] Spelarbank: förklaring mot lagets trupp, "Symbolfärg: eget lag/motståndare"
-- [ ] Träningspass: drag-sortering, koppling till lagets kalender, kontroll före genomförande
-- [ ] Kalender/träning/match/närvaro/statistik enligt granskningens tabell
+- [x] Kunskapsbank: fylligare intern sammanfattning (Passar dig som, Huvudbudskap, Praktiska råd, Vad artikeln inte svarar på, källkontroll)
+- [x] Editorn: förskjutning av nya spelare, "Lägg till steg", tydliga verktygsetiketter, enklare tidsvisning, "Sparat"-indikator, helskärm på mobil
+- [x] Spelarbank: förklaring mot lagets trupp, "Symbolfärg: eget lag/motståndare"
+- [x] Träningspass: sortering upp/ned, koppling till lagets kalender, kontroll före genomförande
+- [x] Kalender/träning/match/närvaro/statistik enligt granskningens tabell
 
 ## Etapp 5: Generell kvalitet
-- [ ] Tomma lägen med förklaring och huvudhandling
-- [ ] Aria-label på ikonknappar
-- [ ] Inställningar delade i Profil, Taktiktavla, Utseende, Integritet, Konto
-- [ ] Visningsnamn i profilen i stället för e-post
+- [x] Tomma lägen med förklaring och huvudhandling
+- [x] Aria-label på ikonknappar
+- [x] Inställningar delade i Profil, Taktiktavla, Utseende, Integritet, Konto
+- [x] Visningsnamn i profilen i stället för e-post
 
 ## Etapp 1: Kallelser och deltagarsvar
 - [x] Datamodell: event_invitations, event_invitation_log, app_notifications, events.cancelled_at
@@ -62,10 +62,10 @@
 - [x] Kunskapsbanken: ta bort knapparna för att lägga till artiklar i träning/träningspass (inget ska kunna läggas till därifrån).
 
 ## Etapp 6: Rättningar 2026-08-30 (kväll)
-- [ ] Sista svarsdag i kallelser sparas och visas på svenska (verifierat mot databasen)
-- [ ] Verifiera att inga "Lägg till träningspass"/"Lägg till träning" finns kvar i Kunskapsbanken
-- [ ] Automatiskt test som failar om knapparna återkommer i Kunskapsbanken
-- [ ] Tydlig uppdatering/cache-busting så senaste versionen visas utan hård omladdning
+- [x] Sista svarsdag i kallelser sparas och visas på svenska (verifierat mot databasen)
+- [x] Verifiera att inga "Lägg till träningspass"/"Lägg till träning" finns kvar i Kunskapsbanken
+- [x] Automatiskt test som failar om knapparna återkommer i Kunskapsbanken
+- [x] Tydlig uppdatering/cache-busting så senaste versionen visas utan hård omladdning
 - [x] Ta bort "Sista svarsdag" helt från gränssnittet (databasfältet respond_by behålls) — etapp 1 klar
 
 ## Etapp 7 – Skapa träning (aug 2026)
