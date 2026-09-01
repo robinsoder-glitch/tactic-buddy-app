@@ -24,6 +24,8 @@ type Props = {
   gridStep?: number | null;
   /** 0..1 progress of the current animation segment, used for the pass ball */
   passT?: number | null;
+  /** placeringsläge: varje tryck på planen lägger ut ett nytt objekt */
+  onPlaceAt?: (x: number, y: number) => void;
   onMoveObject?: (id: string, x: number, y: number) => void;
   onMoveEnd?: () => void;
   /** called when an object was dragged with the run/pass tool: draw a trail from start to end */
