@@ -176,6 +176,11 @@ export async function createTacticFromFrames(
 }
 
 
+export async function setTacticPitchType(id: string, pitchType: PitchType) {
+  const { error } = await supabase.from("tactics").update({ pitch_type: pitchType }).eq("id", id);
+  if (error) throw error;
+}
+
 export async function renameTactic(id: string, name: string) {
   const { error } = await supabase.from("tactics").update({ name }).eq("id", id);
   if (error) throw error;

@@ -126,26 +126,38 @@ export function drawScene(
   ctx.fillStyle = "rgba(255,255,255,0.035)";
   for (let i = 0; i < 10; i += 1) ctx.fillRect((i * w) / 10, 0, w / 20, h);
 
-  const boxDepth = options.pitchType === "full" ? 16.5 : 9;
-  const boxWidth = options.pitchType === "full" ? 40.3 : 20;
-  const goalDepth = options.pitchType === "full" ? 5.5 : 3;
-  const goalWidth = options.pitchType === "full" ? 18.3 : 9;
-  const circleR = options.pitchType === "full" ? 9.15 : 6;
+  const small = options.pitchType === "small";
+  const partial = options.pitchType === "half" || options.pitchType === "third";
+  const boxDepth = small ? 9 : 16.5;
+  const boxWidth = small ? 20 : 40.3;
+  const goalDepth = small ? 3 : 5.5;
+  const goalWidth = small ? 9 : 18.3;
+  const circleR = small ? 6 : 9.15;
 
   ctx.strokeStyle = COLORS.line;
   ctx.lineWidth = w * 0.0025;
   ctx.strokeRect(1, 1, w - 2, h - 2);
-  ctx.beginPath();
-  ctx.moveTo(w / 2, 1);
-  ctx.lineTo(w / 2, h - 1);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(w / 2, h / 2, circleR, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.strokeRect(1, (h - boxWidth) / 2, boxDepth, boxWidth);
-  ctx.strokeRect(w - 1 - boxDepth, (h - boxWidth) / 2, boxDepth, boxWidth);
-  ctx.strokeRect(1, (h - goalWidth) / 2, goalDepth, goalWidth);
-  ctx.strokeRect(w - 1 - goalDepth, (h - goalWidth) / 2, goalDepth, goalWidth);
+  if (partial) {
+    if (options.pitchType === "half") {
+      ctx.beginPath();
+      ctx.arc(1, h / 2, circleR, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+    }
+    ctx.strokeRect(w - 1 - boxDepth, (h - boxWidth) / 2, boxDepth, boxWidth);
+    ctx.strokeRect(w - 1 - goalDepth, (h - goalWidth) / 2, goalDepth, goalWidth);
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(w / 2, 1);
+    ctx.lineTo(w / 2, h - 1);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, circleR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeRect(1, (h - boxWidth) / 2, boxDepth, boxWidth);
+    ctx.strokeRect(w - 1 - boxDepth, (h - boxWidth) / 2, boxDepth, boxWidth);
+    ctx.strokeRect(1, (h - goalWidth) / 2, goalDepth, goalWidth);
+    ctx.strokeRect(w - 1 - goalDepth, (h - goalWidth) / 2, goalDepth, goalWidth);
+  }
 
   // drawings
   for (const drawing of options.drawings) {
