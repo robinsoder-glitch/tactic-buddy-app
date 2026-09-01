@@ -741,6 +741,17 @@ export function TacticEditor({ id }: { id: string }) {
     addObject({ id: uid(), kind: "ball", label: "", team: "home", x: snapValue(x), y: snapValue(y) });
   }
 
+  function addMaterial(kind: "cone" | "goal", x = 0.5, y = 0.5) {
+    addObject({
+      id: uid(),
+      kind,
+      label: "",
+      team: "home",
+      x: snapValue(x),
+      y: snapValue(y),
+    });
+  }
+
   function addBankPlayer(player: BankPlayer, x = 0.4, y = 0.5) {
     addObject({
       id: uid(),
@@ -760,6 +771,8 @@ export function TacticEditor({ id }: { id: string }) {
     const x = snapValue(rawX);
     const y = snapValue(rawY);
     if (raw === "ball") return addBall(x, y);
+    if (raw === "cone") return addMaterial("cone", x, y);
+    if (raw === "goal") return addMaterial("goal", x, y);
     if (raw.startsWith("free:")) {
       const [, team, gk] = raw.split(":");
       return addFreePlayer(team === "away" ? "away" : "home", gk === "gk", x, y);
@@ -1073,6 +1086,23 @@ export function TacticEditor({ id }: { id: string }) {
               <CircleDot className="size-6" />
             </span>
           </BankChip>
+          {advanced && (
+            <>
+              <BankChip payload="cone" label="Kon" onAdd={() => addMaterial("cone")}>
+                <span
+                  className="grid size-11 place-items-center rounded-full text-lg"
+                  style={{ background: "oklch(0.75 0.19 55)", color: "#20140a" }}
+                >
+                  ▲
+                </span>
+              </BankChip>
+              <BankChip payload="goal" label="Minimål" onAdd={() => addMaterial("goal")}>
+                <span className="grid size-11 place-items-center rounded-full border-2 border-foreground/60 text-xs font-bold">
+                  MÅL
+                </span>
+              </BankChip>
+            </>
+          )}
         </div>
 
         {bank.length === 0 && (
