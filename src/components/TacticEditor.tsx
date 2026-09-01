@@ -469,6 +469,10 @@ export function TacticEditor({ id }: { id: string }) {
     });
     setCurrent(current + 1);
     setProgress(current + 1);
+    toast.success(
+      `${object.label || "Objektet"} flyttas i ${frameLabel(current + 1)}`,
+      { action: { label: "Ångra", onClick: () => undoRef.current() } },
+    );
   }
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
@@ -567,6 +571,8 @@ export function TacticEditor({ id }: { id: string }) {
     setCurrent(next);
     setProgress(next);
   }
+
+  const undoRef = useRef<() => void>(() => {});
 
   const undo = useCallback(() => {
     const previous = pastRef.current[pastRef.current.length - 1];
@@ -1529,6 +1535,12 @@ export function TacticEditor({ id }: { id: string }) {
               >
                 {item.name || frameLabel(index)}
               </button>
+              {index > 0 &&
+                JSON.stringify(frames[index - 1]?.objects) === JSON.stringify(item.objects) && (
+                  <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
+                    Inga förändringar
+                  </span>
+                )}
               {frames.length > 1 && (
                 <button
                   type="button"
