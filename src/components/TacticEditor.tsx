@@ -315,6 +315,41 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
+  /** Ersätter eget lags spelare med vald formation i alla steg. */
+  function applyFormation(formation: Formation) {
+    const gkFirst = [...bank].sort((a, b) => Number(b.gk) - Number(a.gk));
+    const lineup: FieldObject[] = formation.slots.map((slot, index) => {
+      const player = slot.gk ? gkFirst[0] : gkFirst.filter((item) => !item.gk)[index - 1];
+      return {
+        id: uid(),
+        kind: "player",
+        playerId: player?.id ?? null,
+        label: player?.name ?? "",
+        number: player?.number ?? null,
+        team: "home",
+        gk: Boolean(slot.gk),
+        photoUrl: player?.photoUrl ?? null,
+        x: slot.x,
+        y: slot.y,
+      };
+    });
+
+    commit(
+      (prev) =>
+        prev.map((item) => ({
+          ...item,
+          objects: [
+            ...item.objects.filter((object) => !(object.kind === "player" && object.team === "home")),
+            ...lineup.map((object) => ({ ...object })),
+          ],
+        })),
+      `Formation ${formation.label}`,
+    );
+    toast.success(`Formation ${formation.label} placerad.`);
+  }
+
+
+
   function removeObject(objectId: string) {
     commit((prev) =>
       prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
