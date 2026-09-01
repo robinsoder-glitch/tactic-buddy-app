@@ -860,6 +860,23 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
       )}
 
+      {advanced && (
+        <div className="mb-2 flex flex-wrap items-center gap-2" role="group" aria-label="Formation">
+          <span className="text-xs font-semibold text-muted-foreground">Formation:</span>
+          {formationsForPitch(tactic.data.pitch_type).map((formation) => (
+            <Button
+              key={formation.id}
+              size="sm"
+              variant="secondary"
+              onClick={() => applyFormation(formation)}
+            >
+              {formation.label}
+            </Button>
+          ))}
+        </div>
+      )}
+
+
       <div
         onDragOver={(event) => {
           if (event.dataTransfer.types.includes("text/plain")) event.preventDefault();
