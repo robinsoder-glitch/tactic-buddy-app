@@ -46,6 +46,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
+import { formationsForPitch, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
