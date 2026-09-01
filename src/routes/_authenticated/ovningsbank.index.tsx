@@ -172,7 +172,14 @@ function OvningsbankPage() {
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <Dumbbell className="mx-auto size-8 text-primary" />
         <h1 className="mt-3 font-display text-2xl font-bold">Träningsbanken</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Träningsbanken är till för tränare och lagledare.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Träningsbanken är till för tränare och lagledare. Innehållet här används när du planerar träning.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" asChild>
+            <Link to="/planera-traning">Till Planera träning</Link>
+          </Button>
+        </div>
         <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
           Till startsidan
         </Link>

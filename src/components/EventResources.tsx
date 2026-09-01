@@ -13,6 +13,7 @@ import {
   type EventResourceKind,
 } from "@/lib/taktikbank";
 import { fetchCoachSessions } from "@/lib/coach-sessions";
+import { fetchTactics } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -58,6 +59,17 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     enabled: open || links.isSuccess,
   });
 
+  const ownTactics = useQuery({
+    queryKey: ["tactics"],
+    queryFn: fetchTactics,
+    enabled: open || links.isSuccess,
+  });
+
+  /** Sann när taktiken är en egen ritad taktik och inte ett kort ur banken. */
+  function isOwnTactic(id: string) {
+    return (ownTactics.data ?? []).some((item) => item.id === id);
+  }
+
   /** Ett kopplat träningspass kan vara redaktionellt eller en tränares egen träning. */
   function isCoachSession(id: string) {
     return (coachSessions.data ?? []).some((item) => item.id === id);
@@ -67,6 +79,10 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     if (kind === "session") {
       const own = (coachSessions.data ?? []).find((item) => item.id === id);
       if (own) return own.title;
+    }
+    if (kind === "tactic") {
+      const own = (ownTactics.data ?? []).find((item) => item.id === id);
+      if (own) return own.name;
     }
     const source =
       kind === "tactic" ? tactics.data : kind === "drill" ? drills.data : sessions.data;
@@ -113,6 +129,14 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
             {item.kind === "session" && isCoachSession(item.resource_id) ? (
               <Link
                 to="/traningspass/$id/visa"
+                params={{ id: item.resource_id }}
+                className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline"
+              >
+                {titleFor(item.kind, item.resource_id)}
+              </Link>
+            ) : item.kind === "tactic" && isOwnTactic(item.resource_id) ? (
+              <Link
+                to="/tactic/$id"
                 params={{ id: item.resource_id }}
                 className="min-w-0 flex-1 truncate text-primary underline-offset-4 hover:underline"
               >

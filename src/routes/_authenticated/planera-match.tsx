@@ -9,10 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/hooks/useAccount";
-import { fetchUpcomingEvents } from "@/lib/event-planning";
+import { addResourceToEvent, fetchUpcomingEvents } from "@/lib/event-planning";
+import { fetchTactics } from "@/lib/db";
+import { fetchTacticCards } from "@/lib/taktikbank";
+
 import {
   fetchEventPlan,
+  fetchEventResources,
   fetchSquad,
+  removeEventResource,
+
   saveEventPlan,
   saveSquad,
   selectionLabel,
@@ -107,9 +113,49 @@ function PlanMatchPage() {
     onError: () => toast.error("Det gick inte att spara matchplaneringen."),
   });
 
+  const myTactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
+  const tacticCards = useQuery({ queryKey: ["tactic-cards"], queryFn: fetchTacticCards });
+
+  const eventResources = useQuery({
+    queryKey: ["event-resources", eventId],
+    queryFn: () => fetchEventResources([eventId as string]),
+    enabled: !!eventId,
+  });
+
+  const matchTactics = (eventResources.data ?? []).filter((row) => row.kind === "tactic");
+
+  /** Namn på en kopplad taktik, oavsett om den är egen eller hämtad ur banken. */
+  function tacticTitle(id: string) {
+    return (
+      (myTactics.data ?? []).find((item) => item.id === id)?.name ??
+      (tacticCards.data ?? []).find((item) => item.id === id)?.title ??
+      "Taktik"
+    );
+  }
+
+  const addTactic = useMutation({
+    mutationFn: async (resourceId: string) => {
+      if (!user || !selected) throw new Error("Välj en match först.");
+      await addResourceToEvent({
+        eventId: selected.id,
+        teamId: selected.team_id,
+        userId: user.id,
+        kind: "tactic",
+        resourceId,
+        minutes: null,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-resources"] });
+      toast.success("Taktiken kopplades till matchen.");
+    },
+    onError: () => toast.error("Det gick inte att koppla taktiken."),
+  });
+
   const playerList = (players.data ?? []).filter((player) =>
     player.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
+
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
@@ -303,7 +349,94 @@ function PlanMatchPage() {
               </div>
 
               <div>
-                <h2 className="font-display text-xl font-semibold">Steg 3 – Sammanställning</h2>
+                <h2 className="font-display text-xl font-semibold">Steg 3 – Koppla taktik</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Välj de taktiker laget ska köra i matchen. De syns sedan på matchen i kalendern.
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button variant="secondary" asChild>
+                    <Link to="/taktik">Öppna taktiktavlan</Link>
+                  </Button>
+                </div>
+
+                <ul className="mt-3 space-y-2">
+                  {matchTactics.length === 0 && (
+                    <li className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+                      Ingen taktik kopplad till matchen ännu.
+                    </li>
+                  )}
+                  {matchTactics.map((row) => (
+                    <li
+                      key={row.id}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-sm"
+                    >
+                      <span className="min-w-0 truncate font-semibold">{tacticTitle(row.resource_id)}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          await removeEventResource(row.id);
+                          queryClient.invalidateQueries({ queryKey: ["event-resources"] });
+                        }}
+                      >
+                        Ta bort
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+
+                <h3 className="mt-5 font-display text-lg font-semibold">Mina taktiker</h3>
+                <ul className="mt-2 space-y-2">
+                  {(myTactics.data ?? []).length === 0 && (
+                    <li className="text-sm text-muted-foreground">
+                      Du har inga sparade taktiker ännu – rita en på taktiktavlan.
+                    </li>
+                  )}
+                  {(myTactics.data ?? []).map((tactic) => (
+                    <li
+                      key={tactic.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-3"
+                    >
+                      <Link
+                        to="/tactic/$id"
+                        params={{ id: tactic.id }}
+                        className="min-w-0 truncate font-semibold text-primary underline-offset-4 hover:underline"
+                      >
+                        {tactic.name}
+                      </Link>
+                      <Button size="sm" onClick={() => addTactic.mutate(tactic.id)} disabled={addTactic.isPending}>
+                        Koppla till matchen
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+
+                <h3 className="mt-5 font-display text-lg font-semibold">Färdiga taktiker</h3>
+                <ul className="mt-2 space-y-2">
+                  {(tacticCards.data ?? []).slice(0, 10).map((card) => (
+                    <li
+                      key={card.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-3"
+                    >
+                      <Link
+                        to="/taktikbank/$cardId"
+                        params={{ cardId: card.id }}
+                        className="min-w-0 truncate font-semibold text-primary underline-offset-4 hover:underline"
+                      >
+                        {card.title}
+                      </Link>
+                      <Button size="sm" onClick={() => addTactic.mutate(card.id)} disabled={addTactic.isPending}>
+                        Koppla till matchen
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h2 className="font-display text-xl font-semibold">Steg 4 – Sammanställning</h2>
+
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <p className="font-semibold">{selected.title ?? "Match"}</p>
                   <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
