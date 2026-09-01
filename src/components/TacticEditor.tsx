@@ -795,6 +795,24 @@ export function TacticEditor({ id }: { id: string }) {
         <span className="text-xs text-muted-foreground">
           {save.isPending ? "Sparar…" : dirty ? "Osparat" : "Sparat"}
         </span>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-pressed={advanced}
+          onClick={() => {
+            const next: EditorMode = advanced ? "simple" : "advanced";
+            setMode(next);
+            if (next === "simple" && tool === "zone") setTool("select");
+            try {
+              window.localStorage.setItem(MODE_KEY, next);
+            } catch {
+              /* ignorera blockerad lagring */
+            }
+          }}
+        >
+          {advanced ? "Byt till Enkel" : "Byt till Avancerad"}
+        </Button>
+
         <Button variant="ghost" size="icon" aria-label="Spara" onClick={() => save.mutate()}>
           <Save className="size-5" />
         </Button>
