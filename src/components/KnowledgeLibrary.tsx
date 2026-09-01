@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, Clock, Search, Star } from "lucide-react";
@@ -87,6 +87,9 @@ export function KnowledgeLibrary() {
       ),
     [all, query, category, age, level, onlyFavorites, favoriteSet],
   );
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, category, age, level, onlyFavorites]);
   const shown = list.slice(0, visible);
 
   return (
