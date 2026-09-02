@@ -62,6 +62,51 @@ import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CoachTour, type TourStep } from "@/components/CoachTour";
+
+const TOUR_KEY = "taktiktavla:tour:v1";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: "player",
+    title: "1. Sätt ut dina spelare",
+    body: "Tryck på Egen spelare och peka sedan på planen – en gång per spelare. Sätt ut så många spelare som situationen behöver och tryck Klar.",
+  },
+  {
+    target: "opponent",
+    title: "2. Lägg till motståndare",
+    body: "Tryck på Motståndare och peka på planen där de ska stå. Lägg ut lika många som du vill visa.",
+  },
+  {
+    target: "ball",
+    title: "3. Lägg till bollen",
+    body: "Tryck på Boll så hamnar den på planen. Dra den dit spelet börjar.",
+  },
+  {
+    target: "sequence",
+    title: "4. Ny sekvens = rörelse",
+    body: "Tryck Ny sekvens och dra sedan spelare och boll dit de ska. Löplinjer och passningar ritas automatiskt. Vill du ha fler rörelser trycker du Ny sekvens igen.",
+  },
+  {
+    target: "play",
+    title: "5. Spela upp",
+    body: "När du är klar trycker du Spela allt så animeras hela taktiken från startläget.",
+  },
+  {
+    target: "save",
+    title: "6. Spara med eget namn",
+    body: "Tryck Spara, skriv ett namn du känner igen taktiken på och spara. Allt sparas också automatiskt medan du jobbar.",
+  },
+];
 
 
 
