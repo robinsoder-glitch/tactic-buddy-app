@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { AppNav } from "@/components/AppNav";
-import { PageHeader } from "@/components/PageHeader";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
 import { EventCoaches } from "@/components/EventCoaches";
