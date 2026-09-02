@@ -247,3 +247,9 @@ export function eventLabel(event: TeamEvent): string {
   }
   return "Träning";
 }
+
+/** Sparar matchens totala längd i minuter (krävs för andelsbaserade snabbval). */
+export async function setMatchDuration(eventId: string, minutes: number | null) {
+  const { error } = await supabase.from("events").update({ match_duration_minutes: minutes }).eq("id", eventId);
+  if (error) throw error;
+}
