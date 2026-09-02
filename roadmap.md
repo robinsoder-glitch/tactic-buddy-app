@@ -131,7 +131,9 @@
 - [x] Steg 5 granska + atomisk sparning (RPC save_match_plan), grön Klar direkt
 - [x] Ändra: förifyllt, varning om borttagen spelare låg på planen, Avbryt oförändrat
 - [x] Dela laguppställning: skrivskyddad länk (match_shares + get_shared_match), återkallelse, slutdatum, inga privata uppgifter
-- [ ] Acceptanstester mot live-databas (multi-roll)
+- [x] Acceptanstester (live): 3v3-sparning med ledare+4 spelare, reload visar identisk data, grön Klar-etikett, läsläge, dubblettskydd/validering via enhetstester (273 gröna)
+- [x] Rättat: tryck-placering i MatchLineupEditor (pointerdown avmarkerade valet), svars­summering räknar uttagna utan kallelserad som Ej svarat, klickbara ledar-/spelarrader
+- [ ] Ej testat live: 5v5/7v7/9v9/11v11 (enhetstestade), giltig delningslänk utloggad (ogiltig token testad), RLS mellan två lag, påminnelse-debounce
 
 ## Instruktion 10E – Genomför träning
 - [ ] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående

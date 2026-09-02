@@ -226,7 +226,14 @@ function MatchPlanner({
     return map;
   }, [players]);
 
-  const counts = useMemo(() => countInvitations(invitations), [invitations]);
+  // Summering över de uttagna spelarna: spelare utan kallelserad räknas som Ej svarat.
+  const displayCounts = useMemo(
+    () =>
+      countInvitations(
+        playerIds.map((id) => ({ status: invitations.find((i) => i.player_id === id)?.status ?? "pending" })),
+      ),
+    [playerIds, invitations],
+  );
 
   useEffect(() => {
     void (async () => {
@@ -433,7 +440,7 @@ function MatchPlanner({
 
           <section className="rounded-xl border bg-card p-4">
             <h2 className="mb-2 font-medium">Spelarnas svar</h2>
-            <p className="text-sm text-muted-foreground">{summaryText(counts)}</p>
+            <p className="text-sm text-muted-foreground">{summaryText(displayCounts)}</p>
             <ul className="mt-2 space-y-1 text-sm">
               {sortedPlayers.filter((p) => playerIds.includes(p.id)).map((p) => (
                 <li key={p.id} className="flex items-center justify-between">
