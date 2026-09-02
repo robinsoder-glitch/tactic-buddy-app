@@ -126,9 +126,19 @@ export function Pitch({
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
 
 
+  /** Skärmkoordinater -> plankoordinater 0..1 via SVG:ns egen matris. */
   function toNormalized(event: React.PointerEvent) {
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const matrix = svg.getScreenCTM?.();
+    if (matrix) {
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const local = point.matrixTransform(matrix.inverse());
+      return { x: clamp01(local.x / w), y: clamp01(local.y / h) };
+    }
+    const rect = svg.getBoundingClientRect();
     return {
       x: clamp01((event.clientX - rect.left) / rect.width),
       y: clamp01((event.clientY - rect.top) / rect.height),
@@ -161,8 +171,10 @@ export function Pitch({
       return;
     }
     if (dragId.current) {
+      event.preventDefault();
       const point = toNormalized(event);
-      onMoveObject?.(dragId.current, point.x, point.y);
+      const offset = dragOffset.current ?? { x: 0, y: 0 };
+      onMoveObject?.(dragId.current, clamp01(point.x + offset.x), clamp01(point.y + offset.y));
     }
   }
 
@@ -175,7 +187,7 @@ export function Pitch({
       setPending(null);
     }
     if (dragId.current) {
-      // Att dra ett objekt är i sig rörelsen: bollen ger passning, spelare ger löpning.
+      // Att dra ett objekt är i sig rörelsen: pilarna härleds ur bildernas positioner.
       if (dragStart.current && dragKind.current) {
         onObjectTrail?.(
           dragId.current,
@@ -188,6 +200,7 @@ export function Pitch({
     dragId.current = null;
     dragStart.current = null;
     dragKind.current = null;
+    dragOffset.current = null;
   }
 
   /** Alla objekt går att dra direkt – inga verktyg behövs. */
@@ -198,12 +211,30 @@ export function Pitch({
   function startObjectDrag(event: React.PointerEvent, object: FieldObject) {
     if (!interactive || !canDragObject(object)) return;
     event.stopPropagation();
-    svgRef.current?.setPointerCapture?.(event.pointerId);
+    // Hindrar att webbläsaren startar egen bild-/textdragning som annars avbryter pointer-flödet.
+    event.preventDefault();
+    const target = event.currentTarget as unknown as SVGGElement;
+    try {
+      target.setPointerCapture?.(event.pointerId);
+      capturedRef.current = target;
+    } catch {
+      svgRef.current?.setPointerCapture?.(event.pointerId);
+      capturedRef.current = svgRef.current;
+    }
+    const point = toNormalized(event);
     dragId.current = object.id;
     dragStart.current = { x: object.x, y: object.y };
     dragKind.current = object.kind;
+    dragOffset.current = { x: object.x - point.x, y: object.y - point.y };
     onSelectObject?.(object.id);
   }
+
+  const dragHandlers = {
+    onPointerMove: handlePointerMove,
+    onPointerUp: handlePointerUp,
+    onPointerCancel: handlePointerUp,
+  };
+
 
   const markLine = "var(--color-pitch-line)";
   const partial = pitchType === "half" || pitchType === "third";
