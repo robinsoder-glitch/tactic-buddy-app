@@ -1,43 +1,26 @@
-import { BRAND_LOGO_ALT, BRAND_NAME } from "@/lib/brand";
+import { BRAND_LOGO_ALT } from "@/lib/brand";
 import logoAsset from "@/assets/fotbollsrummet-logo.png.asset.json";
+import markAsset from "@/assets/fotbollsrummet-mark.png.asset.json";
 
 type Props = {
-  /** Logotypens storlek i px (höjd på märket). Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
+  /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
   size?: number;
-  /** Visa namnet bredvid loggan. */
+  /** Visa hela loggan med namnet. Annars bara märket. */
   showName?: boolean;
-  /** Storleksklass för namnet. */
+  /** Behålls för bakåtkompatibilitet – namnet ingår i bilden. */
   nameClassName?: string;
   className?: string;
 };
 
-/** Varumärke: hexagon-märket, med eller utan ordbilden Fotbollsrummet. */
+/** Varumärket Fotbollsrummet – hela loggan eller enbart hexagonmärket. */
 export function BrandLogo({ size = 40, showName = true, className }: Props) {
-  if (showName) {
-    return (
-      <img
-        src={logoAsset.url}
-        alt={BRAND_LOGO_ALT}
-        style={{ height: size }}
-        className={`w-auto shrink-0 object-contain dark:rounded-md dark:bg-white dark:px-1.5 dark:py-0.5 ${className ?? ""}`}
-      />
-    );
-  }
-
+  const src = showName ? logoAsset.url : markAsset.url;
   return (
-    <span
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden ${className ?? ""}`}
-      style={{ width: size, height: size }}
-      role="img"
-      aria-label={`${BRAND_NAME} logga`}
-    >
-      <img
-        src={logoAsset.url}
-        alt=""
-        aria-hidden
-        style={{ height: size, maxWidth: "none" }}
-        className="w-auto object-cover object-left"
-      />
-    </span>
+    <img
+      src={src}
+      alt={BRAND_LOGO_ALT}
+      style={{ height: size, width: showName ? undefined : size }}
+      className={`shrink-0 object-contain ${showName ? "w-auto dark:rounded-md dark:bg-white dark:px-2 dark:py-1" : ""} ${className ?? ""}`}
+    />
   );
 }
