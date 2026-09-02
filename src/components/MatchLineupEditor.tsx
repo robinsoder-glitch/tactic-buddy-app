@@ -40,15 +40,25 @@ export function MatchLineupEditor({
     }
   }
 
+  const suppressClickRef = useRef(false);
+
   function startDrag(e: ReactPointerEvent, playerId: string) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    setDragPos({ playerId, x: e.clientX, y: e.clientY });
-    setSelected(playerId);
-    const move = (ev: PointerEvent) => setDragPos((d) => (d ? { ...d, x: ev.clientX, y: ev.clientY } : d));
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let dragging = false;
+    const move = (ev: PointerEvent) => {
+      if (!dragging && Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return;
+      dragging = true;
+      setDragPos({ playerId, x: ev.clientX, y: ev.clientY });
+      setSelected(playerId);
+    };
     const up = (ev: PointerEvent) => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       setDragPos(null);
+      if (!dragging) return; // vanlig tryckning – låt onClick sköta markeringen
+      suppressClickRef.current = true;
       const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest("[data-slot-index]");
       if (el) place(playerId, Number(el.getAttribute("data-slot-index")));
     };
