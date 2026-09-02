@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { fetchDrill, fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { drillMeta } from "@/lib/ovningsbank";
+import { drillDefaultMinutes } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
 import { PickDrillButton } from "@/components/PickDrillButton";
@@ -89,7 +90,7 @@ function DrillPage() {
           kind="drill"
           resourceId={drill.data.id}
           title={drill.data.title}
-          defaultMinutes={drill.data.default_minutes ?? 10}
+          defaultMinutes={drillDefaultMinutes(drill.data)}
         />
       </div>
     </main>

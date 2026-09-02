@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  KNOWLEDGE_AGE_OPTIONS,
   fetchKnowledgeArticles,
   filterKnowledge,
   knowledgeAgeLabel,
@@ -50,7 +49,6 @@ const PAGE_SIZE = 12;
 export function KnowledgeLibrary() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const [age, setAge] = useState("all");
   const [level, setLevel] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
@@ -82,14 +80,14 @@ export function KnowledgeLibrary() {
   const levels = useMemo(() => knowledgeLevels(all), [all]);
   const list = useMemo(
     () =>
-      filterKnowledge(all, { query, category, age, level }).filter(
+      filterKnowledge(all, { query, category, level }).filter(
         (article) => !onlyFavorites || favoriteSet.has(article.id),
       ),
-    [all, query, category, age, level, onlyFavorites, favoriteSet],
+    [all, query, category, level, onlyFavorites, favoriteSet],
   );
   useEffect(() => {
     setVisible(PAGE_SIZE);
-  }, [query, category, age, level, onlyFavorites]);
+  }, [query, category, level, onlyFavorites]);
   const shown = list.slice(0, visible);
 
   return (
@@ -112,7 +110,6 @@ export function KnowledgeLibrary() {
           onChange={setCategory}
           options={[["all", "Alla kategorier"], ...categories.map((item) => [item, item] as [string, string])]}
         />
-        <Chips label="Åldersgrupp" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
         {levels.length > 1 && (
           <Chips
             label="Nivå"
@@ -132,6 +129,7 @@ export function KnowledgeLibrary() {
           <Star className="size-3.5" /> Mina favoriter
         </button>
       </div>
+
 
       <p className="mt-3 text-xs text-muted-foreground">
         {articles.isLoading ? "Laddar artiklar…" : `${list.length} av ${all.length} artiklar`}

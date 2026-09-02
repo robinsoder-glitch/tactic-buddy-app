@@ -31,6 +31,7 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
   const search = parsePickSearch(useSearch({ strict: false }) as Record<string, unknown>);
   const navigate = useNavigate();
   const [duplicate, setDuplicate] = useState(false);
+  const [minutes, setMinutes] = useState(String(defaultMinutes));
   const events = useQuery({
     queryKey: ["upcoming-events"],
     queryFn: () => fetchUpcomingEvents(),
@@ -59,7 +60,7 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind: "drill", resourceId, title, minutes: defaultMinutes },
+      { kind: "drill", resourceId, title, minutes: Number(minutes) || defaultMinutes },
       { allowDuplicate },
     );
     if (!added) {
@@ -73,9 +74,23 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
 
   return (
     <>
-      <Button size={size} onClick={() => add(false)}>
-        Lägg till i denna träning
-      </Button>
+      <span className="inline-flex items-center gap-2">
+        <Button size={size} onClick={() => add(false)}>
+          Lägg till i denna träning
+        </Button>
+        <label className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <input
+            type="number"
+            min={5}
+            max={60}
+            aria-label="Antal minuter"
+            value={minutes}
+            onChange={(event) => setMinutes(event.target.value)}
+            className="h-9 w-16 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+          />
+          min
+        </label>
+      </span>
       {event && <span className="ml-2 text-xs text-muted-foreground">{formatDateTime(event.starts_at)}</span>}
 
       <Dialog open={duplicate} onOpenChange={setDuplicate}>
