@@ -54,8 +54,19 @@ function SquadPage() {
   const [useExactDate, setUseExactDate] = useState(false);
   const [gender, setGender] = useState<string>("none");
   const [isGk, setIsGk] = useState(false);
+  const [guardians, setGuardians] = useState([
+    { name: "", phone: "", email: "" },
+    { name: "", phone: "", email: "" },
+  ]);
+  const [hasAllergy, setHasAllergy] = useState(false);
+  const [allergyNote, setAllergyNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function setGuardian(index: number, key: "name" | "phone" | "email", value: string) {
+    setGuardians((prev) => prev.map((item, i) => (i === index ? { ...item, [key]: value } : item)));
+  }
+
 
   const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
   const members = useQuery({
