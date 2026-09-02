@@ -134,20 +134,33 @@ function TacticPage() {
             </li>
           )}
           {list.map((tactic) => (
-            <li key={tactic.id}>
+            <li
+              key={tactic.id}
+              className={`flex items-center gap-2 rounded-xl border transition-colors ${
+                tactic.id === activeId ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => setOpenId(tactic.id)}
                 aria-pressed={tactic.id === activeId}
-                className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                  tactic.id === activeId ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
-                }`}
+                className="flex-1 rounded-l-xl p-4 text-left"
               >
                 <span className="block font-semibold">{tactic.name}</span>
                 <span className="block text-xs text-muted-foreground">
                   Senast ändrad: {new Date(tactic.updated_at).toLocaleDateString("sv-SE")}
                 </span>
               </button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="mr-2 text-muted-foreground hover:text-destructive"
+                aria-label={`Radera ${tactic.name}`}
+                disabled={removeTactic.isPending}
+                onClick={() => void askDelete(tactic.id, tactic.name)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </li>
           ))}
         </ul>
