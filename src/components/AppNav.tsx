@@ -26,6 +26,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/kunskapsbank": GraduationCap,
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
+  "/tranarsnack": MessagesSquare,
   "/teams": Shield,
   "/installningar": Settings,
 };
