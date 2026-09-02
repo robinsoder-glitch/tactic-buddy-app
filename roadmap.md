@@ -154,3 +154,8 @@
 - [ ] Lagöversikt utan topplista: antal med/utan fokus, senaste observation, periodteman
 - [ ] Återanvänd närvaro/speltid från genomförda aktiviteter
 - [ ] Acceptanstester
+
+## Instruktion 10G – Backlogbedömning (ingen kod)
+- [ ] Bedöm framtida funktioner i tabell (nytta/komplexitet/integritetsrisk/beroenden/fas/beslut)
+- [ ] Byggordning + arkitekturpåverkan + barnrisker
+- [ ] Implementera INGET förrän nytt beslut
