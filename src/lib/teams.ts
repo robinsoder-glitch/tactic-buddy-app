@@ -22,11 +22,13 @@ export type Team = {
   photoUrl?: string | null;
 };
 
+export type TeamMemberRole = "club_admin" | "head_coach" | "coach" | "guardian" | "player";
+
 export type TeamMember = {
   id: string;
   team_id: string;
   user_id: string;
-  role: "coach" | "player";
+  role: TeamMemberRole;
   status: "pending" | "approved";
   created_at: string;
   displayName?: string | null;
@@ -679,7 +681,7 @@ export async function removeTeamInvite(id: string) {
 }
 
 /** Turn an approved member into a leader (or back to a player). */
-export async function setMemberRole(id: string, role: "coach" | "player") {
+export async function setMemberRole(id: string, role: TeamMemberRole) {
   const { error } = await supabase.from("team_members").update({ role }).eq("id", id);
   if (error) throw error;
 }
