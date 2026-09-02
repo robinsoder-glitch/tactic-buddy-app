@@ -775,3 +775,27 @@ export async function fetchTeamImpact(teamId: string): Promise<TeamImpact> {
   ]);
   return { players, events, photos, attendance, stats, members };
 }
+
+/** Normaliserar ett spelarnamn för jämförelse (skiftläge, mellanslag och accenter). */
+export function normalizePlayerName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Hittar spelare med samma eller mycket likt namn. Dubbletter är tillåtna –
+ * detta används bara för en varning innan en ny spelare skapas.
+ */
+export function findSimilarPlayers<T extends { id: string; name: string }>(
+  name: string,
+  players: T[],
+  excludeId?: string,
+): T[] {
+  const needle = normalizePlayerName(name);
+  if (!needle) return [];
+  return players.filter((player) => player.id !== excludeId && normalizePlayerName(player.name) === needle);
+}

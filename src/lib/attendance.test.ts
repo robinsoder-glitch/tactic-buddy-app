@@ -12,7 +12,7 @@ import {
   summarize,
   type AttendanceRow,
 } from "./attendance";
-import type { TeamEvent } from "./teams";
+import { findSimilarPlayers, type TeamEvent } from "./teams";
 
 const event = (id: string, type: "training" | "match", starts_at: string): TeamEvent =>
   ({
@@ -109,5 +109,18 @@ describe("närvaro", () => {
   it("visar matchrubrik när titel saknas", () => {
     expect(eventLabel(events[2] as TeamEvent)).toBe("Högalids IF – AIK FF");
     expect(eventLabel(events[0] as TeamEvent)).toBe("Träning");
+  });
+});
+
+describe("liknande spelarnamn", () => {
+  const squad = [
+    { id: "p1", name: "Vincent Åkesson" },
+    { id: "p2", name: "Alma Berg" },
+  ];
+
+  it("varnar för samma namn oavsett skiftläge och accenter", () => {
+    expect(findSimilarPlayers("vincent akesson", squad).map((p) => p.id)).toEqual(["p1"]);
+    expect(findSimilarPlayers("Nils Ek", squad)).toEqual([]);
+    expect(findSimilarPlayers("Alma Berg", squad, "p2")).toEqual([]);
   });
 });
