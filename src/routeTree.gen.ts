@@ -30,6 +30,7 @@ import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
 import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
 import { Route as AuthenticatedKunskapsbankSlugRouteImport } from './routes/_authenticated/kunskapsbank.$slug'
+import { Route as AuthenticatedKunskapsbankVanligaMisstagRouteImport } from './routes/_authenticated/kunskapsbank.vanliga-misstag'
 import { Route as AuthenticatedOvningsbankIndexRouteImport } from './routes/_authenticated/ovningsbank.index'
 import { Route as AuthenticatedOvningsbankDrillIdRouteImport } from './routes/_authenticated/ovningsbank.$drillId'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
@@ -166,6 +167,12 @@ const AuthenticatedKunskapsbankSlugRoute =
   AuthenticatedKunskapsbankSlugRouteImport.update({
     id: '/kunskapsbank/$slug',
     path: '/kunskapsbank/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedKunskapsbankVanligaMisstagRoute =
+  AuthenticatedKunskapsbankVanligaMisstagRouteImport.update({
+    id: '/kunskapsbank/vanliga-misstag',
+    path: '/kunskapsbank/vanliga-misstag',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOvningsbankIndexRoute =
@@ -324,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
@@ -368,6 +376,7 @@ export interface FileRoutesByTo {
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
@@ -413,6 +422,7 @@ export interface FileRoutesById {
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/_authenticated/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/_authenticated/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
   '/_authenticated/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/_authenticated/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
+    | '/kunskapsbank/vanliga-misstag'
     | '/ovningsbank/$drillId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
@@ -504,6 +515,7 @@ export interface FileRouteTypes {
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
+    | '/kunskapsbank/vanliga-misstag'
     | '/ovningsbank/$drillId'
     | '/tactic/$id'
     | '/taktikbank/$cardId'
@@ -548,6 +560,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
     | '/_authenticated/kunskapsbank/$slug'
+    | '/_authenticated/kunskapsbank/vanliga-misstag'
     | '/_authenticated/ovningsbank/$drillId'
     | '/_authenticated/tactic/$id'
     | '/_authenticated/taktikbank/$cardId'
@@ -729,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/kunskapsbank/$slug'
       fullPath: '/kunskapsbank/$slug'
       preLoaderRoute: typeof AuthenticatedKunskapsbankSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kunskapsbank/vanliga-misstag': {
+      id: '/_authenticated/kunskapsbank/vanliga-misstag'
+      path: '/kunskapsbank/vanliga-misstag'
+      fullPath: '/kunskapsbank/vanliga-misstag'
+      preLoaderRoute: typeof AuthenticatedKunskapsbankVanligaMisstagRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ovningsbank/': {
@@ -982,6 +1002,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTranarsnackRoute: typeof AuthenticatedTranarsnackRoute
   AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
+  AuthenticatedKunskapsbankVanligaMisstagRoute: typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   AuthenticatedOvningsbankDrillIdRoute: typeof AuthenticatedOvningsbankDrillIdRoute
   AuthenticatedTacticIdRoute: typeof AuthenticatedTacticIdRoute
   AuthenticatedTaktikbankCardIdRoute: typeof AuthenticatedTaktikbankCardIdRoute
@@ -1009,6 +1030,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTranarsnackRoute: AuthenticatedTranarsnackRoute,
   AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
+  AuthenticatedKunskapsbankVanligaMisstagRoute:
+    AuthenticatedKunskapsbankVanligaMisstagRoute,
   AuthenticatedOvningsbankDrillIdRoute: AuthenticatedOvningsbankDrillIdRoute,
   AuthenticatedTacticIdRoute: AuthenticatedTacticIdRoute,
   AuthenticatedTaktikbankCardIdRoute: AuthenticatedTaktikbankCardIdRoute,
