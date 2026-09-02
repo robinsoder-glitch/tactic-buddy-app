@@ -239,19 +239,15 @@ function PlanTrainingPage() {
           )}
           <ul className="mt-3 space-y-2">
             {trainings.map((event) => {
-              const status = statusFor(event.id);
               const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
-              const badge =
-                status === "done"
-                  ? { text: "Planerad", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" }
-                  : status === "started"
-                    ? { text: "Påbörjad", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" }
-                    : { text: "Oplanerad", cls: "bg-destructive/15 text-destructive" };
+              const badge = statusBadge(event.id);
               return (
                 <li
                   key={event.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
                 >
+                  <span className={`h-10 w-1.5 shrink-0 rounded-full ${badge.dot}`} aria-hidden />
+
                   <button
                     type="button"
                     onClick={() => openPlanning(event.id)}
