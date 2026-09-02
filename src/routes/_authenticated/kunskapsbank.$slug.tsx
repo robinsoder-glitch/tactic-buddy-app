@@ -108,12 +108,10 @@ function KnowledgeArticlePage() {
           </div>
 
           <section className="mt-5 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Passar dig som</h2>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-              {fitsYouIf(data).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
+            <p className="mt-2 text-sm">{data.summary_sv}</p>
+            {data.learn_sv && <p className="mt-3 whitespace-pre-line text-sm">{data.learn_sv}</p>}
+            {data.coach_value && <p className="mt-3 text-sm">{data.coach_value}</p>}
           </section>
 
           <section className="mt-3 rounded-xl border border-border bg-card p-4">
@@ -125,64 +123,31 @@ function KnowledgeArticlePage() {
             </ul>
           </section>
 
-          {practicalAdvice(data).length > 0 && (
+          {(practicalAdvice(data).length > 0 || data.try_next_sv) && (
             <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Praktiska råd</h2>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                {practicalAdvice(data).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+                Testa på nästa träning
+              </h2>
+              {data.try_next_sv && <p className="mt-2 whitespace-pre-line text-sm">{data.try_next_sv}</p>}
+              {practicalAdvice(data).length > 0 && (
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                  {practicalAdvice(data).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
             </section>
           )}
-
-          <section className="mt-3 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-              Vad artikeln inte svarar på
-            </h2>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-              {notCovered(data).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <details className="mt-3 rounded-xl border border-border bg-card p-4">
-            <summary className="cursor-pointer text-sm font-semibold">Hela sammanfattningen</summary>
-            <p className="mt-2 text-sm">{data.summary_sv}</p>
-            {data.learn_sv && (
-              <>
-                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Det här lär du dig</h3>
-                <p className="mt-1 whitespace-pre-line text-sm">{data.learn_sv}</p>
-              </>
-            )}
-            {data.try_next_sv && (
-              <>
-                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Testa på nästa träning</h3>
-                <p className="mt-1 whitespace-pre-line text-sm">{data.try_next_sv}</p>
-              </>
-            )}
-            {data.coach_value && (
-              <>
-                <h3 className="mt-3 text-xs font-semibold text-muted-foreground">Nytta för dig som tränare</h3>
-                <p className="mt-1 text-sm">{data.coach_value}</p>
-              </>
-            )}
-          </details>
-
 
           <a
             href={data.original_url}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-1 text-sm text-primary underline-offset-4 hover:underline"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 sm:w-auto"
           >
-            Läs originalkällan <ExternalLink className="size-3.5" />
+            Läs vidare hos källan <ExternalLink className="size-4" />
           </a>
 
-
-          <div className="mt-4">
-          </div>
 
           <RelatedContent sections={sections} />
         </article>
