@@ -428,7 +428,7 @@ function MatchPlanner({
 
           <section className="rounded-xl border bg-card p-4">
             <h2 className="mb-2 flex items-center gap-2 font-medium"><Users className="size-4" /> Ledare</h2>
-            <EventCoaches eventId={eventId} teamId={teamId} readOnly />
+            <EventCoaches eventId={eventId} teamId={teamId} userId={null} canEdit={false} />
           </section>
 
           <section className="rounded-xl border bg-card p-4">
@@ -533,7 +533,7 @@ function MatchPlanner({
                           setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]))
                         }
                       />
-                      <span className="flex-1 font-medium">{m.display_name ?? "Ledare"}</span>
+                      <span className="flex-1 font-medium">{m.displayName ?? "Ledare"}</span>
                       <span className="text-xs text-muted-foreground">{m.role === "head_coach" ? "Huvudtränare" : m.role === "club_admin" ? "Klubbadmin" : "Tränare"}</span>
                     </label>
                   </li>
@@ -638,18 +638,18 @@ function MatchPlanner({
               <Button
                 onClick={() => {
                   if (step === 0) {
-                    if (!opponent.trim()) return toast.error("Ange motståndare.");
-                    if (!date || !startTime) return toast.error("Ange datum och matchstart.");
+                    if (!opponent.trim()) { toast.error("Ange motståndare."); return; }
+                    if (!date || !startTime) { toast.error("Ange datum och matchstart."); return; }
                     if (meetTime) {
                       const err = validateMeetBeforeStart(
                         new Date(`${date}T${meetTime}`).toISOString(),
                         new Date(`${date}T${startTime}`).toISOString(),
                       );
-                      if (err) return toast.error(err);
+                      if (err) { toast.error(err); return; }
                     }
                   }
-                  if (step === 1 && coachIds.length === 0) return toast.error("Välj minst en ledare.");
-                  if (step === 2 && playerIds.length === 0) return toast.error("Välj minst en spelare.");
+                  if (step === 1 && coachIds.length === 0) { toast.error("Välj minst en ledare."); return; }
+                  if (step === 2 && playerIds.length === 0) { toast.error("Välj minst en spelare."); return; }
                   setStep((s) => s + 1);
                 }}
               >
