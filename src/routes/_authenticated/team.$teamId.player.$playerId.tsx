@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { GuardianLinks } from "@/components/GuardianLinks";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playerId")({
   component: PlayerPage,
@@ -177,6 +178,8 @@ function PlayerPage() {
         </div>
       )}
 
+
+      <GuardianLinks playerId={playerId} teamId={teamId} userId={userId} canEdit={isCoach} />
 
       <div className="mt-6 flex items-center justify-between">
         <h3 className="font-display text-xl font-bold">Statistik</h3>
