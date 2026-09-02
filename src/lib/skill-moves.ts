@@ -15,12 +15,17 @@ export type SkillMove = {
   practice: SkillStep[];
   phrases: string[];
   mistakes: string[];
-  videos: { label: string; url: string }[];
+  videos: { label: string; url: string; videoId?: string }[];
 };
 
 function search(term: string): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`;
 }
+
+function yt(id: string): string {
+  return `https://www.youtube.com/watch?v=${id}`;
+}
+
 
 export const SKILL_MOVES: SkillMove[] = [
   {
