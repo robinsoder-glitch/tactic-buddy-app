@@ -302,6 +302,18 @@ export function TacticEditor({ id }: { id: string }) {
   const saveRef = useRef(save);
   saveRef.current = save;
 
+  // Visa guiden första gången tavlan öppnas
+  useEffect(() => {
+    if (!tactic.data) return;
+    try {
+      if (window.localStorage.getItem(TOUR_KEY)) return;
+      window.localStorage.setItem(TOUR_KEY, "1");
+    } catch {
+      /* ignorera blockerad lagring */
+    }
+    setTourOpen(true);
+  }, [tactic.data]);
+
   // Autosave with debounce
   useEffect(() => {
     if (!dirty) return;
