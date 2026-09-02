@@ -26,6 +26,8 @@ import {
 } from "@/lib/kunskapsbank";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { KnowledgeLibrary } from "@/components/KnowledgeLibrary";
+import { KnowledgeTabs } from "@/components/KnowledgeTabs";
+
 import { ContentLinkAdmin } from "@/components/ContentLinkAdmin";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
