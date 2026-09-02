@@ -132,7 +132,9 @@ export async function updateProfile(input: {
   guardian_for_name?: string | null;
 }) {
   const { id, ...raw } = input;
-  const rest = Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== undefined));
+  const rest = Object.fromEntries(
+    Object.entries(raw).filter(([, value]) => value !== undefined),
+  ) as Omit<typeof input, "id">;
   const { error } = await supabase.from("profiles").update(rest).eq("id", id);
   if (error) throw error;
 }

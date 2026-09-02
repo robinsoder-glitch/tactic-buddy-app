@@ -102,7 +102,7 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
     id: userId,
     display_name: profileDisplayName(setup),
     birth_date: setup.birth || null,
-    is_adult_confirmed: setup.role === "coach" ? true : undefined,
+    ...(setup.role === "coach" ? { is_adult_confirmed: true } : {}),
     guardian_for_name: setup.role === "player" && setup.isGuardian ? (setup.playerName?.trim() ?? null) : null,
   });
 
