@@ -122,16 +122,16 @@
 - [x] Taktiktavlan: gå att placera ut bollen igen (guiden blockerade klick)
 
 ## Instruktion 10D – Komplett matchplanering
-- [ ] Öppna match: Ej klar (röd) öppnar Planera match; Klar (grön) öppnar läsläge med Ändra
-- [ ] Läsläge: motståndare, hemma/borta, plats, datum, samling, matchstart, ledare, spelarsvar, uttagna, formation, startelva, avbytare, kopplad taktik
-- [ ] Steg 1 matchuppgifter (samling före matchstart)
-- [ ] Steg 2 ledare (förvalda vid redigering, inga dubbletter, riktig borttagning)
-- [ ] Steg 3 spelare sorterade Kommer/Kanske/Ej svarat/Kan inte + varning vid "Kan inte" + antal som krävs
-- [ ] Steg 4 formation 3v3–11v11, drag till plan, bänk, unika spelare, Tom plats
-- [ ] Steg 5 granska + atomisk sparning (RPC), grön Klar direkt
-- [ ] Ändra: förifyllt, varning om borttagen spelare låg på planen, Avbryt oförändrat
-- [ ] Dela laguppställning: skrivskyddad länk, återkallelse, slutdatum, inga privata uppgifter
-- [ ] Acceptanstester
+- [x] Öppna match: Ej klar (röd) öppnar Planera match; Klar (grön) öppnar läsläge med Ändra
+- [x] Läsläge: motståndare, hemma/borta, plats, datum, samling, matchstart, ledare, spelarsvar, uttagna, formation, startelva, avbytare, kopplad taktik
+- [x] Steg 1 matchuppgifter (samling före matchstart)
+- [x] Steg 2 ledare (förvalda vid redigering, inga dubbletter, riktig borttagning)
+- [x] Steg 3 spelare sorterade Kommer/Kanske/Ej svarat/Kan inte + varning vid "Kan inte" + antal som krävs
+- [x] Steg 4 formation 3v3–11v11, drag till plan, bänk, unika spelare, Tom plats
+- [x] Steg 5 granska + atomisk sparning (RPC save_match_plan), grön Klar direkt
+- [x] Ändra: förifyllt, varning om borttagen spelare låg på planen, Avbryt oförändrat
+- [x] Dela laguppställning: skrivskyddad länk (match_shares + get_shared_match), återkallelse, slutdatum, inga privata uppgifter
+- [ ] Acceptanstester mot live-databas (multi-roll)
 
 ## Instruktion 10E – Genomför träning
 - [ ] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
@@ -156,6 +156,6 @@
 - [ ] Acceptanstester
 
 ## Instruktion 10G – Backlogbedömning (ingen kod)
-- [ ] Bedöm framtida funktioner i tabell (nytta/komplexitet/integritetsrisk/beroenden/fas/beslut)
-- [ ] Byggordning + arkitekturpåverkan + barnrisker
-- [ ] Implementera INGET förrän nytt beslut
+- [x] Bedöm framtida funktioner i tabell (docs/backlog-10g.md)
+- [x] Byggordning + arkitekturpåverkan + barnrisker
+- [x] Implementera INGET förrän nytt beslut
