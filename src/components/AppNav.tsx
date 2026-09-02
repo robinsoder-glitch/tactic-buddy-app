@@ -67,7 +67,20 @@ export function AppNav() {
 
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
-    return <Icon className={`relative z-10 ${size}`} aria-hidden />;
+    const badge = to === "/tranarsnack" && unread > 0;
+    return (
+      <span className="relative z-10 inline-flex">
+        <Icon className={size} aria-hidden />
+        {badge && (
+          <span
+            aria-label={`${unread} olästa meddelanden`}
+            className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold leading-none text-destructive-foreground"
+          >
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </span>
+    );
   };
 
   return (
