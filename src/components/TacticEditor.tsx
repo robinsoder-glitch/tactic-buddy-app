@@ -1137,15 +1137,16 @@ export function TacticEditor({ id }: { id: string }) {
               Börja här – lägg ut spelarna och bollen där situationen börjar.
             </span>
           )}
-          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("home")}>
+          <Button size="sm" variant="secondary" data-tour="player" onClick={() => setPlaceMode("home")}>
             <UserPlus className="size-4" /> Egen spelare
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("away")}>
+          <Button size="sm" variant="secondary" data-tour="opponent" onClick={() => setPlaceMode("away")}>
             <UserPlus className="size-4" /> Motståndare
           </Button>
           <Button
             size="sm"
             variant="secondary"
+            data-tour="ball"
             onClick={() => {
               if (hasBall) {
                 toast.info("Bollen finns redan – dra den på planen för att flytta den.");
@@ -1157,7 +1158,7 @@ export function TacticEditor({ id }: { id: string }) {
             <CircleDot className="size-4" /> Boll
           </Button>
 
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2" data-tour="play">
             {frames.length === 1 ? (
               <Button size="sm" disabled={(frame?.objects.length ?? 0) === 0} onClick={startFirstMovement}>
                 <Plus className="size-4" /> Skapa första rörelsen
@@ -1672,7 +1673,7 @@ export function TacticEditor({ id }: { id: string }) {
               </div>
             </div>
           ))}
-          <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
+          <Button variant="secondary" size="sm" className="shrink-0" data-tour="sequence" onClick={addFrame}>
             <Plus className="size-4" /> Ny sekvens
           </Button>
           {advanced && frames.length > 1 && (
