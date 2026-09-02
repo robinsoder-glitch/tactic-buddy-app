@@ -12,14 +12,14 @@ type Props = {
 };
 
 /** Varumärke: hexagon-märket, med eller utan ordbilden Fotbollsrummet. */
-export function BrandLogo({ size = 40, showName = true, nameClassName, className }: Props) {
+export function BrandLogo({ size = 40, showName = true, className }: Props) {
   if (showName) {
     return (
       <img
         src={logoAsset.url}
         alt={BRAND_LOGO_ALT}
         style={{ height: size }}
-        className={`w-auto shrink-0 object-contain ${className ?? ""}`}
+        className={`w-auto shrink-0 object-contain dark:rounded-md dark:bg-white dark:px-1.5 dark:py-0.5 ${className ?? ""}`}
       />
     );
   }
