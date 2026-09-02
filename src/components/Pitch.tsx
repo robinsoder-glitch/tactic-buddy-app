@@ -432,7 +432,7 @@ export function Pitch({
 
         {passBalls.map((ball) => (
           <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
-            <SoccerBall r={tokenR * 0.66} strokeWidth={w * 0.0016} />
+            <SoccerBall r={tokenR * 0.82} strokeWidth={w * 0.0016} />
           </g>
         ))}
 
@@ -494,7 +494,7 @@ export function Pitch({
                 style={{ cursor: interactive ? "grab" : "default" }}
                 onPointerDown={(event) => startObjectDrag(event, object)}
               >
-                <SoccerBall r={tokenR * 0.66} strokeWidth={w * 0.0016} />
+                <SoccerBall r={tokenR * 0.82} strokeWidth={w * 0.0016} />
 
               </g>
             );

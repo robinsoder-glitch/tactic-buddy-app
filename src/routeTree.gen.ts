@@ -25,6 +25,7 @@ import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated/taktik'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenticated/tranarsnack'
+import { Route as DeladMatchTokenRouteImport } from './routes/delad-match.$token'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
@@ -141,6 +142,11 @@ const AuthenticatedTranarsnackRoute =
     path: '/tranarsnack',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const DeladMatchTokenRoute = DeladMatchTokenRouteImport.update({
+  id: '/delad-match/$token',
+  path: '/delad-match/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TShareIdRoute = TShareIdRouteImport.update({
   id: '/t/$shareId',
   path: '/t/$shareId',
@@ -341,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
+  '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
+  '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -436,6 +444,7 @@ export interface FileRoutesById {
   '/_authenticated/taktik': typeof AuthenticatedTaktikRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
+  '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -486,6 +495,7 @@ export interface FileRouteTypes {
     | '/taktik'
     | '/teams'
     | '/tranarsnack'
+    | '/delad-match/$token'
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -533,6 +543,7 @@ export interface FileRouteTypes {
     | '/taktik'
     | '/teams'
     | '/tranarsnack'
+    | '/delad-match/$token'
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/_authenticated/taktik'
     | '/_authenticated/teams'
     | '/_authenticated/tranarsnack'
+    | '/delad-match/$token'
     | '/t/$shareId'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
@@ -617,6 +629,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DeladMatchTokenRoute: typeof DeladMatchTokenRoute
   TShareIdRoute: typeof TShareIdRoute
 }
 
@@ -733,6 +746,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tranarsnack'
       preLoaderRoute: typeof AuthenticatedTranarsnackRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/delad-match/$token': {
+      id: '/delad-match/$token'
+      path: '/delad-match/$token'
+      fullPath: '/delad-match/$token'
+      preLoaderRoute: typeof DeladMatchTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/t/$shareId': {
       id: '/t/$shareId'
@@ -1095,6 +1115,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DeladMatchTokenRoute: DeladMatchTokenRoute,
   TShareIdRoute: TShareIdRoute,
 }
 export const routeTree = rootRouteImport

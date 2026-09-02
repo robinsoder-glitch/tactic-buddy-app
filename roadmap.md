@@ -120,3 +120,42 @@
 ## Etapp 11: QA 2 september 2026
 - [x] Global tillbakaknapp på alla sidor (inklusive inloggning och skapa konto)
 - [x] Taktiktavlan: gå att placera ut bollen igen (guiden blockerade klick)
+
+## Instruktion 10D – Komplett matchplanering
+- [x] Öppna match: Ej klar (röd) öppnar Planera match; Klar (grön) öppnar läsläge med Ändra
+- [x] Läsläge: motståndare, hemma/borta, plats, datum, samling, matchstart, ledare, spelarsvar, uttagna, formation, startelva, avbytare, kopplad taktik
+- [x] Steg 1 matchuppgifter (samling före matchstart)
+- [x] Steg 2 ledare (förvalda vid redigering, inga dubbletter, riktig borttagning)
+- [x] Steg 3 spelare sorterade Kommer/Kanske/Ej svarat/Kan inte + varning vid "Kan inte" + antal som krävs
+- [x] Steg 4 formation 3v3–11v11, drag till plan, bänk, unika spelare, Tom plats
+- [x] Steg 5 granska + atomisk sparning (RPC save_match_plan), grön Klar direkt
+- [x] Ändra: förifyllt, varning om borttagen spelare låg på planen, Avbryt oförändrat
+- [x] Dela laguppställning: skrivskyddad länk (match_shares + get_shared_match), återkallelse, slutdatum, inga privata uppgifter
+- [ ] Acceptanstester mot live-databas (multi-roll)
+
+## Instruktion 10E – Genomför träning
+- [ ] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
+- [ ] Genomförandeskärm: rubrik, aktuell övning, stor timer, instruktion, därför, material, organisation, nästa övning, taktiktavla/bild
+- [ ] Kontroller: Pausa/Fortsätt/Föregående/Nästa/Hoppa över/+1 min/Avsluta (stora, mobil)
+- [ ] Timer: beräknad från started_at + pauser + justeringar, spara vid händelser (ej varje sekund)
+- [ ] Närvaro i genomförandet (unik per aktivitet+spelare, upsert)
+- [ ] Anteckningar: allmän + privata spelarobservationer, autospara med felhantering
+- [ ] Avsluta med bekräftelse: spara faktiska tider, moment, närvaro, anteckningar; status Genomförd
+- [ ] Sammanfattning + Till träningsplanering
+- [ ] Edge cases + acceptanstest
+
+## Instruktion 10F – Periodplan och spelarutveckling
+- [ ] Periodblock 4–6 veckor: namn, datum, huvudtema, max 2 delteman, mål
+- [ ] Koppla träningar/matcher/övningar/taktiker/artiklar (unik per period)
+- [ ] Progression 4 steg: Introducera/Öva/Använd i spel/Följ upp + föregående periods tema
+- [ ] Privat spelarvy: max 3 aktiva fokusområden, status Aktivt/Uppnått/Pausat, barnanpassat språk
+- [ ] Observationer kopplade till aktivitet/fokusområde, snabbregistrering
+- [ ] Integritet: RLS, inga anteckningar i delningslänkar, vårdnadshavare ser inte internt
+- [ ] Lagöversikt utan topplista: antal med/utan fokus, senaste observation, periodteman
+- [ ] Återanvänd närvaro/speltid från genomförda aktiviteter
+- [ ] Acceptanstester
+
+## Instruktion 10G – Backlogbedömning (ingen kod)
+- [x] Bedöm framtida funktioner i tabell (docs/backlog-10g.md)
+- [x] Byggordning + arkitekturpåverkan + barnrisker
+- [x] Implementera INGET förrän nytt beslut

@@ -1299,15 +1299,6 @@ export function TacticEditor({ id }: { id: string }) {
             </>
           )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Lägg till boll"
-            disabled={hasBall}
-            onClick={() => addBall()}
-          >
-            <CircleDot className="size-4" /> Boll
-          </Button>
           <Button variant="ghost" size="sm" aria-label="Rensa planen" onClick={clearPitch}>
             <Trash2 className="size-4 text-destructive" /> Rensa
           </Button>
