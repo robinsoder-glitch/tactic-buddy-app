@@ -9,19 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/hooks/useAccount";
-import { addResourceToEvent, fetchUpcomingEvents } from "@/lib/event-planning";
-import { fetchTactics } from "@/lib/db";
-import { fetchTacticCards } from "@/lib/taktikbank";
+import { fetchUpcomingEvents } from "@/lib/event-planning";
 import { PlanStatusBadge, planStatusBar } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import {
   fetchEventPlan,
   fetchEventPlans,
-  fetchEventResources,
   fetchSquad,
   fetchSquads,
-  removeEventResource,
   saveMatchPlan,
   selectionLabel,
   toggleSelection,
@@ -43,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
       { title: "Planera match – ta ut trupp och ansvariga ledare" },
       {
         name: "description",
-        content: "Lägg till matcher i lagets kalender och planera matchen med spelaruttagning, ledare och taktik.",
+        content: "Lägg till matcher i lagets kalender och planera matchen med spelaruttagning, ledare och anteckningar.",
       },
       { property: "og:title", content: "Planera match" },
       { property: "og:description", content: "Lägg till match, ta ut trupp och välj ledare." },
@@ -190,42 +186,6 @@ function PlanMatchPage() {
     onError: (error: Error) => toast.error(error.message || "Det gick inte att spara matchplaneringen."),
   });
 
-  const myTactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
-  const tacticCards = useQuery({ queryKey: ["tactic-cards"], queryFn: fetchTacticCards });
-  const eventResources = useQuery({
-    queryKey: ["event-resources", eventId],
-    queryFn: () => fetchEventResources([eventId as string]),
-    enabled: !!eventId,
-  });
-  const matchTactics = (eventResources.data ?? []).filter((row) => row.kind === "tactic");
-
-  function tacticTitle(id: string) {
-    return (
-      (myTactics.data ?? []).find((item) => item.id === id)?.name ??
-      (tacticCards.data ?? []).find((item) => item.id === id)?.title ??
-      "Taktik"
-    );
-  }
-
-  const addTactic = useMutation({
-    mutationFn: async (resourceId: string) => {
-      if (!user || !selected) throw new Error("Välj en match först.");
-      await addResourceToEvent({
-        eventId: selected.id,
-        teamId: selected.team_id,
-        userId: user.id,
-        kind: "tactic",
-        resourceId,
-        minutes: null,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-resources"] });
-      toast.success("Taktiken kopplades till matchen.");
-    },
-    onError: () => toast.error("Det gick inte att koppla taktiken."),
-  });
-
   const playerList = (players.data ?? []).filter((player) =>
     player.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
@@ -239,7 +199,7 @@ function PlanMatchPage() {
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Planera match</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Lägg till matchen i lagets kalender och planera trupp, ledare och taktik.
+        Lägg till matchen i lagets kalender och planera trupp, ledare och anteckningar.
       </p>
 
       {!eventId && view === "start" && (
