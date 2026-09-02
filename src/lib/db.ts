@@ -154,7 +154,14 @@ export async function openBlankTactic(userId: string, name = "Tom tavla"): Promi
     .limit(1)
     .maybeSingle();
   if (error) throw error;
-  if (data) return data.id as string;
+  if (data) {
+    const id = data.id as string;
+    // Utkastet återanvänds men töms alltid – tavlan ska starta helt tom.
+    await saveFrames(id, userId, [
+      { id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] },
+    ]);
+    return id;
+  }
 
   return createTactic(userId, name, "full", null, { draft: true });
 }
