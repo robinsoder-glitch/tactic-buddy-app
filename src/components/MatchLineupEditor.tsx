@@ -30,6 +30,10 @@ export function MatchLineupEditor({
   }
 
   function handleSlotTap(index: number) {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
     if (selected) {
       place(selected, index);
       return;
