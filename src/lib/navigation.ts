@@ -13,6 +13,7 @@ export const MAIN_TABS: MainTab[] = [
   { to: "/kunskapsbank", label: "Kunskap", exact: false },
   { to: "/ovningsbank", label: "Träningsbank", exact: false },
   { to: "/kalender", label: "Kalender", exact: false },
+  { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/tranarsnack", label: "Tränarsnack", exact: false },
   { to: "/teams", label: "Mina lag", exact: false },
   { to: "/installningar", label: "Inställningar", exact: false },
