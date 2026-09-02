@@ -147,9 +147,11 @@ describe("Pilar hör till rätt sekvens", () => {
   it("en pil från en tidigare sekvens visas inte i en senare", () => {
     const a = player("A", 0.2, 0.2);
     const b = player("B", 0.2, 0.8);
-    let frames = appendSequence(appendSequence(board([a, b])));
+    let frames = appendSequence(board([a, b]));
     frames = applyMove(frames, 1, a.id, { x: 0.7, y: 0.2 });
+    frames = appendSequence(frames);
     frames = applyMove(frames, 2, b.id, { x: 0.7, y: 0.8 });
+
 
     const inSeq1 = movementDrawings(frames, 1).map((d) => d.objectId);
     const inSeq2 = movementDrawings(frames, 2).map((d) => d.objectId);
