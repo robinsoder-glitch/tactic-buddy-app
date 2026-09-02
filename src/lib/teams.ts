@@ -253,7 +253,7 @@ export async function updateTeam(id: string, patch: Partial<Pick<Team, "name" | 
 export async function fetchMyMemberships() {
   const { data, error } = await supabase
     .from("team_members")
-    .select("id, team_id, role, status, teams(id, name, age_group, gender)")
+    .select("id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender)")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((row) => ({
@@ -261,6 +261,7 @@ export async function fetchMyMemberships() {
     team_id: row.team_id as string,
     role: row.role as "coach" | "player",
     status: row.status as "pending" | "approved",
+    can_manage_attendance: Boolean((row as unknown as { can_manage_attendance?: boolean }).can_manage_attendance),
     team: (row as unknown as { teams: { id: string; name: string; age_group: string | null; gender: string } | null }).teams,
   }));
 }

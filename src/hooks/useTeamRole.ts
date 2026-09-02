@@ -13,7 +13,13 @@ export function useTeamRole(teamId: string) {
     userId,
     isAdmin,
     isOwner,
-    membership: membership ? { role: membership.role, status: membership.status } : null,
+    membership: membership
+      ? {
+          role: membership.role,
+          status: membership.status,
+          canManageAttendance: Boolean((membership as { can_manage_attendance?: boolean }).can_manage_attendance),
+        }
+      : null,
   });
 
   return {

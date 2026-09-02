@@ -59,7 +59,8 @@ function AttendancePage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/narvaro" });
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { isCoach, userId } = useTeamRole(teamId);
+  const { isCoach: isTeamCoach, canManageAttendance, userId } = useTeamRole(teamId);
+  const isCoach = canManageAttendance || isTeamCoach;
   const queryClient = useQueryClient();
 
   const events = useQuery({ queryKey: ["events", teamId], queryFn: () => fetchEvents(teamId) });
