@@ -160,6 +160,7 @@ export async function createInvitations(input: {
   teamId: string;
   playerIds: string[];
   message: string | null;
+  respondBy?: string | null;
   createdBy: string;
 }): Promise<number> {
   if (input.playerIds.length === 0) return 0;
@@ -178,6 +179,7 @@ export async function createInvitations(input: {
     team_id: input.teamId,
     player_id: playerId,
     message: input.message,
+    respond_by: input.respondBy ?? null,
     created_by: input.createdBy,
   }));
   const { data, error } = await supabase
@@ -192,10 +194,11 @@ export async function createInvitations(input: {
 export async function updateInvitationDetails(input: {
   eventId: string;
   message: string | null;
+  respondBy?: string | null;
 }): Promise<Array<{ id: string; event_id: string; message: string | null }>> {
   const { data, error } = await supabase
     .from("event_invitations")
-    .update({ message: input.message })
+    .update({ message: input.message, respond_by: input.respondBy ?? null })
     .eq("event_id", input.eventId)
     .select("id, event_id, message");
   if (error) throw error;
@@ -212,6 +215,7 @@ export async function saveInvitationPlan(input: {
   hasExisting: boolean;
   newPlayerIds: string[];
   message: string | null;
+  respondBy?: string | null;
   createdBy: string;
 }): Promise<{ added: number; updated: number }> {
   let updated = 0;
@@ -219,6 +223,7 @@ export async function saveInvitationPlan(input: {
     const rows = await updateInvitationDetails({
       eventId: input.eventId,
       message: input.message,
+      respondBy: input.respondBy ?? null,
     });
     updated = rows.length;
   }
@@ -230,6 +235,7 @@ export async function saveInvitationPlan(input: {
       teamId: input.teamId,
       playerIds: input.newPlayerIds,
       message: input.message,
+      respondBy: input.respondBy ?? null,
       createdBy: input.createdBy,
     });
   }

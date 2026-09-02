@@ -121,6 +121,7 @@ function EventPage() {
         hasExisting: list.length > 0,
         newPlayerIds: selected.filter((id) => !invited.has(id)),
         message: message.trim() || null,
+        respondBy: respondBy || null,
         createdBy: userId,
       });
 
@@ -163,7 +164,10 @@ function EventPage() {
             : "guardian",
       });
     },
-    onSuccess: () => refresh(),
+    onSuccess: (_data, vars) => {
+      refresh();
+      queryClient.invalidateQueries({ queryKey: ["invitation-log", vars.invitation.id] });
+    },
     onError: () =>
       toast.error(
         cancelled
