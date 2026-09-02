@@ -124,7 +124,7 @@ export function CoachTour({
         <div className="pointer-events-auto absolute inset-0 bg-foreground/60" onClick={onClose} />
       )}
       <div
-        className="absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"
+        className="pointer-events-auto absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"
         style={bubbleStyle}
       >
         {spotlight && (
