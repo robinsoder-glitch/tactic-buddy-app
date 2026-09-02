@@ -209,32 +209,28 @@ function RunSession() {
 
   const summaryDialog = (
     <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
-    const summaryDialog = (
-    <DialogContent>
-      const summaryDialog = (
-    <DialogHeader>
-        const summaryDialog = (
-    <DialogTitle>Sammanfattning</DialogTitle>
-          </DialogHeader>
-          <ul className="space-y-1 text-sm">
-            <li>Planerad tid: {Math.round((finishedSummary ?? summary).plannedSeconds / 60)} min</li>
-            <li>Faktisk tid: {Math.round((finishedSummary ?? summary).actualSeconds / 60)} min</li>
-            <li>Genomförda moment: {(finishedSummary ?? summary).done}</li>
-            <li>Överhoppade moment: {(finishedSummary ?? summary).skipped}</li>
-            <li>Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}</li>
-          </ul>
-      const summaryDialog = (
-    <DialogFooter>
-            <Button
-              onClick={() => {
-                setSummaryOpen(false);
-                navigate({ to: "/planera-traning" });
-              }}
-            >
-              Till träningsplaneringen
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Sammanfattning</DialogTitle>
+        </DialogHeader>
+        <ul className="space-y-1 text-sm">
+          <li>Planerad tid: {Math.round((finishedSummary ?? summary).plannedSeconds / 60)} min</li>
+          <li>Faktisk tid: {Math.round((finishedSummary ?? summary).actualSeconds / 60)} min</li>
+          <li>Genomförda moment: {(finishedSummary ?? summary).done}</li>
+          <li>Överhoppade moment: {(finishedSummary ?? summary).skipped}</li>
+          <li>Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}</li>
+        </ul>
+        <DialogFooter>
+          <Button
+            onClick={() => {
+              setSummaryOpen(false);
+              navigate({ to: "/planera-traning" });
+            }}
+          >
+            Till träningsplaneringen
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 
