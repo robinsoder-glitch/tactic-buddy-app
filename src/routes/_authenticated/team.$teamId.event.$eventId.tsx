@@ -71,6 +71,16 @@ function EventPage() {
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
   const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
+  const plan = useQuery({ queryKey: ["event-plan", eventId], queryFn: () => fetchEventPlan(eventId) });
+  const planResources = useQuery({
+    queryKey: ["event-resources", eventId],
+    queryFn: () => fetchEventResources([eventId]),
+  });
+  const eventSquad = useQuery({ queryKey: ["event-squad", eventId], queryFn: () => fetchSquad(eventId) });
+  const planCoaches = useQuery({
+    queryKey: ["event-coaches", eventId],
+    queryFn: () => fetchEventCoaches([eventId]),
+  });
   const invites = useQuery({
     queryKey: ["invitations", eventId],
     queryFn: () => fetchEventInvitations(eventId),
