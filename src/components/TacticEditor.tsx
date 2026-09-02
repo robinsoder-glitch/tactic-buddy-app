@@ -501,11 +501,17 @@ export function TacticEditor({ id }: { id: string }) {
 
   function removeObject(objectId: string) {
     commit((prev) =>
-      prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.filter((o) => o.id !== objectId),
+        // Vägar/markeringar som hör till objektet försvinner samtidigt.
+        drawings: item.drawings.filter((d) => d.objectId !== objectId),
+      })),
       "Tog bort objekt",
     );
     setSelectedId(null);
   }
+
 
   function updateObject(objectId: string, patch: Partial<FieldObject>) {
     commit((prev) =>
