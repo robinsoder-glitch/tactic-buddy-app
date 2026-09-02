@@ -120,3 +120,26 @@
 ## Etapp 11: QA 2 september 2026
 - [x] Global tillbakaknapp på alla sidor (inklusive inloggning och skapa konto)
 - [x] Taktiktavlan: gå att placera ut bollen igen (guiden blockerade klick)
+
+## Instruktion 10D – Komplett matchplanering
+- [ ] Öppna match: Ej klar (röd) öppnar Planera match; Klar (grön) öppnar läsläge med Ändra
+- [ ] Läsläge: motståndare, hemma/borta, plats, datum, samling, matchstart, ledare, spelarsvar, uttagna, formation, startelva, avbytare, kopplad taktik
+- [ ] Steg 1 matchuppgifter (samling före matchstart)
+- [ ] Steg 2 ledare (förvalda vid redigering, inga dubbletter, riktig borttagning)
+- [ ] Steg 3 spelare sorterade Kommer/Kanske/Ej svarat/Kan inte + varning vid "Kan inte" + antal som krävs
+- [ ] Steg 4 formation 3v3–11v11, drag till plan, bänk, unika spelare, Tom plats
+- [ ] Steg 5 granska + atomisk sparning (RPC), grön Klar direkt
+- [ ] Ändra: förifyllt, varning om borttagen spelare låg på planen, Avbryt oförändrat
+- [ ] Dela laguppställning: skrivskyddad länk, återkallelse, slutdatum, inga privata uppgifter
+- [ ] Acceptanstester
+
+## Instruktion 10E – Genomför träning
+- [ ] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
+- [ ] Genomförandeskärm: rubrik, aktuell övning, stor timer, instruktion, därför, material, organisation, nästa övning, taktiktavla/bild
+- [ ] Kontroller: Pausa/Fortsätt/Föregående/Nästa/Hoppa över/+1 min/Avsluta (stora, mobil)
+- [ ] Timer: beräknad från started_at + pauser + justeringar, spara vid händelser (ej varje sekund)
+- [ ] Närvaro i genomförandet (unik per aktivitet+spelare, upsert)
+- [ ] Anteckningar: allmän + privata spelarobservationer, autospara med felhantering
+- [ ] Avsluta med bekräftelse: spara faktiska tider, moment, närvaro, anteckningar; status Genomförd
+- [ ] Sammanfattning + Till träningsplanering
+- [ ] Edge cases + acceptanstest
