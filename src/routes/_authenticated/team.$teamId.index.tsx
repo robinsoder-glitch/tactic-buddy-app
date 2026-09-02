@@ -142,7 +142,12 @@ function SquadPage() {
           <ul className="mt-3 space-y-2">
             {pending.map((member) => (
               <li key={member.id} className="flex items-center gap-2 text-sm">
-                <span className="flex-1 truncate">{member.displayName ?? "Ny spelare"}</span>
+                <span className="flex-1 truncate">
+                  {member.displayName ?? (member.role === "coach" ? "Ny ledare" : "Ny spelare")}
+                  <span className="text-muted-foreground">
+                    {member.role === "coach" ? " · vill bli ledare" : " · vill bli spelare"}
+                  </span>
+                </span>
                 <Button size="sm" onClick={() => approve.mutate(member.id)}>
                   <Check className="size-4" />
                 </Button>
