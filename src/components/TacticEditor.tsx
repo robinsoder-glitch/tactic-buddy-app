@@ -213,7 +213,7 @@ export function TacticEditor({ id }: { id: string }) {
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [hideNames, setHideNames] = useState(() => loadPrefs().hideNames);
-  const [snap, setSnap] = useState(true);
+  const [snap, setSnap] = useState(prefs.grid);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
   const pastRef = useRef<HistoryEntry[]>([]);
