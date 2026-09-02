@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.limit_active_focus_areas() FROM PUBLIC, anon, authenticated;
