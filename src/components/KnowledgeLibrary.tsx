@@ -112,7 +112,6 @@ export function KnowledgeLibrary() {
           onChange={setCategory}
           options={[["all", "Alla kategorier"], ...categories.map((item) => [item, item] as [string, string])]}
         />
-        <Chips label="Åldersgrupp" value={age} onChange={setAge} options={KNOWLEDGE_AGE_OPTIONS} />
         {levels.length > 1 && (
           <Chips
             label="Nivå"
@@ -132,6 +131,7 @@ export function KnowledgeLibrary() {
           <Star className="size-3.5" /> Mina favoriter
         </button>
       </div>
+
 
       <p className="mt-3 text-xs text-muted-foreground">
         {articles.isLoading ? "Laddar artiklar…" : `${list.length} av ${all.length} artiklar`}
