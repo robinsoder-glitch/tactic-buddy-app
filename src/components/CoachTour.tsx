@@ -14,7 +14,7 @@ function readRect(target?: string): Rect | null {
   if (!target || typeof document === "undefined") return null;
   const element = document.querySelector<HTMLElement>(`[data-tour="${target}"]`);
   if (!element) return null;
-  element.scrollIntoView({ block: "center", behavior: "smooth" });
+  element.scrollIntoView({ block: "center", behavior: "auto" });
   const box = element.getBoundingClientRect();
   if (box.width === 0 && box.height === 0) return null;
   return { top: box.top, left: box.left, width: box.width, height: box.height };
@@ -86,22 +86,45 @@ export function CoachTour({
   const last = index === steps.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Guide">
-      <div className="absolute inset-0 bg-foreground/60" onClick={onClose} />
-      {spotlight && (
-        <div
-          className="pointer-events-none absolute rounded-xl ring-2 ring-primary"
-          style={{
-            top: spotlight.top,
-            left: spotlight.left,
-            width: spotlight.width,
-            height: spotlight.height,
-            boxShadow: "0 0 0 9999px color-mix(in oklab, var(--color-foreground) 60%, transparent)",
-          }}
-        />
+    <div className="pointer-events-none fixed inset-0 z-[70]" role="dialog" aria-label="Guide">
+      {/* Dämpad bakgrund. Med spotlight lämnas hålet öppet så att knappen går att trycka på. */}
+      {spotlight ? (
+        <>
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 bg-foreground/40"
+            style={{ height: Math.max(0, spotlight.top) }}
+            onClick={onClose}
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 bg-foreground/40"
+            style={{ top: spotlight.top + spotlight.height }}
+            onClick={onClose}
+          />
+          <div
+            className="pointer-events-none absolute left-0 bg-foreground/40"
+            style={{ top: spotlight.top, height: spotlight.height, width: Math.max(0, spotlight.left) }}
+            onClick={onClose}
+          />
+          <div
+            className="pointer-events-none absolute right-0 bg-foreground/40"
+            style={{ top: spotlight.top, height: spotlight.height, left: spotlight.left + spotlight.width }}
+            onClick={onClose}
+          />
+          <div
+            className="pointer-events-none absolute rounded-xl ring-2 ring-primary"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left,
+              width: spotlight.width,
+              height: spotlight.height,
+            }}
+          />
+        </>
+      ) : (
+        <div className="pointer-events-none absolute inset-0 bg-foreground/40" onClick={onClose} />
       )}
       <div
-        className="absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"
+        className="pointer-events-auto absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"
         style={bubbleStyle}
       >
         {spotlight && (
