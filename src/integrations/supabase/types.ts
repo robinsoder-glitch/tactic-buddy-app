@@ -931,6 +931,115 @@ export type Database = {
         }
         Relationships: []
       }
+      match_lineups: {
+        Row: {
+          bench: Json
+          created_at: string
+          created_by: string
+          event_id: string
+          formation: string
+          slots: Json
+          tactic_id: string | null
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          bench?: Json
+          created_at?: string
+          created_by: string
+          event_id: string
+          formation: string
+          slots?: Json
+          tactic_id?: string | null
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          bench?: Json
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          formation?: string
+          slots?: Json
+          tactic_id?: string | null
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_lineups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_lineups_tactic_id_fkey"
+            columns: ["tactic_id"]
+            isOneToOne: false
+            referencedRelation: "tactics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_lineups_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_shares: {
+        Row: {
+          created_at: string
+          created_by: string
+          event_id: string
+          expires_at: string | null
+          id: string
+          revoked_at: string | null
+          team_id: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          revoked_at?: string | null
+          team_id: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          revoked_at?: string | null
+          team_id?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_shares_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_shares_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_guardians: {
         Row: {
           created_at: string
@@ -1762,6 +1871,7 @@ export type Database = {
         }[]
       }
       gen_team_code: { Args: never; Returns: string }
+      get_shared_match: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1795,10 +1905,15 @@ export type Database = {
       }
       save_match_plan: {
         Args: {
+          _bench: string[]
           _coach_ids: string[]
           _event_id: string
+          _formation: string
           _notes: string
           _player_ids: string[]
+          _required: number
+          _slots: Json
+          _tactic_id: string
           _team_id: string
         }
         Returns: undefined
