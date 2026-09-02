@@ -254,7 +254,7 @@ function EventAttendance({
   const statusFor = (playerId: string): AttendanceStatus | null =>
     (rows.data ?? []).find((row) => row.player_id === playerId)?.status ?? null;
 
-  const present = (rows.data ?? []).filter((row) => row.status === "present" || row.status === "late").length;
+  const present = (rows.data ?? []).filter((row) => row.status === "present" || row.status === "partial").length;
 
   return (
     <section className="mt-4">
