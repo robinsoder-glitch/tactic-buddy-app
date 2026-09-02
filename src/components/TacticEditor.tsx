@@ -457,25 +457,19 @@ export function TacticEditor({ id }: { id: string }) {
       if (!ok) return;
     }
 
-    const keeper = bank.find((item) => item.gk) ?? null;
-    const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
-    let outfieldIndex = 0;
+    const lineup: FieldObject[] = buildLineup(formation.slots, bank).map((entry) => ({
+      id: uid(),
+      kind: "player",
+      playerId: entry.playerId,
+      label: entry.label,
+      number: entry.number,
+      team: "home",
+      gk: entry.gk,
+      photoUrl: entry.photoUrl,
+      x: entry.x,
+      y: entry.y,
+    }));
 
-    const lineup: FieldObject[] = formation.slots.map((slot) => {
-      const player = slot.gk ? keeper : (outfield[outfieldIndex++] ?? null);
-      return {
-        id: uid(),
-        kind: "player",
-        playerId: player?.id ?? null,
-        label: player?.name ?? "",
-        number: player?.number ?? null,
-        team: "home",
-        gk: Boolean(slot.gk),
-        photoUrl: player?.photoUrl ?? null,
-        x: slot.x,
-        y: slot.y,
-      };
-    });
 
     // Bollen läggs strax framför den främsta spelaren – aldrig exakt under en spelare.
     const front = lineup.reduce((best, item) => (item.x > best.x ? item : best), lineup[0]!);
