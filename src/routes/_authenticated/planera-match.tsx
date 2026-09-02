@@ -565,10 +565,25 @@ function MatchPlanner({
               <ul className="space-y-2">
                 {sortedPlayers.map((p) => {
                   const st = statusByPlayer.get(p.id) ?? "pending";
+                  const checked = playerIds.includes(p.id);
                   return (
                     <li key={p.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40">
-                        <Checkbox checked={playerIds.includes(p.id)} onCheckedChange={() => togglePlayer(p.id)} />
+                      <div
+                        role="checkbox"
+                        aria-checked={checked}
+                        tabIndex={0}
+                        onClick={() => togglePlayer(p.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            togglePlayer(p.id);
+                          }
+                        }}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40"
+                      >
+                        <span onClick={(e) => e.stopPropagation()} className="inline-flex">
+                          <Checkbox checked={checked} onCheckedChange={() => togglePlayer(p.id)} tabIndex={-1} aria-hidden />
+                        </span>
                         <span className="flex-1 font-medium">
                           {p.number != null && <span className="mr-1 text-muted-foreground">{p.number}</span>}
                           {p.name}
@@ -576,7 +591,7 @@ function MatchPlanner({
                         <span className={`text-xs ${st === "declined" ? "text-destructive" : "text-muted-foreground"}`}>
                           {inviteStatusLabel(st)}
                         </span>
-                      </label>
+                      </div>
                     </li>
                   );
                 })}
