@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TacticEditor } from "@/components/TacticEditor";
+import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchTactics, openBlankTactic } from "@/lib/db";
+import { deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
@@ -30,6 +32,8 @@ function TacticPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [openId, setOpenId] = useState<string | null>(null);
+
+  const { confirm, confirmDialog } = useConfirm();
 
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
   const cards = useQuery({ queryKey: ["tactic-cards"], queryFn: fetchTacticCards });
@@ -65,6 +69,25 @@ function TacticPage() {
     setBlankError(false);
     void queryClient.invalidateQueries({ queryKey: ["tactics"] });
     toast.success("Ny tom tavla.");
+  }
+
+  const removeTactic = useMutation({
+    mutationFn: (id: string) => deleteTactic(id),
+    onSuccess: (_data, id) => {
+      if (openId === id) setOpenId(null);
+      void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      toast.success("Taktiken raderades.");
+    },
+    onError: () => toast.error("Taktiken kunde inte raderas."),
+  });
+
+  async function askDelete(id: string, name: string) {
+    const ok = await confirm({
+      title: "Radera taktik",
+      description: `Taktiken "${name}" och alla dess steg tas bort permanent.`,
+      confirmLabel: "Radera",
+    });
+    if (ok) removeTactic.mutate(id);
   }
 
   return (
@@ -111,20 +134,33 @@ function TacticPage() {
             </li>
           )}
           {list.map((tactic) => (
-            <li key={tactic.id}>
+            <li
+              key={tactic.id}
+              className={`flex items-center gap-2 rounded-xl border transition-colors ${
+                tactic.id === activeId ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => setOpenId(tactic.id)}
                 aria-pressed={tactic.id === activeId}
-                className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                  tactic.id === activeId ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
-                }`}
+                className="flex-1 rounded-l-xl p-4 text-left"
               >
                 <span className="block font-semibold">{tactic.name}</span>
                 <span className="block text-xs text-muted-foreground">
                   Senast ändrad: {new Date(tactic.updated_at).toLocaleDateString("sv-SE")}
                 </span>
               </button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="mr-2 text-muted-foreground hover:text-destructive"
+                aria-label={`Radera ${tactic.name}`}
+                disabled={removeTactic.isPending}
+                onClick={() => void askDelete(tactic.id, tactic.name)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </li>
           ))}
         </ul>
@@ -154,6 +190,7 @@ function TacticPage() {
           ))}
         </ul>
       </section>
+      {confirmDialog}
     </main>
   );
 }
