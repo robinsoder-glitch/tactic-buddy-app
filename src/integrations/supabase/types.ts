@@ -1113,6 +1113,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_draft: boolean
           is_public: boolean
           name: string
           pitch_type: string
@@ -1124,6 +1125,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_draft?: boolean
           is_public?: boolean
           name?: string
           pitch_type?: string
@@ -1135,6 +1137,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_draft?: boolean
           is_public?: boolean
           name?: string
           pitch_type?: string

@@ -87,6 +87,7 @@ export async function fetchTactics(): Promise<TacticSummary[]> {
   const { data, error } = await supabase
     .from("tactics")
     .select("id, name, pitch_type, updated_at, share_id, is_public, team_id, tactic_frames(count)")
+    .eq("is_draft", false)
     .order("updated_at", { ascending: false });
   if (error) throw error;
 
@@ -110,10 +111,17 @@ export async function createTactic(
   name: string,
   pitchType: PitchType,
   teamId?: string | null,
+  options?: { draft?: boolean },
 ) {
   const { data, error } = await supabase
     .from("tactics")
-    .insert({ user_id: userId, name, pitch_type: pitchType, team_id: teamId ?? null })
+    .insert({
+      user_id: userId,
+      name,
+      pitch_type: pitchType,
+      team_id: teamId ?? null,
+      is_draft: options?.draft ?? false,
+    })
     .select("id")
     .single();
   if (error) throw error;
@@ -132,30 +140,32 @@ export async function createTactic(
 }
 
 /**
- * Öppnar en helt tom tavla. Återanvänder en tidigare tom tavla i stället för att
- * skapa nya rader varje gång sidan besöks.
+ * Öppnar arbetsytan. Tavlan är ett utkast tills användaren trycker Spara – utkast
+ * visas aldrig i "Mina taktiker". Samma utkast återanvänds så att inga tomma
+ * tavlor samlas på hög.
  */
 export async function openBlankTactic(userId: string, name = "Tom tavla"): Promise<string> {
   const { data, error } = await supabase
     .from("tactics")
-    .select("id, tactic_frames(objects, drawings)")
+    .select("id")
     .eq("user_id", userId)
-    .eq("name", name)
+    .eq("is_draft", true)
     .order("updated_at", { ascending: false })
-    .limit(5);
+    .limit(1)
+    .maybeSingle();
   if (error) throw error;
+  if (data) return data.id as string;
 
-  const empty = (data ?? []).find((row) => {
-    const frames = (row as unknown as { tactic_frames: { objects: unknown[]; drawings: unknown[] }[] })
-      .tactic_frames;
-    return (
-      frames.length <= 1 &&
-      frames.every((frame) => (frame.objects?.length ?? 0) === 0 && (frame.drawings?.length ?? 0) === 0)
-    );
-  });
-  if (empty) return (empty as { id: string }).id;
+  return createTactic(userId, name, "full", null, { draft: true });
+}
 
-  return createTactic(userId, name, "full", null);
+/** Markerar utkastet som en riktig, sparad taktik. */
+export async function publishTactic(id: string, name: string) {
+  const { error } = await supabase
+    .from("tactics")
+    .update({ name, is_draft: false })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function createTacticFromFrames(
@@ -210,6 +220,7 @@ export type TacticDetail = {
   pitch_type: PitchType;
   share_id?: string;
   is_public?: boolean;
+  is_draft?: boolean;
   team_id?: string | null;
   frames: Frame[];
 };
@@ -217,7 +228,7 @@ export type TacticDetail = {
 export async function fetchTactic(id: string): Promise<TacticDetail> {
   const { data, error } = await supabase
     .from("tactics")
-    .select("id, name, pitch_type, share_id, is_public, team_id")
+    .select("id, name, pitch_type, share_id, is_public, is_draft, team_id")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -243,6 +254,7 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
     pitch_type: data.pitch_type as PitchType,
     share_id: data.share_id as string,
     is_public: data.is_public as boolean,
+    is_draft: Boolean(data.is_draft),
     team_id: (data.team_id as string | null) ?? null,
     frames: frames.length ? frames : [{ id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] }],
   };
@@ -253,7 +265,7 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
     .from("tactic_frames")
     .delete()
     .eq("tactic_id", tacticId);
-  if (deleteError) throw deleteError;
+  if (deleteError) throw new Error(deleteError.message);
 
   const payload = frames.map((frame, index) => ({
     tactic_id: tacticId,
@@ -266,7 +278,7 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
   }));
 
   const { error } = await supabase.from("tactic_frames").insert(payload);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
 
   await supabase.from("tactics").update({ updated_at: new Date().toISOString() }).eq("id", tacticId);
 }

@@ -33,6 +33,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   fetchPlayers,
   fetchTactic,
+  publishTactic,
   renameTactic,
   saveFrames,
   setTacticPitchType,
@@ -57,7 +58,7 @@ import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
 import { formationsForPitch, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
-import { Pitch, type Tool } from "@/components/Pitch";
+import { Pitch, SoccerBall, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -260,6 +261,8 @@ export function TacticEditor({ id }: { id: string }) {
     }
   }, [tactic.data, id]);
 
+  const isDraft = Boolean(tactic.data?.is_draft);
+
   const changePitch = useMutation({
     mutationFn: (pitchType: PitchType) => setTacticPitchType(id, pitchType),
     onSuccess: () => {
@@ -286,17 +289,26 @@ export function TacticEditor({ id }: { id: string }) {
     mutationFn: async (name: string) => {
       if (!user) throw new Error("Inte inloggad");
       const trimmed = name.trim();
-      if (trimmed && trimmed !== tactic.data?.name) await renameTactic(id, trimmed);
+      if (!trimmed) throw new Error("Ge taktiken ett namn först.");
+      const hasContent = frames.some((item) => item.objects.length > 0 || item.drawings.length > 0);
+      if (!hasContent) throw new Error("Lägg ut minst en spelare eller boll innan du sparar.");
       await saveFrames(id, user.id, frames);
+      if (isDraft) {
+        await publishTactic(id, trimmed);
+      } else if (trimmed !== tactic.data?.name) {
+        await renameTactic(id, trimmed);
+      }
     },
     onSuccess: () => {
       setDirty(false);
       setSaveOpen(false);
       void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
       void queryClient.invalidateQueries({ queryKey: ["tactics"] });
-      toast.success("Taktiken är sparad.");
+      void queryClient.invalidateQueries({ queryKey: ["blank-tactic"] });
+      toast.success("Taktiken är sparad i Mina taktiker.");
     },
-    onError: () => toast.error("Kunde inte spara taktiken."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Kunde inte spara taktiken."),
   });
 
   const saveRef = useRef(save);
@@ -882,7 +894,9 @@ export function TacticEditor({ id }: { id: string }) {
     return { x: cx, y: cy };
   }
 
-  function addFreePlayer(team: "home" | "away", gk: boolean, x?: number, y?: number) {
+  function addFreePlayer(team: "home" | "away", wantGk: boolean, x?: number, y?: number) {
+    // Endast det egna laget har målvakt på tavlan.
+    const gk = team === "home" && wantGk;
     const existing = (frame?.objects ?? []).filter(
       (object) => object.kind === "player" && object.team === team && !object.playerId,
     );
@@ -892,13 +906,27 @@ export function TacticEditor({ id }: { id: string }) {
       id: uid(),
       kind: "player",
       playerId: null,
-      label: gk ? (team === "home" ? "Målvakt" : "MV motst.") : team === "home" ? "Spelare" : "Motspelare",
+      label: gk ? "Målvakt" : team === "home" ? "Spelare" : "Motspelare",
       number,
       team,
       gk,
       x: spot.x,
       y: spot.y,
     });
+  }
+
+  /** Bara en målvakt får finnas – den nya ersätter den gamla. */
+  function toggleGoalkeeper(objectId: string, gk: boolean) {
+    if (!gk) {
+      updateObject(objectId, { gk: false });
+      return;
+    }
+    for (const object of frame?.objects ?? []) {
+      if (object.kind === "player" && object.gk && object.id !== objectId) {
+        updateObject(object.id, { gk: false });
+      }
+    }
+    updateObject(objectId, { gk: true });
   }
 
   function addBall(x = 0.5, y = 0.5) {
@@ -1003,10 +1031,16 @@ export function TacticEditor({ id }: { id: string }) {
           </Link>
         </Button>
         <h1 className="min-w-0 flex-1 truncate font-display text-2xl font-bold">
-          {tactic.data.name}
+          {isDraft ? "Ny taktik" : tactic.data.name}
         </h1>
         <span className="text-xs text-muted-foreground">
-          {save.isPending ? "Sparar…" : dirty ? "Osparat" : "Sparat"}
+          {save.isPending
+            ? "Sparar…"
+            : isDraft
+              ? "Inte sparad än"
+              : dirty
+                ? "Osparat"
+                : "Sparat"}
         </span>
         <Button
           variant="secondary"
@@ -1039,7 +1073,7 @@ export function TacticEditor({ id }: { id: string }) {
           size="sm"
           data-tour="save"
           onClick={() => {
-            setNameDraft(tactic.data?.name ?? "");
+            setNameDraft(isDraft ? "" : (tactic.data?.name ?? ""));
             setSaveOpen(true);
           }}
         >
@@ -1289,12 +1323,12 @@ export function TacticEditor({ id }: { id: string }) {
           <span className="min-w-0 flex-1 truncate">
             {selectedObject.label || "Objekt"} markerad
           </span>
-          {selectedObject.kind === "player" && (
+          {selectedObject.kind === "player" && selectedObject.team === "home" && (
             <>
               <Button
                 size="sm"
                 variant={selectedObject.gk ? "default" : "secondary"}
-                onClick={() => updateObject(selectedObject.id, { gk: !selectedObject.gk })}
+                onClick={() => toggleGoalkeeper(selectedObject.id, !selectedObject.gk)}
               >
                 <Shield className="size-4" /> Målvakt
               </Button>
@@ -1390,17 +1424,11 @@ export function TacticEditor({ id }: { id: string }) {
               <UserPlus className="size-5" />
             </span>
           </BankChip>
-          <BankChip payload="free:away:gk" label="Motst. MV" onAdd={() => addFreePlayer("away", true)}>
-            <span
-              className="grid size-11 place-items-center rounded-full"
-              style={{ background: "var(--color-team-gk)", color: "var(--color-team-gk-foreground)" }}
-            >
-              <Shield className="size-5" />
-            </span>
-          </BankChip>
           <BankChip payload="ball" label="Boll" onAdd={() => addBall()} disabled={hasBall}>
-            <span className="grid size-11 place-items-center rounded-full bg-white text-[#141414]">
-              <CircleDot className="size-6" />
+            <span className="grid size-11 place-items-center rounded-full bg-transparent">
+              <svg viewBox="-14 -14 28 28" className="size-9" aria-hidden="true">
+                <SoccerBall r={12} strokeWidth={0.9} />
+              </svg>
             </span>
           </BankChip>
           {advanced && (
