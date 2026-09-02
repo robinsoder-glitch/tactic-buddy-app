@@ -931,6 +931,47 @@ export type Database = {
         }
         Relationships: []
       }
+      player_guardians: {
+        Row: {
+          created_at: string
+          created_by: string
+          guardian_user_id: string
+          id: string
+          is_active: boolean
+          player_id: string
+          relation: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          guardian_user_id: string
+          id?: string
+          is_active?: boolean
+          player_id: string
+          relation?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          guardian_user_id?: string
+          id?: string
+          is_active?: boolean
+          player_id?: string
+          relation?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_guardians_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_stats: {
         Row: {
           assists: number
@@ -1008,6 +1049,7 @@ export type Database = {
           guardian2_phone: string | null
           has_allergy: boolean
           id: string
+          is_active: boolean
           is_goalkeeper: boolean
           member_user_id: string | null
           name: string
@@ -1031,6 +1073,7 @@ export type Database = {
           guardian2_phone?: string | null
           has_allergy?: boolean
           id?: string
+          is_active?: boolean
           is_goalkeeper?: boolean
           member_user_id?: string | null
           name: string
@@ -1054,6 +1097,7 @@ export type Database = {
           guardian2_phone?: string | null
           has_allergy?: boolean
           id?: string
+          is_active?: boolean
           is_goalkeeper?: boolean
           member_user_id?: string | null
           name?: string
@@ -1725,6 +1769,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_guardian_of: { Args: { _player_id: string }; Returns: boolean }
       is_my_player: { Args: { _player_id: string }; Returns: boolean }
       is_team_coach: {
         Args: { _team_id: string; _user_id: string }
@@ -1743,6 +1788,7 @@ export type Database = {
           team_name: string
         }[]
       }
+      player_team: { Args: { _player_id: string }; Returns: string }
       rotate_team_code: {
         Args: { _kind: string; _team_id: string }
         Returns: string
@@ -1765,6 +1811,18 @@ export type Database = {
           _team_id: string
         }
         Returns: undefined
+      }
+      send_invite_reminders: {
+        Args: { _body: string; _event_id: string; _title: string }
+        Returns: {
+          missing_account: number
+          sent: number
+          skipped_recent: number
+        }[]
+      }
+      team_role: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: string
       }
     }
     Enums: {
