@@ -140,31 +140,25 @@ export async function createTactic(
 }
 
 /**
- * Öppnar arbetsytan. Tavlan är ett utkast tills användaren trycker Spara – utkast
- * visas aldrig i "Mina taktiker". Samma utkast återanvänds så att inga tomma
- * tavlor samlas på hög.
+ * Öppnar arbetsytan med en helt tom tavla. Tidigare utkast raderas så att inga
+ * gamla spelare eller ritningar följer med, och så att tomma tavlor inte samlas
+ * på hög. Utkastet syns aldrig i "Mina taktiker" förrän användaren sparar.
  */
 export async function openBlankTactic(userId: string, name = "Tom tavla"): Promise<string> {
   const { data, error } = await supabase
     .from("tactics")
     .select("id")
     .eq("user_id", userId)
-    .eq("is_draft", true)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq("is_draft", true);
   if (error) throw error;
-  if (data) {
-    const id = data.id as string;
-    // Utkastet återanvänds men töms alltid – tavlan ska starta helt tom.
-    await saveFrames(id, userId, [
-      { id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] },
-    ]);
-    return id;
+
+  for (const row of data ?? []) {
+    await deleteTactic(row.id as string);
   }
 
   return createTactic(userId, name, "full", null, { draft: true });
 }
+
 
 /** Markerar utkastet som en riktig, sparad taktik. */
 export async function publishTactic(id: string, name: string) {
