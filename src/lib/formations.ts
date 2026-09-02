@@ -16,6 +16,17 @@ export type Formation = {
  */
 export const FORMATIONS: Formation[] = [
   {
+    id: "3v3-1-2",
+    label: "3 mot 3 – 1-2",
+    players: 3,
+    slots: [
+      { x: 0.22, y: 0.5 },
+      { x: 0.6, y: 0.27 },
+      { x: 0.6, y: 0.73 },
+    ],
+  },
+  {
+
     id: "5v5-1-2-1",
     label: "5 mot 5 – 1-2-1",
     players: 5,
