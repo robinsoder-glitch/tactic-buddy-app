@@ -263,7 +263,7 @@ function SquadPage() {
       </ul>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Redigera spelare" : "Ny spelare"}</DialogTitle>
           </DialogHeader>
