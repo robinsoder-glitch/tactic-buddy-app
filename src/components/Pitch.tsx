@@ -204,6 +204,7 @@ export function Pitch({
     dragStart.current = null;
     dragKind.current = null;
     dragOffset.current = null;
+    capturedRef.current = null;
   }
 
   /** Alla objekt går att dra direkt – inga verktyg behövs. */
@@ -232,11 +233,6 @@ export function Pitch({
     onSelectObject?.(object.id);
   }
 
-  const dragHandlers = {
-    onPointerMove: handlePointerMove,
-    onPointerUp: handlePointerUp,
-    onPointerCancel: handlePointerUp,
-  };
 
 
   const markLine = "var(--color-pitch-line)";
@@ -512,6 +508,7 @@ export function Pitch({
               />
               {object.photoUrl && showPhotos ? (
                 <image
+                  style={{ pointerEvents: "none" }}
                   href={object.photoUrl}
                   x={-tokenR}
                   y={-tokenR}
@@ -522,6 +519,7 @@ export function Pitch({
                 />
               ) : (
                 <text
+                  style={{ pointerEvents: "none" }}
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontSize={tokenR}
@@ -539,6 +537,7 @@ export function Pitch({
               )}
               {!hideNames && (
                 <text
+                  style={{ pointerEvents: "none" }}
                   y={tokenR * 2}
                   textAnchor="middle"
                   fontSize={tokenR * 0.85}
