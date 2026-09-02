@@ -107,3 +107,31 @@ describe("träningsutkast", () => {
     expect(draft.notes).toBe("");
   });
 });
+
+describe("plockläge i Träningsbanken", () => {
+  it("är aktivt bara när eventId finns med", () => {
+    expect(isPickMode(parsePickSearch({}))).toBe(false);
+    expect(isPickMode(parsePickSearch({ eventId: "e1" }))).toBe(true);
+  });
+
+  it("lägger övningen i utkastet och stoppar dubbletter", () => {
+    const draft = addDraftItem(emptyDraft("e1"), {
+      kind: "drill",
+      resourceId: "d1",
+      title: "Hitta den fria porten",
+      minutes: 10,
+      note: null,
+    });
+    expect(hasResource(draft, "d1")).toBe(true);
+    expect(hasResource(draft, "d2")).toBe(false);
+    const twice = addDraftItem(draft, {
+      kind: "drill",
+      resourceId: "d1",
+      title: "Hitta den fria porten",
+      minutes: 10,
+      note: null,
+    });
+    expect(twice.items).toHaveLength(2);
+    expect(twice.items[0]!.key).not.toBe(twice.items[1]!.key);
+  });
+});
