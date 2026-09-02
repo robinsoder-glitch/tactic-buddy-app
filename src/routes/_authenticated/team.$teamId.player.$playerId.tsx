@@ -116,8 +116,67 @@ function PlayerPage() {
               <dd>{GENDER_LABELS[player.gender] ?? player.gender}</dd>
             </>
           )}
+          <dt className="text-muted-foreground">Allergi</dt>
+          <dd>
+            {player?.has_allergy ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}` : "Nej"}
+          </dd>
         </dl>
       </div>
+
+      {isCoach && (
+        <div className="mt-4 rounded-xl border border-border bg-card p-4">
+          <h3 className="font-display text-lg font-bold">Vårdnadshavare</h3>
+          {[
+            {
+              name: player?.guardian1_name,
+              phone: player?.guardian1_phone,
+              email: player?.guardian1_email,
+            },
+            {
+              name: player?.guardian2_name,
+              phone: player?.guardian2_phone,
+              email: player?.guardian2_email,
+            },
+          ].filter((guardian) => guardian.name || guardian.phone || guardian.email).length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">Inga uppgifter ifyllda än.</p>
+          ) : (
+            <ul className="mt-2 space-y-3 text-sm">
+              {[
+                {
+                  name: player?.guardian1_name,
+                  phone: player?.guardian1_phone,
+                  email: player?.guardian1_email,
+                },
+                {
+                  name: player?.guardian2_name,
+                  phone: player?.guardian2_phone,
+                  email: player?.guardian2_email,
+                },
+              ]
+                .filter((guardian) => guardian.name || guardian.phone || guardian.email)
+                .map((guardian, index) => (
+                  <li key={index}>
+                    <p className="font-medium">{guardian.name || `Vårdnadshavare ${index + 1}`}</p>
+                    <p className="text-muted-foreground">
+                      {guardian.phone && (
+                        <a href={`tel:${guardian.phone}`} className="underline-offset-4 hover:underline">
+                          {guardian.phone}
+                        </a>
+                      )}
+                      {guardian.phone && guardian.email ? " · " : null}
+                      {guardian.email && (
+                        <a href={`mailto:${guardian.email}`} className="underline-offset-4 hover:underline">
+                          {guardian.email}
+                        </a>
+                      )}
+                    </p>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+      )}
+
 
       <div className="mt-6 flex items-center justify-between">
         <h3 className="font-display text-xl font-bold">Statistik</h3>
