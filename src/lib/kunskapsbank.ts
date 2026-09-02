@@ -64,34 +64,165 @@ export type KbArticle = {
   is_published: boolean;
 };
 
-const COLUMNS =
-  "id, title, summary, coach_value, category, age_min, age_max, level, source_name, source_url, published_at, reviewed_at, tags, status, is_published";
+/**
+ * Kunskapsbanken har en enda huvudtabell: knowledge_articles.
+ * kb_articles är avvecklad och skrivskyddad. Fälten nedan mappas mellan
+ * adminformulärets modell (KbArticle) och huvudtabellens kolumner.
+ */
+const KNOWLEDGE_COLUMNS =
+  "id, title_sv, summary_sv, coach_value, category, level, source_name, original_url, checked_date, is_published, age_5_7, age_8_9, age_10";
+
+const CATEGORY_TO_SV: Record<string, string> = {
+  coaching: "Ledarskap och pedagogik",
+  technique: "Teknik med boll",
+  game_understanding: "Spelförståelse och taktik",
+  physical: "Fysik och motorik",
+  nutrition: "Kost, vätska och återhämtning",
+  goalkeeper: "Målvakt",
+  team_environment: "Laget, relationer och föräldrar",
+  injury: "Skador och skadeprevention",
+  rules_formats: "Match och spelformer",
+  research: "Fördjupning och forskning",
+};
+
+const SV_TO_CATEGORY: Record<string, string> = {
+  "Börja som tränare": "coaching",
+  "Ledarskap och pedagogik": "coaching",
+  "Träningsplanering": "coaching",
+  "Teknik med boll": "technique",
+  "Spelförståelse och taktik": "game_understanding",
+  "Fysik och motorik": "physical",
+  "Kost, vätska och återhämtning": "nutrition",
+  "Målvakt": "goalkeeper",
+  "Laget, relationer och föräldrar": "team_environment",
+  "Trygghet och inkludering": "team_environment",
+  "Skador och skadeprevention": "injury",
+  "Match och spelformer": "rules_formats",
+  "Fördjupning och forskning": "research",
+};
+
+const LEVEL_TO_SV: Record<string, string> = {
+  basic: "Grund",
+  intermediate: "Fortsättning",
+  advanced: "Fördjupning",
+};
+
+const SV_TO_LEVEL: Record<string, string> = {
+  Grund: "basic",
+  Fortsättning: "intermediate",
+  Fördjupning: "advanced",
+};
+
+type KnowledgeRow = {
+  id: string;
+  title_sv: string;
+  summary_sv: string | null;
+  coach_value: string | null;
+  category: string;
+  level: string | null;
+  source_name: string | null;
+  original_url: string;
+  checked_date: string | null;
+  is_published: boolean;
+  age_5_7: boolean;
+  age_8_9: boolean;
+  age_10: boolean;
+};
+
+function ageRange(row: KnowledgeRow): { age_min: number | null; age_max: number | null } {
+  const spans: [number, number][] = [];
+  if (row.age_5_7) spans.push([5, 7]);
+  if (row.age_8_9) spans.push([8, 9]);
+  if (row.age_10) spans.push([10, 12]);
+  if (!spans.length) return { age_min: null, age_max: null };
+  return {
+    age_min: Math.min(...spans.map(([min]) => min)),
+    age_max: Math.max(...spans.map(([, max]) => max)),
+  };
+}
+
+function ageFlags(min: number | null, max: number | null) {
+  if (min === null && max === null) return { age_5_7: true, age_8_9: true, age_10: true };
+  const low = min ?? 0;
+  const high = max ?? 99;
+  const overlaps = (a: number, b: number) => low <= b && high >= a;
+  return { age_5_7: overlaps(5, 7), age_8_9: overlaps(8, 9), age_10: overlaps(10, 12) };
+}
+
+function toArticle(row: KnowledgeRow): KbArticle {
+  return {
+    id: row.id,
+    title: row.title_sv,
+    summary: row.summary_sv,
+    coach_value: row.coach_value,
+    category: SV_TO_CATEGORY[row.category] ?? "coaching",
+    level: SV_TO_LEVEL[row.level ?? ""] ?? "basic",
+    source_name: row.source_name,
+    source_url: row.original_url || null,
+    published_at: null,
+    reviewed_at: row.checked_date,
+    tags: [],
+    status: row.is_published ? "verified" : "unverified",
+    is_published: row.is_published,
+    ...ageRange(row),
+  };
+}
+
+function slugify(title: string): string {
+  return (
+    title
+      .toLowerCase()
+      .replace(/[åä]/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || `artikel-${Date.now()}`
+  );
+}
+
+function toRow(input: ArticleInput) {
+  return {
+    title_sv: input.title.trim(),
+    summary_sv: (input.summary ?? "").trim(),
+    coach_value: input.coach_value?.trim() || null,
+    category: CATEGORY_TO_SV[input.category] ?? "Ledarskap och pedagogik",
+    level: LEVEL_TO_SV[input.level] ?? "Grund",
+    source_name: input.source_name?.trim() || null,
+    original_url: (input.source_url ?? "").trim(),
+    checked_date: input.reviewed_at,
+    is_published: input.is_published && input.status === "verified",
+    ...ageFlags(input.age_min, input.age_max),
+  };
+}
 
 export async function fetchArticles(): Promise<KbArticle[]> {
-  const { data, error } = await supabase.from("kb_articles").select(COLUMNS).order("title");
+  const { data, error } = await supabase
+    .from("knowledge_articles")
+    .select(KNOWLEDGE_COLUMNS)
+    .order("title_sv");
   if (error) throw error;
-  return (data ?? []) as unknown as KbArticle[];
+  return ((data ?? []) as unknown as KnowledgeRow[]).map(toArticle);
 }
 
 export type ArticleInput = Omit<KbArticle, "id"> & { id?: string };
 
-export async function saveArticle(input: ArticleInput, userId: string) {
-  const payload = { ...input, created_by: userId };
+export async function saveArticle(input: ArticleInput, _userId: string) {
+  const row = toRow(input);
   if (input.id) {
-    const { id, ...rest } = payload;
-    const { error } = await supabase.from("kb_articles").update(rest).eq("id", id as string);
+    const { error } = await supabase.from("knowledge_articles").update(row).eq("id", input.id);
     if (error) throw error;
     return;
   }
-  const { id: _ignored, ...rest } = payload;
-  const { error } = await supabase.from("kb_articles").insert(rest);
+  const slug = slugify(input.title);
+  const { error } = await supabase.from("knowledge_articles").insert({ ...row, id: slug, slug });
   if (error) throw error;
 }
 
 export async function deleteArticle(id: string) {
-  const { error } = await supabase.from("kb_articles").delete().eq("id", id);
+  const { error } = await supabase.from("knowledge_articles").delete().eq("id", id);
   if (error) throw error;
 }
+
 
 /** Vanliga användare får bara se publicerade och verifierade artiklar. */
 export function visibleArticles(articles: KbArticle[], isAdmin: boolean): KbArticle[] {
