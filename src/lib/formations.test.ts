@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { FORMATIONS, formationsForPitch, mirrorSlots } from "./formations";
 
 describe("formationer", () => {
-  it("har lika många positioner som spelare och exakt en målvakt", () => {
+  it("har lika många positioner som spelare och en målvakt från 5 mot 5", () => {
     for (const formation of FORMATIONS) {
       expect(formation.slots).toHaveLength(formation.players);
-      expect(formation.slots.filter((slot) => slot.gk)).toHaveLength(1);
+      // 3 mot 3 spelas utan målvakt, övriga spelformer har exakt en.
+      expect(formation.slots.filter((slot) => slot.gk)).toHaveLength(formation.players >= 5 ? 1 : 0);
+
       for (const slot of formation.slots) {
         expect(slot.x).toBeGreaterThan(0);
         expect(slot.x).toBeLessThan(1);
