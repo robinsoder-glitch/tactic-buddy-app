@@ -56,7 +56,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
-import { formationsForPitch, type Formation } from "@/lib/formations";
+import { formationsForPitch, pitchForFormation, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, SoccerBall, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
@@ -852,22 +852,20 @@ export function TacticEditor({ id }: { id: string }) {
     }
   }
 
+  /** Speglar hela taktiken: startläge och samtliga sekvenser. */
   function mirror() {
     commit((prev) =>
-      prev.map((item, index) =>
-        index === current
-          ? {
-              ...item,
-              objects: item.objects.map((object) => ({ ...object, x: 1 - object.x })),
-              drawings: item.drawings.map((drawing) => ({
-                ...drawing,
-                x1: 1 - drawing.x1,
-                x2: 1 - drawing.x2,
-              })),
-            }
-          : item,
-      ),
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.map((object) => ({ ...object, x: 1 - object.x })),
+        drawings: item.drawings.map((drawing) => ({
+          ...drawing,
+          x1: 1 - drawing.x1,
+          x2: 1 - drawing.x2,
+        })),
+      })),
     );
+    toast.success("Hela taktiken spegelvändes.");
   }
 
   function clearPitch() {
@@ -1295,8 +1293,8 @@ export function TacticEditor({ id }: { id: string }) {
                 <Grid3x3 className="size-4" />
                 Rutnät
               </label>
-              <Button variant="ghost" size="sm" aria-label="Spegelvänd planen" onClick={mirror}>
-                <FlipHorizontal2 className="size-4" /> Spegelvänd
+              <Button variant="ghost" size="sm" aria-label="Spegelvänd hela taktiken" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" /> Spegelvänd allt
               </Button>
             </>
           )}
@@ -1321,14 +1319,14 @@ export function TacticEditor({ id }: { id: string }) {
           <span className="min-w-0 flex-1 truncate">
             {selectedObject.label || "Objekt"} markerad
           </span>
-          {selectedObject.kind === "player" && selectedObject.team === "home" && (
+          {selectedObject.kind === "player" && (
             <>
               <Button
                 size="sm"
                 variant={selectedObject.gk ? "default" : "secondary"}
                 onClick={() => toggleGoalkeeper(selectedObject.id, !selectedObject.gk)}
               >
-                <Shield className="size-4" /> Målvakt
+                <Shield className="size-4" /> {selectedObject.gk ? "Är målvakt" : "Gör till målvakt"}
               </Button>
               <Button
                 size="sm"
@@ -1339,7 +1337,7 @@ export function TacticEditor({ id }: { id: string }) {
                   })
                 }
               >
-                Byt lag
+                {selectedObject.team === "home" ? "Gör till motståndare" : "Gör till eget lag"}
               </Button>
             </>
           )}
