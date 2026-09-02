@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAccount } from "@/hooks/useAccount";
+import { useUnreadChat } from "@/hooks/useUnreadChat";
 import {
   createTacticFromFrames,
   deleteTactic,
