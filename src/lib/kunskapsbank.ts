@@ -390,10 +390,14 @@ function normalizeImported(item: Record<string, unknown>): ArticleInput {
   };
 }
 
-export async function importArticles(articles: ArticleInput[], userId: string) {
+export async function importArticles(articles: ArticleInput[], _userId: string) {
   if (!articles.length) return 0;
-  const rows = articles.map((article) => ({ ...article, created_by: userId }));
-  const { error } = await supabase.from("kb_articles").insert(rows);
+  const rows = articles.map((article) => {
+    const slug = slugify(article.title);
+    return { ...toRow(article), id: slug, slug };
+  });
+  const { error } = await supabase.from("knowledge_articles").insert(rows);
   if (error) throw error;
   return rows.length;
 }
+
