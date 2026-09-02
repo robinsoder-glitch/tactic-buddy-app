@@ -58,7 +58,9 @@ function PeriodPlan() {
   const observations = useQuery({ queryKey: ["observations", teamId], queryFn: () => fetchObservations(teamId) });
 
   const list = periods.data ?? [];
-  const activePeriod = selected ? (list.find((item) => item.id === selected) ?? null) : currentPeriod(list);
+  const activePeriod = selected
+    ? (list.find((item) => item.id === selected) ?? null)
+    : (currentPeriod(list) ?? list[0] ?? null);
   const earlier = activePeriod ? previousPeriod(list, activePeriod) : null;
 
   const progression = useQuery({
