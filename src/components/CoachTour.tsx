@@ -86,27 +86,27 @@ export function CoachTour({
   const last = index === steps.length - 1;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Guide">
+    <div className="pointer-events-none fixed inset-0 z-[70]" role="dialog" aria-label="Guide">
       {/* Dämpad bakgrund. Med spotlight lämnas hålet öppet så att knappen går att trycka på. */}
       {spotlight ? (
         <>
           <div
-            className="pointer-events-auto absolute inset-x-0 top-0 bg-foreground/60"
+            className="pointer-events-none absolute inset-x-0 top-0 bg-foreground/40"
             style={{ height: Math.max(0, spotlight.top) }}
             onClick={onClose}
           />
           <div
-            className="pointer-events-auto absolute inset-x-0 bottom-0 bg-foreground/60"
+            className="pointer-events-none absolute inset-x-0 bottom-0 bg-foreground/40"
             style={{ top: spotlight.top + spotlight.height }}
             onClick={onClose}
           />
           <div
-            className="pointer-events-auto absolute left-0 bg-foreground/60"
+            className="pointer-events-none absolute left-0 bg-foreground/40"
             style={{ top: spotlight.top, height: spotlight.height, width: Math.max(0, spotlight.left) }}
             onClick={onClose}
           />
           <div
-            className="pointer-events-auto absolute right-0 bg-foreground/60"
+            className="pointer-events-none absolute right-0 bg-foreground/40"
             style={{ top: spotlight.top, height: spotlight.height, left: spotlight.left + spotlight.width }}
             onClick={onClose}
           />
@@ -121,7 +121,7 @@ export function CoachTour({
           />
         </>
       ) : (
-        <div className="pointer-events-auto absolute inset-0 bg-foreground/60" onClick={onClose} />
+        <div className="pointer-events-none absolute inset-0 bg-foreground/40" onClick={onClose} />
       )}
       <div
         className="pointer-events-auto absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"
