@@ -70,7 +70,7 @@ function SharedTactic() {
           <h1 className="font-display text-2xl font-bold">Taktiken är inte tillgänglig</h1>
           <p className="mt-2 text-sm text-muted-foreground">Länken kan ha slutat delas.</p>
           <Button asChild className="mt-4">
-            <Link to="/">Till Taktiktavlan</Link>
+            <Link to="/">Till Fotbollsrummet</Link>
           </Button>
         </div>
       </main>

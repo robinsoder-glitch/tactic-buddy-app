@@ -16,9 +16,9 @@ import { Switch } from "@/components/ui/switch";
 export const Route = createFileRoute("/_authenticated/installningar")({
   head: () => ({
     meta: [
-      { title: "Inställningar – Taktiktavlan" },
+      { title: "Inställningar – Fotbollsrummet" },
       { name: "description", content: "Profil, lag, tavlans standardval och kontoinställningar." },
-      { property: "og:title", content: "Inställningar – Taktiktavlan" },
+      { property: "og:title", content: "Inställningar – Fotbollsrummet" },
       { property: "og:description", content: "Hantera profil, lag och standardval för taktiktavlan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
