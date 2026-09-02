@@ -96,9 +96,16 @@ function distinctValues(articles: KnowledgeArticle[], key: "level" | "language" 
   );
 }
 
+/** Nivåerna visas alltid i stigande svårighetsgrad. */
+export const KNOWLEDGE_LEVEL_ORDER = ["Grund", "Fortsättning", "Fördjupning"];
+
 export function knowledgeLevels(articles: KnowledgeArticle[]): string[] {
-  return distinctValues(articles, "level");
+  const present = new Set(distinctValues(articles, "level"));
+  const ordered = KNOWLEDGE_LEVEL_ORDER.filter((level) => present.has(level));
+  const rest = Array.from(present).filter((level) => !KNOWLEDGE_LEVEL_ORDER.includes(level));
+  return [...ordered, ...rest];
 }
+
 
 export function knowledgeLanguages(articles: KnowledgeArticle[]): string[] {
   return distinctValues(articles, "language");
