@@ -33,6 +33,8 @@ function TacticPage() {
   const queryClient = useQueryClient();
   const [openId, setOpenId] = useState<string | null>(null);
 
+  const { confirm, confirmDialog } = useConfirm();
+
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
   const cards = useQuery({ queryKey: ["tactic-cards"], queryFn: fetchTacticCards });
 
