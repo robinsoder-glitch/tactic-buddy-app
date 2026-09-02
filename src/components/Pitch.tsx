@@ -181,7 +181,14 @@ export function Pitch({
     }
   }
 
-  function handlePointerUp() {
+  function handlePointerUp(event?: React.PointerEvent) {
+    if (event && capturedRef.current) {
+      try {
+        capturedRef.current.releasePointerCapture?.(event.pointerId);
+      } catch {
+        /* capture kan redan vara släppt */
+      }
+    }
     if (pending) {
       const distance = Math.hypot(pending.x2 - pending.x1, pending.y2 - pending.y1);
       if (distance > 0.02 && isShapeTool) {
