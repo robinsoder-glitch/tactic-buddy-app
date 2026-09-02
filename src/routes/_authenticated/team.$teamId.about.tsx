@@ -10,7 +10,7 @@ import {
   deleteTeam,
   fetchTeam,
   fetchTeamImpact,
-  regenerateJoinCode,
+  rotateTeamCode,
   setTeamArchived,
   TEAM_GENDER_LABELS,
   updateTeam,
@@ -49,22 +49,28 @@ function AboutPage() {
   const isOwner = canManageTeam;
   const archived = Boolean(team.data?.archived_at);
 
-  async function newCode() {
+  async function newCode(kind: "player" | "coach") {
     const ok = await confirm({
-      title: "Skapa ny lagkod",
+      title: kind === "coach" ? "Skapa ny tränarkod" : "Skapa ny lagkod",
       description: "Den gamla koden slutar fungera direkt. Alla som ska gå med behöver den nya koden.",
       confirmLabel: "Skapa ny kod",
       tone: "default",
     });
     if (!ok) return;
     try {
-      await regenerateJoinCode(teamId);
+      await rotateTeamCode(teamId, kind);
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
-      toast.success("Ny lagkod skapad");
+      toast.success("Ny kod skapad");
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte skapa ny kod"));
     }
   }
+
+  async function copyCode(code: string | undefined) {
+    await navigator.clipboard.writeText(code ?? "");
+    toast.success("Kod kopierad");
+  }
+
 
   async function toggleArchive() {
     const ok = await confirm({
