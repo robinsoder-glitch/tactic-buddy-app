@@ -1041,6 +1041,7 @@ export type Database = {
           birth_date: string | null
           created_at: string
           display_name: string | null
+          guardian_for_name: string | null
           id: string
           is_adult_confirmed: boolean
         }
@@ -1049,6 +1050,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           display_name?: string | null
+          guardian_for_name?: string | null
           id: string
           is_adult_confirmed?: boolean
         }
@@ -1057,6 +1059,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           display_name?: string | null
+          guardian_for_name?: string | null
           id?: string
           is_adult_confirmed?: boolean
         }
@@ -1578,6 +1581,7 @@ export type Database = {
           age_group: string | null
           archived_at: string | null
           club_id: string | null
+          coach_join_code: string
           created_at: string
           created_by: string
           gender: string
@@ -1593,6 +1597,7 @@ export type Database = {
           age_group?: string | null
           archived_at?: string | null
           club_id?: string | null
+          coach_join_code: string
           created_at?: string
           created_by: string
           gender?: string
@@ -1608,6 +1613,7 @@ export type Database = {
           age_group?: string | null
           archived_at?: string | null
           club_id?: string | null
+          coach_join_code?: string
           created_at?: string
           created_by?: string
           gender?: string
@@ -1661,9 +1667,11 @@ export type Database = {
           age_group: string
           club_name: string
           id: string
+          join_role: string
           name: string
         }[]
       }
+      gen_team_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1679,6 +1687,19 @@ export type Database = {
       is_team_member: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
+      }
+      join_team_with_code: {
+        Args: { _code: string }
+        Returns: {
+          member_role: string
+          member_status: string
+          team_id: string
+          team_name: string
+        }[]
+      }
+      rotate_team_code: {
+        Args: { _kind: string; _team_id: string }
+        Returns: string
       }
       save_match_plan: {
         Args: {
