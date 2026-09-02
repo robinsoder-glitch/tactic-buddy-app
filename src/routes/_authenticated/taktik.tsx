@@ -71,6 +71,25 @@ function TacticPage() {
     toast.success("Ny tom tavla.");
   }
 
+  const removeTactic = useMutation({
+    mutationFn: (id: string) => deleteTactic(id),
+    onSuccess: (_data, id) => {
+      if (openId === id) setOpenId(null);
+      void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      toast.success("Taktiken raderades.");
+    },
+    onError: () => toast.error("Taktiken kunde inte raderas."),
+  });
+
+  async function askDelete(id: string, name: string) {
+    const ok = await confirm({
+      title: "Radera taktik",
+      description: `Taktiken "${name}" och alla dess steg tas bort permanent.`,
+      confirmLabel: "Radera",
+    });
+    if (ok) removeTactic.mutate(id);
+  }
+
   return (
     <main className="mx-auto max-w-5xl px-4 pb-28 pt-6 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Taktik</h1>
