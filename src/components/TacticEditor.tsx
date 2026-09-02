@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CircleDot,
   Grid3x3,
+  HelpCircle,
   ChevronLeft,
   ChevronRight,
   Download,
