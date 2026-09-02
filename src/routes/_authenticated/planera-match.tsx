@@ -28,6 +28,7 @@ import {
   upcomingOfType,
 } from "@/lib/planning";
 import { fetchTeamMembers, fetchTeamPlayers, formatDateTime } from "@/lib/teams";
+import { eventTitleLine } from "@/lib/event-labels";
 
 type Search = { eventId?: string | undefined; mode?: "edit" | undefined };
 
@@ -285,7 +286,9 @@ function PlanMatchPage() {
                     <span className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
                     <span className="min-w-0 flex-1">
                       <span className="block text-xs tracking-wide text-muted-foreground">Match</span>
-                      <span className="block font-semibold">{event.title ?? "Match"}</span>
+                      {eventTitleLine(event) && (
+                        <span className="block font-semibold">{eventTitleLine(event)}</span>
+                      )}
                       <span className="block text-sm text-primary">{formatDateTime(event.starts_at)}</span>
                       <span className="block text-xs text-muted-foreground">
                         {event.team_name ?? "Lag"}
@@ -359,7 +362,7 @@ function PlanMatchPage() {
             <>
               <div className="rounded-xl border border-primary bg-primary/10 p-4">
                 <p className="text-xs tracking-wide text-muted-foreground">Match</p>
-                <p className="font-semibold">{selected.title ?? "Match"}</p>
+                {eventTitleLine(selected) && <p className="font-semibold">{eventTitleLine(selected)}</p>}
                 <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
                 <p className="text-xs text-muted-foreground">
                   {selected.team_name ?? "Lag"}

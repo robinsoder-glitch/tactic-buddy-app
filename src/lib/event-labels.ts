@@ -30,3 +30,9 @@ export function isCancelled(event: EventLike): boolean {
 export function eventBadges(event: EventLike): string[] {
   return isCancelled(event) ? [eventTypeLabel(event), "Inställd"] : [eventTypeLabel(event)];
 }
+
+/** Titelrad som aldrig upprepar typen, t.ex. "Träning" under rubriken Träning. */
+export function eventTitleLine(event: EventLike): string | null {
+  const title = eventDisplayTitle(event);
+  return title === eventTypeLabel(event) ? null : title;
+}
