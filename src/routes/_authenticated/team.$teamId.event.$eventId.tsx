@@ -14,9 +14,15 @@ import {
   INVITE_STATUSES,
   NO_ACCOUNT_TEXT,
   NO_REMINDER_TEXT,
+  canRespondAsGuardian,
   canRespondSelf,
   countInvitations,
   createReminders,
+  reminderResultText,
+  summaryText,
+  setRespondBy,
+  fetchInvitationLog,
+  EXTERNAL_CHANNELS_TEXT,
   expectedAttendance,
   fetchEventInvitations,
   inviteStatusLabel,
@@ -29,6 +35,8 @@ import {
 } from "@/lib/invitations";
 
 import { useTeamRole } from "@/hooks/useTeamRole";
+import { fetchMyGuardedPlayerIds } from "@/lib/guardians";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -68,6 +76,8 @@ function EventPage() {
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [message, setMessage] = useState("");
+  const [openRow, setOpenRow] = useState<string | null>(null);
+  const [respondBy, setRespondByValue] = useState("");
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
   const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
@@ -81,12 +91,18 @@ function EventPage() {
     queryKey: ["event-coaches", eventId],
     queryFn: () => fetchEventCoaches([eventId]),
   });
+  const guarded = useQuery({
+    queryKey: ["guarded-players", userId],
+    queryFn: () => fetchMyGuardedPlayerIds(userId),
+    enabled: Boolean(userId),
+  });
   const invites = useQuery({
     queryKey: ["invitations", eventId],
     queryFn: () => fetchEventInvitations(eventId),
   });
 
   const list = invites.data ?? [];
+  const guardedIds = guarded.data ?? [];
   const counts = countInvitations(list);
   const cancelled = Boolean(event.data?.cancelled_at);
   const meta = list[0];
@@ -105,6 +121,7 @@ function EventPage() {
         hasExisting: list.length > 0,
         newPlayerIds: selected.filter((id) => !invited.has(id)),
         message: message.trim() || null,
+        respondBy: respondBy || null,
         createdBy: userId,
       });
 
@@ -140,10 +157,17 @@ function EventPage() {
         invitation,
         status,
         userId,
-        role: canRespondSelf(invitation, userId) && !isCoach ? "player" : "coach",
+        role: isCoach
+          ? "coach"
+          : canRespondSelf(invitation, userId)
+            ? "player"
+            : "guardian",
       });
     },
-    onSuccess: () => refresh(),
+    onSuccess: (_data, vars) => {
+      refresh();
+      queryClient.invalidateQueries({ queryKey: ["invitation-log", vars.invitation.id] });
+    },
     onError: () =>
       toast.error(
         cancelled
@@ -153,25 +177,28 @@ function EventPage() {
   });
 
   const remind = useMutation({
-    mutationFn: () => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      return createReminders({
-        invitations: list.filter((item) => item.status === "pending"),
-        teamId,
+    mutationFn: () =>
+      createReminders({
         eventId,
         title: "Påminnelse: svara på kallelsen",
         body: `${event.data?.type === "match" ? "Match" : "Träning"} ${formatDateTime(event.data?.starts_at ?? "")}`,
-        createdBy: userId,
-      });
-    },
+      }),
     onSuccess: (result) => {
-      if (result.sent === 0) toast.info(NO_REMINDER_TEXT);
-      else if (result.missingAccount > 0)
-        toast.success(`Påminnelse skapad för ${result.sent} spelare. ${NO_REMINDER_TEXT}`);
-      else toast.success(`Påminnelse skapad för ${result.sent} spelare.`);
+      const text = reminderResultText(result);
+      if (result.sent > 0) toast.success(text);
+      else toast.info(text);
       refresh();
     },
     onError: () => toast.error("Kunde inte skapa påminnelsen. Försök igen."),
+  });
+
+  const saveRespondBy = useMutation({
+    mutationFn: () => setRespondBy(eventId, respondBy || null),
+    onSuccess: () => {
+      toast.success("Sista svarsdag uppdaterad. Tidigare svar är kvar.");
+      refresh();
+    },
+    onError: () => toast.error("Kunde inte spara sista svarsdag."),
   });
 
   const cancel = useMutation({
@@ -179,6 +206,11 @@ function EventPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["event", eventId] }),
     onError: () => toast.error("Kunde inte ändra aktiviteten. Försök igen."),
   });
+
+  const lastReminder = useMemo(() => {
+    const stamps = list.map((item) => item.last_reminder_at).filter(Boolean) as string[];
+    return stamps.sort().at(-1) ?? null;
+  }, [list]);
 
   const filtered = useMemo(
     () => (filter === "alla" ? list : list.filter((item) => item.status === filter)),
@@ -189,6 +221,7 @@ function EventPage() {
     const invited = new Set(list.map((item) => item.player_id));
     setSelected((players.data ?? []).map((player) => player.id).filter((id) => !invited.has(id)));
     setMessage(meta?.message ?? "");
+    setRespondByValue(meta?.respond_by ?? "");
 
     setCreating(true);
   }
@@ -321,6 +354,10 @@ function EventPage() {
 
         {list.length > 0 && (
           <>
+            <p className="mt-3 text-sm font-semibold">{summaryText(counts)}</p>
+            {meta?.respond_by && (
+              <p className="text-xs text-muted-foreground">Sista svarsdag: {meta.respond_by}</p>
+            )}
             <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
               <Stat label="Kallade" value={counts.total} />
               <Stat label="Beräknat antal" value={expectedAttendance(counts)} />
@@ -355,57 +392,88 @@ function EventPage() {
                 disabled={remind.isPending}
                 onClick={() => remind.mutate()}
               >
-                <Bell className="size-4" /> Skapa påminnelse ({counts.pending})
+                <Bell className="size-4" /> Påminn obesvarade ({counts.pending})
               </Button>
+            )}
+            {isCoach && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {lastReminder
+                  ? `Senaste påminnelsen skickades ${formatDateTime(lastReminder)}. `
+                  : "Ingen påminnelse har skickats ännu. "}
+                {EXTERNAL_CHANNELS_TEXT}
+              </p>
             )}
 
             <ul className="mt-4 space-y-2">
               {filtered.map((invitation) => {
                 const mine = canRespondSelf(invitation, userId);
-                const mayAnswer = (isCoach || mine) && !cancelled;
+                const guardianOf = canRespondAsGuardian(invitation, guardedIds);
+                const mayAnswer = (isCoach || mine || guardianOf) && !cancelled;
+                const open = openRow === invitation.id;
                 return (
-                  <li key={invitation.id} className="rounded-xl border border-border bg-card p-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                  <li key={invitation.id} className="rounded-xl border border-border bg-card">
+                    <button
+                      type="button"
+                      className="flex w-full flex-wrap items-center justify-between gap-2 p-3 text-left"
+                      onClick={() => setOpenRow(open ? null : invitation.id)}
+                      aria-expanded={open}
+                    >
                       <div className="min-w-0">
-                        <p className="truncate font-semibold">{invitation.playerName}</p>
+                        <p className="truncate font-semibold">
+                          {invitation.playerName}
+                          {invitation.playerActive === false && (
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">Inaktiv</span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {inviteStatusLabel(invitation.status)}
-                          {invitation.responded_at ? " · svar registrerat" : ""}
+                          {invitation.responded_at
+                            ? ` · ${formatDateTime(invitation.responded_at)}`
+                            : ""}
+                          {invitation.respondedByName ? ` · av ${invitation.respondedByName}` : ""}
                         </p>
+                        {invitation.comment && (
+                          <p className="mt-1 truncate text-xs italic text-muted-foreground">
+                            ”{invitation.comment}”
+                          </p>
+                        )}
                       </div>
                       <Users className="size-4 shrink-0 text-muted-foreground" />
-                    </div>
+                    </button>
 
-                    {mayAnswer ? (
-                      <div className="mt-3 grid grid-cols-3 gap-2">
-                        {(["attending", "declined", "maybe"] as InviteStatus[]).map((status) => (
-                          <Button
-                            key={status}
-                            size="sm"
-                            className="h-11"
-                            variant={invitation.status === status ? "default" : "secondary"}
-                            disabled={respond.isPending}
-                            onClick={() => respond.mutate({ invitation, status })}
-                          >
-                            {inviteStatusLabel(status)}
-                          </Button>
-                        ))}
-                      </div>
-                    ) : (
-                      !invitation.memberUserId &&
-                      isCoach === false && (
+                    <div className="px-3 pb-3">
+                      {mayAnswer ? (
+                        <div className="grid grid-cols-3 gap-2">
+                          {(["attending", "maybe", "declined"] as InviteStatus[]).map((status) => (
+                            <Button
+                              key={status}
+                              size="sm"
+                              className="h-12 text-sm"
+                              variant={invitation.status === status ? "default" : "secondary"}
+                              disabled={respond.isPending}
+                              onClick={() => respond.mutate({ invitation, status })}
+                            >
+                              {inviteStatusLabel(status)}
+                            </Button>
+                          ))}
+                        </div>
+                      ) : (
+                        !invitation.memberUserId &&
+                        isCoach === false && (
+                          <p className="text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
+                        )
+                      )}
+
+                      {isCoach && !invitation.memberUserId && (
                         <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
-                      )
-                    )}
-
-                    {isCoach && !invitation.memberUserId && (
-                      <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
-                    )}
-                    {cancelled && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Aktiviteten är inställd. Nya svar är stängda.
-                      </p>
-                    )}
+                      )}
+                      {cancelled && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Aktiviteten är inställd. Nya svar är stängda.
+                        </p>
+                      )}
+                      {open && <InvitationHistory invitationId={invitation.id} />}
+                    </div>
                   </li>
                 );
               })}
@@ -425,6 +493,26 @@ function EventPage() {
 
 
 
+
+          <label className="text-sm">
+            Sista svarsdag
+            <Input
+              type="date"
+              value={respondBy}
+              onChange={(e) => setRespondByValue(e.target.value)}
+            />
+            {list.length > 0 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-2"
+                disabled={saveRespondBy.isPending}
+                onClick={() => saveRespondBy.mutate()}
+              >
+                Spara sista svarsdag
+              </Button>
+            )}
+          </label>
 
           <label className="text-sm">
             Information till spelarna
@@ -491,6 +579,31 @@ function EventPage() {
         </DialogContent>
       </Dialog>
     </main>
+  );
+}
+
+function InvitationHistory({ invitationId }: { invitationId: string }) {
+  const log = useQuery({
+    queryKey: ["invitation-log", invitationId],
+    queryFn: () => fetchInvitationLog(invitationId),
+  });
+  const rows = log.data ?? [];
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="text-xs font-semibold">Historik</p>
+      {rows.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Inga ändringar ännu.</p>
+      ) : (
+        <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+          {rows.map((row) => (
+            <li key={row.id}>
+              {inviteStatusLabel(row.from_status)} → {inviteStatusLabel(row.to_status)} ·{" "}
+              {row.changedByName ?? "Okänd"} ({row.changed_role}) · {formatDateTime(row.created_at)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

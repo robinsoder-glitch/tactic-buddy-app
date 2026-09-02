@@ -22,11 +22,13 @@ export type Team = {
   photoUrl?: string | null;
 };
 
+export type TeamMemberRole = "club_admin" | "head_coach" | "coach" | "guardian" | "player";
+
 export type TeamMember = {
   id: string;
   team_id: string;
   user_id: string;
-  role: "coach" | "player";
+  role: TeamMemberRole;
   status: "pending" | "approved";
   created_at: string;
   displayName?: string | null;
@@ -48,6 +50,7 @@ export type TeamPlayer = {
   guardian2_email: string | null;
   has_allergy: boolean;
   allergy_note: string | null;
+  is_active?: boolean;
   photoUrl: string | null;
 };
 
@@ -363,7 +366,7 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
     .select(
-      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
+      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, is_active, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
     )
 
     .eq("team_id", teamId)
@@ -678,7 +681,7 @@ export async function removeTeamInvite(id: string) {
 }
 
 /** Turn an approved member into a leader (or back to a player). */
-export async function setMemberRole(id: string, role: "coach" | "player") {
+export async function setMemberRole(id: string, role: TeamMemberRole) {
   const { error } = await supabase.from("team_members").update({ role }).eq("id", id);
   if (error) throw error;
 }
