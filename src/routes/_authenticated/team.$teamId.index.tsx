@@ -10,6 +10,7 @@ import {
   fetchTeamPlayers,
   GENDER_LABELS,
   removeMember,
+  findSimilarPlayers,
   saveTeamPlayer,
   setMemberStatus,
   uploadTeamMedia,
@@ -123,11 +124,18 @@ function SquadPage() {
     setOpen(true);
   }
 
-  async function save() {
+  async function save(force = false) {
     if (!userId) return;
     if (!name.trim()) {
       toast.error("Ange ett namn");
       return;
+    }
+    if (!force) {
+      const similar = findSimilarPlayers(name, players.data ?? [], editing?.id);
+      if (similar.length) {
+        setDuplicates(similar.map((player) => ({ id: player.id, name: player.name })));
+        return;
+      }
     }
     setBusy(true);
     try {
@@ -161,6 +169,8 @@ function SquadPage() {
       setBusy(false);
     }
   }
+
+  const [duplicates, setDuplicates] = useState<{ id: string; name: string }[]>([]);
 
   const approve = useMutation({
     mutationFn: (id: string) => setMemberStatus(id, "approved"),
@@ -261,6 +271,45 @@ function SquadPage() {
           </li>
         ))}
       </ul>
+
+      <Dialog open={duplicates.length > 0} onOpenChange={(value) => !value && setDuplicates([])}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Det finns redan en spelare med samma namn</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {duplicates.map((player) => player.name).join(", ")} finns redan i truppen. Två spelare får heta
+            likadant – välj hur du vill gå vidare.
+          </p>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            {duplicates[0] && (
+              <Button asChild variant="outline">
+                <Link
+                  to="/team/$teamId/player/$playerId"
+                  params={{ teamId, playerId: duplicates[0].id }}
+                  onClick={() => {
+                    setDuplicates([]);
+                    setOpen(false);
+                  }}
+                >
+                  Visa befintlig spelare
+                </Link>
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => setDuplicates([])}>
+              Avbryt
+            </Button>
+            <Button
+              onClick={() => {
+                setDuplicates([]);
+                void save(true);
+              }}
+            >
+              Skapa ändå
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
