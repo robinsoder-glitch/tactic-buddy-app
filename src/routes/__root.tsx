@@ -126,12 +126,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Taktiktavlan – fotbollstaktik med animationer" },
+      { title: "Fotbollsrummet – fotbollstaktik med animationer" },
       {
         name: "description",
         content: "Sätt ut spelare, rita löpningar och animera fotbollstaktik steg för steg.",
       },
-      { property: "og:title", content: "Taktiktavlan" },
+      { property: "og:title", content: "Fotbollsrummet" },
       { property: "og:description", content: "Fotbollstaktik med spelarbank och animerade löpningar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

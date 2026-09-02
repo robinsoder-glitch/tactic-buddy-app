@@ -61,13 +61,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Taktiktavlan – animerad fotbollstaktik" },
+      { title: "Fotbollsrummet – animerad fotbollstaktik" },
       {
         name: "description",
         content:
           "Bygg fotbollstaktik på mobilen: placera spelare från din spelarbank, rita löpningar och animera spelmoment steg för steg.",
       },
-      { property: "og:title", content: "Taktiktavlan – animerad fotbollstaktik" },
+      { property: "og:title", content: "Fotbollsrummet – animerad fotbollstaktik" },
       {
         property: "og:description",
         content: "Placera spelare, rita löpningar och animera spelmoment steg för steg.",
@@ -163,7 +163,7 @@ function PlayerHome() {
 function Landing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-16">
-      <p className="font-display text-sm tracking-[0.3em] text-primary">Taktiktavlan</p>
+      <p className="font-display text-sm tracking-[0.3em] text-primary">Fotbollsrummet</p>
       <h1 className="mt-3 font-display text-5xl font-bold leading-[0.95]">
         Rita, flytta,
         <br />
@@ -303,7 +303,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Fotbollsrummet</p>
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>

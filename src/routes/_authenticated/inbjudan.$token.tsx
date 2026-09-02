@@ -9,9 +9,9 @@ import { acceptTeamInvite } from "@/lib/teams";
 export const Route = createFileRoute("/_authenticated/inbjudan/$token")({
   head: () => ({
     meta: [
-      { title: "Inbjudan till lag – Taktiktavlan" },
+      { title: "Inbjudan till lag – Fotbollsrummet" },
       { name: "description", content: "Acceptera din personliga inbjudan att bli ledare i ett lag." },
-      { property: "og:title", content: "Inbjudan till lag – Taktiktavlan" },
+      { property: "og:title", content: "Inbjudan till lag – Fotbollsrummet" },
       { property: "og:description", content: "Acceptera din personliga inbjudan till laget." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

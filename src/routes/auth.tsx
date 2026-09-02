@@ -22,12 +22,12 @@ import { friendlyError } from "@/lib/user-errors";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Logga in eller skapa konto – Taktiktavlan" },
+      { title: "Logga in eller skapa konto – Fotbollsrummet" },
       {
         name: "description",
         content: "Logga in som tränare eller spelare. Nya spelare går med i laget med lagkoden från tränaren.",
       },
-      { property: "og:title", content: "Logga in eller skapa konto – Taktiktavlan" },
+      { property: "og:title", content: "Logga in eller skapa konto – Fotbollsrummet" },
       {
         property: "og:description",
         content: "Tränare planerar träning och match, spelare går med i laget med lagkoden.",
@@ -137,7 +137,7 @@ function AuthPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
-        <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+        <p className="font-display text-xs tracking-[0.3em] text-primary">Fotbollsrummet</p>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-wide">
           {mode === "signin" ? "Logga in" : showRoleStep ? "Skapa konto" : role === "coach" ? "Tränarkonto" : "Spelarkonto"}
         </h1>

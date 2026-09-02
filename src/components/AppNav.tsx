@@ -93,7 +93,7 @@ export function AppNav() {
       >
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
           <Link to="/" className="mr-2 font-display text-base font-bold text-foreground">
-            Taktiktavlan
+            Fotbollsrummet
           </Link>
           <ul className="flex flex-1 flex-wrap items-center gap-1">
             {MAIN_TABS.map((tab) => {

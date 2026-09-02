@@ -22,12 +22,12 @@ import {
 export const Route = createFileRoute("/_authenticated/bank")({
   head: () => ({
     meta: [
-      { title: "Spelarbank – Taktiktavlan" },
+      { title: "Spelarbank – Fotbollsrummet" },
       {
         name: "description",
         content: "Hantera din spelarbank med namn, tröjnummer, lagfärg och bilder på spelarna.",
       },
-      { property: "og:title", content: "Spelarbank – Taktiktavlan" },
+      { property: "og:title", content: "Spelarbank – Fotbollsrummet" },
       { property: "og:description", content: "Namn, nummer och bilder på dina spelare." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

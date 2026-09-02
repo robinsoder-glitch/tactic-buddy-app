@@ -111,7 +111,7 @@ function CreatePage() {
           <ArrowLeft className="size-5" />
         </Button>
         <div>
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">Fotbollsrummet</p>
           <h1 className="font-display text-3xl font-bold">Ny taktik</h1>
         </div>
       </header>

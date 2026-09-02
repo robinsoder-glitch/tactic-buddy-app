@@ -28,9 +28,9 @@ import { ensureOwnerMembership, transferTeamOwnership } from "@/lib/teams";
 export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
   head: () => ({
     meta: [
-      { title: "Ledare – Taktiktavlan" },
+      { title: "Ledare – Fotbollsrummet" },
       { name: "description", content: "Bjud in fler tränare och ledare till laget med personliga inbjudningar." },
-      { property: "og:title", content: "Ledare – Taktiktavlan" },
+      { property: "og:title", content: "Ledare – Fotbollsrummet" },
       { property: "og:description", content: "Hantera lagets ledare och personliga inbjudningar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
