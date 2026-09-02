@@ -593,12 +593,33 @@ function PlanTrainingPage() {
                     />
                   </div>
 
-                  <Button className="mt-3" onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
-                    Spara träningsplaneringen
-                  </Button>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="secondary" onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
+                      Spara utkast
+                    </Button>
+                    {plan.data?.planning_done ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => finishPlan.mutate(false)}
+                        disabled={finishPlan.isPending}
+                      >
+                        Öppna planeringen igen
+                      </Button>
+                    ) : (
+                      <Button onClick={() => finishPlan.mutate(true)} disabled={finishPlan.isPending}>
+                        <CheckCircle2 className="size-4" /> Slutför planering
+                      </Button>
+                    )}
+                  </div>
+                  {plan.data?.planning_done && (
+                    <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                      <CheckCircle2 className="size-3.5" aria-hidden /> Planeringen är klar
+                    </p>
+                  )}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Planeringen syns på aktiviteten i lagets kalender under ”Planerat träningsinnehåll”.
+                    När du slutför planeringen blir träningen grön i listan över alla träningstillfällen.
                   </p>
+
                 </div>
               </div>
             </>
