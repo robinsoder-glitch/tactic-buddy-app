@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CircleDot,
   Grid3x3,
+  HelpCircle,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -29,7 +30,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchPlayers, fetchTactic, saveFrames, setTacticPitchType, setTacticSharing } from "@/lib/db";
+import {
+  fetchPlayers,
+  fetchTactic,
+  renameTactic,
+  saveFrames,
+  setTacticPitchType,
+  setTacticSharing,
+} from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
 import { exportPdf, previewPdfUrl } from "@/lib/export-pdf";
@@ -54,6 +62,51 @@ import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CoachTour, type TourStep } from "@/components/CoachTour";
+
+const TOUR_KEY = "taktiktavla:tour:v1";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: "player",
+    title: "1. Sätt ut dina spelare",
+    body: "Tryck på Egen spelare och peka sedan på planen – en gång per spelare. Sätt ut så många spelare som situationen behöver och tryck Klar.",
+  },
+  {
+    target: "opponent",
+    title: "2. Lägg till motståndare",
+    body: "Tryck på Motståndare och peka på planen där de ska stå. Lägg ut lika många som du vill visa.",
+  },
+  {
+    target: "ball",
+    title: "3. Lägg till bollen",
+    body: "Tryck på Boll så hamnar den på planen. Dra den dit spelet börjar.",
+  },
+  {
+    target: "sequence",
+    title: "4. Ny sekvens = rörelse",
+    body: "Tryck Ny sekvens och dra sedan spelare och boll dit de ska. Löplinjer och passningar ritas automatiskt. Vill du ha fler rörelser trycker du Ny sekvens igen.",
+  },
+  {
+    target: "play",
+    title: "5. Spela upp",
+    body: "När du är klar trycker du Spela allt så animeras hela taktiken från startläget.",
+  },
+  {
+    target: "save",
+    title: "6. Spara med eget namn",
+    body: "Tryck Spara, skriv ett namn du känner igen taktiken på och spara. Allt sparas också automatiskt medan du jobbar.",
+  },
+];
 
 
 
@@ -169,6 +222,9 @@ export function TacticEditor({ id }: { id: string }) {
   const [placeMode, setPlaceMode] = useState<null | "home" | "away">(null);
   const [movementTip, setMovementTip] = useState(false);
   const [presenting, setPresenting] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
   const [playUntil, setPlayUntil] = useState<number | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
@@ -225,8 +281,38 @@ export function TacticEditor({ id }: { id: string }) {
     onError: () => toast.error("Kunde inte spara"),
   });
 
+  /** Spara med eget namn – namnet ändras bara om användaren skrivit något nytt. */
+  const saveWithName = useMutation({
+    mutationFn: async (name: string) => {
+      if (!user) throw new Error("Inte inloggad");
+      const trimmed = name.trim();
+      if (trimmed && trimmed !== tactic.data?.name) await renameTactic(id, trimmed);
+      await saveFrames(id, user.id, frames);
+    },
+    onSuccess: () => {
+      setDirty(false);
+      setSaveOpen(false);
+      void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
+      void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      toast.success("Taktiken är sparad.");
+    },
+    onError: () => toast.error("Kunde inte spara taktiken."),
+  });
+
   const saveRef = useRef(save);
   saveRef.current = save;
+
+  // Visa guiden första gången tavlan öppnas
+  useEffect(() => {
+    if (!tactic.data) return;
+    try {
+      if (window.localStorage.getItem(TOUR_KEY)) return;
+      window.localStorage.setItem(TOUR_KEY, "1");
+    } catch {
+      /* ignorera blockerad lagring */
+    }
+    setTourOpen(true);
+  }, [tactic.data]);
 
   // Autosave with debounce
   useEffect(() => {
@@ -940,8 +1026,24 @@ export function TacticEditor({ id }: { id: string }) {
           {advanced ? "Byt till Enkel" : "Byt till Avancerad"}
         </Button>
 
-        <Button variant="ghost" size="icon" aria-label="Spara" onClick={() => save.mutate()}>
-          <Save className="size-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Visa guide"
+          onClick={() => setTourOpen(true)}
+        >
+          <HelpCircle className="size-5" />
+        </Button>
+
+        <Button
+          size="sm"
+          data-tour="save"
+          onClick={() => {
+            setNameDraft(tactic.data?.name ?? "");
+            setSaveOpen(true);
+          }}
+        >
+          <Save className="size-4" /> Spara
         </Button>
       </header>
 
@@ -1035,15 +1137,16 @@ export function TacticEditor({ id }: { id: string }) {
               Börja här – lägg ut spelarna och bollen där situationen börjar.
             </span>
           )}
-          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("home")}>
+          <Button size="sm" variant="secondary" data-tour="player" onClick={() => setPlaceMode("home")}>
             <UserPlus className="size-4" /> Egen spelare
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => setPlaceMode("away")}>
+          <Button size="sm" variant="secondary" data-tour="opponent" onClick={() => setPlaceMode("away")}>
             <UserPlus className="size-4" /> Motståndare
           </Button>
           <Button
             size="sm"
             variant="secondary"
+            data-tour="ball"
             onClick={() => {
               if (hasBall) {
                 toast.info("Bollen finns redan – dra den på planen för att flytta den.");
@@ -1055,7 +1158,7 @@ export function TacticEditor({ id }: { id: string }) {
             <CircleDot className="size-4" /> Boll
           </Button>
 
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2" data-tour="play">
             {frames.length === 1 ? (
               <Button size="sm" disabled={(frame?.objects.length ?? 0) === 0} onClick={startFirstMovement}>
                 <Plus className="size-4" /> Skapa första rörelsen
@@ -1570,7 +1673,7 @@ export function TacticEditor({ id }: { id: string }) {
               </div>
             </div>
           ))}
-          <Button variant="secondary" size="sm" className="shrink-0" onClick={addFrame}>
+          <Button variant="secondary" size="sm" className="shrink-0" data-tour="sequence" onClick={addFrame}>
             <Plus className="size-4" /> Ny sekvens
           </Button>
           {advanced && frames.length > 1 && (
@@ -1646,6 +1749,41 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
       )}
       {confirmDialog}
+      <CoachTour steps={TOUR_STEPS} open={tourOpen} onClose={() => setTourOpen(false)} />
+
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Spara taktiken</DialogTitle>
+            <DialogDescription>
+              Ge taktiken ett namn du känner igen den på, till exempel ”Uppspel från målvakt”.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            <label className="text-sm font-semibold" htmlFor="tactic-name">
+              Namn
+            </label>
+            <Input
+              id="tactic-name"
+              value={nameDraft}
+              autoFocus
+              onChange={(event) => setNameDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") saveWithName.mutate(nameDraft);
+              }}
+              placeholder="Namn på taktiken"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setSaveOpen(false)}>
+              Avbryt
+            </Button>
+            <Button disabled={saveWithName.isPending} onClick={() => saveWithName.mutate(nameDraft)}>
+              {saveWithName.isPending ? "Sparar…" : "Spara"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
