@@ -76,17 +76,6 @@ export async function saveEventPlan(input: {
   if (error) throw error;
 }
 
-/** En träning räknas som planerad när tränaren bockat i att planeringen är klar. */
-export function planningStatus(
-  eventId: string,
-  plans: EventPlan[],
-  resources: { event_id: string }[],
-): "done" | "started" | "none" {
-  if (plans.some((plan) => plan.event_id === eventId && plan.planning_done)) return "done";
-  if (resources.some((row) => row.event_id === eventId)) return "started";
-  return "none";
-}
-
 /** Uttagna spelare för en match. Påverkar aldrig kallelser eller närvaro. */
 export async function fetchSquad(eventId: string): Promise<string[]> {
   const { data, error } = await supabase.from("event_squad").select("player_id").eq("event_id", eventId);
@@ -149,4 +138,46 @@ export async function moveEventResource(rows: EventResourceRow[], index: number,
   const b = rows[target]!;
   await supabase.from("event_resources").update({ sort_order: b.sort_order }).eq("id", a.id);
   await supabase.from("event_resources").update({ sort_order: a.sort_order }).eq("id", b.id);
+}
+
+/** Uttagna spelare för flera aktiviteter, används i listorna. */
+export async function fetchSquads(eventIds: string[]): Promise<{ event_id: string; player_id: string }[]> {
+  if (eventIds.length === 0) return [];
+  const { data, error } = await supabase.from("event_squad").select("event_id, player_id").in("event_id", eventIds);
+  if (error) throw error;
+  return (data ?? []) as { event_id: string; player_id: string }[];
+}
+
+/** Sparar hela träningsplaneringen i en transaktion (anteckning, rader, ordning, status). */
+export async function saveTrainingPlan(input: {
+  eventId: string;
+  teamId: string;
+  notes: string;
+  items: { kind: string; resource_id: string; minutes: number | null; note: string | null }[];
+}) {
+  const { error } = await supabase.rpc("save_training_plan", {
+    _event_id: input.eventId,
+    _team_id: input.teamId,
+    _notes: input.notes,
+    _items: input.items,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Sparar hela matchplaneringen i en transaktion (spelare, ledare, anteckning, status). */
+export async function saveMatchPlan(input: {
+  eventId: string;
+  teamId: string;
+  notes: string;
+  playerIds: string[];
+  coachIds: string[];
+}) {
+  const { error } = await supabase.rpc("save_match_plan", {
+    _event_id: input.eventId,
+    _team_id: input.teamId,
+    _notes: input.notes,
+    _player_ids: input.playerIds,
+    _coach_ids: input.coachIds,
+  });
+  if (error) throw new Error(error.message);
 }
