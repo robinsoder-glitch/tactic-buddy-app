@@ -281,6 +281,24 @@ export function TacticEditor({ id }: { id: string }) {
     onError: () => toast.error("Kunde inte spara"),
   });
 
+  /** Spara med eget namn – namnet ändras bara om användaren skrivit något nytt. */
+  const saveWithName = useMutation({
+    mutationFn: async (name: string) => {
+      if (!user) throw new Error("Inte inloggad");
+      const trimmed = name.trim();
+      if (trimmed && trimmed !== tactic.data?.name) await renameTactic(id, trimmed);
+      await saveFrames(id, user.id, frames);
+    },
+    onSuccess: () => {
+      setDirty(false);
+      setSaveOpen(false);
+      void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
+      void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+      toast.success("Taktiken är sparad.");
+    },
+    onError: () => toast.error("Kunde inte spara taktiken."),
+  });
+
   const saveRef = useRef(save);
   saveRef.current = save;
 
