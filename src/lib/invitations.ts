@@ -33,6 +33,8 @@ export type Invitation = {
   updated_at: string;
   playerName?: string;
   memberUserId?: string | null;
+  playerActive?: boolean;
+  respondedByName?: string | null;
 };
 
 export type InviteCounts = {
@@ -78,6 +80,14 @@ export function canRespondSelf(
   return Boolean(userId) && invitation.memberUserId === userId;
 }
 
+/** Vårdnadshavare får svara för kopplade barn. */
+export function canRespondAsGuardian(
+  invitation: Pick<Invitation, "player_id">,
+  guardedPlayerIds: string[],
+): boolean {
+  return guardedPlayerIds.includes(invitation.player_id);
+}
+
 export const NO_ACCOUNT_TEXT = "Spelaren saknar kopplat konto. En ledare kan registrera svaret.";
 export const NO_REMINDER_TEXT =
   "Ingen digital påminnelse kan skickas eftersom spelaren saknar kopplat konto.";
@@ -114,7 +124,7 @@ export async function hasLinkedPlayer(userId: string | null | undefined): Promis
 
 /* ------------------------------ data ------------------------------ */
 
-type PlayerRow = { name: string | null; member_user_id: string | null } | null;
+type PlayerRow = { name: string | null; member_user_id: string | null; is_active?: boolean | null } | null;
 
 function mapRow(row: Record<string, unknown> & { players?: PlayerRow }): Invitation {
   const player = row.players ?? null;
@@ -122,18 +132,26 @@ function mapRow(row: Record<string, unknown> & { players?: PlayerRow }): Invitat
     ...(row as unknown as Invitation),
     playerName: player?.name ?? "Spelare",
     memberUserId: player?.member_user_id ?? null,
+    playerActive: player?.is_active ?? true,
   };
 }
 
 export async function fetchEventInvitations(eventId: string): Promise<Invitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
-    .select("*, players(name, member_user_id)")
+    .select("*, players(name, member_user_id, is_active)")
     .eq("event_id", eventId);
   if (error) throw error;
-  return (data ?? [])
-    .map((row) => mapRow(row as never))
-    .sort((a, b) => (a.playerName ?? "").localeCompare(b.playerName ?? "", "sv"));
+  const rows = (data ?? []).map((row) => mapRow(row as never));
+  const ids = [...new Set(rows.map((row) => row.responded_by).filter(Boolean))] as string[];
+  if (ids.length > 0) {
+    const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
+    const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
+    for (const row of rows) {
+      row.respondedByName = row.responded_by ? names.get(row.responded_by) ?? null : null;
+    }
+  }
+  return rows.sort((a, b) => (a.playerName ?? "").localeCompare(b.playerName ?? "", "sv"));
 }
 
 /** Skapar kallelser för valda spelare. Befintliga kallelser lämnas orörda. */
@@ -144,6 +162,16 @@ export async function createInvitations(input: {
   message: string | null;
   createdBy: string;
 }): Promise<number> {
+  if (input.playerIds.length === 0) return 0;
+  // Inaktiva spelare får aldrig nya kallelser.
+  const { data: active, error: activeError } = await supabase
+    .from("players")
+    .select("id")
+    .in("id", input.playerIds)
+    .eq("is_active", true);
+  if (activeError) throw activeError;
+  const allowed = new Set((active ?? []).map((row) => row.id as string));
+  input = { ...input, playerIds: input.playerIds.filter((id) => allowed.has(id)) };
   if (input.playerIds.length === 0) return 0;
   const rows = input.playerIds.map((playerId) => ({
     event_id: input.eventId,
@@ -349,7 +377,7 @@ export async function fetchMyInvitations(): Promise<MyInvitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
     .select(
-      "*, players(name, member_user_id), events(id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team), teams(name)",
+      "*, players(name, member_user_id, is_active), events(id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team), teams(name)",
     );
   if (error) throw error;
   return (data ?? [])

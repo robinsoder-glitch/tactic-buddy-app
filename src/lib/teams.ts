@@ -48,6 +48,7 @@ export type TeamPlayer = {
   guardian2_email: string | null;
   has_allergy: boolean;
   allergy_note: string | null;
+  is_active?: boolean;
   photoUrl: string | null;
 };
 
@@ -363,7 +364,7 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
     .select(
-      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
+      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, is_active, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
     )
 
     .eq("team_id", teamId)
