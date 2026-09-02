@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -151,6 +151,14 @@ function AuthPage() {
         </p>
       </section>
       <div className="order-1 w-full rounded-2xl border border-border bg-card p-6 shadow-xl lg:order-2">
+        {mode === "signup" && (
+          <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1 text-muted-foreground">
+            <Link to="/">
+              <ArrowLeft className="size-4" aria-hidden />
+              Tillbaka
+            </Link>
+          </Button>
+        )}
         <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" className="lg:hidden" />
         <h1 className="mt-3 font-display text-3xl font-bold tracking-wide">
           {mode === "signin" ? "Logga in" : showRoleStep ? "Skapa konto" : role === "coach" ? "Tränarkonto" : "Spelarkonto"}
