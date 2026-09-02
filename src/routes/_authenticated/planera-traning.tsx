@@ -159,6 +159,28 @@ function PlanTrainingPage() {
     onError: () => toast.error("Det gick inte att spara träningsplaneringen."),
   });
 
+  /** Markerar planeringen som klar (grön) eller öppnar den igen. */
+  const finishPlan = useMutation({
+    mutationFn: async (done: boolean) => {
+      if (!user || !selected) throw new Error("Välj en träning först.");
+      await saveEventPlan({
+        eventId: selected.id,
+        teamId: selected.team_id,
+        userId: user.id,
+        notes: notes || plan.data?.notes || null,
+        planningDone: done,
+      });
+    },
+    onSuccess: (_data, done) => {
+      queryClient.invalidateQueries({ queryKey: ["event-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["event-plans"] });
+      toast.success(done ? "Planeringen är klar." : "Planeringen är öppen igen.");
+    },
+    onError: () => toast.error("Det gick inte att spara statusen."),
+  });
+
+
+
   const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills });
 
   const addDrill = useMutation({
