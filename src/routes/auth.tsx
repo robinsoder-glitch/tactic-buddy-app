@@ -18,19 +18,25 @@ import {
   type AccountSetup,
 } from "@/lib/account-setup";
 import { friendlyError } from "@/lib/user-errors";
+import { BrandLogo } from "@/components/BrandLogo";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: search["mode"] === "signup" ? ("signup" as const) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Logga in eller skapa konto – Fotbollsrummet" },
       {
         name: "description",
-        content: "Logga in som tränare eller spelare. Nya spelare går med i laget med lagkoden från tränaren.",
+        content:
+          "Logga in i Fotbollsrummet. Planera träningar och matcher, samla laget och fortsätt utveckla er spelidé.",
       },
       { property: "og:title", content: "Logga in eller skapa konto – Fotbollsrummet" },
       {
         property: "og:description",
-        content: "Tränare planerar träning och match, spelare går med i laget med lagkoden.",
+        content: "Planera träningar och matcher, samla laget och visa taktik med Fotbollsrummet.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -43,7 +49,8 @@ type Mode = "signin" | "signup";
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>("signin");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<Mode>(search.mode === "signup" ? "signup" : "signin");
   const [role, setRole] = useState<AccountRole | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -135,10 +142,18 @@ function AuthPage() {
   const showRoleStep = mode === "signup" && !role;
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
-        <p className="font-display text-xs tracking-[0.3em] text-primary">Fotbollsrummet</p>
-        <h1 className="mt-1 font-display text-3xl font-bold tracking-wide">
+    <main className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-4 py-10 lg:grid-cols-[1fr_minmax(0,26rem)]">
+      <section className="order-2 lg:order-1">
+        <BrandLogo size={56} showName={false} />
+        <h2 className="mt-5 font-display text-3xl font-bold sm:text-4xl">{BRAND_NAME}</h2>
+        <p className="mt-2 font-display text-xl font-semibold">Välkommen tillbaka</p>
+        <p className="mt-3 max-w-md text-muted-foreground">
+          Planera träningar och matcher, samla laget och fortsätt utveckla er spelidé.
+        </p>
+      </section>
+      <div className="order-1 w-full rounded-2xl border border-border bg-card p-6 shadow-xl lg:order-2">
+        <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" className="lg:hidden" />
+        <h1 className="mt-3 font-display text-3xl font-bold tracking-wide">
           {mode === "signin" ? "Logga in" : showRoleStep ? "Skapa konto" : role === "coach" ? "Tränarkonto" : "Spelarkonto"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
