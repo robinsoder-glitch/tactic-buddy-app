@@ -11,6 +11,7 @@ describe("huvudmenyn", () => {
       "Kunskap",
       "Träningsbank",
       "Kalender",
+      "Närvaro",
       "Tränarsnack",
       "Mina lag",
       "Inställningar",
