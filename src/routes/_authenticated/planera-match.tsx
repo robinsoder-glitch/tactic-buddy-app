@@ -1,529 +1,776 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, ListChecks, MapPin, Search } from "lucide-react";
-import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
+import { AppNav } from "@/components/AppNav";
+import { PageHeader } from "@/components/PageHeader";
+import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
+import { EventCoaches } from "@/components/EventCoaches";
+import { LineupPitch, type LineupPlayerInfo } from "@/components/LineupPitch";
+import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAccount } from "@/hooks/useAccount";
-import { fetchUpcomingEvents } from "@/lib/event-planning";
-import { PlanStatusBadge, planStatusBar } from "@/components/PlanStatusBadge";
-import { planStatus } from "@/lib/plan-status";
-import { fetchEventCoaches } from "@/lib/event-coaches";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  fetchEventPlan,
-  fetchEventPlans,
-  fetchSquad,
-  fetchSquads,
-  saveMatchPlan,
-  selectionLabel,
-  toggleSelection,
-  upcomingOfType,
-} from "@/lib/planning";
-import { fetchTeamMembers, fetchTeamPlayers, formatDateTime } from "@/lib/teams";
-import { eventTitleLine } from "@/lib/event-labels";
-
-type Search = { eventId?: string | undefined; mode?: "edit" | undefined };
+  fetchUpcomingEvents,
+  upcomingLabel,
+  type PlannableEvent,
+} from "@/lib/event-planning";
+import { countBy } from "@/lib/plan-status";
+import { planStatus } from "@/lib/plan-status";
+import { fetchEventPlans, fetchSquads } from "@/lib/planning";
+import { fetchEventCoaches } from "@/lib/event-coaches";
+import { fetchTeam, fetchTeamMembers, fetchTeamPlayers, type Team, type TeamMember, type TeamPlayer } from "@/lib/teams";
+import { fetchEventInvitations, inviteStatusLabel, summaryText, countInvitations, type Invitation, type InviteStatus } from "@/lib/invitations";
+import { fetchTactics, type TacticSummary } from "@/lib/db";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  FORMAT_LABELS,
+  FORMAT_PLAYERS,
+  createMatchShare,
+  defaultSlots,
+  fetchLineup,
+  fetchMatchShare,
+  lineupStarters,
+  revokeMatchShare,
+  saveMatchPlanFull,
+  sortPlayersByResponse,
+  syncLineupWithSquad,
+  validateMatchPlan,
+  validateMeetBeforeStart,
+  type LineupSlot,
+  type MatchShare,
+} from "@/lib/match-plan";
+import { dateLabel, timeOnly } from "@/lib/utils";
+import { ArrowLeft, ArrowRight, Check, ClipboardList, Pencil, Share2, Trash2, Users } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/planera-match")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    eventId:
-      typeof search["eventId"] === "string" && search["eventId"] ? (search["eventId"] as string) : undefined,
-    mode: search["mode"] === "edit" ? "edit" : undefined,
-  }),
   head: () => ({
     meta: [
-      { title: "Planera match – ta ut trupp och ansvariga ledare" },
-      {
-        name: "description",
-        content: "Lägg till matcher i lagets kalender och planera matchen med spelaruttagning, ledare och anteckningar.",
-      },
-      { property: "og:title", content: "Planera match" },
-      { property: "og:description", content: "Lägg till match, ta ut trupp och välj ledare." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { title: "Planera match – Fotbollsrummet" },
+      { name: "description", content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar." },
     ],
   }),
-  component: PlanMatchPage,
+  component: MatchPlanningPage,
 });
 
-const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
+type MatchEvent = PlannableEvent & {
+  meet_at?: string | null;
+  ends_at?: string | null;
+  home_team?: string | null;
+  away_team?: string | null;
+  match_kind?: string | null;
+  match_duration_minutes?: number | null;
+};
 
-function PlanMatchPage() {
-  const { user, memberships, loading } = useAccount();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const search = Route.useSearch();
-  const eventId = search.eventId ?? null;
+const STEPS = ["Matchuppgifter", "Ledare", "Spelare", "Formation", "Granska"] as const;
 
-  const [view, setView] = useState<"start" | "book">("start");
-  const [teamId, setTeamId] = useState("");
-  const [query, setQuery] = useState("");
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [selectedCoaches, setSelectedCoaches] = useState<string[]>([]);
-  const [notes, setNotes] = useState("");
-  const [dirty, setDirty] = useState(false);
-  const [errors, setErrors] = useState<{ players?: string; coaches?: string }>({});
-
-  const coachTeams = memberships.filter((item) => item.status === "approved" && item.role === "coach");
-  const activeTeam = teamId || coachTeams[0]?.team_id || "";
-
-  const events = useQuery({ queryKey: ["upcoming-events"], queryFn: () => fetchUpcomingEvents() });
-  const matches = useMemo(() => upcomingOfType(events.data ?? [], "match"), [events.data]);
-  const ids = matches.map((item) => item.id);
-  const selected = matches.find((item) => item.id === eventId) ?? null;
-
-  const plans = useQuery({
-    queryKey: ["event-plans", ids.join(",")],
-    queryFn: () => fetchEventPlans(ids),
-    enabled: ids.length > 0,
-  });
-  const squads = useQuery({
-    queryKey: ["event-squads", ids.join(",")],
-    queryFn: () => fetchSquads(ids),
-    enabled: ids.length > 0,
-  });
-  const allCoaches = useQuery({
-    queryKey: ["event-coaches", ids.join(",")],
-    queryFn: () => fetchEventCoaches(ids),
-    enabled: ids.length > 0,
-  });
-
-  /** Gemensam statusregel: klar när planen är sparad och har spelare och ledare. */
-  function statusFor(id: string) {
-    return planStatus({
-      type: "match",
-      planSaved: (plans.data ?? []).some((row) => row.event_id === id),
-      playerCount: (squads.data ?? []).filter((row) => row.event_id === id).length,
-      coachCount: (allCoaches.data ?? []).filter((row) => row.event_id === id).length,
-    });
-  }
-
-  const players = useQuery({
-    queryKey: ["team-players", selected?.team_id],
-    queryFn: () => fetchTeamPlayers(selected?.team_id as string),
-    enabled: !!selected?.team_id,
-  });
-  const members = useQuery({
-    queryKey: ["team-members", selected?.team_id],
-    queryFn: () => fetchTeamMembers(selected?.team_id as string),
-    enabled: !!selected?.team_id,
-  });
-  const teamCoaches = (members.data ?? []).filter((row) => row.role === "coach" && row.status === "approved");
-
-  const squad = useQuery({
-    queryKey: ["event-squad", eventId],
-    queryFn: () => fetchSquad(eventId as string),
-    enabled: !!eventId,
-  });
-  const plan = useQuery({
-    queryKey: ["event-plan", eventId],
-    queryFn: () => fetchEventPlan(eventId as string),
-    enabled: !!eventId,
-  });
-  const eventCoaches = useQuery({
-    queryKey: ["event-coaches", eventId],
-    queryFn: () => fetchEventCoaches([eventId as string]),
-    enabled: !!eventId,
-  });
+function MatchPlanningPage() {
+  const search = Route.useSearch() as { eventId?: string; edit?: string };
+  const [events, setEvents] = useState<PlannableEvent[] | null>(null);
+  const [planDone, setPlanDone] = useState<Map<string, boolean>>(new Map());
+  const [squadCounts, setSquadCounts] = useState<Map<string, number>>(new Map());
+  const [coachCounts, setCoachCounts] = useState<Map<string, number>>(new Map());
+  const [loading, setLoading] = useState(true);
+  const [eventId, setEventId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (squad.data) setSelectedPlayers(squad.data);
-  }, [squad.data]);
-  useEffect(() => {
-    if (eventCoaches.data) setSelectedCoaches(eventCoaches.data.map((row) => row.user_id));
-  }, [eventCoaches.data]);
-  useEffect(() => {
-    setNotes(plan.data?.notes ?? "");
-  }, [plan.data]);
-  useEffect(() => {
-    setDirty(false);
-    setErrors({});
-  }, [eventId, search.mode]);
+    void (async () => {
+      try {
+        const list = await fetchUpcomingEvents();
+        const matches = list.filter((e) => e.type === "match");
+        setEvents(matches);
+        const ids = matches.map((e) => e.id);
+        const [plans, squads, coaches] = await Promise.all([
+          fetchEventPlans(ids),
+          fetchSquads(ids),
+          fetchEventCoaches(ids),
+        ]);
+        setPlanDone(new Map(plans.filter((p) => p.planning_done).map((p) => [p.event_id, true])));
+        const sc = new Map<string, number>();
+        squads.forEach((s) => sc.set(s.event_id, (sc.get(s.event_id) ?? 0) + 1));
+        setSquadCounts(sc);
+        const cc = new Map<string, number>();
+        coaches.forEach((c) => cc.set(c.event_id, (cc.get(c.event_id) ?? 0) + 1));
+        setCoachCounts(cc);
+        if (search.eventId && ids.includes(search.eventId)) setEventId(search.eventId);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Kunde inte hämta matcher");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [search.eventId]);
 
-  // Varna innan sidan lämnas med osparade ändringar.
-  useEffect(() => {
-    if (!dirty) return;
-    const handler = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
-
-  const editing = search.mode === "edit" || (!!eventId && !plan.isLoading && !plan.data);
-
-  const savePlan = useMutation({
-    mutationFn: async () => {
-      if (!user || !selected) throw new Error("Välj en match först.");
-      const problems: { players?: string; coaches?: string } = {};
-      if (selectedPlayers.length === 0) problems.players = "Välj minst en spelare.";
-      if (selectedCoaches.length === 0) problems.coaches = "Välj minst en ledare.";
-      setErrors(problems);
-      if (problems.players || problems.coaches) throw new Error("Komplettera matchplaneringen.");
-      await saveMatchPlan({
-        eventId: selected.id,
-        teamId: selected.team_id,
-        notes,
-        playerIds: selectedPlayers,
-        coachIds: selectedCoaches,
-      });
-    },
-    onSuccess: () => {
-      setDirty(false);
-      queryClient.invalidateQueries({ queryKey: ["event-squad"] });
-      queryClient.invalidateQueries({ queryKey: ["event-squads"] });
-      queryClient.invalidateQueries({ queryKey: ["event-plan"] });
-      queryClient.invalidateQueries({ queryKey: ["event-plans"] });
-      queryClient.invalidateQueries({ queryKey: ["event-coaches"] });
-      toast.success("Matchplaneringen har sparats.");
-      navigate({ to: "/planera-match", search: { eventId: eventId ?? undefined } });
-    },
-    onError: (error: Error) => toast.error(error.message || "Det gick inte att spara matchplaneringen."),
-  });
-
-  const playerList = (players.data ?? []).filter((player) =>
-    player.name.toLowerCase().includes(query.trim().toLowerCase()),
-  );
-  const playerName = (id: string) => (players.data ?? []).find((row) => row.id === id)?.name ?? "Spelare";
-  const coachName = (id: string) =>
-    teamCoaches.find((row) => row.user_id === id)?.displayName ??
-    (eventCoaches.data ?? []).find((row) => row.user_id === id)?.displayName ??
-    "Ledare";
+  const selected = events?.find((e) => e.id === eventId) ?? null;
 
   return (
-    <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
-      <h1 className="font-display text-3xl font-bold">Planera match</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Lägg till matchen i lagets kalender och planera trupp, ledare och anteckningar.
-      </p>
+    <div className="min-h-screen bg-background">
+      <AppNav />
+      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+        {!selected && (
+          <>
+            <PageHeader
+              title="Planera match"
+              description="Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning."
+            />
+            <EventManager type="match" />
+            {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
+            {!loading && (events?.length ?? 0) === 0 && (
+              <p className="text-sm text-muted-foreground">Inga kommande matcher. Skapa en match ovan.</p>
+            )}
+            <ul className="space-y-3">
+              {(events ?? []).map((event) => {
+                const status = planStatus({
+                  type: "match",
+                  planSaved: planDone.get(event.id) ?? false,
+                  playerCount: squadCounts.get(event.id) ?? 0,
+                  coachCount: coachCounts.get(event.id) ?? 0,
+                });
+                return (
+                  <li key={event.id}>
+                    <button
+                      type="button"
+                      onClick={() => setEventId(event.id)}
+                      className="w-full rounded-xl border bg-card p-4 text-left shadow-sm transition-colors hover:bg-accent/40"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium">{event.title ?? "Match"}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {event.team_name} · {dateLabel(event.starts_at)} · {upcomingLabel(event)}
+                          </p>
+                        </div>
+                        <PlanStatusBadge status={status} />
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        {selected && (
+          <MatchPlanner
+            key={selected.id}
+            eventId={selected.id}
+            teamId={selected.team_id}
+            startInEdit={search.edit === "1" || !(planDone.get(selected.id) ?? false)}
+            onClose={() => setEventId(null)}
+            onSaved={(id) => {
+              setPlanDone((m) => new Map(m).set(id, true));
+            }}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
 
-      {!eventId && view === "start" && (
-        <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setView("book")}
-              className="rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
-            >
-              <CalendarPlus className="size-6 text-primary" aria-hidden />
-              <h2 className="mt-3 font-display text-xl font-semibold">Lägg till match</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Datum, tid, samling, motståndare och plats. Matchen hamnar i lagets kalender.
-              </p>
-            </button>
-            <div className="rounded-xl border border-border bg-card p-5">
-              <ListChecks className="size-6 text-primary" aria-hidden />
-              <h2 className="mt-3 font-display text-xl font-semibold">Planera en match</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Välj en match i listan nedan.</p>
+function MatchPlanner({
+  eventId,
+  teamId,
+  startInEdit,
+  onClose,
+  onSaved,
+}: {
+  eventId: string;
+  teamId: string;
+  startInEdit: boolean;
+  onClose: () => void;
+  onSaved: (eventId: string) => void;
+}) {
+  const [mode, setMode] = useState<"read" | "edit">(startInEdit ? "edit" : "read");
+  const [loading, setLoading] = useState(true);
+  const [event, setEvent] = useState<MatchEvent | null>(null);
+  const [team, setTeam] = useState<Team | null>(null);
+  const [coaches, setCoaches] = useState<TeamMember[]>([]);
+  const [players, setPlayers] = useState<TeamPlayer[]>([]);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [tactics, setTactics] = useState<TacticSummary[]>([]);
+  const [share, setShare] = useState<MatchShare | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  // Redigeringsläge
+  const [step, setStep] = useState(0);
+  const [opponent, setOpponent] = useState("");
+  const [homeAway, setHomeAway] = useState<"hemma" | "borta">("hemma");
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [meetTime, setMeetTime] = useState("");
+  const [meetInfo, setMeetInfo] = useState("");
+  const [coachIds, setCoachIds] = useState<string[]>([]);
+  const [playerIds, setPlayerIds] = useState<string[]>([]);
+  const [format, setFormat] = useState("7v7");
+  const [slots, setSlots] = useState<LineupSlot[]>([]);
+  const [bench, setBench] = useState<string[]>([]);
+  const [tacticId, setTacticId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const statusByPlayer = useMemo(() => {
+    const map = new Map<string, InviteStatus>();
+    invitations.forEach((inv) => map.set(inv.player_id, inv.status));
+    return map;
+  }, [invitations]);
+
+  const playersById = useMemo(() => {
+    const map = new Map<string, LineupPlayerInfo>();
+    players.forEach((p) => map.set(p.id, { name: p.name, number: p.number }));
+    return map;
+  }, [players]);
+
+  const counts = useMemo(() => countInvitations(invitations), [invitations]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const [{ data: ev }, t, members, pls, invs, squad, evCoaches, lineup, tacts, shr] = await Promise.all([
+          supabase.from("events").select("*").eq("id", eventId).single(),
+          fetchTeam(teamId),
+          fetchTeamMembers(teamId),
+          fetchTeamPlayers(teamId),
+          fetchEventInvitations(eventId),
+          (await import("@/lib/planning")).fetchSquad(eventId),
+          fetchEventCoaches([eventId]),
+          fetchLineup(eventId),
+          fetchTactics(),
+          fetchMatchShare(eventId),
+        ]);
+        if (!ev) throw new Error("Matchen hittades inte.");
+        setEvent(ev as unknown as MatchEvent);
+        setTeam(t);
+        setCoaches(members.filter((m) => m.status === "approved" && m.role !== "guardian" && m.role !== "player"));
+        setPlayers(pls.filter((p) => (p as { is_active?: boolean }).is_active !== false));
+        setInvitations(invs);
+        setTactics(tacts);
+        setShare(shr && !shr.revoked_at ? shr : null);
+
+        // Förifyll redigeringsläget
+        setOpponent((ev.away_team && ev.home_team === t.name ? ev.away_team : ev.home_team && ev.home_team !== t.name ? ev.home_team : ev.away_team) ?? "");
+        setHomeAway(ev.home_team === t.name ? "hemma" : "borta");
+        setLocation(ev.location ?? "");
+        const start = new Date(ev.starts_at);
+        setDate(start.toISOString().slice(0, 10));
+        setStartTime(ev.starts_at ? timeOnly(ev.starts_at) : "");
+        setEndTime(ev.ends_at ? timeOnly(ev.ends_at) : "");
+        setMeetTime(ev.meet_at ? timeOnly(ev.meet_at) : "");
+        setMeetInfo("");
+        setCoachIds(evCoaches.map((c) => c.user_id));
+        setPlayerIds(squad);
+        if (lineup) {
+          setSlots(lineup.slots);
+          setBench(lineup.bench);
+          setTacticId(lineup.tactic_id);
+          const match = lineup.formation.match(/^(\d+v\d+)/);
+          setFormat(match?.[1] ?? "7v7");
+        } else {
+          const def = defaultSlots(format);
+          setSlots(def);
+          setBench(squad);
+        }
+        const { data: plan } = await supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle();
+        setMeetInfo(plan?.notes ?? "");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Kunde inte hämta matchen");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId, teamId]);
+
+  function changeFormat(next: string) {
+    setFormat(next);
+    const def = defaultSlots(next);
+    // Behåll spelare på första positionerna i samma ordning som tidigare.
+    const current = lineupStarters(slots);
+    const placed = def.map((s, i) => ({ ...s, player_id: current[i] ?? null }));
+    const leftovers = current.slice(def.length);
+    const synced = syncLineupWithSquad(placed, playerIds);
+    setSlots(synced.slots);
+    setBench([...new Set([...synced.bench, ...leftovers.filter((id) => playerIds.includes(id))])]);
+  }
+
+  function togglePlayer(id: string) {
+    if (playerIds.includes(id)) {
+      const { slots: ns, bench: nb, removedFromPitch } = syncLineupWithSquad(
+        slots,
+        playerIds.filter((p) => p !== id),
+      );
+      if (removedFromPitch.length > 0) {
+        toast.warning(`${playersById.get(id)?.name ?? "Spelaren"} låg på planen – platsen blir Tom plats.`);
+      }
+      setPlayerIds(playerIds.filter((p) => p !== id));
+      setSlots(ns);
+      setBench(nb);
+    } else {
+      if (statusByPlayer.get(id) === "declined") {
+        const ok = window.confirm("Spelaren har svarat att den inte kan delta. Vill du ändå ta ut spelaren?");
+        if (!ok) return;
+      }
+      setPlayerIds([...playerIds, id]);
+      setBench((b) => [...b, id]);
+    }
+  }
+
+  async function saveAll() {
+    if (!event || !team) return;
+    const meetIso = meetTime ? new Date(`${date}T${meetTime}`).toISOString() : null;
+    const startIso = new Date(`${date}T${startTime}`).toISOString();
+    const meetError = validateMeetBeforeStart(meetIso, startIso);
+    if (meetError) {
+      toast.error(meetError);
+      setStep(0);
+      return;
+    }
+    const planError = validateMatchPlan({ playerIds, coachIds, slots, bench, required: FORMAT_PLAYERS[format] ?? 0 });
+    if (planError) {
+      toast.error(planError);
+      return;
+    }
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({
+          location: location.trim() || null,
+          starts_at: startIso,
+          ends_at: endTime ? new Date(`${date}T${endTime}`).toISOString() : null,
+          meet_at: meetIso,
+          home_team: homeAway === "hemma" ? team.name : opponent.trim() || null,
+          away_team: homeAway === "hemma" ? opponent.trim() || null : team.name,
+        })
+        .eq("id", eventId);
+      if (error) throw error;
+      await saveMatchPlanFull({
+        eventId,
+        teamId,
+        notes: meetInfo,
+        playerIds,
+        coachIds,
+        formation: `${format} (${FORMAT_LABELS[format]})`,
+        slots,
+        bench,
+        tacticId,
+        required: FORMAT_PLAYERS[format] ?? 0,
+      });
+      toast.success("Matchplanen är sparad");
+      onSaved(eventId);
+      setMode("read");
+      const lineup = await fetchLineup(eventId);
+      if (lineup) {
+        setSlots(lineup.slots);
+        setBench(lineup.bench);
+        setTacticId(lineup.tactic_id);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Kunde inte spara matchplanen");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) return <p className="text-sm text-muted-foreground">Hämtar matchen…</p>;
+  if (!event || !team) return null;
+
+  const sortedPlayers = sortPlayersByResponse(players, statusByPlayer);
+  const starters = lineupStarters(slots);
+  const required = FORMAT_PLAYERS[format] ?? 0;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <ArrowLeft className="size-4" /> Alla matcher
+        </Button>
+        {mode === "read" ? (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+              <Share2 className="size-4" /> Dela laguppställning
+            </Button>
+            <Button size="sm" onClick={() => setMode("edit")}>
+              <Pencil className="size-4" /> Ändra
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" size="sm" onClick={() => setMode(startInEdit ? "edit" : "read")} disabled={startInEdit}>
+            Avbryt
+          </Button>
+        )}
+      </div>
+
+      {mode === "read" ? (
+        <div className="space-y-5">
+          <div className="rounded-xl border bg-card p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-lg font-semibold">
+                {event.home_team && event.away_team ? `${event.home_team} – ${event.away_team}` : event.title ?? "Match"}
+              </h1>
+              <PlanStatusBadge status="done" />
             </div>
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div><dt className="text-muted-foreground">Hemma/borta</dt><dd>{event.home_team === team.name ? "Hemma" : "Borta"}</dd></div>
+              <div><dt className="text-muted-foreground">Plats</dt><dd>{event.location ?? "–"}</dd></div>
+              <div><dt className="text-muted-foreground">Datum</dt><dd>{dateLabel(event.starts_at)}</dd></div>
+              <div><dt className="text-muted-foreground">Matchstart</dt><dd>{timeOnly(event.starts_at)}</dd></div>
+              {event.meet_at && <div><dt className="text-muted-foreground">Samling</dt><dd>{timeOnly(event.meet_at)}</dd></div>}
+              {event.match_kind && <div><dt className="text-muted-foreground">Matchtyp</dt><dd>{event.match_kind}</dd></div>}
+            </dl>
+            {meetInfo && <p className="mt-3 rounded-lg bg-muted p-3 text-sm">{meetInfo}</p>}
           </div>
 
-          <h2 className="mt-8 font-display text-xl font-semibold">Alla matcher</h2>
-          {events.isLoading && <p className="mt-2 text-sm text-muted-foreground">Hämtar kommande matcher…</p>}
-          {!events.isLoading && matches.length === 0 && (
-            <div className="mt-3 rounded-xl border border-dashed border-border p-6 text-center">
-              <p className="text-sm text-muted-foreground">Det finns inga kommande matcher att planera.</p>
-              <Button className="mt-3" onClick={() => setView("book")}>
-                Lägg till match
-              </Button>
-            </div>
-          )}
-          <ul className="mt-3 space-y-2">
-            {matches.map((event) => {
-              const status = statusFor(event.id);
-              return (
-                <li key={event.id}>
-                  <Link
-                    to="/planera-match"
-                    search={{ eventId: event.id }}
-                    className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/60"
-                  >
-                    <span className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xs tracking-wide text-muted-foreground">Match</span>
-                      {eventTitleLine(event) && (
-                        <span className="block font-semibold">{eventTitleLine(event)}</span>
-                      )}
-                      <span className="block text-sm text-primary">{formatDateTime(event.starts_at)}</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {event.team_name ?? "Lag"}
-                        {event.location ? ` · ${event.location}` : ""}
-                      </span>
-                    </span>
-                    <PlanStatusBadge status={status} />
-                  </Link>
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="mb-2 flex items-center gap-2 font-medium"><Users className="size-4" /> Ledare</h2>
+            <EventCoaches eventId={eventId} teamId={teamId} readOnly />
+          </section>
+
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="mb-2 font-medium">Spelarnas svar</h2>
+            <p className="text-sm text-muted-foreground">{summaryText(counts)}</p>
+            <ul className="mt-2 space-y-1 text-sm">
+              {sortedPlayers.filter((p) => playerIds.includes(p.id)).map((p) => (
+                <li key={p.id} className="flex items-center justify-between">
+                  <span>{p.number != null && <span className="mr-1 text-muted-foreground">{p.number}</span>}{p.name}</span>
+                  <span className="text-muted-foreground">{inviteStatusLabel(statusByPlayer.get(p.id) ?? "pending")}</span>
                 </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+              ))}
+            </ul>
+          </section>
 
-      {!eventId && view === "book" && (
-        <section className="mt-6 space-y-4">
-          <Button variant="ghost" onClick={() => setView("start")}>
-            ← Tillbaka
-          </Button>
-          {coachTeams.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              {loading ? "Hämtar dina lag…" : "Du behöver vara tränare i ett lag för att lägga till matcher."}
-            </p>
-          ) : (
-            <>
-              {coachTeams.length > 1 && (
+          <section className="rounded-xl border bg-card p-4 space-y-3">
+            <h2 className="font-medium">Laguppställning</h2>
+            <LineupPitch slots={slots} players={playersById} />
+            {bench.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Avbytare: {bench.map((id) => playersById.get(id)?.name ?? "Okänd").join(", ")}
+              </p>
+            )}
+            {tacticId && (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/taktik" search={{ open: tacticId }}>
+                  <ClipboardList className="size-4" /> Öppna kopplad taktik
+                </Link>
+              </Button>
+            )}
+          </section>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <ol className="flex flex-wrap gap-2">
+            {STEPS.map((label, i) => (
+              <li
+                key={label}
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  i === step ? "bg-primary text-primary-foreground" : i < step ? "bg-primary/15" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {i + 1}. {label}
+              </li>
+            ))}
+          </ol>
+
+          {step === 0 && (
+            <section className="space-y-4 rounded-xl border bg-card p-4">
+              <h2 className="font-medium">Matchuppgifter</h2>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="mp-opponent">Motståndare</label>
+                <Input id="mp-opponent" value={opponent} onChange={(e) => setOpponent(e.target.value)} placeholder="T.ex. IK Exempel" />
+              </div>
+              <div className="flex gap-2" role="radiogroup" aria-label="Hemma eller borta">
+                {(["hemma", "borta"] as const).map((v) => (
+                  <Button key={v} type="button" variant={homeAway === v ? "default" : "outline"} size="sm" onClick={() => setHomeAway(v)}>
+                    {v === "hemma" ? "Hemma" : "Borta"}
+                  </Button>
+                ))}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="mp-location">Arena/plats</label>
+                <Input id="mp-location" value={location} onChange={(e) => setLocation(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="match-team">Lag</Label>
-                  <select
-                    id="match-team"
-                    className={selectClass}
-                    value={activeTeam}
-                    onChange={(event) => setTeamId(event.target.value)}
-                  >
-                    {coachTeams.map((item) => (
-                      <option key={item.team_id} value={item.team_id}>
-                        {item.team?.name ?? "Lag"}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="text-sm font-medium" htmlFor="mp-date">Datum</label>
+                  <Input id="mp-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                 </div>
-              )}
-              {activeTeam && (
-                <EventManager
-                  teamId={activeTeam}
-                  userId={user?.id ?? null}
-                  isCoach
-                  type="match"
-                  title="Matcher"
-                  newLabel="Lägg till match"
-                  savedMessage="Matchen har lagts till i kalendern."
-                />
-              )}
-            </>
-          )}
-        </section>
-      )}
-
-      {eventId && (
-        <section className="mt-6 space-y-6">
-          <Button variant="ghost" asChild>
-            <Link to="/planera-match" search={{}}>
-              ← Tillbaka till alla matcher
-            </Link>
-          </Button>
-
-          {!selected && <p className="text-sm text-muted-foreground">Hämtar matchen…</p>}
-
-          {selected && (
-            <>
-              <div className="rounded-xl border border-primary bg-primary/10 p-4">
-                <p className="text-xs tracking-wide text-muted-foreground">Match</p>
-                {eventTitleLine(selected) && <p className="font-semibold">{eventTitleLine(selected)}</p>}
-                <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
-                <p className="text-xs text-muted-foreground">
-                  {selected.team_name ?? "Lag"}
-                  {selected.location ? (
-                    <span className="ml-1 inline-flex items-center gap-1">
-                      <MapPin className="size-3" aria-hidden /> {selected.location}
-                    </span>
-                  ) : null}
-                </p>
-                <div className="mt-2">
-                  <PlanStatusBadge status={statusFor(selected.id)} />
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium" htmlFor="mp-start">Matchstart</label>
+                  <Input id="mp-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium" htmlFor="mp-meet">Samlingstid</label>
+                  <Input id="mp-meet" type="time" value={meetTime} onChange={(e) => setMeetTime(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium" htmlFor="mp-end">Beräknad sluttid</label>
+                  <Input id="mp-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
                 </div>
               </div>
-
-              {!editing && (
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <h2 className="font-display text-xl font-semibold">Matchplanering</h2>
-                  <p className="mt-3 text-sm font-semibold">Valda spelare ({selectedPlayers.length})</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPlayers.length ? selectedPlayers.map(playerName).join(", ") : "Inga spelare valda."}
-                  </p>
-                  <p className="mt-3 text-sm font-semibold">Valda ledare ({selectedCoaches.length})</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedCoaches.length ? selectedCoaches.map(coachName).join(", ") : "Inga ledare valda."}
-                  </p>
-                  <p className="mt-3 text-sm font-semibold">Anteckning</p>
-                  <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                    {plan.data?.notes?.trim() ? plan.data.notes : "Ingen anteckning."}
-                  </p>
-                  <Button className="mt-4" asChild>
-                    <Link to="/planera-match" search={{ eventId: selected.id, mode: "edit" }}>
-                      Ändra
-                    </Link>
-                  </Button>
-                </div>
-              )}
-
-              {editing && (
-                <>
-                  <div>
-                    <h2 className="font-display text-xl font-semibold">Steg 1 – Välj spelare</h2>
-                    <div className="mt-3 space-y-2">
-                      <Label htmlFor="sok-spelare" className="flex items-center gap-2">
-                        <Search className="size-4" aria-hidden /> Sök spelare
-                      </Label>
-                      <Input
-                        id="sok-spelare"
-                        value={query}
-                        onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Skriv ett namn"
-                      />
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          setSelectedPlayers((players.data ?? []).map((player) => player.id));
-                          setDirty(true);
-                        }}
-                      >
-                        Välj alla
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedPlayers([]);
-                          setDirty(true);
-                        }}
-                      >
-                        Avmarkera alla
-                      </Button>
-                      <span className="text-sm font-semibold">{selectionLabel(selectedPlayers.length)}</span>
-                    </div>
-                    {errors.players && <p className="mt-2 text-sm text-destructive">{errors.players}</p>}
-
-                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {players.isLoading && <li className="text-sm text-muted-foreground">Hämtar truppen…</li>}
-                      {!players.isLoading && playerList.length === 0 && (
-                        <li className="text-sm text-muted-foreground">Inga spelare matchar sökningen.</li>
-                      )}
-                      {playerList.map((player) => (
-                        <li key={player.id}>
-                          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3">
-                            <input
-                              type="checkbox"
-                              className="size-5"
-                              checked={selectedPlayers.includes(player.id)}
-                              onChange={() => {
-                                setSelectedPlayers((current) => toggleSelection(current, player.id));
-                                setDirty(true);
-                              }}
-                            />
-                            <span className="min-w-0">
-                              <span className="block font-semibold">{player.name}</span>
-                              {player.number !== null && (
-                                <span className="block text-xs text-muted-foreground">Nummer {player.number}</span>
-                              )}
-                            </span>
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h2 className="font-display text-xl font-semibold">Steg 2 – Välj ledare</h2>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          setSelectedCoaches(teamCoaches.map((row) => row.user_id));
-                          setDirty(true);
-                        }}
-                      >
-                        Välj alla
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedCoaches([]);
-                          setDirty(true);
-                        }}
-                      >
-                        Avmarkera alla
-                      </Button>
-                      <span className="text-sm font-semibold">Valda ledare: {selectedCoaches.length}</span>
-                    </div>
-                    {errors.coaches && <p className="mt-2 text-sm text-destructive">{errors.coaches}</p>}
-                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {members.isLoading && <li className="text-sm text-muted-foreground">Hämtar ledare…</li>}
-                      {!members.isLoading && teamCoaches.length === 0 && (
-                        <li className="text-sm text-muted-foreground">Laget har inga registrerade ledare ännu.</li>
-                      )}
-                      {teamCoaches.map((member) => (
-                        <li key={member.id}>
-                          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3">
-                            <input
-                              type="checkbox"
-                              className="size-5"
-                              checked={selectedCoaches.includes(member.user_id)}
-                              onChange={() => {
-                                setSelectedCoaches((current) => toggleSelection(current, member.user_id));
-                                setDirty(true);
-                              }}
-                            />
-                            <span className="min-w-0">
-                              <span className="block font-semibold">
-                                {member.displayName ?? "Ledare"}
-                                {member.user_id === user?.id ? " (du)" : ""}
-                              </span>
-                            </span>
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h2 className="font-display text-xl font-semibold">Steg 3 – Övrigt och spara</h2>
-                    <div className="mt-3 rounded-xl border border-border bg-card p-4">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="match-notes">Egna anteckningar</Label>
-                        <Textarea
-                          id="match-notes"
-                          rows={3}
-                          value={notes}
-                          onChange={(event) => {
-                            setNotes(event.target.value);
-                            setDirty(true);
-                          }}
-                          placeholder="T.ex. samling 45 minuter före avspark"
-                        />
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <Button onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
-                          {plan.data ? "Spara ändringar" : "Spara matchplaneringen"}
-                        </Button>
-                        <Button variant="outline" asChild>
-                          <Link
-                            to="/team/$teamId/event/$eventId"
-                            params={{ teamId: selected.team_id, eventId: selected.id }}
-                          >
-                            Hantera kallelse
-                          </Link>
-                        </Button>
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Matchen blir grön Klar när minst en spelare och en ledare är valda.
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="mp-meetinfo">Samlingsinformation (frivilligt)</label>
+                <Textarea id="mp-meetinfo" value={meetInfo} onChange={(e) => setMeetInfo(e.target.value)} rows={2} placeholder="T.ex. samling vid omklädningsrummen" />
+              </div>
+            </section>
           )}
-        </section>
+
+          {step === 1 && (
+            <section className="space-y-3 rounded-xl border bg-card p-4">
+              <h2 className="font-medium">Ansvariga ledare</h2>
+              <p className="text-sm text-muted-foreground">Minst en ledare krävs för status Klar.</p>
+              <ul className="space-y-2">
+                {coaches.map((m) => (
+                  <li key={m.user_id}>
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40">
+                      <Checkbox
+                        checked={coachIds.includes(m.user_id)}
+                        onCheckedChange={() =>
+                          setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]))
+                        }
+                      />
+                      <span className="flex-1 font-medium">{m.display_name ?? "Ledare"}</span>
+                      <span className="text-xs text-muted-foreground">{m.role === "head_coach" ? "Huvudtränare" : m.role === "club_admin" ? "Klubbadmin" : "Tränare"}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {step === 2 && (
+            <section className="space-y-3 rounded-xl border bg-card p-4">
+              <h2 className="font-medium">Uttagna spelare</h2>
+              <p className="text-sm text-muted-foreground">
+                {playerIds.length} valda · {required} startspelare krävs för {FORMAT_LABELS[format]}.
+              </p>
+              <ul className="space-y-2">
+                {sortedPlayers.map((p) => {
+                  const st = statusByPlayer.get(p.id) ?? "pending";
+                  return (
+                    <li key={p.id}>
+                      <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40">
+                        <Checkbox checked={playerIds.includes(p.id)} onCheckedChange={() => togglePlayer(p.id)} />
+                        <span className="flex-1 font-medium">
+                          {p.number != null && <span className="mr-1 text-muted-foreground">{p.number}</span>}
+                          {p.name}
+                        </span>
+                        <span className={`text-xs ${st === "declined" ? "text-destructive" : "text-muted-foreground"}`}>
+                          {inviteStatusLabel(st)}
+                        </span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section className="space-y-4 rounded-xl border bg-card p-4">
+              <h2 className="font-medium">Formation och avbytare</h2>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
+                {Object.keys(FORMAT_PLAYERS).map((f) => (
+                  <Button key={f} type="button" variant={format === f ? "default" : "outline"} size="sm" onClick={() => changeFormat(f)}>
+                    {FORMAT_LABELS[f]}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Startspelare: {starters.length}/{required}
+              </p>
+              <MatchLineupEditor
+                slots={slots}
+                bench={bench}
+                players={playersById}
+                onChange={(s, b) => {
+                  setSlots(s);
+                  setBench(b);
+                }}
+              />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="mp-tactic">Kopplad taktik (frivilligt)</label>
+                <select
+                  id="mp-tactic"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  value={tacticId ?? ""}
+                  onChange={(e) => setTacticId(e.target.value || null)}
+                >
+                  <option value="">Ingen taktik</option>
+                  {tactics.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+            </section>
+          )}
+
+          {step === 4 && (
+            <section className="space-y-3 rounded-xl border bg-card p-4">
+              <h2 className="font-medium">Granska och spara</h2>
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><dt className="text-muted-foreground">Motståndare</dt><dd>{opponent || "–"}</dd></div>
+                <div><dt className="text-muted-foreground">Hemma/borta</dt><dd>{homeAway === "hemma" ? "Hemma" : "Borta"}</dd></div>
+                <div><dt className="text-muted-foreground">Plats</dt><dd>{location || "–"}</dd></div>
+                <div><dt className="text-muted-foreground">Datum</dt><dd>{date}</dd></div>
+                <div><dt className="text-muted-foreground">Matchstart</dt><dd>{startTime}</dd></div>
+                <div><dt className="text-muted-foreground">Samling</dt><dd>{meetTime || "–"}</dd></div>
+                <div><dt className="text-muted-foreground">Ledare</dt><dd>{coachIds.length} valda</dd></div>
+                <div><dt className="text-muted-foreground">Spelare</dt><dd>{playerIds.length} uttagna</dd></div>
+                <div><dt className="text-muted-foreground">Spelform</dt><dd>{FORMAT_LABELS[format]}</dd></div>
+                <div><dt className="text-muted-foreground">Startspelare</dt><dd>{starters.length}/{required}</dd></div>
+                <div><dt className="text-muted-foreground">Avbytare</dt><dd>{bench.length}</dd></div>
+                <div><dt className="text-muted-foreground">Taktik</dt><dd>{tactics.find((t) => t.id === tacticId)?.name ?? "Ingen"}</dd></div>
+              </dl>
+              <LineupPitch slots={slots} players={playersById} />
+            </section>
+          )}
+
+          <div className="flex items-center justify-between">
+            <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+              <ArrowLeft className="size-4" /> Föregående
+            </Button>
+            {step < STEPS.length - 1 ? (
+              <Button
+                onClick={() => {
+                  if (step === 0) {
+                    if (!opponent.trim()) return toast.error("Ange motståndare.");
+                    if (!date || !startTime) return toast.error("Ange datum och matchstart.");
+                    if (meetTime) {
+                      const err = validateMeetBeforeStart(
+                        new Date(`${date}T${meetTime}`).toISOString(),
+                        new Date(`${date}T${startTime}`).toISOString(),
+                      );
+                      if (err) return toast.error(err);
+                    }
+                  }
+                  if (step === 1 && coachIds.length === 0) return toast.error("Välj minst en ledare.");
+                  if (step === 2 && playerIds.length === 0) return toast.error("Välj minst en spelare.");
+                  setStep((s) => s + 1);
+                }}
+              >
+                Nästa <ArrowRight className="size-4" />
+              </Button>
+            ) : (
+              <Button onClick={() => void saveAll()} disabled={saving}>
+                <Check className="size-4" /> {saving ? "Sparar…" : "Spara matchplan"}
+              </Button>
+            )}
+          </div>
+        </div>
       )}
-    </main>
+
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        eventId={eventId}
+        teamId={teamId}
+        share={share}
+        onChange={setShare}
+      />
+    </div>
+  );
+}
+
+function ShareDialog({
+  open,
+  onOpenChange,
+  eventId,
+  teamId,
+  share,
+  onChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  eventId: string;
+  teamId: string;
+  share: MatchShare | null;
+  onChange: (share: MatchShare | null) => void;
+}) {
+  const [expires, setExpires] = useState("");
+  const [busy, setBusy] = useState(false);
+  const url = share ? `${window.location.origin}/delad-match/${share.token}` : null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Dela laguppställning</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          Länken är skrivskyddad och visar bara matchinfo, formation, tröjnummer och namn – aldrig kontaktuppgifter eller anteckningar.
+        </p>
+        {share ? (
+          <div className="space-y-3">
+            <Input readOnly value={url ?? ""} onFocus={(e) => e.target.select()} />
+            {share.expires_at && (
+              <p className="text-xs text-muted-foreground">Slutar gälla: {dateLabel(share.expires_at)}</p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(url ?? "");
+                  toast.success("Länken är kopierad");
+                }}
+              >
+                Kopiera länk
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={busy}
+                onClick={() => {
+                  void (async () => {
+                    setBusy(true);
+                    try {
+                      await revokeMatchShare(share.id);
+                      onChange(null);
+                      toast.success("Delningslänken är återkallad");
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "Kunde inte återkalla länken");
+                    } finally {
+                      setBusy(false);
+                    }
+                  })();
+                }}
+              >
+                <Trash2 className="size-4" /> Återkalla
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium" htmlFor="share-expires">Slutdatum (frivilligt)</label>
+              <Input id="share-expires" type="date" value={expires} onChange={(e) => setExpires(e.target.value)} />
+            </div>
+            <Button
+              disabled={busy}
+              onClick={() => {
+                void (async () => {
+                  setBusy(true);
+                  try {
+                    const created = await createMatchShare({
+                      eventId,
+                      teamId,
+                      expiresAt: expires ? new Date(`${expires}T23:59:59`).toISOString() : null,
+                    });
+                    onChange(created);
+                    toast.success("Delningslänken är skapad");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Kunde inte skapa länken");
+                  } finally {
+                    setBusy(false);
+                  }
+                })();
+              }}
+            >
+              <Share2 className="size-4" /> Skapa länk
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
