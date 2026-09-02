@@ -30,7 +30,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchPlayers, fetchTactic, saveFrames, setTacticPitchType, setTacticSharing } from "@/lib/db";
+import {
+  fetchPlayers,
+  fetchTactic,
+  renameTactic,
+  saveFrames,
+  setTacticPitchType,
+  setTacticSharing,
+} from "@/lib/db";
 import { fetchTeamPlayers } from "@/lib/teams";
 import { exportGif, exportVideo, QUALITY_PRESETS } from "@/lib/export-clip";
 import { exportPdf, previewPdfUrl } from "@/lib/export-pdf";
