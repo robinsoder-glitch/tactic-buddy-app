@@ -222,6 +222,9 @@ export function TacticEditor({ id }: { id: string }) {
   const [placeMode, setPlaceMode] = useState<null | "home" | "away">(null);
   const [movementTip, setMovementTip] = useState(false);
   const [presenting, setPresenting] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
   const [playUntil, setPlayUntil] = useState<number | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [exporting, setExporting] = useState<null | "gif" | "video" | "pdf">(null);
