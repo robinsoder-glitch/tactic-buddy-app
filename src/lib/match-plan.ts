@@ -43,7 +43,7 @@ export const FORMAT_IDS = Object.keys(FORMAT_PLAYERS);
 export function defaultSlots(format: string): LineupSlot[] {
   const formation = FORMATIONS.find((f) => f.id.startsWith(`${format}-`));
   const base = formation?.slots ?? [];
-  return base.map((s, i) => ({ slot: i + 1, player_id: null, x: s.x, y: s.y, gk: s.gk }));
+  return base.map((s, i) => ({ slot: i + 1, player_id: null, x: s.x, y: s.y, ...(s.gk ? { gk: true } : {}) }));
 }
 
 /** Startspelare = positioner med spelare, i slotordning. */
@@ -204,7 +204,7 @@ export async function saveMatchPlanFull(input: {
     _player_ids: input.playerIds,
     _coach_ids: input.coachIds,
     _formation: input.formation,
-    _slots: input.slots as unknown as Record<string, unknown>[],
+    _slots: JSON.parse(JSON.stringify(input.slots)),
     _bench: input.bench,
     _tactic_id: input.tacticId,
     _required: input.required,
