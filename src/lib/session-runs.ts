@@ -129,7 +129,7 @@ export async function fetchRunItems(runId: string): Promise<SessionRunItem[]> {
  * Startar ett genomförande. Finns redan ett pågående returneras det i stället,
  * så att det aldrig kan finnas två aktiva genomföranden av samma pass.
  */
-export async function startRun(sessionId: string): Promise<SessionRun> {
+export async function startRun(sessionId: string, eventId?: string | null): Promise<SessionRun> {
   const existing = await fetchActiveRun(sessionId);
   if (existing) return existing;
 
@@ -139,7 +139,7 @@ export async function startRun(sessionId: string): Promise<SessionRun> {
 
   const { data, error } = await supabase
     .from("session_runs")
-    .insert({ session_id: sessionId, team_id: session.team_id })
+    .insert({ session_id: sessionId, team_id: session.team_id, event_id: eventId ?? null })
     .select(RUN_COLUMNS)
     .single();
   if (error) throw error;
