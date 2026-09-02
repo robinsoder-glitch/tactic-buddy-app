@@ -3,7 +3,7 @@ import { MAIN_TABS, MOBILE_PRIMARY, LEGACY_REDIRECTS, isTabActive } from "./navi
 import { selectionLabel, plannedLabel, sumMinutes, toggleSelection, upcomingOfType } from "./planning";
 
 describe("huvudmenyn", () => {
-  it("visar alla åtta flikar i rätt ordning", () => {
+  it("visar alla flikar i rätt ordning", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
       "Planera match",
@@ -11,12 +11,13 @@ describe("huvudmenyn", () => {
       "Kunskap",
       "Träningsbank",
       "Kalender",
+      "Tränarsnack",
       "Mina lag",
       "Inställningar",
     ]);
   });
 
-  it("når alla åtta funktioner på mobil med högst två tryck", () => {
+  it("når alla funktioner på mobil med högst två tryck", () => {
     const reachable = new Set([...MOBILE_PRIMARY, ...MAIN_TABS.map((tab) => tab.to)]);
     expect(MAIN_TABS.every((tab) => reachable.has(tab.to))).toBe(true);
     expect(MOBILE_PRIMARY.length).toBeLessThanOrEqual(4);

@@ -7,12 +7,14 @@ import {
   Dumbbell,
   GraduationCap,
   Menu,
+  MessagesSquare,
   Settings,
   Shield,
   Trophy,
 } from "lucide-react";
 import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
+import { useUnreadChat } from "@/hooks/useUnreadChat";
 
 /** Sidor där huvudmenyn ska vara dold. */
 const HIDDEN_PREFIXES = ["/auth", "/t/", "/onboarding"];
@@ -24,6 +26,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/kunskapsbank": GraduationCap,
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
+  "/tranarsnack": MessagesSquare,
   "/teams": Shield,
   "/installningar": Settings,
 };
@@ -31,6 +34,7 @@ const ICONS: Record<string, typeof Menu> = {
 export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user } = useAccount();
+  const unread = useUnreadChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
 
@@ -63,7 +67,20 @@ export function AppNav() {
 
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
-    return <Icon className={`relative z-10 ${size}`} aria-hidden />;
+    const badge = to === "/tranarsnack" && unread > 0;
+    return (
+      <span className="relative z-10 inline-flex">
+        <Icon className={size} aria-hidden />
+        {badge && (
+          <span
+            aria-label={`${unread} olästa meddelanden`}
+            className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold leading-none text-destructive-foreground"
+          >
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </span>
+    );
   };
 
   return (
