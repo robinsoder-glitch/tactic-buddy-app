@@ -143,3 +143,14 @@
 - [ ] Avsluta med bekräftelse: spara faktiska tider, moment, närvaro, anteckningar; status Genomförd
 - [ ] Sammanfattning + Till träningsplanering
 - [ ] Edge cases + acceptanstest
+
+## Instruktion 10F – Periodplan och spelarutveckling
+- [ ] Periodblock 4–6 veckor: namn, datum, huvudtema, max 2 delteman, mål
+- [ ] Koppla träningar/matcher/övningar/taktiker/artiklar (unik per period)
+- [ ] Progression 4 steg: Introducera/Öva/Använd i spel/Följ upp + föregående periods tema
+- [ ] Privat spelarvy: max 3 aktiva fokusområden, status Aktivt/Uppnått/Pausat, barnanpassat språk
+- [ ] Observationer kopplade till aktivitet/fokusområde, snabbregistrering
+- [ ] Integritet: RLS, inga anteckningar i delningslänkar, vårdnadshavare ser inte internt
+- [ ] Lagöversikt utan topplista: antal med/utan fokus, senaste observation, periodteman
+- [ ] Återanvänd närvaro/speltid från genomförda aktiviteter
+- [ ] Acceptanstester
