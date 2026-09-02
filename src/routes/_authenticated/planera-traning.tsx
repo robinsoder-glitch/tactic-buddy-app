@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, ClipboardList, MapPin, Plus, Search, Trash2 } from "lucide-react";
+import { CalendarPlus, CheckCircle2, ClipboardList, MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
 import { Button } from "@/components/ui/button";
