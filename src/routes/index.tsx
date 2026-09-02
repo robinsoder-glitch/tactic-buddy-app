@@ -640,22 +640,33 @@ function QuickCard({
   title,
   text,
   primary,
+  badge = 0,
 }: {
   to: string;
   icon: React.ReactNode;
   title: string;
   text: string;
   primary?: boolean;
+  /** Antal olästa – visas som en röd bricka uppe till höger. */
+  badge?: number;
 }) {
   return (
     <Link
       to={to}
-      className={`flex flex-col gap-1 rounded-2xl border p-4 transition-colors ${
+      className={`relative flex flex-col gap-1 rounded-2xl border p-4 transition-colors ${
         primary
           ? "border-primary bg-primary/15 hover:bg-primary/25"
           : "border-border bg-card hover:border-primary/50"
       }`}
     >
+      {badge > 0 && (
+        <span
+          aria-label={`${badge} olästa meddelanden`}
+          className="absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-destructive text-[11px] font-bold leading-none text-destructive-foreground"
+        >
+          {badge > 9 ? "9+" : badge}
+        </span>
+      )}
       <span className="text-primary">{icon}</span>
       <span className="font-display text-lg font-semibold leading-tight">{title}</span>
       <span className="text-xs text-muted-foreground">{text}</span>
