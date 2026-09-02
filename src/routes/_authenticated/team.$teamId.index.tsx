@@ -86,6 +86,12 @@ function SquadPage() {
     setUseExactDate(false);
     setGender("none");
     setIsGk(false);
+    setGuardians([
+      { name: "", phone: "", email: "" },
+      { name: "", phone: "", email: "" },
+    ]);
+    setHasAllergy(false);
+    setAllergyNote("");
     setFile(null);
     setOpen(true);
   }
@@ -99,6 +105,20 @@ function SquadPage() {
     setUseExactDate(hasExactBirthDate(player.birth_date));
     setGender(player.gender ?? "none");
     setIsGk(player.is_goalkeeper);
+    setGuardians([
+      {
+        name: player.guardian1_name ?? "",
+        phone: player.guardian1_phone ?? "",
+        email: player.guardian1_email ?? "",
+      },
+      {
+        name: player.guardian2_name ?? "",
+        phone: player.guardian2_phone ?? "",
+        email: player.guardian2_email ?? "",
+      },
+    ]);
+    setHasAllergy(player.has_allergy ?? false);
+    setAllergyNote(player.allergy_note ?? "");
     setFile(null);
     setOpen(true);
   }
@@ -112,6 +132,7 @@ function SquadPage() {
     setBusy(true);
     try {
       const photo_path = file ? await uploadTeamMedia(teamId, file, "players") : (editing?.photo_path ?? null);
+      const clean = (value: string) => (value.trim() ? value.trim() : null);
       await saveTeamPlayer({
         id: editing?.id,
         teamId,
@@ -122,7 +143,16 @@ function SquadPage() {
         gender,
         is_goalkeeper: isGk,
         photo_path,
+        guardian1_name: clean(guardians[0]!.name),
+        guardian1_phone: clean(guardians[0]!.phone),
+        guardian1_email: clean(guardians[0]!.email),
+        guardian2_name: clean(guardians[1]!.name),
+        guardian2_phone: clean(guardians[1]!.phone),
+        guardian2_email: clean(guardians[1]!.email),
+        has_allergy: hasAllergy,
+        allergy_note: hasAllergy ? clean(allergyNote) : null,
       });
+
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
       setOpen(false);
     } catch (error) {
