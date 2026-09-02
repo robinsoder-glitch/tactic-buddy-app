@@ -11,6 +11,7 @@ import {
 
   Download,
   Link2,
+  MessagesSquare,
   LogOut,
   MoreVertical,
   Pencil,
