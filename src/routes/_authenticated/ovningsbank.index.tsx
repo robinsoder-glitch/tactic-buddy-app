@@ -21,7 +21,6 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
-import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { PickDrillButton } from "@/components/PickDrillButton";
 import { PickModeBanner } from "@/components/PickModeBanner";
 import { createFromTemplate } from "@/lib/coach-sessions";
@@ -198,6 +197,7 @@ function OvningsbankPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
+      <PickModeBanner />
       <header className="flex items-center gap-2">
         <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
           <Link to="/">
@@ -440,7 +440,7 @@ function OvningsbankPage() {
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
               <div className="mt-3">
-<AddToTrainingButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+<PickDrillButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </article>
           ))}
