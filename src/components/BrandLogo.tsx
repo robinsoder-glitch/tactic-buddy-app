@@ -1,7 +1,8 @@
 import { BRAND_LOGO_ALT, BRAND_NAME } from "@/lib/brand";
+import logoAsset from "@/assets/fotbollsrummet-logo.png.asset.json";
 
 type Props = {
-  /** Logotypens storlek i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
+  /** Logotypens storlek i px (höjd på märket). Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
   size?: number;
   /** Visa namnet bredvid loggan. */
   showName?: boolean;
@@ -10,27 +11,33 @@ type Props = {
   className?: string;
 };
 
-/**
- * Varumärke: tillfällig platshållare (FR) plus namnet Fotbollsrummet.
- * Byt bilden här när den riktiga loggan är klar – inga andra filer behöver ändras.
- */
+/** Varumärke: hexagon-märket, med eller utan ordbilden Fotbollsrummet. */
 export function BrandLogo({ size = 40, showName = true, nameClassName, className }: Props) {
+  if (showName) {
+    return (
+      <img
+        src={logoAsset.url}
+        alt={BRAND_LOGO_ALT}
+        style={{ height: size }}
+        className={`w-auto shrink-0 object-contain ${className ?? ""}`}
+      />
+    );
+  }
+
   return (
-    <span className={`inline-flex items-center gap-3 ${className ?? ""}`}>
-      <span
-        role="img"
-        aria-label={BRAND_LOGO_ALT}
-        title="Tillfällig platshållare – logga kommer"
-        style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}
-        className="inline-flex shrink-0 items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary/10 font-display font-bold tracking-wide text-primary"
-      >
-        FR
-      </span>
-      {showName && (
-        <span className={nameClassName ?? "font-display text-base font-bold text-foreground"}>
-          {BRAND_NAME}
-        </span>
-      )}
+    <span
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden ${className ?? ""}`}
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label={`${BRAND_NAME} logga`}
+    >
+      <img
+        src={logoAsset.url}
+        alt=""
+        aria-hidden
+        style={{ height: size, maxWidth: "none" }}
+        className="w-auto object-cover object-left"
+      />
     </span>
   );
 }
