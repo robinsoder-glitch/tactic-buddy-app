@@ -1749,6 +1749,41 @@ export function TacticEditor({ id }: { id: string }) {
         </div>
       )}
       {confirmDialog}
+      <CoachTour steps={TOUR_STEPS} open={tourOpen} onClose={() => setTourOpen(false)} />
+
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Spara taktiken</DialogTitle>
+            <DialogDescription>
+              Ge taktiken ett namn du känner igen den på, till exempel ”Uppspel från målvakt”.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            <label className="text-sm font-semibold" htmlFor="tactic-name">
+              Namn
+            </label>
+            <Input
+              id="tactic-name"
+              value={nameDraft}
+              autoFocus
+              onChange={(event) => setNameDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") saveWithName.mutate(nameDraft);
+              }}
+              placeholder="Namn på taktiken"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setSaveOpen(false)}>
+              Avbryt
+            </Button>
+            <Button disabled={saveWithName.isPending} onClick={() => saveWithName.mutate(nameDraft)}>
+              {saveWithName.isPending ? "Sparar…" : "Spara"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
