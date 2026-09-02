@@ -331,6 +331,58 @@ function SquadPage() {
               />
               Målvakt (får egen tröjfärg på taktiktavlan)
             </label>
+
+            <fieldset className="space-y-3 rounded-lg border border-border p-3">
+              <legend className="px-1 text-sm font-semibold">Vårdnadshavare (frivilligt)</legend>
+              {guardians.map((guardian, index) => (
+                <div key={index} className="space-y-1.5">
+                  <Label htmlFor={`p-g${index}-name`}>Vårdnadshavare {index + 1}</Label>
+                  <Input
+                    id={`p-g${index}-name`}
+                    placeholder="Namn"
+                    value={guardian.name}
+                    onChange={(event) => setGuardian(index, "name", event.target.value)}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      type="tel"
+                      aria-label={`Mobil vårdnadshavare ${index + 1}`}
+                      placeholder="Mobil"
+                      value={guardian.phone}
+                      onChange={(event) => setGuardian(index, "phone", event.target.value)}
+                    />
+                    <Input
+                      type="email"
+                      aria-label={`E-post vårdnadshavare ${index + 1}`}
+                      placeholder="E-post"
+                      value={guardian.email}
+                      onChange={(event) => setGuardian(index, "email", event.target.value)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </fieldset>
+
+            <div className="space-y-2 rounded-lg border border-border p-3">
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={hasAllergy}
+                  onChange={(event) => setHasAllergy(event.target.checked)}
+                  className="size-4 accent-[var(--color-primary)]"
+                />
+                Allergi finns
+              </label>
+              {hasAllergy && (
+                <Input
+                  aria-label="Vilken allergi"
+                  placeholder="Vilken allergi? (frivilligt)"
+                  value={allergyNote}
+                  onChange={(event) => setAllergyNote(event.target.value)}
+                />
+              )}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="p-photo">Bild (frivilligt)</Label>
               <Input
