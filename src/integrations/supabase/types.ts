@@ -305,33 +305,45 @@ export type Database = {
           created_by: string
           event_id: string
           id: string
+          minutes_played: number | null
           note: string | null
           player_id: string
+          registered_at: string
+          registered_by: string | null
           status: string
           team_id: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           created_at?: string
           created_by: string
           event_id: string
           id?: string
+          minutes_played?: number | null
           note?: string | null
           player_id: string
+          registered_at?: string
+          registered_by?: string | null
           status?: string
           team_id: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string
           event_id?: string
           id?: string
+          minutes_played?: number | null
           note?: string | null
           player_id?: string
+          registered_at?: string
+          registered_by?: string | null
           status?: string
           team_id?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -688,6 +700,7 @@ export type Database = {
           id: string
           kit: string | null
           location: string | null
+          match_duration_minutes: number | null
           match_kind: string | null
           meet_at: string | null
           notes: string | null
@@ -708,6 +721,7 @@ export type Database = {
           id?: string
           kit?: string | null
           location?: string | null
+          match_duration_minutes?: number | null
           match_kind?: string | null
           meet_at?: string | null
           notes?: string | null
@@ -728,6 +742,7 @@ export type Database = {
           id?: string
           kit?: string | null
           location?: string | null
+          match_duration_minutes?: number | null
           match_kind?: string | null
           meet_at?: string | null
           notes?: string | null
@@ -1525,6 +1540,7 @@ export type Database = {
       }
       team_members: {
         Row: {
+          can_manage_attendance: boolean
           created_at: string
           id: string
           role: string
@@ -1534,6 +1550,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          can_manage_attendance?: boolean
           created_at?: string
           id?: string
           role?: string
@@ -1543,6 +1560,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          can_manage_attendance?: boolean
           created_at?: string
           id?: string
           role?: string
@@ -1685,6 +1703,10 @@ export type Database = {
     }
     Functions: {
       accept_team_invite: { Args: { _token: string }; Returns: string }
+      can_manage_attendance: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       find_team_by_code: {
         Args: { _code: string }
         Returns: {

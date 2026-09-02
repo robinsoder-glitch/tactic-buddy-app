@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AppNav } from "@/components/AppNav";
+import { BackButton } from "@/components/BackButton";
 import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { supabase } from "@/integrations/supabase/client";
@@ -219,6 +220,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
       <div className="min-h-screen pb-[76px] md:pb-8 md:pt-16">
+        <BackButton />
         <Outlet />
       </div>
       <AppNav />

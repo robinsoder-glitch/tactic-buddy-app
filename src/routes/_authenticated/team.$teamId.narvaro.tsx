@@ -11,8 +11,13 @@ import {
   eventLabel,
   fetchEventAttendance,
   fetchTeamAttendance,
+  minutesFromShare,
   pastEvents,
+  playingTimeShare,
+  PLAYING_TIME_PRESETS,
   registeredCount,
+  setMatchDuration,
+  validateMinutes,
   setAttendance,
   setAttendanceForAll,
   type AttendanceStatus,
@@ -20,6 +25,7 @@ import {
 import { fetchEvents, fetchTeamPlayers, formatDateTime } from "@/lib/teams";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Search = { handelse?: string | undefined; visa?: "alla" | "traning" | "match" | undefined };
 
@@ -53,7 +59,8 @@ function AttendancePage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/narvaro" });
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { isCoach, userId } = useTeamRole(teamId);
+  const { isCoach: isTeamCoach, canManageAttendance, userId } = useTeamRole(teamId);
+  const isCoach = canManageAttendance || isTeamCoach;
   const queryClient = useQueryClient();
 
   const events = useQuery({ queryKey: ["events", teamId], queryFn: () => fetchEvents(teamId) });
@@ -89,6 +96,8 @@ function AttendancePage() {
         userId={userId}
         isCoach={isCoach}
         eventId={selected.id}
+        eventType={selected.type}
+        durationMinutes={selected.match_duration_minutes ?? null}
         heading={eventLabel(selected)}
         subheading={`${formatDateTime(selected.starts_at)}${selected.location ? ` · ${selected.location}` : ""}`}
         players={(players.data ?? []).map((player) => ({ id: player.id, name: player.name, number: player.number }))}
@@ -190,6 +199,8 @@ function EventAttendance({
   userId,
   isCoach,
   eventId,
+  eventType,
+  durationMinutes,
   heading,
   subheading,
   players,
@@ -200,6 +211,8 @@ function EventAttendance({
   userId: string | null;
   isCoach: boolean;
   eventId: string;
+  eventType: "training" | "match";
+  durationMinutes: number | null;
   heading: string;
   subheading: string;
   players: { id: string; name: string; number: number | null }[];
@@ -208,6 +221,7 @@ function EventAttendance({
 }) {
   const queryClient = useQueryClient();
   const [pending, setPending] = useState<string | null>(null);
+  const [durationDraft, setDurationDraft] = useState(durationMinutes ? String(durationMinutes) : "");
 
   const rows = useQuery({
     queryKey: ["attendance-event", eventId],
@@ -218,6 +232,34 @@ function EventAttendance({
     queryClient.invalidateQueries({ queryKey: ["attendance-event", eventId] });
     onChanged();
   };
+
+  const saveDuration = useMutation({
+    mutationFn: async (minutes: number) => setMatchDuration(eventId, minutes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      toast.success("Matchens längd sparades.");
+    },
+    onError: () => toast.error("Det gick inte att spara matchens längd."),
+  });
+
+  const saveMinutes = useMutation({
+    mutationFn: async (input: { playerId: string; minutes: number | null; status: AttendanceStatus | null }) => {
+      if (!userId) throw new Error("Du måste vara inloggad.");
+      const error = validateMinutes(input.minutes, durationMinutes);
+      if (error) throw new Error(error);
+      await setAttendance({
+        eventId,
+        teamId,
+        playerId: input.playerId,
+        userId,
+        status: input.status ?? "present",
+        minutesPlayed: input.minutes,
+      });
+    },
+    onSuccess: refresh,
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Det gick inte att spara speltiden."),
+  });
 
   const save = useMutation({
     mutationFn: async (input: { playerId: string; status: AttendanceStatus; current: AttendanceStatus | null }) => {
@@ -251,10 +293,10 @@ function EventAttendance({
     onError: () => toast.error("Det gick inte att markera alla spelare."),
   });
 
-  const statusFor = (playerId: string): AttendanceStatus | null =>
-    (rows.data ?? []).find((row) => row.player_id === playerId)?.status ?? null;
+  const rowFor = (playerId: string) => (rows.data ?? []).find((row) => row.player_id === playerId) ?? null;
+  const statusFor = (playerId: string): AttendanceStatus | null => rowFor(playerId)?.status ?? null;
 
-  const present = (rows.data ?? []).filter((row) => row.status === "present" || row.status === "late").length;
+  const present = (rows.data ?? []).filter((row) => row.status === "present" || row.status === "partial").length;
 
   return (
     <section className="mt-4">
@@ -271,6 +313,46 @@ function EventAttendance({
       <p className="mt-3 text-sm text-muted-foreground">
         {present} av {players.length} spelare deltog.
       </p>
+
+      {eventType === "match" && (
+        <div className="mt-3 rounded-xl border border-border bg-card p-3">
+          <label htmlFor="match-duration" className="text-sm font-medium">
+            Matchens längd (minuter)
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Behövs för snabbvalen av speltid. Speltiden visas bara för lagets ledare.
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <Input
+              id="match-duration"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              className="w-28"
+              disabled={!isCoach}
+              value={durationDraft}
+              onChange={(event) => setDurationDraft(event.target.value)}
+            />
+            {isCoach && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={saveDuration.isPending}
+                onClick={() => {
+                  const minutes = Number(durationDraft);
+                  if (!Number.isInteger(minutes) || minutes <= 0) {
+                    toast.error("Ange matchens längd i hela minuter.");
+                    return;
+                  }
+                  saveDuration.mutate(minutes);
+                }}
+              >
+                Spara längd
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {isCoach && players.length > 0 && (
         <Button
@@ -325,6 +407,51 @@ function EventAttendance({
                   </button>
                 ))}
               </div>
+              {eventType === "match" && isCoach && current && current !== "absent" && (
+                <div className="mt-3 border-t border-border pt-2">
+                  <p className="text-xs font-medium text-muted-foreground">Speltid</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    {PLAYING_TIME_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        aria-label={`${preset.label} för ${player.name}`}
+                        className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
+                        onClick={() => {
+                          const minutes = minutesFromShare(preset.share, durationMinutes);
+                          if (minutes === null) {
+                            toast.error("Ange matchens längd först.");
+                            return;
+                          }
+                          saveMinutes.mutate({ playerId: player.id, minutes, status: current });
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                    <Input
+                      type="number"
+                      min={0}
+                      inputMode="numeric"
+                      className="h-8 w-24"
+                      aria-label={`Exakta minuter för ${player.name}`}
+                      defaultValue={rowFor(player.id)?.minutes_played ?? ""}
+                      onBlur={(event) => {
+                        const raw = event.target.value.trim();
+                        const minutes = raw === "" ? null : Number(raw);
+                        if (minutes === (rowFor(player.id)?.minutes_played ?? null)) return;
+                        saveMinutes.mutate({ playerId: player.id, minutes, status: current });
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {(() => {
+                        const share = playingTimeShare(rowFor(player.id)?.minutes_played ?? null, durationMinutes);
+                        return share === null ? "min" : `min · ${share} % av matchen`;
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </li>
           );
         })}

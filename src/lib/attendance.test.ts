@@ -3,13 +3,16 @@ import {
   attendanceCsv,
   counts,
   eventLabel,
+  minutesFromShare,
+  playingTimeShare,
+  validateMinutes,
   pastEvents,
   percent,
   registeredCount,
   summarize,
   type AttendanceRow,
 } from "./attendance";
-import type { TeamEvent } from "./teams";
+import { findSimilarPlayers, type TeamEvent } from "./teams";
 
 const event = (id: string, type: "training" | "match", starts_at: string): TeamEvent =>
   ({
@@ -37,10 +40,10 @@ const events = [
 ];
 
 const rows: AttendanceRow[] = [
-  { id: "1", event_id: "t1", team_id: "team-1", player_id: "p1", status: "present", note: null },
-  { id: "2", event_id: "t2", team_id: "team-1", player_id: "p1", status: "late", note: null },
-  { id: "3", event_id: "m1", team_id: "team-1", player_id: "p1", status: "absent", note: null },
-  { id: "4", event_id: "t1", team_id: "team-1", player_id: "p2", status: "sick", note: null },
+  { id: "1", event_id: "t1", team_id: "team-1", player_id: "p1", status: "present", note: null, minutes_played: null },
+  { id: "2", event_id: "t2", team_id: "team-1", player_id: "p1", status: "partial", note: null, minutes_played: null },
+  { id: "3", event_id: "m1", team_id: "team-1", player_id: "p1", status: "absent", note: null, minutes_played: 0 },
+  { id: "4", event_id: "t1", team_id: "team-1", player_id: "p2", status: "absent", note: null, minutes_played: null },
 ];
 
 describe("närvaro", () => {
@@ -49,9 +52,22 @@ describe("närvaro", () => {
     expect(done.map((item) => item.id)).toEqual(["t1", "t2", "m1"]);
   });
 
-  it("sen ankomst räknas som deltagande", () => {
-    expect(counts("late")).toBe(true);
-    expect(counts("sick")).toBe(false);
+  it("del av aktiviteten räknas som deltagande", () => {
+    expect(counts("partial")).toBe(true);
+    expect(counts("absent")).toBe(false);
+  });
+
+  it("räknar om snabbval och andel av matchen", () => {
+    expect(minutesFromShare(0.75, 60)).toBe(45);
+    expect(minutesFromShare(0.5, null)).toBeNull();
+    expect(playingTimeShare(30, 45)).toBe(67);
+    expect(playingTimeShare(30, null)).toBeNull();
+  });
+
+  it("validerar speltid mot matchens längd", () => {
+    expect(validateMinutes(30, 45)).toBeNull();
+    expect(validateMinutes(-1, 45)).toContain("negativ");
+    expect(validateMinutes(60, 45)).toContain("45");
   });
 
   it("sammanställer träningar och matcher per spelare", () => {
@@ -69,7 +85,7 @@ describe("närvaro", () => {
     expect(p1?.matches).toBe(0);
     expect(p1?.absent).toBe(1);
     expect(p2?.trainings).toBe(0);
-    expect(p2?.sick).toBe(1);
+    expect(p2?.absent).toBe(1);
   });
 
   it("beräknar närvaro i procent", () => {
@@ -93,5 +109,18 @@ describe("närvaro", () => {
   it("visar matchrubrik när titel saknas", () => {
     expect(eventLabel(events[2] as TeamEvent)).toBe("Högalids IF – AIK FF");
     expect(eventLabel(events[0] as TeamEvent)).toBe("Träning");
+  });
+});
+
+describe("liknande spelarnamn", () => {
+  const squad = [
+    { id: "p1", name: "Vincent Åkesson" },
+    { id: "p2", name: "Alma Berg" },
+  ];
+
+  it("varnar för samma namn oavsett skiftläge och accenter", () => {
+    expect(findSimilarPlayers("vincent akesson", squad).map((p) => p.id)).toEqual(["p1"]);
+    expect(findSimilarPlayers("Nils Ek", squad)).toEqual([]);
+    expect(findSimilarPlayers("Alma Berg", squad, "p2")).toEqual([]);
   });
 });

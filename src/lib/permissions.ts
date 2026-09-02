@@ -23,6 +23,8 @@ export const TEAM_ROLE_DESCRIPTIONS: Record<TeamRoleName, string> = {
 export type TeamMembershipInfo = {
   role: "coach" | "player";
   status: "pending" | "approved";
+  /** Lagledare kan få särskild behörighet att registrera närvaro. */
+  canManageAttendance?: boolean;
 } | null;
 
 export type TeamAccessInput = {
@@ -45,6 +47,7 @@ export type TeamAccess = {
   canArchiveTeam: boolean;
   canDeleteTeam: boolean;
   canViewAttendance: boolean;
+  canManageAttendance: boolean;
   canViewStats: boolean;
 };
 
@@ -66,7 +69,8 @@ export function teamAccess(input: TeamAccessInput): TeamAccess {
     canInviteLeaders: isOwner || input.isAdmin,
     canArchiveTeam: isOwner || input.isAdmin,
     canDeleteTeam: isOwner || input.isAdmin,
-    canViewAttendance: isCoach,
+    canViewAttendance: isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
+    canManageAttendance: isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
     canViewStats: isCoach,
   };
 }

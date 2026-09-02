@@ -116,3 +116,7 @@
 
 - [x] Träningsplanering: nya övningar från Träningsbanken raderade tidigare sparade övningar (utkastet saknade grundraderna).
 - [ ] Publicera appen så att tom taktiktavla-fixen når skarpa sajten.
+
+## Etapp 11: QA 2 september 2026
+- [x] Global tillbakaknapp på alla sidor (inklusive inloggning och skapa konto)
+- [ ] Taktiktavlan: gå att placera ut bollen igen

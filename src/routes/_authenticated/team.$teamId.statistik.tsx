@@ -129,7 +129,7 @@ function StatsPage() {
                     {row.matches} / {row.matchesTotal}
                   </td>
                   <td className="px-3 py-2 text-right">{percent(row.matches, row.matchesTotal)} %</td>
-                  <td className="px-3 py-2 text-right">{row.absent + row.sick}</td>
+                  <td className="px-3 py-2 text-right">{row.absent}</td>
                 </tr>
               ))}
             </tbody>
