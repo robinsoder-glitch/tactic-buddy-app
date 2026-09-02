@@ -13,6 +13,7 @@ import {
   type EventResourceKind,
 } from "@/lib/taktikbank";
 import { fetchCoachSessions } from "@/lib/coach-sessions";
+import { fetchCoachDrills } from "@/lib/coach-drills";
 import { fetchTactics } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +60,12 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     enabled: open || links.isSuccess,
   });
 
+  const ownDrills = useQuery({
+    queryKey: ["coach-drills"],
+    queryFn: fetchCoachDrills,
+    enabled: open || links.isSuccess,
+  });
+
   const ownTactics = useQuery({
     queryKey: ["tactics"],
     queryFn: fetchTactics,
@@ -84,9 +91,13 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
       const own = (ownTactics.data ?? []).find((item) => item.id === id);
       if (own) return own.name;
     }
+    if (kind === "drill") {
+      const own = (ownDrills.data ?? []).find((item) => item.id === id);
+      if (own) return own.title;
+    }
     const source =
       kind === "tactic" ? tactics.data : kind === "drill" ? drills.data : sessions.data;
-    return source?.find((item) => item.id === id)?.title ?? id;
+    return source?.find((item) => item.id === id)?.title ?? "Övning";
   }
 
   const add = useMutation({
@@ -123,9 +134,11 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
 
       <ul className="mt-2 space-y-1">
         {items.length === 0 && <li className="text-xs text-muted-foreground">Inget kopplat än.</li>}
-        {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
-            <span className="text-xs text-muted-foreground">{KIND_LABELS[item.kind]}</span>
+        {items.map((item, index) => (
+          <li key={item.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
+            <span className="text-xs text-muted-foreground">
+              {index + 1}. {KIND_LABELS[item.kind]}
+            </span>
             {item.kind === "session" && isCoachSession(item.resource_id) ? (
               <Link
                 to="/traningspass/$id/visa"
@@ -163,9 +176,16 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
                 <X className="size-4 text-muted-foreground" />
               </button>
             )}
+            {item.note && <p className="w-full text-xs text-muted-foreground">{item.note}</p>}
           </li>
         ))}
       </ul>
+
+      {items.some((item) => item.minutes) && (
+        <p className="mt-2 text-xs font-semibold">
+          Total tid: {items.reduce((total, item) => total + (item.minutes ?? 0), 0)} minuter
+        </p>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[80vh] overflow-y-auto">
