@@ -177,6 +177,11 @@ function SessionBuilder() {
             Visa träningspass
           </Link>
         </Button>
+        <Button asChild size="sm">
+          <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
+            Genomför träning
+          </Link>
+        </Button>
 
       </header>
 

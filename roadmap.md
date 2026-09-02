@@ -161,3 +161,7 @@
 - [x] Bedöm framtida funktioner i tabell (docs/backlog-10g.md)
 - [x] Byggordning + arkitekturpåverkan + barnrisker
 - [x] Implementera INGET förrän nytt beslut
+
+## Slutgranskning 2026-09-02 (nattlig instruktion)
+- [ ] Gå igenom hela sidan: alla sidor, knappar och flöden ska fungera
+- [ ] Inget kvar att göra i roadmapen
