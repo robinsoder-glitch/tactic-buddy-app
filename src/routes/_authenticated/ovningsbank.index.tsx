@@ -17,6 +17,7 @@ import {
   type Drill,
 } from "@/lib/taktikbank";
 import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
+import { drillDefaultMinutes, drillDurationLabel } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
@@ -488,7 +489,7 @@ function DrillKeyFacts({ drill }: { drill: Drill }) {
   const facts: Array<[string, string]> = [];
   if (drill.data.players) facts.push(["Spelare", drill.data.players]);
   if (drill.data.area) facts.push(["Yta", drill.data.area]);
-  if (drill.default_minutes) facts.push(["Tid", `${drill.default_minutes} min`]);
+  facts.push(["Tid", drillDurationLabel(drill)]);
   if (drill.data.equipment?.length) facts.push(["Utrustning", drill.data.equipment.join(", ")]);
   if (!facts.length) return null;
   return (
