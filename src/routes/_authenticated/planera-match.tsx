@@ -227,6 +227,14 @@ function MatchPlanner({
   }, [players]);
 
   const counts = useMemo(() => countInvitations(invitations), [invitations]);
+  // Summering över de uttagna spelarna: spelare utan kallelserad räknas som Ej svarat.
+  const displayCounts = useMemo(
+    () =>
+      countInvitations(
+        playerIds.map((id) => ({ status: invitations.find((i) => i.player_id === id)?.status ?? "pending" })),
+      ),
+    [playerIds, invitations],
+  );
 
   useEffect(() => {
     void (async () => {
