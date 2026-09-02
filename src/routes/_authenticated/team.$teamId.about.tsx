@@ -10,7 +10,7 @@ import {
   deleteTeam,
   fetchTeam,
   fetchTeamImpact,
-  regenerateJoinCode,
+  rotateTeamCode,
   setTeamArchived,
   TEAM_GENDER_LABELS,
   updateTeam,
@@ -49,22 +49,28 @@ function AboutPage() {
   const isOwner = canManageTeam;
   const archived = Boolean(team.data?.archived_at);
 
-  async function newCode() {
+  async function newCode(kind: "player" | "coach") {
     const ok = await confirm({
-      title: "Skapa ny lagkod",
+      title: kind === "coach" ? "Skapa ny tränarkod" : "Skapa ny lagkod",
       description: "Den gamla koden slutar fungera direkt. Alla som ska gå med behöver den nya koden.",
       confirmLabel: "Skapa ny kod",
       tone: "default",
     });
     if (!ok) return;
     try {
-      await regenerateJoinCode(teamId);
+      await rotateTeamCode(teamId, kind);
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
-      toast.success("Ny lagkod skapad");
+      toast.success("Ny kod skapad");
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte skapa ny kod"));
     }
   }
+
+  async function copyCode(code: string | undefined) {
+    await navigator.clipboard.writeText(code ?? "");
+    toast.success("Kod kopierad");
+  }
+
 
   async function toggleArchive() {
     const ok = await confirm({
@@ -141,28 +147,40 @@ function AboutPage() {
     <section className="space-y-4">
       <h2 className="font-display text-2xl font-bold">Om laget</h2>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <p className="text-xs tracking-wide text-muted-foreground">Lagkod för spelare</p>
-        <div className="mt-1 flex items-center gap-3">
-          <span className="font-mono text-2xl tracking-widest">{team.data?.join_code}</span>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              navigator.clipboard.writeText(team.data?.join_code ?? "");
-              toast.success("Kod kopierad");
-            }}
-          >
-            <Copy className="size-4" aria-hidden /> Kopiera
-          </Button>
-          <Button size="sm" variant="ghost" onClick={newCode}>
-            <RefreshCw className="size-4" aria-hidden /> Ny kod
-          </Button>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs tracking-wide text-muted-foreground">Lagkod för spelare och föräldrar</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span className="font-mono text-2xl tracking-widest">{team.data?.join_code}</span>
+            <Button size="sm" variant="secondary" onClick={() => copyCode(team.data?.join_code)}>
+              <Copy className="size-4" aria-hidden /> Kopiera
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => newCode("player")}>
+              <RefreshCw className="size-4" aria-hidden /> Ny kod
+            </Button>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Ger aldrig ledarbehörighet. Spelaren skickar en ansökan som du godkänner.
+          </p>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Lagkoden ger bara läsbehörighet som spelare. Ledare bjuds in personligt under fliken Ledare.
-        </p>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs tracking-wide text-muted-foreground">Tränarkod för nya ledare</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span className="font-mono text-2xl tracking-widest">{team.data?.coach_join_code}</span>
+            <Button size="sm" variant="secondary" onClick={() => copyCode(team.data?.coach_join_code)}>
+              <Copy className="size-4" aria-hidden /> Kopiera
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => newCode("coach")}>
+              <RefreshCw className="size-4" aria-hidden /> Ny kod
+            </Button>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Dela bara med personer som ska vara ledare. Ansökan måste godkännas av en tränare i laget.
+          </p>
+        </div>
       </div>
+
 
       <div className="space-y-1.5">
         <Label htmlFor="t-name">Lagnamn</Label>
