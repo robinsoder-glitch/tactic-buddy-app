@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BookOpen,
+  CalendarCheck,
   CalendarDays,
   ClipboardList,
   Dumbbell,
@@ -27,6 +28,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/kunskapsbank": GraduationCap,
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
+  "/narvaro": CalendarCheck,
   "/tranarsnack": MessagesSquare,
   "/teams": Shield,
   "/installningar": Settings,
