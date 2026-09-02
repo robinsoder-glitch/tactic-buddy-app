@@ -450,11 +450,19 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
-  /** Ersätter eget lags spelare med vald formation i alla steg. */
+  /** Ersätter eget lags spelare med vald formation i alla steg. Varje truppspelare används en gång. */
   function applyFormation(formation: Formation) {
-    const gkFirst = [...bank].sort((a, b) => Number(b.gk) - Number(a.gk));
-    const lineup: FieldObject[] = formation.slots.map((slot, index) => {
-      const player = slot.gk ? gkFirst[0] : gkFirst.filter((item) => !item.gk)[index - 1];
+    if (frames.length > 1) {
+      const ok = window.confirm("Byta formation? Nuvarande placeringar och sekvenser ersätts.");
+      if (!ok) return;
+    }
+
+    const keeper = bank.find((item) => item.gk) ?? null;
+    const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
+    let outfieldIndex = 0;
+
+    const lineup: FieldObject[] = formation.slots.map((slot) => {
+      const player = slot.gk ? keeper : (outfield[outfieldIndex++] ?? null);
       return {
         id: uid(),
         kind: "player",
@@ -469,12 +477,23 @@ export function TacticEditor({ id }: { id: string }) {
       };
     });
 
+    // Bollen läggs strax framför den främsta spelaren – aldrig exakt under en spelare.
+    const front = lineup.reduce((best, item) => (item.x > best.x ? item : best), lineup[0]!);
+    const ballPos = { x: Math.min(0.95, front.x + 0.05), y: Math.min(0.95, front.y + 0.05) };
+
+    const pitchTarget = pitchForFormation(formation.players);
+    if (pitchTarget !== tactic.data?.pitch_type) changePitch.mutate(pitchTarget);
+
     commit(
       (prev) =>
         prev.map((item) => ({
           ...item,
+          // Formationsbyte nollställer även gamla markeringar så inga inaktuella linjer blir kvar.
+          drawings: [],
           objects: [
-            ...item.objects.filter((object) => !(object.kind === "player" && object.team === "home")),
+            ...item.objects
+              .filter((object) => !(object.kind === "player" && object.team === "home"))
+              .map((object) => (object.kind === "ball" ? { ...object, ...ballPos } : object)),
             ...lineup.map((object) => ({ ...object })),
           ],
         })),
@@ -482,6 +501,7 @@ export function TacticEditor({ id }: { id: string }) {
     );
     toast.success(`Formation ${formation.label} placerad.`);
   }
+
 
 
 
