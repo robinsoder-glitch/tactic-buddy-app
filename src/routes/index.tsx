@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
   CalendarDays,
+  ClipboardList,
   CopyPlus,
+  GraduationCap,
+  Trophy,
+
   Download,
   Link2,
   LogOut,
