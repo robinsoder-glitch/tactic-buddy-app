@@ -204,12 +204,15 @@ function KunskapsbankPage() {
         )}
       </header>
 
-      <p className="mt-2 text-sm text-muted-foreground">
+      <KnowledgeTabs active="articles" />
+
+      <p className="mt-4 text-sm text-muted-foreground">
         Fördjupning för dig som tränar barn, särskilt 5–10 år. Här förklaras varför vi tränar som vi gör – med
         källa och granskning.
       </p>
 
       <KnowledgeLibrary />
+
 
       {isAdmin && (
       <>
