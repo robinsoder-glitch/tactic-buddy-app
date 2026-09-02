@@ -113,11 +113,13 @@ function MatchPlanningPage() {
       <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
         {!selected && (
           <>
-            <PageHeader
-              title="Planera match"
-              description="Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning."
-            />
-            <EventManager type="match" />
+            <div className="space-y-1">
+              <h1 className="font-display text-3xl font-bold">Planera match</h1>
+              <p className="text-sm text-muted-foreground">
+                Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning.
+              </p>
+            </div>
+            <NewMatchCreator />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
               <p className="text-sm text-muted-foreground">Inga kommande matcher. Skapa en match ovan.</p>
@@ -141,7 +143,7 @@ function MatchPlanningPage() {
                         <div className="min-w-0">
                           <p className="font-medium">{event.title ?? "Match"}</p>
                           <p className="text-sm text-muted-foreground">
-                            {event.team_name} · {dateLabel(event.starts_at)} · {upcomingLabel(event)}
+                            {event.team_name} · {formatDateTime(event.starts_at)}
                           </p>
                         </div>
                         <PlanStatusBadge status={status} />
