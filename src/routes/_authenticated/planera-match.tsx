@@ -226,7 +226,6 @@ function MatchPlanner({
     return map;
   }, [players]);
 
-  const counts = useMemo(() => countInvitations(invitations), [invitations]);
   // Summering över de uttagna spelarna: spelare utan kallelserad räknas som Ej svarat.
   const displayCounts = useMemo(
     () =>
