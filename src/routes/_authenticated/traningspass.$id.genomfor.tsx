@@ -95,6 +95,13 @@ function RunSession() {
   const [noteTouched, setNoteTouched] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [finishedSummary, setFinishedSummary] = useState<{
+    plannedSeconds: number;
+    actualSeconds: number;
+    done: number;
+    skipped: number;
+    attendance: number;
+  } | null>(null);
   const noteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -171,6 +178,8 @@ function RunSession() {
       await finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
     },
     onSuccess: () => {
+      const done = runSummary(items.data ?? []);
+      setFinishedSummary({ ...done, attendance: attendance.data?.length ?? 0 });
       setConfirmEnd(false);
       setSummaryOpen(true);
       queryClient.invalidateQueries({ queryKey: ["coach-session", id] });
@@ -197,6 +206,37 @@ function RunSession() {
     if (noteTimer.current) clearTimeout(noteTimer.current);
     noteTimer.current = setTimeout(() => runId && saveNote.mutate(value), 800);
   }
+
+  const summaryDialog = (
+    <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+    const summaryDialog = (
+    <DialogContent>
+      const summaryDialog = (
+    <DialogHeader>
+        const summaryDialog = (
+    <DialogTitle>Sammanfattning</DialogTitle>
+          </DialogHeader>
+          <ul className="space-y-1 text-sm">
+            <li>Planerad tid: {Math.round((finishedSummary ?? summary).plannedSeconds / 60)} min</li>
+            <li>Faktisk tid: {Math.round((finishedSummary ?? summary).actualSeconds / 60)} min</li>
+            <li>Genomförda moment: {(finishedSummary ?? summary).done}</li>
+            <li>Överhoppade moment: {(finishedSummary ?? summary).skipped}</li>
+            <li>Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}</li>
+          </ul>
+      const summaryDialog = (
+    <DialogFooter>
+            <Button
+              onClick={() => {
+                setSummaryOpen(false);
+                navigate({ to: "/planera-traning" });
+              }}
+            >
+              Till träningsplaneringen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+    </Dialog>
+  );
 
   if (session.isLoading || run.isLoading) {
     return <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Laddar träningen…</main>;
@@ -231,6 +271,7 @@ function RunSession() {
             </Link>
           </Button>
         </div>
+        {summaryDialog}
       </main>
     );
   }
@@ -442,30 +483,7 @@ function RunSession() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sammanfattning</DialogTitle>
-          </DialogHeader>
-          <ul className="space-y-1 text-sm">
-            <li>Planerad tid: {Math.round(summary.plannedSeconds / 60)} min</li>
-            <li>Faktisk tid: {Math.round(summary.actualSeconds / 60)} min</li>
-            <li>Genomförda moment: {summary.done}</li>
-            <li>Överhoppade moment: {summary.skipped}</li>
-            <li>Närvaroregistreringar: {attendance.data?.length ?? 0}</li>
-          </ul>
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setSummaryOpen(false);
-                navigate({ to: "/planera-traning" });
-              }}
-            >
-              Till träningsplaneringen
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {summaryDialog}
     </main>
   );
 }
