@@ -190,6 +190,7 @@ function TacticPage() {
           ))}
         </ul>
       </section>
+      {confirmDialog}
     </main>
   );
 }
