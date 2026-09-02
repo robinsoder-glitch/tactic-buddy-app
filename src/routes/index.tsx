@@ -41,6 +41,16 @@ import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
 import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
+import { BrandLogo } from "@/components/BrandLogo";
+import {
+  BRAND_DESCRIPTION,
+  BRAND_EYEBROW,
+  BRAND_INTRO,
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  BRAND_TITLE,
+  brandMeta,
+} from "@/lib/brand";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,21 +70,7 @@ import {
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: "Taktiktavlan – animerad fotbollstaktik" },
-      {
-        name: "description",
-        content:
-          "Bygg fotbollstaktik på mobilen: placera spelare från din spelarbank, rita löpningar och animera spelmoment steg för steg.",
-      },
-      { property: "og:title", content: "Taktiktavlan – animerad fotbollstaktik" },
-      {
-        property: "og:description",
-        content: "Placera spelare, rita löpningar och animera spelmoment steg för steg.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
+    meta: brandMeta(BRAND_TITLE, BRAND_DESCRIPTION),
   }),
   component: HomePage,
 });
@@ -160,27 +156,82 @@ function PlayerHome() {
   );
 }
 
+const LANDING_FEATURES = [
+  {
+    icon: ClipboardList,
+    title: "Planera träningar",
+    text: "Schemalägg träningstillfällen, bygg träningspass och använd övningar från träningsbanken eller skapa egna.",
+  },
+  {
+    icon: Trophy,
+    title: "Planera matcher",
+    text: "Välj spelare och en eller flera ledare, planera matchen och samla all matchinformation på samma plats.",
+  },
+  {
+    icon: BookOpen,
+    title: "Visa taktik",
+    text: "Placera spelare och boll, rita löp- och passningsvägar och skapa sekvenser som kan spelas upp på taktiktavlan.",
+  },
+  {
+    icon: Users,
+    title: "Samla laget",
+    text: "Hantera spelare och ledare samt håll kontakt med laget inför träningar, matcher och andra aktiviteter.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Hitta övningar och kunskap",
+    text: "Använd träningsbanken och kunskapsbanken för att hitta övningar, träningspass och pedagogiskt stöd.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Få överblick",
+    text: "Se kalender, planeringsstatus, närvaro, aktiviteter och relevant statistik för laget.",
+  },
+];
+
 function Landing() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-16">
-      <p className="font-display text-sm tracking-[0.3em] text-primary">Taktiktavlan</p>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-[0.95]">
-        Rita, flytta,
-        <br />
-        animera spelet
-      </h1>
-      <p className="mt-4 text-muted-foreground">
-        Sätt ut dina spelare på planen, bygg upp spelmomentet steg för steg och spela upp löpningar
-        och passningar som en riktig animation. Allt sparas på ditt konto.
-      </p>
-      <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-        <li>• Spelarbank med namn, nummer och bilder</li>
-        <li>• Hel 11-mannaplan eller liten 5/7-mannaplan</li>
-        <li>• Keyframes: flytta spelarna i varje steg och tryck play</li>
-      </ul>
-      <Button asChild size="lg" className="mt-8">
-        <Link to="/auth">Kom igång</Link>
-      </Button>
+    <main className="mx-auto w-full max-w-4xl px-6 py-14 sm:py-20">
+      <section className="flex flex-col items-start">
+        <BrandLogo size={56} showName={false} />
+        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          {BRAND_EYEBROW}
+        </p>
+        <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-6xl">
+          {BRAND_NAME}
+        </h1>
+        <p className="mt-3 font-display text-xl font-semibold text-foreground sm:text-2xl">
+          {BRAND_TAGLINE}
+        </p>
+        <p className="mt-4 max-w-2xl text-muted-foreground">{BRAND_INTRO}</p>
+
+        <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <Button asChild size="lg">
+            <Link to="/auth" search={{ mode: "signup" }}>
+              Kom igång
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/auth">Logga in</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <h2 className="font-display text-2xl font-bold sm:text-3xl">Allt du behöver för laget</h2>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {LANDING_FEATURES.map((feature) => (
+            <li
+              key={feature.title}
+              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+            >
+              <feature.icon className="size-6 text-primary" aria-hidden />
+              <h3 className="mt-3 font-display text-lg font-semibold">{feature.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feature.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
@@ -303,7 +354,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
+          <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" />
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>

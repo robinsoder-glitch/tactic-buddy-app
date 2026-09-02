@@ -15,6 +15,7 @@ import {
 import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
+import { BrandLogo } from "@/components/BrandLogo";
 
 /** Sidor där huvudmenyn ska vara dold. */
 const HIDDEN_PREFIXES = ["/auth", "/t/", "/onboarding"];
@@ -92,8 +93,8 @@ export function AppNav() {
         className="fixed inset-x-0 top-0 z-40 hidden border-b border-border bg-background/95 backdrop-blur md:block supports-[backdrop-filter]:bg-background/85"
       >
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
-          <Link to="/" className="mr-2 font-display text-base font-bold text-foreground">
-            Taktiktavlan
+          <Link to="/" className="mr-2 shrink-0">
+            <BrandLogo size={36} />
           </Link>
           <ul className="flex flex-1 flex-wrap items-center gap-1">
             {MAIN_TABS.map((tab) => {
@@ -154,6 +155,9 @@ export function AppNav() {
                 aria-label="Meny"
                 className="absolute bottom-[calc(100%+0.5rem)] right-1 w-60 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
               >
+                <li role="none" className="border-b border-border px-4 py-3">
+                  <BrandLogo size={32} nameClassName="font-display text-sm font-bold" />
+                </li>
                 {MAIN_TABS.map((tab) => {
                   const active = isTabActive(pathname, tab);
                   return (

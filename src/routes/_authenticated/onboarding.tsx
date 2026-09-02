@@ -20,10 +20,10 @@ import { friendlyError } from "@/lib/user-errors";
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { title: "Välj kontotyp – Taktiktavlan" },
+      { title: "Välj kontotyp – Fotbollsrummet" },
       { name: "description", content: "Skapa ett tränarkonto eller gå med i ett lag som spelare med lagkoden." },
-      { property: "og:title", content: "Välj kontotyp – Taktiktavlan" },
-      { property: "og:description", content: "Tränare eller spelare – välj hur du vill använda Taktiktavlan." },
+      { property: "og:title", content: "Välj kontotyp – Fotbollsrummet" },
+      { property: "og:description", content: "Tränare eller spelare – välj hur du vill använda Fotbollsrummet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

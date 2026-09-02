@@ -20,9 +20,9 @@ import {
 export const Route = createFileRoute("/_authenticated/teams")({
   head: () => ({
     meta: [
-      { title: "Mina lag – Taktiktavlan" },
+      { title: "Mina lag – Fotbollsrummet" },
       { name: "description", content: "Skapa och hantera dina lag: klubb, åldersgrupp, kön och lagkod för spelarna." },
-      { property: "og:title", content: "Mina lag – Taktiktavlan" },
+      { property: "og:title", content: "Mina lag – Fotbollsrummet" },
       { property: "og:description", content: "Skapa klubb och lag, bjud in spelare med lagkoden." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

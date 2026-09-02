@@ -37,7 +37,7 @@ export function parseTacticFile(raw: string): TacticFile {
     throw new Error("Filen kunde inte läsas – den är inte en giltig taktikfil.");
   }
   if (!isRecord(parsed) || parsed['format'] !== "taktiktavlan") {
-    throw new Error("Fel filformat. Välj en fil som exporterats från Taktiktavlan.");
+    throw new Error("Fel filformat. Välj en fil som exporterats från Fotbollsrummet.");
   }
   const pitchType = parsed['pitchType'] === "full" ? "full" : "small";
   const framesRaw = Array.isArray(parsed['frames']) ? parsed['frames'] : [];

@@ -7,9 +7,9 @@ import { fetchAdminOverview, TEAM_GENDER_LABELS } from "@/lib/teams";
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Admin – Taktiktavlan" },
-      { name: "description", content: "Översikt över alla klubbar, lag, tränare och spelare i Taktiktavlan." },
-      { property: "og:title", content: "Admin – Taktiktavlan" },
+      { title: "Admin – Fotbollsrummet" },
+      { name: "description", content: "Översikt över alla klubbar, lag, tränare och spelare i Fotbollsrummet." },
+      { property: "og:title", content: "Admin – Fotbollsrummet" },
       { property: "og:description", content: "Översikt över klubbar, lag och medlemmar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

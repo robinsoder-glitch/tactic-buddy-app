@@ -126,13 +126,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Taktiktavlan – fotbollstaktik med animationer" },
+      { title: "Fotbollsrummet – tränarens verktyg för hela laget" },
       {
         name: "description",
-        content: "Sätt ut spelare, rita löpningar och animera fotbollstaktik steg för steg.",
+        content:
+          "Planera träningar och matcher, samla laget, visa taktik och följ lagets utveckling med Fotbollsrummet.",
       },
-      { property: "og:title", content: "Taktiktavlan" },
-      { property: "og:description", content: "Fotbollstaktik med spelarbank och animerade löpningar." },
+      { property: "og:title", content: "Fotbollsrummet" },
+      {
+        property: "og:description",
+        content:
+          "Planera träningar och matcher, samla laget, visa taktik och följ lagets utveckling med Fotbollsrummet.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

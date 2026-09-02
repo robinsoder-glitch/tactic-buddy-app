@@ -70,7 +70,7 @@ export async function buildTacticPdf(options: PdfExportOptions) {
 
   if (options.cover !== false) {
     doc.setFontSize(11);
-    doc.text("Taktiktavlan", margin, margin + 4);
+    doc.text("Fotbollsrummet", margin, margin + 4);
     doc.setFontSize(orientation === "landscape" ? 30 : 24);
     doc.text(doc.splitTextToSize(options.title, page.w - margin * 2) as string[], margin, margin + 22);
     doc.setFontSize(12);

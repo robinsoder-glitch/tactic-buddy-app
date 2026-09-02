@@ -20,9 +20,9 @@ import { useTeamRole } from "@/hooks/useTeamRole";
 export const Route = createFileRoute("/_authenticated/team/$teamId")({
   head: () => ({
     meta: [
-      { title: "Laget – Taktiktavlan" },
+      { title: "Laget – Fotbollsrummet" },
       { name: "description", content: "Truppen, kalender, träningar och matcher för ditt lag." },
-      { property: "og:title", content: "Laget – Taktiktavlan" },
+      { property: "og:title", content: "Laget – Fotbollsrummet" },
       { property: "og:description", content: "Truppen, kalender, träningar och matcher." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
