@@ -2,6 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
+import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { planStatus } from "@/lib/plan-status";
+import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/planning";
+import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
 import { eventDisplayTitle, eventTypeLabel, isCancelled } from "@/lib/event-labels";
 
@@ -42,6 +46,38 @@ export const Route = createFileRoute("/_authenticated/kalender/")({
 
 function CalendarOverview() {
   const events = useQuery({ queryKey: ["upcoming-events"], queryFn: () => fetchUpcomingEvents() });
+  const ids = (events.data ?? []).map((event) => event.id);
+  const plans = useQuery({
+    queryKey: ["event-plans", ids.join(",")],
+    queryFn: () => fetchEventPlans(ids),
+    enabled: ids.length > 0,
+  });
+  const resources = useQuery({
+    queryKey: ["event-resources", ids.join(",")],
+    queryFn: () => fetchEventResources(ids),
+    enabled: ids.length > 0,
+  });
+  const squads = useQuery({
+    queryKey: ["event-squads", ids.join(",")],
+    queryFn: () => fetchSquads(ids),
+    enabled: ids.length > 0,
+  });
+  const coaches = useQuery({
+    queryKey: ["event-coaches", ids.join(",")],
+    queryFn: () => fetchEventCoaches(ids),
+    enabled: ids.length > 0,
+  });
+
+  /** Samma statusregel som i Planera match och Planera träning. */
+  function statusFor(event: { id: string; type?: string | null }) {
+    return planStatus({
+      type: event.type ?? "training",
+      planSaved: (plans.data ?? []).some((row) => row.event_id === event.id),
+      resourceCount: (resources.data ?? []).filter((row) => row.event_id === event.id && row.kind !== "tactic").length,
+      playerCount: (squads.data ?? []).filter((row) => row.event_id === event.id).length,
+      coachCount: (coaches.data ?? []).filter((row) => row.event_id === event.id).length,
+    });
+  }
 
   if (events.isLoading) {
     return <p className="pt-6 text-sm text-muted-foreground">Laddar…</p>;
@@ -73,16 +109,15 @@ function CalendarOverview() {
                   className={`flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50 ${style.card}`}
                 >
                   <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
-                  <div className="min-w-0">
-                    <p className="font-medium">
-                      {eventDisplayTitle(event)}
-                      <span
-                        className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold ${style.badge}`}
-                      >
-                        {eventTypeLabel(event)}
-                      </span>
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
+                      {eventTypeLabel(event)}
+                    </p>
+                    <p className="font-medium">{eventDisplayTitle(event)}</p>
+                    <p className="mt-1 flex flex-wrap items-center gap-2">
+                      <PlanStatusBadge status={statusFor(event)} />
                       {isCancelled(event) && (
-                        <span className="ml-2 rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                        <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
                           Inställd
                         </span>
                       )}
