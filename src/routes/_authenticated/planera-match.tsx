@@ -12,16 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  fetchUpcomingEvents,
-  upcomingLabel,
-  type PlannableEvent,
-} from "@/lib/event-planning";
-import { countBy } from "@/lib/plan-status";
+import { fetchUpcomingEvents, type PlannableEvent } from "@/lib/event-planning";
 import { planStatus } from "@/lib/plan-status";
-import { fetchEventPlans, fetchSquads } from "@/lib/planning";
+import { fetchEventPlans, fetchSquad, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
-import { fetchTeam, fetchTeamMembers, fetchTeamPlayers, type Team, type TeamMember, type TeamPlayer } from "@/lib/teams";
+import { useAccount } from "@/hooks/useAccount";
+import { fetchTeam, fetchTeamMembers, fetchTeamPlayers, formatDateTime, type Team, type TeamMember, type TeamPlayer } from "@/lib/teams";
 import { fetchEventInvitations, inviteStatusLabel, summaryText, countInvitations, type Invitation, type InviteStatus } from "@/lib/invitations";
 import { fetchTactics, type TacticSummary } from "@/lib/db";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,8 +38,14 @@ import {
   type LineupSlot,
   type MatchShare,
 } from "@/lib/match-plan";
-import { dateLabel, timeOnly } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Check, ClipboardList, Pencil, Share2, Trash2, Users } from "lucide-react";
+
+function dateLabel(value: string): string {
+  return new Date(value).toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
+}
+function timeOnly(value: string): string {
+  return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+}
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/planera-match")({
