@@ -304,7 +304,7 @@ export function TacticEditor({ id }: { id: string }) {
       setSaveOpen(false);
       void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
       void queryClient.invalidateQueries({ queryKey: ["tactics"] });
-      void queryClient.invalidateQueries({ queryKey: ["blank-tactic"] });
+      void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
       toast.success("Taktiken är sparad i Mina taktiker.");
     },
     onError: (error) =>
