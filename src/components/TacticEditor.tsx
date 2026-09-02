@@ -528,46 +528,22 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
-  // Dragging with the run/pass tool means "from here to there during the next step":
-  // the object stays at its start position in this frame, the arrow is drawn here, and the
-  // end position is written into the next frame (created when we are on the last one).
-  // History was already pushed at drag start by moveObject, so this stays one undo step.
-  function objectTrail(objectId: string, type: "run" | "pass", from: { x: number; y: number }) {
+  // Dragningen flyttar objektet i den aktiva bilden. Pilar sparas inte längre –
+  // de härleds ur föregående och aktuell bild vid rendering.
+  function objectTrail(objectId: string, _type: "run" | "pass", from: { x: number; y: number }) {
     const currentFrame = framesRef.current[current];
     const object = currentFrame?.objects.find((item) => item.id === objectId);
     if (!object) return;
-    const x1 = snapValue(from.x);
-    const y1 = snapValue(from.y);
-    const x2 = object.x;
-    const y2 = object.y;
-
-    // Startläget är uppställningen: här ska ingen sekvens skapas i bakgrunden.
-    if (current === 0) {
-      setFrames((prev) =>
-        prev.map((item, index) =>
-          index === 0
-            ? {
-                ...item,
-                objects: item.objects.map((o) => (o.id === objectId ? { ...o, x: x1, y: y1 } : o)),
-              }
-            : item,
-        ),
-      );
-      toast.info("Skapa första rörelsen innan du ritar en löpning eller passning.", {
-        action: { label: "Skapa första rörelsen", onClick: () => addFrame() },
-      });
-      return;
-    }
-
-    if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
+    const moved = Math.hypot(object.x - from.x, object.y - from.y);
+    if (moved < 0.015) return;
     setMovementTip(false);
     setDirty(true);
-    // Vägen hör till den aktiva sekvensen och ersätter objektets tidigare väg där.
-    setFrames((prev) => applyTrail(prev, current, objectId, type, { x: x1, y: y1 }, { x: x2, y: y2 }));
+    if (current === 0) return;
     toast.success(`${object.label || "Objektet"} rör sig i ${frameLabel(current)}`, {
       action: { label: "Ångra", onClick: () => undoRef.current() },
     });
   }
+
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
     commit((prev) =>
