@@ -1026,8 +1026,24 @@ export function TacticEditor({ id }: { id: string }) {
           {advanced ? "Byt till Enkel" : "Byt till Avancerad"}
         </Button>
 
-        <Button variant="ghost" size="icon" aria-label="Spara" onClick={() => save.mutate()}>
-          <Save className="size-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Visa guide"
+          onClick={() => setTourOpen(true)}
+        >
+          <HelpCircle className="size-5" />
+        </Button>
+
+        <Button
+          size="sm"
+          data-tour="save"
+          onClick={() => {
+            setNameDraft(tactic.data?.name ?? "");
+            setSaveOpen(true);
+          }}
+        >
+          <Save className="size-4" /> Spara
         </Button>
       </header>
 
