@@ -527,7 +527,11 @@ function MatchPlanner({
                 {coaches.map((m) => {
                   const checked = coachIds.includes(m.user_id);
                   const toggle = () =>
-                    setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]));
+                    setCoachIds((ids) => {
+                      const next = ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id];
+                      console.log("DBG toggle coach", m.user_id, ids, "->", next);
+                      return next;
+                    });
                   return (
                     <li key={m.user_id}>
                       <div
