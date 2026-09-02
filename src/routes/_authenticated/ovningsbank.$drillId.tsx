@@ -5,11 +5,14 @@ import { fetchDrill, fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikb
 import { drillMeta } from "@/lib/ovningsbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
-import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
+import { PickDrillButton } from "@/components/PickDrillButton";
+import { PickModeBanner } from "@/components/PickModeBanner";
+import { parsePickSearch } from "@/lib/training-pick";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
+  validateSearch: (search: Record<string, unknown>) => parsePickSearch(search),
   head: () => ({
     meta: [
       { title: "Övning – Träningsbanken" },
@@ -25,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
 
 function DrillPage() {
   const { drillId } = Route.useParams();
+  const pick = Route.useSearch();
   const { isCoach, isAdmin, loading } = useAccount();
   const allowed = isCoach || isAdmin;
   const drill = useQuery({ queryKey: ["tb-drill", drillId], queryFn: () => fetchDrill(drillId), enabled: allowed });
@@ -60,9 +64,10 @@ function DrillPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
+      <PickModeBanner />
       <header className="flex items-center gap-2">
         <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningsbanken">
-          <Link to="/ovningsbank">
+          <Link to="/ovningsbank" search={{ eventId: pick.eventId, teamId: pick.teamId }}>
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
@@ -80,7 +85,7 @@ function DrillPage() {
       <DrillDetails drill={drill.data} showGaps={isAdmin} />
 
       <div className="mt-6">
-<AddToTrainingButton
+<PickDrillButton
           kind="drill"
           resourceId={drill.data.id}
           title={drill.data.title}

@@ -41,7 +41,7 @@ describe("mina träningspass – rutter och presentationsläge", () => {
 
   it("kan lägga till innehåll i träningspass direkt från listvyerna", () => {
     expect(read("src/routes/_authenticated/taktikbank.index.tsx")).toContain("AddToTrainingButton");
-    expect(read("src/routes/_authenticated/ovningsbank.index.tsx")).toContain("AddToTrainingButton");
+    expect(read("src/routes/_authenticated/ovningsbank.index.tsx")).toContain("PickDrillButton");
   });
 
   it("har inga tilläggsknappar i Kunskapsbanken", () => {

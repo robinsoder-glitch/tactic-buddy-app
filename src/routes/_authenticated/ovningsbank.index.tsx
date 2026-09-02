@@ -21,7 +21,8 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
-import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
+import { PickDrillButton } from "@/components/PickDrillButton";
+import { PickModeBanner } from "@/components/PickModeBanner";
 import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
@@ -31,7 +32,12 @@ import { Input } from "@/components/ui/input";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 
 
-type OvningsbankSearch = { flik?: "ovningar" | "malvakt" | "pass" | undefined; markera?: string | undefined };
+type OvningsbankSearch = {
+  flik?: "ovningar" | "malvakt" | "pass" | undefined;
+  markera?: string | undefined;
+  eventId?: string | undefined;
+  teamId?: string | undefined;
+};
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/")({
   validateSearch: (search: Record<string, unknown>): OvningsbankSearch => {
@@ -40,6 +46,8 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/")({
     return {
       flik: flik === "malvakt" || flik === "pass" || flik === "ovningar" ? flik : undefined,
       markera: typeof markera === "string" && markera ? markera : undefined,
+      eventId: typeof search['eventId'] === "string" && search['eventId'] ? (search['eventId'] as string) : undefined,
+      teamId: typeof search['teamId'] === "string" && search['teamId'] ? (search['teamId'] as string) : undefined,
     };
   },
   head: () => ({
@@ -189,6 +197,7 @@ function OvningsbankPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
+      <PickModeBanner />
       <header className="flex items-center gap-2">
         <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
           <Link to="/">
@@ -365,7 +374,7 @@ function OvningsbankPage() {
                     sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
                   />
                   <div className="mt-3">
-<AddToTrainingButton
+<PickDrillButton
                       kind="drill"
                       resourceId={drill.id}
                       title={drill.title}
@@ -431,7 +440,7 @@ function OvningsbankPage() {
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
               <div className="mt-3">
-<AddToTrainingButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+<PickDrillButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
               </div>
             </article>
           ))}

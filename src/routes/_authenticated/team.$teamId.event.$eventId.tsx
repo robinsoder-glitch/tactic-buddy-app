@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { EventCoaches } from "@/components/EventCoaches";
 import { EventResources } from "@/components/EventResources";
-import { PlanningDoneToggle } from "@/components/PlanningDoneToggle";
+import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { planStatus } from "@/lib/plan-status";
+import { fetchEventPlan, fetchEventResources, fetchSquad } from "@/lib/planning";
+import { fetchEventCoaches } from "@/lib/event-coaches";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Ban, Bell, CalendarDays, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -68,6 +71,16 @@ function EventPage() {
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
   const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
+  const plan = useQuery({ queryKey: ["event-plan", eventId], queryFn: () => fetchEventPlan(eventId) });
+  const planResources = useQuery({
+    queryKey: ["event-resources", eventId],
+    queryFn: () => fetchEventResources([eventId]),
+  });
+  const eventSquad = useQuery({ queryKey: ["event-squad", eventId], queryFn: () => fetchSquad(eventId) });
+  const planCoaches = useQuery({
+    queryKey: ["event-coaches", eventId],
+    queryFn: () => fetchEventCoaches([eventId]),
+  });
   const invites = useQuery({
     queryKey: ["invitations", eventId],
     queryFn: () => fetchEventInvitations(eventId),
@@ -244,17 +257,29 @@ function EventPage() {
       </div>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-4">
-        <h2 className="font-display text-xl font-bold">
-          {event.data?.type === "match" ? "Matchplanering" : "Planerat träningsinnehåll"}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-xl font-bold">
+            {event.data?.type === "match" ? "Matchplanering" : "Träningsplanering"}
+          </h2>
+          <PlanStatusBadge status={planStatus({
+            type: event.data?.type ?? "training",
+            planSaved: !!plan.data,
+            resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic").length,
+            playerCount: (eventSquad.data ?? []).length,
+            coachCount: (planCoaches.data ?? []).length,
+          })} />
+        </div>
         <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
-        {event.data?.type !== "match" && (
-          <PlanningDoneToggle eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
-        )}
         <Button variant="outline" size="sm" className="mt-3" asChild>
-          <Link to={event.data?.type === "match" ? "/planera-match" : "/planera-traning"}>
-            Öppna planeringen
-          </Link>
+          {event.data?.type === "match" ? (
+            <Link to="/planera-match" search={{ eventId }}>
+              Öppna planeringen
+            </Link>
+          ) : (
+            <Link to="/planera-traning" search={{ eventId, mode: "edit" as const }}>
+              Öppna planeringen
+            </Link>
+          )}
         </Button>
       </section>
 

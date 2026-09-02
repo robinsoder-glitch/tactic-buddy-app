@@ -98,6 +98,59 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_drills: {
+        Row: {
+          coach_focus: string | null
+          created_at: string
+          equipment: string | null
+          id: string
+          in_library: boolean
+          instruction: string | null
+          minutes: number
+          purpose: string | null
+          team_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coach_focus?: string | null
+          created_at?: string
+          equipment?: string | null
+          id?: string
+          in_library?: boolean
+          instruction?: string | null
+          minutes?: number
+          purpose?: string | null
+          team_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coach_focus?: string | null
+          created_at?: string
+          equipment?: string | null
+          id?: string
+          in_library?: boolean
+          instruction?: string | null
+          minutes?: number
+          purpose?: string | null
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_drills_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_session_items: {
         Row: {
           created_at: string
@@ -1588,6 +1641,25 @@ export type Database = {
       is_team_member: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
+      }
+      save_match_plan: {
+        Args: {
+          _coach_ids: string[]
+          _event_id: string
+          _notes: string
+          _player_ids: string[]
+          _team_id: string
+        }
+        Returns: undefined
+      }
+      save_training_plan: {
+        Args: {
+          _event_id: string
+          _items: Json
+          _notes: string
+          _team_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
