@@ -21,7 +21,7 @@ export const TEAM_ROLE_DESCRIPTIONS: Record<TeamRoleName, string> = {
 };
 
 export type TeamMembershipInfo = {
-  role: "coach" | "player";
+  role: "club_admin" | "head_coach" | "coach" | "guardian" | "player";
   status: "pending" | "approved";
   /** Lagledare kan få särskild behörighet att registrera närvaro. */
   canManageAttendance?: boolean;
@@ -38,6 +38,7 @@ export type TeamAccessInput = {
 export type TeamAccess = {
   isOwner: boolean;
   isCoach: boolean;
+  isGuardian: boolean;
   isApproved: boolean;
   isPending: boolean;
   canManageSquad: boolean;
@@ -55,12 +56,17 @@ export function teamAccess(input: TeamAccessInput): TeamAccess {
   const signedIn = Boolean(input.userId);
   const approvedMember = input.membership?.status === "approved";
   const isOwner = signedIn && input.isOwner;
-  const isCoach = signedIn && (isOwner || input.isAdmin || (approvedMember && input.membership?.role === "coach"));
+  const leaderRoles = ["coach", "head_coach", "club_admin"];
+  const isCoach =
+    signedIn &&
+    (isOwner || input.isAdmin || (approvedMember && leaderRoles.includes(input.membership?.role ?? "")));
+  const isGuardian = signedIn && approvedMember && input.membership?.role === "guardian";
   const isApproved = signedIn && (isOwner || input.isAdmin || approvedMember);
 
   return {
     isOwner,
     isCoach,
+    isGuardian,
     isApproved,
     isPending: input.membership?.status === "pending" && !isOwner,
     canManageSquad: isCoach,
