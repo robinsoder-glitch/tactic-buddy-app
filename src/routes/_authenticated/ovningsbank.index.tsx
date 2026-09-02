@@ -334,60 +334,49 @@ function OvningsbankPage() {
               <article
                 key={drill.id}
                 id={`ovning-${drill.id}`}
-                className={`flex items-start gap-2 rounded-xl border bg-card p-4 ${
+                className={`relative flex items-start gap-2 rounded-xl border bg-card p-4 transition hover:border-primary ${
                   highlight === drill.id ? "border-primary" : "border-border"
                 }`}
               >
+                <Link
+                  to="/ovningsbank/$drillId"
+                  params={{ drillId: drill.id }}
+                  aria-label={`Öppna övningen ${drill.title}`}
+                  className="absolute inset-0 rounded-xl"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs tracking-wide text-muted-foreground">
                     {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
                     {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
-                    {drill.default_minutes ? ` · ${drill.default_minutes} min` : ""}
+                    {` · ${drillDurationLabel(drill)}`}
                   </p>
-                  <h2 className="font-display text-lg font-semibold">
-                    <Link
-                      to="/ovningsbank/$drillId"
-                      params={{ drillId: drill.id }}
-                      className="hover:underline underline-offset-4"
-                    >
-                      {drill.title}
-                    </Link>
-                  </h2>
+                  <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
                   <p className="text-sm text-muted-foreground">{drill.purpose}</p>
                   <DrillKeyFacts drill={drill} />
 
-                  {drill.data.linkedTacticIds?.length ? (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {drill.data.linkedTacticIds.map((tacticId) => (
-                        <Link
-                          key={tacticId}
-                          to="/taktikbank/$cardId"
-                          params={{ cardId: tacticId }}
-                          className="rounded-full border border-border px-3 py-1 text-xs text-primary"
-                        >
-                          {allCards.find((card) => card.id === tacticId)?.title ?? "Taktikkort"}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : null}
-                  <RelatedContent
-                    sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
-                  />
-                  <div className="mt-3">
-<PickDrillButton
+                  <div className="relative z-10">
+                    <RelatedContent
+                      sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
+                    />
+                  </div>
+                  <div className="relative z-10 mt-3">
+                    <PickDrillButton
                       kind="drill"
                       resourceId={drill.id}
                       title={drill.title}
-                      defaultMinutes={drill.default_minutes ?? 10}
+                      defaultMinutes={drillDefaultMinutes(drill)}
                       size="sm"
                     />
                   </div>
                 </div>
-                <FavoriteButton
-                  active={favoriteSet.has(`drill:${drill.id}`)}
-                  onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}
-                />
+                <div className="relative z-10">
+                  <FavoriteButton
+                    active={favoriteSet.has(`drill:${drill.id}`)}
+                    onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}
+                  />
+                </div>
               </article>
+
             );
           })}
           {!drills.isLoading && visibleDrills.length === 0 && (

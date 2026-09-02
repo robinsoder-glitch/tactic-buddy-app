@@ -1,4 +1,4 @@
-import { fitsYouIf, keyMessages, notCovered, practicalAdvice, sourceCheck } from "@/lib/knowledge-summary";
+import { keyMessages, practicalAdvice } from "@/lib/knowledge-summary";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
