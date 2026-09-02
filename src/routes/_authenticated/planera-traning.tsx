@@ -364,30 +364,38 @@ function PlanTrainingPage() {
               {trainings.map((event) => {
                 const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
                 const active = event.id === eventId;
+                const badge = statusBadge(event.id);
                 return (
                   <li key={event.id}>
                     <button
                       type="button"
                       aria-pressed={active}
                       onClick={() => setEventId(event.id)}
-                      className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                      className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
                         active ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
                       }`}
                     >
-                      <p className="font-semibold">{event.title ?? "Träning"}</p>
-                      <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {event.team_name ?? "Lag"}
-                        {event.location ? ` · ${event.location}` : ""}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {plannedLabel(count)} ·{" "}
-                        {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
-                      </p>
+                      <span className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${badge.dot}`} aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold">{event.title ?? "Träning"}</span>
+                        <span className="block text-sm text-primary">{formatDateTime(event.starts_at)}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {event.team_name ?? "Lag"}
+                          {event.location ? ` · ${event.location}` : ""}
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {plannedLabel(count)} ·{" "}
+                          {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
+                        </span>
+                      </span>
+                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}>
+                        {badge.text}
+                      </span>
                     </button>
                   </li>
                 );
               })}
+
             </ul>
           </div>
 
