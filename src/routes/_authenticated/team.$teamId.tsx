@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Dumbbell,
   Images,
+  CalendarRange,
   Info,
   MessagesSquare,
   Shield,
@@ -46,6 +47,7 @@ const SUB_LINKS = [
   { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy },
   { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
   { to: "/team/$teamId/tranarsnack", label: "Tränarsnack", icon: MessagesSquare },
+  { to: "/team/$teamId/periodplan", label: "Periodplan", icon: CalendarRange },
 ] as const;
 
 

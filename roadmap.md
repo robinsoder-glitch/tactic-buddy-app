@@ -115,7 +115,7 @@
 - [x] Taktik: planen ska vara tom när man öppnar tavlan (inga förifyllda spelare)
 
 - [x] Träningsplanering: nya övningar från Träningsbanken raderade tidigare sparade övningar (utkastet saknade grundraderna).
-- [ ] Publicera appen så att tom taktiktavla-fixen når skarpa sajten.
+- [x] Publicera appen så att tom taktiktavla-fixen når skarpa sajten.
 
 ## Etapp 11: QA 2 september 2026
 - [x] Global tillbakaknapp på alla sidor (inklusive inloggning och skapa konto)
@@ -136,28 +136,38 @@
 - [ ] Ej testat live: 5v5/7v7/9v9/11v11 (enhetstestade), giltig delningslänk utloggad (ogiltig token testad), RLS mellan två lag, påminnelse-debounce
 
 ## Instruktion 10E – Genomför träning
-- [ ] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
-- [ ] Genomförandeskärm: rubrik, aktuell övning, stor timer, instruktion, därför, material, organisation, nästa övning, taktiktavla/bild
-- [ ] Kontroller: Pausa/Fortsätt/Föregående/Nästa/Hoppa över/+1 min/Avsluta (stora, mobil)
-- [ ] Timer: beräknad från started_at + pauser + justeringar, spara vid händelser (ej varje sekund)
-- [ ] Närvaro i genomförandet (unik per aktivitet+spelare, upsert)
-- [ ] Anteckningar: allmän + privata spelarobservationer, autospara med felhantering
-- [ ] Avsluta med bekräftelse: spara faktiska tider, moment, närvaro, anteckningar; status Genomförd
-- [ ] Sammanfattning + Till träningsplanering
-- [ ] Edge cases + acceptanstest
+- [x] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
+- [x] Genomförandeskärm: rubrik, aktuell övning, stor timer, instruktion, därför, material, organisation, nästa övning, taktiktavla/bild
+- [x] Kontroller: Pausa/Fortsätt/Föregående/Nästa/Hoppa över/+1 min/Avsluta (stora, mobil)
+- [x] Timer: beräknad från started_at + pauser + justeringar, spara vid händelser (ej varje sekund)
+- [x] Närvaro i genomförandet (unik per aktivitet+spelare, upsert)
+- [x] Anteckningar: allmän + privata spelarobservationer, autospara med felhantering
+- [x] Avsluta med bekräftelse: spara faktiska tider, moment, närvaro, anteckningar; status Genomförd
+- [x] Sammanfattning + Till träningsplanering
+- [x] Edge cases + acceptanstest
 
 ## Instruktion 10F – Periodplan och spelarutveckling
-- [ ] Periodblock 4–6 veckor: namn, datum, huvudtema, max 2 delteman, mål
-- [ ] Koppla träningar/matcher/övningar/taktiker/artiklar (unik per period)
-- [ ] Progression 4 steg: Introducera/Öva/Använd i spel/Följ upp + föregående periods tema
-- [ ] Privat spelarvy: max 3 aktiva fokusområden, status Aktivt/Uppnått/Pausat, barnanpassat språk
-- [ ] Observationer kopplade till aktivitet/fokusområde, snabbregistrering
-- [ ] Integritet: RLS, inga anteckningar i delningslänkar, vårdnadshavare ser inte internt
-- [ ] Lagöversikt utan topplista: antal med/utan fokus, senaste observation, periodteman
-- [ ] Återanvänd närvaro/speltid från genomförda aktiviteter
-- [ ] Acceptanstester
+- [x] Periodblock 4–6 veckor: namn, datum, huvudtema, max 2 delteman, mål
+- [x] Koppla träningar/matcher/övningar/taktiker/artiklar (unik per period)
+- [x] Progression 4 steg: Introducera/Öva/Använd i spel/Följ upp + föregående periods tema
+- [x] Privat spelarvy: max 3 aktiva fokusområden, status Aktivt/Uppnått/Pausat, barnanpassat språk
+- [x] Observationer kopplade till aktivitet/fokusområde, snabbregistrering
+- [x] Integritet: RLS, inga anteckningar i delningslänkar, vårdnadshavare ser inte internt
+- [x] Lagöversikt utan topplista: antal med/utan fokus, senaste observation, periodteman
+- [x] Återanvänd närvaro/speltid från genomförda aktiviteter
+- [x] Acceptanstester
 
 ## Instruktion 10G – Backlogbedömning (ingen kod)
 - [x] Bedöm framtida funktioner i tabell (docs/backlog-10g.md)
 - [x] Byggordning + arkitekturpåverkan + barnrisker
 - [x] Implementera INGET förrän nytt beslut
+
+## Slutgranskning 2026-09-02 (nattlig instruktion)
+- [x] Gå igenom hela sidan: alla 35 sidor laddade utan runtime-fel (endast känd hydration-varning)
+- [x] Periodplan live-testad: skapa period, progression sparas och finns kvar efter omladdning
+- [x] Genomför träning live-testad: start, paus, fortsätt, nästa, timer efter omladdning, avsluta + sammanfattning
+- [x] Fixat: periodplanen visar närmaste period även när ingen pågår just nu
+- [x] Fixat: sammanfattningen visas efter avslutad träning (tidigare dolde tomma läget dialogen)
+- [x] Testdata rensad efter genomgången
+- [x] Säkerhet: interna triggerfunktioner går inte längre att anropa; kvarvarande SECURITY DEFINER-funktioner är RLS-hjälpare och RPC:er med egna behörighetskontroller
+- [ ] Kvarstår otestat live: 5v5–11v11 fullskaligt, giltig delningslänk utloggad, RLS mellan två lag, påminnelse-debounce (enhetstestade)
