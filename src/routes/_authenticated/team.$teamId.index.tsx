@@ -444,7 +444,7 @@ function SquadPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={save} disabled={busy}>
+            <Button onClick={() => void save()} disabled={busy}>
               Spara
             </Button>
           </DialogFooter>
