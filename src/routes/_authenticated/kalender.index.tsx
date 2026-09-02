@@ -7,7 +7,7 @@ import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
-import { eventDisplayTitle, eventTypeLabel, isCancelled } from "@/lib/event-labels";
+import { eventTitleLine, eventTypeLabel, isCancelled } from "@/lib/event-labels";
 
 /** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
 const EVENT_STYLES = {
@@ -113,7 +113,7 @@ function CalendarOverview() {
                     <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
                       {eventTypeLabel(event)}
                     </p>
-                    <p className="font-medium">{eventDisplayTitle(event)}</p>
+                    {eventTitleLine(event) && <p className="font-medium">{eventTitleLine(event)}</p>}
                     <p className="mt-1 flex flex-wrap items-center gap-2">
                       <PlanStatusBadge status={statusFor(event)} />
                       {isCancelled(event) && (
