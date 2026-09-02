@@ -146,6 +146,60 @@ export function mirrorSlots(slots: FormationSlot[]): FormationSlot[] {
   return slots.map((slot) => ({ ...slot, x: 1 - slot.x }));
 }
 
+/** Etikett för en uppställningsplats utan verklig spelare. */
+export const EMPTY_SLOT_LABEL = "Tom plats";
+
+export type LineupPlayer = {
+  id: string;
+  name: string;
+  number?: number | null;
+  gk?: boolean;
+  photoUrl?: string | null;
+};
+
+export type LineupEntry = {
+  playerId: string | null;
+  label: string;
+  number: number | null;
+  gk: boolean;
+  photoUrl: string | null;
+  x: number;
+  y: number;
+};
+
+/**
+ * Kopplar truppens spelare till formationens platser.
+ * Varje verklig spelare används högst en gång; platser utan spelare blir "Tom plats".
+ */
+export function buildLineup(slots: FormationSlot[], bank: LineupPlayer[]): LineupEntry[] {
+  const keeper = bank.find((item) => item.gk) ?? null;
+  const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
+  let keeperUsed = false;
+  let index = 0;
+
+  return slots.map((slot) => {
+    let player: LineupPlayer | null = null;
+    if (slot.gk) {
+      if (keeper && !keeperUsed) {
+        player = keeper;
+        keeperUsed = true;
+      }
+    } else {
+      player = outfield[index++] ?? null;
+    }
+    return {
+      playerId: player?.id ?? null,
+      label: player?.name ?? EMPTY_SLOT_LABEL,
+      number: player?.number ?? null,
+      gk: Boolean(slot.gk),
+      photoUrl: player?.photoUrl ?? null,
+      x: Math.min(0.97, Math.max(0.03, slot.x)),
+      y: Math.min(0.97, Math.max(0.03, slot.y)),
+    };
+  });
+}
+
+
 /** Planlayout som hör ihop med formationens spelarantal. 9-manna spelas på 11-mannaplan. */
 export function pitchForFormation(players: number): PitchType {
   if (players >= 9) return "full";
