@@ -40,8 +40,17 @@ export type TeamPlayer = {
   gender: string | null;
   photo_path: string | null;
   is_goalkeeper: boolean;
+  guardian1_name: string | null;
+  guardian1_phone: string | null;
+  guardian1_email: string | null;
+  guardian2_name: string | null;
+  guardian2_phone: string | null;
+  guardian2_email: string | null;
+  has_allergy: boolean;
+  allergy_note: string | null;
   photoUrl: string | null;
 };
+
 
 export type TeamPhoto = {
   id: string;
