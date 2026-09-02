@@ -12,7 +12,7 @@ import {
   Eye,
   EyeOff,
   FlipHorizontal2,
-  MoveRight,
+  
   Pause,
   Play,
   Plus,
