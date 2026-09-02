@@ -46,8 +46,8 @@ import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
-import { drawingsAtProgress, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
-import { appendSequence, applyTrail, insertSequenceAfter } from "@/lib/sequences";
+import { displayDrawingsAt, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
+import { appendSequence, insertSequenceAfter } from "@/lib/sequences";
 import {
   entry as historyEntry,
   loadHistory,
@@ -56,7 +56,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
-import { formationsForPitch, type Formation } from "@/lib/formations";
+import { formationsForPitch, pitchForFormation, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, SoccerBall, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
@@ -213,7 +213,7 @@ export function TacticEditor({ id }: { id: string }) {
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
   const [hideNames, setHideNames] = useState(() => loadPrefs().hideNames);
-  const [snap, setSnap] = useState(true);
+  const [snap, setSnap] = useState(prefs.grid);
   const [drawColor, setDrawColor] = useState(MARK_COLORS[0]!);
 
   const pastRef = useRef<HistoryEntry[]>([]);
@@ -435,9 +435,11 @@ export function TacticEditor({ id }: { id: string }) {
   const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
   const segmentT = progress - segmentIndex;
   // Vägarna hör till målsekvensen: under övergången visas den sekvens vi är på väg mot.
-  const displayedDrawings = animating
-    ? drawingsAtProgress(frames, progress)
-    : (frame?.drawings ?? []);
+  // Pilar lagras aldrig – de härleds alltid ur föregående och aktuell bild.
+  const displayedDrawings = useMemo(
+    () => displayDrawingsAt(frames, progress, animating, current),
+    [frames, progress, animating, current],
+  );
   const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
 
 
@@ -448,11 +450,19 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
-  /** Ersätter eget lags spelare med vald formation i alla steg. */
+  /** Ersätter eget lags spelare med vald formation i alla steg. Varje truppspelare används en gång. */
   function applyFormation(formation: Formation) {
-    const gkFirst = [...bank].sort((a, b) => Number(b.gk) - Number(a.gk));
-    const lineup: FieldObject[] = formation.slots.map((slot, index) => {
-      const player = slot.gk ? gkFirst[0] : gkFirst.filter((item) => !item.gk)[index - 1];
+    if (frames.length > 1) {
+      const ok = window.confirm("Byta formation? Nuvarande placeringar och sekvenser ersätts.");
+      if (!ok) return;
+    }
+
+    const keeper = bank.find((item) => item.gk) ?? null;
+    const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
+    let outfieldIndex = 0;
+
+    const lineup: FieldObject[] = formation.slots.map((slot) => {
+      const player = slot.gk ? keeper : (outfield[outfieldIndex++] ?? null);
       return {
         id: uid(),
         kind: "player",
@@ -467,12 +477,23 @@ export function TacticEditor({ id }: { id: string }) {
       };
     });
 
+    // Bollen läggs strax framför den främsta spelaren – aldrig exakt under en spelare.
+    const front = lineup.reduce((best, item) => (item.x > best.x ? item : best), lineup[0]!);
+    const ballPos = { x: Math.min(0.95, front.x + 0.05), y: Math.min(0.95, front.y + 0.05) };
+
+    const pitchTarget = pitchForFormation(formation.players);
+    if (pitchTarget !== tactic.data?.pitch_type) changePitch.mutate(pitchTarget);
+
     commit(
       (prev) =>
         prev.map((item) => ({
           ...item,
+          // Formationsbyte nollställer även gamla markeringar så inga inaktuella linjer blir kvar.
+          drawings: [],
           objects: [
-            ...item.objects.filter((object) => !(object.kind === "player" && object.team === "home")),
+            ...item.objects
+              .filter((object) => !(object.kind === "player" && object.team === "home"))
+              .map((object) => (object.kind === "ball" ? { ...object, ...ballPos } : object)),
             ...lineup.map((object) => ({ ...object })),
           ],
         })),
@@ -480,6 +501,7 @@ export function TacticEditor({ id }: { id: string }) {
     );
     toast.success(`Formation ${formation.label} placerad.`);
   }
+
 
 
 
@@ -526,46 +548,22 @@ export function TacticEditor({ id }: { id: string }) {
     );
   }
 
-  // Dragging with the run/pass tool means "from here to there during the next step":
-  // the object stays at its start position in this frame, the arrow is drawn here, and the
-  // end position is written into the next frame (created when we are on the last one).
-  // History was already pushed at drag start by moveObject, so this stays one undo step.
-  function objectTrail(objectId: string, type: "run" | "pass", from: { x: number; y: number }) {
+  // Dragningen flyttar objektet i den aktiva bilden. Pilar sparas inte längre –
+  // de härleds ur föregående och aktuell bild vid rendering.
+  function objectTrail(objectId: string, _type: "run" | "pass", from: { x: number; y: number }) {
     const currentFrame = framesRef.current[current];
     const object = currentFrame?.objects.find((item) => item.id === objectId);
     if (!object) return;
-    const x1 = snapValue(from.x);
-    const y1 = snapValue(from.y);
-    const x2 = object.x;
-    const y2 = object.y;
-
-    // Startläget är uppställningen: här ska ingen sekvens skapas i bakgrunden.
-    if (current === 0) {
-      setFrames((prev) =>
-        prev.map((item, index) =>
-          index === 0
-            ? {
-                ...item,
-                objects: item.objects.map((o) => (o.id === objectId ? { ...o, x: x1, y: y1 } : o)),
-              }
-            : item,
-        ),
-      );
-      toast.info("Skapa första rörelsen innan du ritar en löpning eller passning.", {
-        action: { label: "Skapa första rörelsen", onClick: () => addFrame() },
-      });
-      return;
-    }
-
-    if (Math.hypot(x2 - x1, y2 - y1) < 0.02) return;
+    const moved = Math.hypot(object.x - from.x, object.y - from.y);
+    if (moved < 0.015) return;
     setMovementTip(false);
     setDirty(true);
-    // Vägen hör till den aktiva sekvensen och ersätter objektets tidigare väg där.
-    setFrames((prev) => applyTrail(prev, current, objectId, type, { x: x1, y: y1 }, { x: x2, y: y2 }));
+    if (current === 0) return;
     toast.success(`${object.label || "Objektet"} rör sig i ${frameLabel(current)}`, {
       action: { label: "Ångra", onClick: () => undoRef.current() },
     });
   }
+
 
   function addDrawing(drawing: Omit<Drawing, "id">) {
     commit((prev) =>
@@ -854,22 +852,20 @@ export function TacticEditor({ id }: { id: string }) {
     }
   }
 
+  /** Speglar hela taktiken: startläge och samtliga sekvenser. */
   function mirror() {
     commit((prev) =>
-      prev.map((item, index) =>
-        index === current
-          ? {
-              ...item,
-              objects: item.objects.map((object) => ({ ...object, x: 1 - object.x })),
-              drawings: item.drawings.map((drawing) => ({
-                ...drawing,
-                x1: 1 - drawing.x1,
-                x2: 1 - drawing.x2,
-              })),
-            }
-          : item,
-      ),
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.map((object) => ({ ...object, x: 1 - object.x })),
+        drawings: item.drawings.map((drawing) => ({
+          ...drawing,
+          x1: 1 - drawing.x1,
+          x2: 1 - drawing.x2,
+        })),
+      })),
     );
+    toast.success("Hela taktiken spegelvändes.");
   }
 
   function clearPitch() {
@@ -1297,8 +1293,8 @@ export function TacticEditor({ id }: { id: string }) {
                 <Grid3x3 className="size-4" />
                 Rutnät
               </label>
-              <Button variant="ghost" size="sm" aria-label="Spegelvänd planen" onClick={mirror}>
-                <FlipHorizontal2 className="size-4" /> Spegelvänd
+              <Button variant="ghost" size="sm" aria-label="Spegelvänd hela taktiken" onClick={mirror}>
+                <FlipHorizontal2 className="size-4" /> Spegelvänd allt
               </Button>
             </>
           )}
@@ -1323,14 +1319,14 @@ export function TacticEditor({ id }: { id: string }) {
           <span className="min-w-0 flex-1 truncate">
             {selectedObject.label || "Objekt"} markerad
           </span>
-          {selectedObject.kind === "player" && selectedObject.team === "home" && (
+          {selectedObject.kind === "player" && (
             <>
               <Button
                 size="sm"
                 variant={selectedObject.gk ? "default" : "secondary"}
                 onClick={() => toggleGoalkeeper(selectedObject.id, !selectedObject.gk)}
               >
-                <Shield className="size-4" /> Målvakt
+                <Shield className="size-4" /> {selectedObject.gk ? "Är målvakt" : "Gör till målvakt"}
               </Button>
               <Button
                 size="sm"
@@ -1341,7 +1337,7 @@ export function TacticEditor({ id }: { id: string }) {
                   })
                 }
               >
-                Byt lag
+                {selectedObject.team === "home" ? "Gör till motståndare" : "Gör till eget lag"}
               </Button>
             </>
           )}

@@ -171,3 +171,49 @@ export function normalizeTransitionPaths(frames: Frame[]): Frame[] {
 
   return changed ? result : frames;
 }
+
+/** Minsta förflyttning (0..1) som räknas som en rörelse och ger en pil. */
+export const MOVE_EPS = 0.015;
+
+/**
+ * Härleder rörelsepilar (löpvägar/passningar) ur två intilliggande bilder.
+ * Pilarna lagras aldrig – de räknas alltid om, så gamla pilar kan inte bli kvar.
+ */
+export function movementDrawings(frames: Frame[], index: number): Drawing[] {
+  const current = frames[index];
+  const previous = frames[index - 1];
+  if (!current || !previous) return [];
+  const prevById = new Map(previous.objects.map((object) => [object.id, object]));
+
+  return current.objects.flatMap((object) => {
+    const from = prevById.get(object.id);
+    if (!from) return [];
+    const dx = object.x - from.x;
+    const dy = object.y - from.y;
+    if (Math.hypot(dx, dy) < MOVE_EPS) return [];
+    return [
+      {
+        id: `move-${current.id}-${object.id}`,
+        type: object.kind === "ball" ? ("pass" as const) : ("run" as const),
+        objectId: object.id,
+        x1: from.x,
+        y1: from.y,
+        x2: object.x,
+        y2: object.y,
+      },
+    ];
+  });
+}
+
+/** Statiska markeringar (zoner/cirklar) – dessa sparas som vanligt. */
+export function staticDrawings(frame: Frame | undefined): Drawing[] {
+  return (frame?.drawings ?? []).filter((drawing) => !isPathDrawing(drawing));
+}
+
+/** Pilar och markeringar som ska visas vid en viss tidpunkt under uppspelning. */
+export function displayDrawingsAt(frames: Frame[], progress: number, animating: boolean, index: number): Drawing[] {
+  if (!animating) return [...staticDrawings(frames[index]), ...movementDrawings(frames, index)];
+  const segment = Math.min(Math.max(Math.floor(progress), 0), Math.max(frames.length - 2, 0));
+  const target = segment + 1;
+  return [...staticDrawings(frames[segment]), ...movementDrawings(frames, target)];
+}
