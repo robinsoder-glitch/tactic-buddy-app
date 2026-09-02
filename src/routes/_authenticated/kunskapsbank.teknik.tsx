@@ -184,21 +184,31 @@ function MoveContent({ move }: { move: SkillMove }) {
 
       <div>
         <h3 className="font-semibold">Videor</h3>
-        <ul className="mt-1 space-y-1">
-          {move.videos.map((video) => (
-            <li key={video.label}>
-              <a
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
-              >
-                {video.label} <ExternalLink className="size-3.5" aria-hidden />
-              </a>
-            </li>
-          ))}
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          {move.videos
+            .filter((video) => video.videoId)
+            .map((video) => (
+              <YouTubeEmbed key={video.label} videoId={video.videoId!} title={video.label} />
+            ))}
+        </div>
+        <ul className="mt-2 space-y-1">
+          {move.videos
+            .filter((video) => !video.videoId)
+            .map((video) => (
+              <li key={video.label}>
+                <a
+                  href={video.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
+                >
+                  {video.label} <ExternalLink className="size-3.5" aria-hidden />
+                </a>
+              </li>
+            ))}
         </ul>
       </div>
+
     </div>
   );
 }
