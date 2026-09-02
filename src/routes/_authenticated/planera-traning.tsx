@@ -157,7 +157,7 @@ function PlanTrainingPage() {
       return;
     }
     if (resources.isLoading || plan.isLoading) return;
-    setDraft({
+    const initial: TrainingDraft = {
       eventId,
       notes: plan.data?.notes ?? "",
       items: publishedRows.map((row) => ({
@@ -168,9 +168,14 @@ function PlanTrainingPage() {
         minutes: row.minutes,
         note: row.note,
       })),
-    });
+    };
+    setDraft(initial);
+    // Utkastet läggs direkt i sessionStorage så att redan sparade övningar finns
+    // kvar när användaren hämtar en ny övning i Träningsbanken.
+    storeDraft(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, resources.isLoading, plan.isLoading, publishedRows.length]);
+
 
   /** Alla ändringar går via utkastet och sparas i sessionStorage. */
   function update(next: TrainingDraft) {

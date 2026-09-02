@@ -113,3 +113,6 @@
 ## Instruktion 10 + rättning 2026-09-02
 - [x] Kunskapsbanken: flik "Vanliga misstag" med 10 punkter + källor
 - [x] Taktik: planen ska vara tom när man öppnar tavlan (inga förifyllda spelare)
+
+- [x] Träningsplanering: nya övningar från Träningsbanken raderade tidigare sparade övningar (utkastet saknade grundraderna).
+- [ ] Publicera appen så att tom taktiktavla-fixen når skarpa sajten.
