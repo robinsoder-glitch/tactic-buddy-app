@@ -178,6 +178,11 @@ export async function saveMatchPlan(input: {
     _notes: input.notes,
     _player_ids: input.playerIds,
     _coach_ids: input.coachIds,
+    _formation: "",
+    _slots: [],
+    _bench: [],
+    _tactic_id: null as unknown as string,
+    _required: 0,
   });
   if (error) throw new Error(error.message);
 }

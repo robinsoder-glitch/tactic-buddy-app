@@ -206,7 +206,7 @@ export async function saveMatchPlanFull(input: {
     _formation: input.formation,
     _slots: JSON.parse(JSON.stringify(input.slots)),
     _bench: input.bench,
-    _tactic_id: input.tacticId,
+    _tactic_id: input.tacticId as string,
     _required: input.required,
   });
   if (error) throw new Error(error.message);
@@ -240,7 +240,7 @@ export async function createMatchShare(input: {
   const { data: auth } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("match_shares")
-    .insert({ event_id: input.eventId, team_id: input.teamId, expires_at: input.expiresAt, created_by: auth.user?.id })
+    .insert({ event_id: input.eventId, team_id: input.teamId, expires_at: input.expiresAt, created_by: auth.user?.id ?? "" })
     .select("id, event_id, token, expires_at, revoked_at")
     .single();
   if (error) throw error;
