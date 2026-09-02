@@ -37,16 +37,17 @@ const TABS = [
   { to: "/team/$teamId/calendar", label: "Aktiviteter", icon: CalendarDays, exact: false },
   { to: "/team/$teamId", label: "Trupp", icon: Users, exact: true },
   { to: "/team/$teamId/narvaro", label: "Närvaro", icon: CalendarCheck, exact: false },
+  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3, exact: false },
   { to: "/team/$teamId/leaders", label: "Laginställningar", icon: ShieldCheck, exact: false },
 ] as const;
 
 const SUB_LINKS = [
   { to: "/team/$teamId/training", label: "Träning", icon: Dumbbell },
   { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy },
-  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3 },
   { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
   { to: "/team/$teamId/tranarsnack", label: "Tränarsnack", icon: MessagesSquare },
 ] as const;
+
 
 
 function TeamLayout() {
