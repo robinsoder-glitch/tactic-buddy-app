@@ -16,7 +16,7 @@ import { addPickToDraft, parsePickSearch } from "@/lib/training-pick";
 import { formatDateTime } from "@/lib/teams";
 
 type Props = {
-  kind: "drill" | "session";
+  kind: "drill" | "goalkeeper";
   resourceId: string;
   title: string;
   defaultMinutes?: number;
@@ -59,7 +59,7 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind, resourceId, title, minutes: defaultMinutes },
+      { kind: "drill", resourceId, title, minutes: defaultMinutes },
       { allowDuplicate },
     );
     if (!added) {
