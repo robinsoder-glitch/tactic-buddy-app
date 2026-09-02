@@ -43,23 +43,37 @@ function pentagonPath(cx: number, cy: number, r: number, rotation = 0) {
   return `M ${points.join(" L ")} Z`;
 }
 
-/** Classic black & white football */
+/** Klassisk svartvit fotboll med sömmar. */
 export function SoccerBall({ r, strokeWidth }: { r: number; strokeWidth: number }) {
   const outer = Array.from({ length: 5 }, (_, i) => {
-    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
-    return { x: r * 0.68 * Math.cos(angle), y: r * 0.68 * Math.sin(angle), a: angle };
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    return { x: r * 0.66 * Math.cos(angle), y: r * 0.66 * Math.sin(angle), a: angle };
   });
+  const seam = Math.max(strokeWidth * 0.9, r * 0.05);
   return (
     <g>
-      <circle r={r} fill="#ffffff" stroke="#141414" strokeWidth={strokeWidth} />
-      <path d={pentagonPath(0, 0, r * 0.38)} fill="#141414" />
+      <circle r={r} fill="#f7f7f5" stroke="#12181f" strokeWidth={strokeWidth * 1.4} />
+      {/* mjuk skuggning ger bollen volym */}
+      <circle r={r * 0.98} fill="url(#ballShade)" opacity={0.35} />
+      <path d={pentagonPath(0, 0, r * 0.34)} fill="#12181f" />
       {outer.map((point, index) => (
-        <path
-          key={index}
-          d={pentagonPath(point.x, point.y, r * 0.3, point.a + Math.PI / 2)}
-          fill="#141414"
-        />
+        <g key={index}>
+          <line
+            x1={point.x * 0.52}
+            y1={point.y * 0.52}
+            x2={point.x * 1.35}
+            y2={point.y * 1.35}
+            stroke="#12181f"
+            strokeWidth={seam}
+            strokeLinecap="round"
+          />
+          <path
+            d={pentagonPath(point.x * 1.28, point.y * 1.28, r * 0.3, point.a + Math.PI)}
+            fill="#12181f"
+          />
+        </g>
       ))}
+      <circle r={r} fill="none" stroke="#12181f" strokeWidth={strokeWidth * 1.4} />
     </g>
   );
 }
@@ -319,6 +333,11 @@ export function Pitch({
                 <circle cx={0} cy={0} r={tokenR} />
               </clipPath>
             ))}
+          <radialGradient id="ballShade" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="70%" stopColor="#8a949e" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#2b333c" stopOpacity="0.75" />
+          </radialGradient>
         </defs>
 
         <rect width={w} height={h} fill="var(--color-pitch)" />
@@ -376,7 +395,7 @@ export function Pitch({
 
         {passBalls.map((ball) => (
           <g key={`ball-${ball.id}`} transform={`translate(${ball.x} ${ball.y})`}>
-            <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
+            <SoccerBall r={tokenR * 0.66} strokeWidth={w * 0.0016} />
           </g>
         ))}
 
@@ -438,7 +457,7 @@ export function Pitch({
                 style={{ cursor: interactive ? "grab" : "default" }}
                 onPointerDown={(event) => startObjectDrag(event, object)}
               >
-                <SoccerBall r={tokenR * 0.62} strokeWidth={w * 0.0016} />
+                <SoccerBall r={tokenR * 0.66} strokeWidth={w * 0.0016} />
 
               </g>
             );

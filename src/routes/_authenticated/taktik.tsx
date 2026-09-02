@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TacticEditor } from "@/components/TacticEditor";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { createTactic, fetchTactics, openBlankTactic } from "@/lib/db";
+import { fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
@@ -36,24 +36,36 @@ function TacticPage() {
 
   const list = tactics.data ?? [];
 
-  // Tavlan startar alltid tom – ingen tidigare taktik öppnas automatiskt.
-  const blank = useQuery({
-    queryKey: ["blank-tactic", user?.id],
-    queryFn: () => openBlankTactic(user!.id),
-    enabled: !!user && !openId,
-    staleTime: Infinity,
-  });
+  // Tavlan startar alltid tom. Utkastet ligger kvar i bakgrunden men syns inte
+  // i "Mina taktiker" förrän användaren trycker Spara och ger den ett namn.
+  const [blankId, setBlankId] = useState<string | null>(null);
+  const [blankError, setBlankError] = useState(false);
 
-  const activeId = openId ?? blank.data ?? null;
+  useEffect(() => {
+    if (!user || blankId) return;
+    let cancelled = false;
+    openBlankTactic(user.id)
+      .then((id) => {
+        if (!cancelled) setBlankId(id);
+      })
+      .catch(() => {
+        if (!cancelled) setBlankError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, blankId]);
 
-  const create = useMutation({
-    mutationFn: () => createTactic(user!.id, "Min taktik", "full", null),
-    onSuccess: async (id) => {
-      await queryClient.invalidateQueries({ queryKey: ["tactics"] });
-      setOpenId(id);
-    },
-    onError: () => toast.error("Det gick inte att skapa en ny taktik."),
-  });
+  const activeId = openId ?? blankId;
+
+  /** Börja om med en ny, tom tavla. */
+  function startNewBoard() {
+    setOpenId(null);
+    setBlankId(null);
+    setBlankError(false);
+    void queryClient.invalidateQueries({ queryKey: ["tactics"] });
+    toast.success("Ny tom tavla.");
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-28 pt-6 md:pt-20">
@@ -71,14 +83,14 @@ function TacticPage() {
       </p>
 
       <section className="mt-4">
-        {(tactics.isLoading || blank.isLoading) && (
+        {!activeId && !blankError && (
           <p className="text-sm text-muted-foreground">Förbereder en tom tavla…</p>
         )}
-        {!blank.isLoading && !activeId && (
+        {blankError && !activeId && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <p className="text-sm text-muted-foreground">Tavlan kunde inte öppnas.</p>
-            <Button className="mt-3" disabled={!user || create.isPending} onClick={() => create.mutate()}>
-              Skapa en ny tom tavla
+            <Button className="mt-3" disabled={!user} onClick={startNewBoard}>
+              Försök igen
             </Button>
           </div>
         )}
@@ -88,8 +100,8 @@ function TacticPage() {
       <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-display text-2xl font-bold">Mina taktiker</h2>
-          <Button size="sm" variant="secondary" disabled={!user || create.isPending} onClick={() => create.mutate()}>
-            Ny taktik
+          <Button size="sm" variant="secondary" disabled={!user} onClick={startNewBoard}>
+            Ny tom tavla
           </Button>
         </div>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
