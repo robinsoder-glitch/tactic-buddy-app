@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LineupPitch, type LineupPlayerInfo } from "@/components/LineupPitch";
 import { fetchSharedMatch, type SharedMatch } from "@/lib/match-plan";
-import { brandName } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/delad-match/$token")({
   head: () => ({
     meta: [
-      { title: `Delad laguppställning – ${brandName}` },
+      { title: `Delad laguppställning – ${BRAND_NAME}` },
       { name: "description", content: "Skrivskyddad laguppställning delad från Fotbollsrummet." },
       { name: "robots", content: "noindex" },
     ],
@@ -83,7 +83,7 @@ function SharedMatchPage() {
                 Avbytare: {match.bench.map((p) => `${p.number != null ? `${p.number} ` : ""}${p.name}`).join(", ")}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">Delad via {brandName} – skrivskyddad visning.</p>
+            <p className="text-xs text-muted-foreground">Delad via {BRAND_NAME} – skrivskyddad visning.</p>
           </>
         )}
       </main>
