@@ -134,3 +134,9 @@ export function formationsForPitch(pitchType: PitchType): Formation[] {
 export function mirrorSlots(slots: FormationSlot[]): FormationSlot[] {
   return slots.map((slot) => ({ ...slot, x: 1 - slot.x }));
 }
+
+/** Planlayout som hör ihop med formationens spelarantal. 9-manna spelas på 11-mannaplan. */
+export function pitchForFormation(players: number): PitchType {
+  if (players >= 9) return "full";
+  return "small";
+}
