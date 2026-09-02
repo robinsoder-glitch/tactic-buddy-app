@@ -163,5 +163,11 @@
 - [x] Implementera INGET förrän nytt beslut
 
 ## Slutgranskning 2026-09-02 (nattlig instruktion)
-- [ ] Gå igenom hela sidan: alla sidor, knappar och flöden ska fungera
-- [ ] Inget kvar att göra i roadmapen
+- [x] Gå igenom hela sidan: alla 35 sidor laddade utan runtime-fel (endast känd hydration-varning)
+- [x] Periodplan live-testad: skapa period, progression sparas och finns kvar efter omladdning
+- [x] Genomför träning live-testad: start, paus, fortsätt, nästa, timer efter omladdning, avsluta + sammanfattning
+- [x] Fixat: periodplanen visar närmaste period även när ingen pågår just nu
+- [x] Fixat: sammanfattningen visas efter avslutad träning (tidigare dolde tomma läget dialogen)
+- [x] Testdata rensad efter genomgången
+- [x] Säkerhet: interna triggerfunktioner går inte längre att anropa; kvarvarande SECURITY DEFINER-funktioner är RLS-hjälpare och RPC:er med egna behörighetskontroller
+- [ ] Kvarstår otestat live: 5v5–11v11 fullskaligt, giltig delningslänk utloggad, RLS mellan två lag, påminnelse-debounce (enhetstestade)
