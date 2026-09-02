@@ -111,5 +111,5 @@
 - [x] Artikelsidan enligt ny ordning, borttagna redaktionella fält
 
 ## Instruktion 10 + rättning 2026-09-02
-- [ ] Kunskapsbanken: flik "Vanliga misstag" med 10 punkter + källor
-- [ ] Taktik: planen ska vara tom när man öppnar tavlan (inga förifyllda spelare)
+- [x] Kunskapsbanken: flik "Vanliga misstag" med 10 punkter + källor
+- [x] Taktik: planen ska vara tom när man öppnar tavlan (inga förifyllda spelare)
