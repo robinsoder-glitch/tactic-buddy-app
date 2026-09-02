@@ -25,7 +25,7 @@ export function buildIcs(events: TeamEvent[], teamName: string) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Taktiktavlan//SV",
+    "PRODID:-//Fotbollsrummet//SV",
     "CALSCALE:GREGORIAN",
     `X-WR-CALNAME:${escape(teamName)}`,
   ];
