@@ -47,7 +47,7 @@ import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
 import { displayDrawingsAt, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
-import { appendSequence, applyTrail, insertSequenceAfter } from "@/lib/sequences";
+import { appendSequence, insertSequenceAfter } from "@/lib/sequences";
 import {
   entry as historyEntry,
   loadHistory,
