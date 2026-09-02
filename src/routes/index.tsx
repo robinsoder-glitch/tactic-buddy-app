@@ -378,6 +378,13 @@ function TacticsDashboard({ userId }: { userId: string }) {
           title="Kalender"
           text="Träningar, matcher och kallelser"
         />
+        <QuickCard
+          to="/tranarsnack"
+          icon={<MessagesSquare className="size-5" />}
+          title="Tränarsnack"
+          text="Chatt med lagets övriga ledare"
+          badge={unreadChat}
+        />
       </section>
 
 
