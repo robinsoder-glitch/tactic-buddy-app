@@ -441,7 +441,7 @@ function MatchPlanner({
 
           <section className="rounded-xl border bg-card p-4">
             <h2 className="mb-2 font-medium">Spelarnas svar</h2>
-            <p className="text-sm text-muted-foreground">{summaryText(counts)}</p>
+            <p className="text-sm text-muted-foreground">{summaryText(displayCounts)}</p>
             <ul className="mt-2 space-y-1 text-sm">
               {sortedPlayers.filter((p) => playerIds.includes(p.id)).map((p) => (
                 <li key={p.id} className="flex items-center justify-between">
