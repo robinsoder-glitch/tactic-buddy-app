@@ -42,6 +42,7 @@ function TacticPage() {
   const [blankError, setBlankError] = useState(false);
 
   useEffect(() => {
+    console.log("[blank-effect]", { user: !!user, blankId });
     if (!user || blankId) return;
     let cancelled = false;
     openBlankTactic(user.id)
