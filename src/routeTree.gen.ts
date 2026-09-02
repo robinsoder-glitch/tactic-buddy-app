@@ -23,6 +23,7 @@ import { Route as AuthenticatedPlaneraTraningRouteImport } from './routes/_authe
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
 import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated/taktik'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
+import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenticated/tranarsnack'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
@@ -126,6 +127,12 @@ const AuthenticatedTeamsRoute = AuthenticatedTeamsRouteImport.update({
   path: '/teams',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTranarsnackRoute =
+  AuthenticatedTranarsnackRouteImport.update({
+    id: '/tranarsnack',
+    path: '/tranarsnack',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const TShareIdRoute = TShareIdRouteImport.update({
   id: '/t/$shareId',
   path: '/t/$shareId',
@@ -312,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/skapa': typeof AuthenticatedSkapaRoute
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
+  '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/skapa': typeof AuthenticatedSkapaRoute
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
+  '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/t/$shareId': typeof TShareIdRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -399,6 +408,7 @@ export interface FileRoutesById {
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
   '/_authenticated/taktik': typeof AuthenticatedTaktikRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
+  '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/skapa'
     | '/taktik'
     | '/teams'
+    | '/tranarsnack'
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -488,6 +499,7 @@ export interface FileRouteTypes {
     | '/skapa'
     | '/taktik'
     | '/teams'
+    | '/tranarsnack'
     | '/t/$shareId'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -531,6 +543,7 @@ export interface FileRouteTypes {
     | '/_authenticated/skapa'
     | '/_authenticated/taktik'
     | '/_authenticated/teams'
+    | '/_authenticated/tranarsnack'
     | '/t/$shareId'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof AuthenticatedTeamsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tranarsnack': {
+      id: '/_authenticated/tranarsnack'
+      path: '/tranarsnack'
+      fullPath: '/tranarsnack'
+      preLoaderRoute: typeof AuthenticatedTranarsnackRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/t/$shareId': {
@@ -959,6 +979,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
   AuthenticatedTaktikRoute: typeof AuthenticatedTaktikRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
+  AuthenticatedTranarsnackRoute: typeof AuthenticatedTranarsnackRoute
   AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
   AuthenticatedOvningsbankDrillIdRoute: typeof AuthenticatedOvningsbankDrillIdRoute
@@ -985,6 +1006,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
   AuthenticatedTaktikRoute: AuthenticatedTaktikRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
+  AuthenticatedTranarsnackRoute: AuthenticatedTranarsnackRoute,
   AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
   AuthenticatedOvningsbankDrillIdRoute: AuthenticatedOvningsbankDrillIdRoute,
