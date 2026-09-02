@@ -7,12 +7,14 @@ import {
   Dumbbell,
   GraduationCap,
   Menu,
+  MessagesSquare,
   Settings,
   Shield,
   Trophy,
 } from "lucide-react";
 import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
+import { useUnreadChat } from "@/hooks/useUnreadChat";
 
 /** Sidor där huvudmenyn ska vara dold. */
 const HIDDEN_PREFIXES = ["/auth", "/t/", "/onboarding"];
