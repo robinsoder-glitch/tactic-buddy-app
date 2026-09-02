@@ -1,36 +1,26 @@
-import { BRAND_LOGO_ALT, BRAND_NAME } from "@/lib/brand";
+import { BRAND_LOGO_ALT } from "@/lib/brand";
+import logoAsset from "@/assets/fotbollsrummet-logo.png.asset.json";
+import markAsset from "@/assets/fotbollsrummet-mark.png.asset.json";
 
 type Props = {
-  /** Logotypens storlek i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
+  /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
   size?: number;
-  /** Visa namnet bredvid loggan. */
+  /** Visa hela loggan med namnet. Annars bara märket. */
   showName?: boolean;
-  /** Storleksklass för namnet. */
+  /** Behålls för bakåtkompatibilitet – namnet ingår i bilden. */
   nameClassName?: string;
   className?: string;
 };
 
-/**
- * Varumärke: tillfällig platshållare (FR) plus namnet Fotbollsrummet.
- * Byt bilden här när den riktiga loggan är klar – inga andra filer behöver ändras.
- */
-export function BrandLogo({ size = 40, showName = true, nameClassName, className }: Props) {
+/** Varumärket Fotbollsrummet – hela loggan eller enbart hexagonmärket. */
+export function BrandLogo({ size = 40, showName = true, className }: Props) {
+  const src = showName ? logoAsset.url : markAsset.url;
   return (
-    <span className={`inline-flex items-center gap-3 ${className ?? ""}`}>
-      <span
-        role="img"
-        aria-label={BRAND_LOGO_ALT}
-        title="Tillfällig platshållare – logga kommer"
-        style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}
-        className="inline-flex shrink-0 items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary/10 font-display font-bold tracking-wide text-primary"
-      >
-        FR
-      </span>
-      {showName && (
-        <span className={nameClassName ?? "font-display text-base font-bold text-foreground"}>
-          {BRAND_NAME}
-        </span>
-      )}
-    </span>
+    <img
+      src={src}
+      alt={BRAND_LOGO_ALT}
+      style={{ height: size, width: showName ? undefined : size }}
+      className={`shrink-0 object-contain ${showName ? "w-auto dark:rounded-md dark:bg-white dark:px-2 dark:py-1" : ""} ${className ?? ""}`}
+    />
   );
 }
