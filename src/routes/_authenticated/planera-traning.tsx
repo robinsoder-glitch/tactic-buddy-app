@@ -93,6 +93,17 @@ function PlanTrainingPage() {
     return planningStatus(id, plans.data ?? [], resources.data ?? []);
   }
 
+  /** Grön = klar, orange = påbörjad, röd = oplanerad. */
+  function statusBadge(id: string) {
+    const status = statusFor(id);
+    if (status === "done")
+      return { text: "Klar", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300", dot: "bg-emerald-500" };
+    if (status === "started")
+      return { text: "Påbörjad", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300", dot: "bg-amber-500" };
+    return { text: "Oplanerad", cls: "bg-destructive/15 text-destructive", dot: "bg-destructive" };
+  }
+
+
   const coaches = useQuery({
     queryKey: ["event-coaches", trainings.map((item) => item.id).join(",")],
     queryFn: () => fetchEventCoaches(trainings.map((item) => item.id)),
