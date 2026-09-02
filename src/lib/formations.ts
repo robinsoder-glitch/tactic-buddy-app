@@ -16,6 +16,17 @@ export type Formation = {
  */
 export const FORMATIONS: Formation[] = [
   {
+    id: "3v3-1-2",
+    label: "3 mot 3 – 1-2",
+    players: 3,
+    slots: [
+      { x: 0.22, y: 0.5 },
+      { x: 0.6, y: 0.27 },
+      { x: 0.6, y: 0.73 },
+    ],
+  },
+  {
+
     id: "5v5-1-2-1",
     label: "5 mot 5 – 1-2-1",
     players: 5,
@@ -134,6 +145,60 @@ export function formationsForPitch(pitchType: PitchType): Formation[] {
 export function mirrorSlots(slots: FormationSlot[]): FormationSlot[] {
   return slots.map((slot) => ({ ...slot, x: 1 - slot.x }));
 }
+
+/** Etikett för en uppställningsplats utan verklig spelare. */
+export const EMPTY_SLOT_LABEL = "Tom plats";
+
+export type LineupPlayer = {
+  id: string;
+  name: string;
+  number?: number | null;
+  gk?: boolean;
+  photoUrl?: string | null;
+};
+
+export type LineupEntry = {
+  playerId: string | null;
+  label: string;
+  number: number | null;
+  gk: boolean;
+  photoUrl: string | null;
+  x: number;
+  y: number;
+};
+
+/**
+ * Kopplar truppens spelare till formationens platser.
+ * Varje verklig spelare används högst en gång; platser utan spelare blir "Tom plats".
+ */
+export function buildLineup(slots: FormationSlot[], bank: LineupPlayer[]): LineupEntry[] {
+  const keeper = bank.find((item) => item.gk) ?? null;
+  const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
+  let keeperUsed = false;
+  let index = 0;
+
+  return slots.map((slot) => {
+    let player: LineupPlayer | null = null;
+    if (slot.gk) {
+      if (keeper && !keeperUsed) {
+        player = keeper;
+        keeperUsed = true;
+      }
+    } else {
+      player = outfield[index++] ?? null;
+    }
+    return {
+      playerId: player?.id ?? null,
+      label: player?.name ?? EMPTY_SLOT_LABEL,
+      number: player?.number ?? null,
+      gk: Boolean(slot.gk),
+      photoUrl: player?.photoUrl ?? null,
+      x: Math.min(0.97, Math.max(0.03, slot.x)),
+      y: Math.min(0.97, Math.max(0.03, slot.y)),
+    };
+  });
+}
+
 
 /** Planlayout som hör ihop med formationens spelarantal. 9-manna spelas på 11-mannaplan. */
 export function pitchForFormation(players: number): PitchType {

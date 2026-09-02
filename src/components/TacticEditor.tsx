@@ -56,7 +56,7 @@ import {
 } from "@/lib/tactic-history";
 import type { Drawing, FieldObject, Frame, PitchType } from "@/lib/tactics";
 import { PITCH_SIZES } from "@/lib/tactics";
-import { formationsForPitch, pitchForFormation, type Formation } from "@/lib/formations";
+import { buildLineup, formationsForPitch, pitchForFormation, type Formation } from "@/lib/formations";
 import { TacticThumb } from "@/components/TacticThumb";
 import { Pitch, SoccerBall, type Tool } from "@/components/Pitch";
 import { useConfirm } from "@/components/ConfirmDelete";
@@ -457,25 +457,19 @@ export function TacticEditor({ id }: { id: string }) {
       if (!ok) return;
     }
 
-    const keeper = bank.find((item) => item.gk) ?? null;
-    const outfield = bank.filter((item) => item.id !== keeper?.id && !item.gk);
-    let outfieldIndex = 0;
+    const lineup: FieldObject[] = buildLineup(formation.slots, bank).map((entry) => ({
+      id: uid(),
+      kind: "player",
+      playerId: entry.playerId,
+      label: entry.label,
+      number: entry.number,
+      team: "home",
+      gk: entry.gk,
+      photoUrl: entry.photoUrl,
+      x: entry.x,
+      y: entry.y,
+    }));
 
-    const lineup: FieldObject[] = formation.slots.map((slot) => {
-      const player = slot.gk ? keeper : (outfield[outfieldIndex++] ?? null);
-      return {
-        id: uid(),
-        kind: "player",
-        playerId: player?.id ?? null,
-        label: player?.name ?? "",
-        number: player?.number ?? null,
-        team: "home",
-        gk: Boolean(slot.gk),
-        photoUrl: player?.photoUrl ?? null,
-        x: slot.x,
-        y: slot.y,
-      };
-    });
 
     // Bollen läggs strax framför den främsta spelaren – aldrig exakt under en spelare.
     const front = lineup.reduce((best, item) => (item.x > best.x ? item : best), lineup[0]!);
@@ -507,11 +501,17 @@ export function TacticEditor({ id }: { id: string }) {
 
   function removeObject(objectId: string) {
     commit((prev) =>
-      prev.map((item) => ({ ...item, objects: item.objects.filter((o) => o.id !== objectId) })),
+      prev.map((item) => ({
+        ...item,
+        objects: item.objects.filter((o) => o.id !== objectId),
+        // Vägar/markeringar som hör till objektet försvinner samtidigt.
+        drawings: item.drawings.filter((d) => d.objectId !== objectId),
+      })),
       "Tog bort objekt",
     );
     setSelectedId(null);
   }
+
 
   function updateObject(objectId: string, patch: Partial<FieldObject>) {
     commit((prev) =>
