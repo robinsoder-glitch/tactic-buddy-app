@@ -193,6 +193,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { memberships, profile, isAdmin, isCoach } = useAccount();
+  const unreadChat = useUnreadChat();
   const fileInput = useRef<HTMLInputElement | null>(null);
 
   const [query, setQuery] = useState("");
