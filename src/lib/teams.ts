@@ -360,7 +360,10 @@ export async function removeMember(id: string) {
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
-    .select("id, name, number, birth_date, gender, photo_path, is_goalkeeper")
+    .select(
+      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
+    )
+
     .eq("team_id", teamId)
     .order("name");
   if (error) throw error;
