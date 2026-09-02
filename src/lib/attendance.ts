@@ -2,23 +2,52 @@ import { supabase } from "@/integrations/supabase/client";
 import type { TeamEvent, TeamPlayer } from "./teams";
 
 /** Möjliga närvarostatusar för en spelare vid en händelse. */
-export const ATTENDANCE_STATUSES = ["present", "late", "sick", "absent"] as const;
+export const ATTENDANCE_STATUSES = ["present", "partial", "absent"] as const;
 
 export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
 
 export const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = {
   present: "Närvarande",
-  late: "Sen ankomst",
-  sick: "Sjuk eller skadad",
+  partial: "Del av aktiviteten",
   absent: "Frånvarande",
 };
 
 export const ATTENDANCE_SHORT: Record<AttendanceStatus, string> = {
   present: "Här",
-  late: "Sen",
-  sick: "Sjuk",
+  partial: "Del",
   absent: "Borta",
 };
+
+/** Snabbval för speltid, angivet som andel av matchens längd. */
+export const PLAYING_TIME_PRESETS = [
+  { id: "full", label: "Hela matchen", share: 1 },
+  { id: "three_quarters", label: "Ungefär 3/4", share: 0.75 },
+  { id: "half", label: "Ungefär halva matchen", share: 0.5 },
+  { id: "quarter", label: "Ungefär 1/4", share: 0.25 },
+] as const;
+
+/** Räknar om ett snabbval till minuter utifrån matchens längd. */
+export function minutesFromShare(share: number, durationMinutes: number | null): number | null {
+  if (!durationMinutes || durationMinutes <= 0) return null;
+  return Math.round(durationMinutes * share);
+}
+
+/** Andel av matchen i procent, avrundat till heltal. */
+export function playingTimeShare(minutes: number | null, durationMinutes: number | null): number | null {
+  if (minutes === null || !durationMinutes || durationMinutes <= 0) return null;
+  return Math.round((minutes / durationMinutes) * 100);
+}
+
+/** Validerar speltid mot matchens längd. Returnerar svenskt felmeddelande eller null. */
+export function validateMinutes(minutes: number | null, durationMinutes: number | null): string | null {
+  if (minutes === null) return null;
+  if (!Number.isFinite(minutes) || !Number.isInteger(minutes)) return "Ange speltiden i hela minuter.";
+  if (minutes < 0) return "Speltiden kan inte vara negativ.";
+  if (durationMinutes && minutes > durationMinutes) {
+    return `Speltiden kan inte vara längre än matchens ${durationMinutes} minuter.`;
+  }
+  return null;
+}
 
 export type AttendanceRow = {
   id: string;
@@ -27,9 +56,10 @@ export type AttendanceRow = {
   player_id: string;
   status: AttendanceStatus;
   note: string | null;
+  minutes_played: number | null;
 };
 
-const COLUMNS = "id, event_id, team_id, player_id, status, note";
+const COLUMNS = "id, event_id, team_id, player_id, status, note, minutes_played";
 
 export async function fetchTeamAttendance(teamId: string): Promise<AttendanceRow[]> {
   const { data, error } = await supabase.from("event_attendance").select(COLUMNS).eq("team_id", teamId);
@@ -51,6 +81,7 @@ export async function setAttendance(input: {
   userId: string;
   status: AttendanceStatus;
   note?: string | null;
+  minutesPlayed?: number | null;
 }) {
   const { error } = await supabase.from("event_attendance").upsert(
     {
@@ -58,8 +89,11 @@ export async function setAttendance(input: {
       team_id: input.teamId,
       player_id: input.playerId,
       created_by: input.userId,
+      registered_by: input.userId,
+      updated_by: input.userId,
       status: input.status,
       note: input.note ?? null,
+      minutes_played: input.minutesPlayed ?? null,
     },
     { onConflict: "event_id,player_id" },
   );
@@ -91,6 +125,8 @@ export async function setAttendanceForAll(input: {
       team_id: input.teamId,
       player_id: playerId,
       created_by: input.userId,
+      registered_by: input.userId,
+      updated_by: input.userId,
       status: input.status,
     })),
     { onConflict: "event_id,player_id" },
@@ -107,14 +143,14 @@ export type PlayerAttendanceSummary = {
   trainingsTotal: number;
   matches: number;
   matchesTotal: number;
-  late: number;
-  sick: number;
+  partial: number;
   absent: number;
+  minutesPlayed: number;
 };
 
-/** Räknas spelaren som deltagande? Sen ankomst räknas som deltagande. */
+/** Räknas spelaren som deltagande? Del av aktiviteten räknas som deltagande. */
 export function counts(status: AttendanceStatus): boolean {
-  return status === "present" || status === "late";
+  return status === "present" || status === "partial";
 }
 
 /** Händelser som redan har startat – bara de ingår i statistiken. */
@@ -140,17 +176,17 @@ export function summarize(
       trainingsTotal,
       matches: 0,
       matchesTotal,
-      late: 0,
-      sick: 0,
+      partial: 0,
       absent: 0,
+      minutesPlayed: 0,
     };
     for (const row of rows) {
       if (row.player_id !== player.id) continue;
       const type = byEvent.get(row.event_id);
       if (!type) continue;
-      if (row.status === "late") summary.late += 1;
-      if (row.status === "sick") summary.sick += 1;
+      if (row.status === "partial") summary.partial += 1;
       if (row.status === "absent") summary.absent += 1;
+      summary.minutesPlayed += row.minutes_played ?? 0;
       if (!counts(row.status)) continue;
       if (type === "training") summary.trainings += 1;
       else summary.matches += 1;
@@ -180,9 +216,9 @@ export function attendanceCsv(summaries: PlayerAttendanceSummary[]): string {
     "Matcher",
     "Matcher totalt",
     "Matchnärvaro %",
-    "Sen ankomst",
-    "Sjuk eller skadad",
+    "Del av aktiviteten",
     "Frånvarande",
+    "Spelade minuter",
   ].join(";");
   const lines = summaries.map((row) =>
     [
@@ -193,9 +229,9 @@ export function attendanceCsv(summaries: PlayerAttendanceSummary[]): string {
       row.matches,
       row.matchesTotal,
       percent(row.matches, row.matchesTotal),
-      row.late,
-      row.sick,
+      row.partial,
       row.absent,
+      row.minutesPlayed,
     ].join(";"),
   );
   return [header, ...lines].join("\n");
