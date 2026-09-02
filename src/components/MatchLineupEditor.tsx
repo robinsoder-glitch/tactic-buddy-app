@@ -129,7 +129,13 @@ export function MatchLineupEditor({
             <button
               key={id}
               type="button"
-              onClick={() => setSelected(selected === id ? null : id)}
+              onClick={() => {
+                if (suppressClickRef.current) {
+                  suppressClickRef.current = false;
+                  return;
+                }
+                setSelected(selected === id ? null : id);
+              }}
               onPointerDown={(e) => startDrag(e, id)}
               className={cn(
                 "touch-none rounded-full border px-3 py-2 text-sm font-medium transition-colors",
