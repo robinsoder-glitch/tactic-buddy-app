@@ -104,6 +104,7 @@ export function Pitch({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragId = useRef<string | null>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const dragKind = useRef<FieldObject["kind"] | null>(null);
   const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
   // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
@@ -160,21 +161,24 @@ export function Pitch({
       setPending(null);
     }
     if (dragId.current) {
-      if (dragStart.current && (tool === "run" || tool === "pass")) {
-        onObjectTrail?.(dragId.current, tool, dragStart.current);
+      // Att dra ett objekt är i sig rörelsen: bollen ger passning, spelare ger löpning.
+      if (dragStart.current && dragKind.current) {
+        onObjectTrail?.(
+          dragId.current,
+          dragKind.current === "ball" ? "pass" : "run",
+          dragStart.current,
+        );
       }
       onMoveEnd?.();
     }
     dragId.current = null;
     dragStart.current = null;
+    dragKind.current = null;
   }
 
-  /** run-tool drags players, pass-tool drags the ball, select drags everything */
-  function canDragObject(object: FieldObject) {
-    if (tool === "select") return true;
-    if (tool === "run") return object.kind === "player";
-    if (tool === "pass") return object.kind === "ball";
-    return false;
+  /** Alla objekt går att dra direkt – inga verktyg behövs. */
+  function canDragObject(_object: FieldObject) {
+    return !isShapeTool;
   }
 
   function startObjectDrag(event: React.PointerEvent, object: FieldObject) {
@@ -183,6 +187,7 @@ export function Pitch({
     svgRef.current?.setPointerCapture?.(event.pointerId);
     dragId.current = object.id;
     dragStart.current = { x: object.x, y: object.y };
+    dragKind.current = object.kind;
     onSelectObject?.(object.id);
   }
 

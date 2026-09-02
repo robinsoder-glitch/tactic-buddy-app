@@ -12,7 +12,7 @@ import {
   Eye,
   EyeOff,
   FlipHorizontal2,
-  MoveRight,
+  
   Pause,
   Play,
   Plus,
@@ -1090,18 +1090,12 @@ export function TacticEditor({ id }: { id: string }) {
 
 
       <div className="flex flex-wrap items-center gap-2">
-        <ToolButton active={tool === "select"} onClick={() => setTool("select")} label="Flytta">
-          <MoveRight className="size-4" />
-          <span className="text-xs font-semibold">Flytta</span>
-        </ToolButton>
-        <ToolButton active={tool === "run"} onClick={() => setTool("run")} label="Löpning">
-          <span className="text-xs font-semibold">Löpning</span>
-        </ToolButton>
-        <ToolButton active={tool === "pass"} onClick={() => setTool("pass")} label="Passning">
-          <span className="text-xs font-semibold">Passning</span>
-        </ToolButton>
         {advanced && (
-          <ToolButton active={tool === "zone"} onClick={() => setTool("zone")} label="Zon">
+          <ToolButton
+            active={tool === "zone"}
+            onClick={() => setTool(tool === "zone" ? "select" : "zone")}
+            label="Zon"
+          >
             <Square className="size-4" />
             <span className="text-xs font-semibold">Zon</span>
           </ToolButton>
