@@ -781,7 +781,7 @@ function ShareDialog({
 function NewMatchCreator() {
   const { user, memberships, loading } = useAccount();
   const coachTeams = memberships.filter(
-    (m) => m.status === "approved" && (m.role === "coach" || m.role === "head_coach" || m.role === "club_admin"),
+    (m) => m.status === "approved" && ["coach", "head_coach", "club_admin"].includes(m.role as string),
   );
   const [teamId, setTeamId] = useState("");
   const activeTeam = teamId || coachTeams[0]?.team_id || "";
