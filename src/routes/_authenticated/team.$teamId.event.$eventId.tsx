@@ -269,7 +269,16 @@ function EventPage() {
             coachCount: (planCoaches.data ?? []).length,
           })} />
         </div>
-        <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
+        {event.data?.type === "match" ? (
+          <>
+            <p className="mt-3 text-sm font-semibold">Övrigt</p>
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {plan.data?.notes?.trim() ? plan.data.notes : "Ingen anteckning."}
+            </p>
+          </>
+        ) : (
+          <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
+        )}
         <Button variant="outline" size="sm" className="mt-3" asChild>
           {event.data?.type === "match" ? (
             <Link to="/planera-match" search={{ eventId }}>
