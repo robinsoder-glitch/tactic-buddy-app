@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
   CalendarDays,
+  ClipboardList,
   CopyPlus,
+  GraduationCap,
+  Trophy,
+
   Download,
   Link2,
   LogOut,
@@ -298,10 +302,9 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <div className="min-w-0">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Taktiktavlan</p>
           <h1 className="truncate font-display text-4xl font-bold">
-            {profile?.display_name?.trim()
-              ? `Hej ${profile.display_name.trim().split(" ")[0]}`
-              : "Hej!"}
+            {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
+
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date().toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
           </p>
@@ -347,23 +350,36 @@ function TacticsDashboard({ userId }: { userId: string }) {
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
         <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom taktik eller färdig mall" primary />
         <QuickCard
-          to="/traningspass"
-          icon={<Plus className="size-5" />}
-          title="Skapa träningspass"
-          text="Bygg ett pass med övningar från banken"
+          to="/planera-traning"
+          icon={<ClipboardList className="size-5" />}
+          title="Planera träning"
+          text="Boka träningstillfälle och fyll det med innehåll"
         />
         <QuickCard
-          to="/ovningsbank"
-          icon={<BookOpen className="size-5" />}
-          title="Träningsbank"
-          text="Färdiga övningar med organisation och coachpunkter"
+          to="/planera-match"
+          icon={<Trophy className="size-5" />}
+          title="Planera match"
+          text="Matchupplägg, trupp och taktik"
         />
         {isCoach ? (
           <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mitt lag" text="Trupp, kalender och närvaro" />
         ) : (
           <QuickCard to="/bank" icon={<Users className="size-5" />} title="Spelarbank" text="Namn, nummer och bilder" />
         )}
+        <QuickCard
+          to="/kunskapsbank"
+          icon={<GraduationCap className="size-5" />}
+          title="Kunskap"
+          text="Artiklar och tips för barn- och ungdomstränare"
+        />
+        <QuickCard
+          to="/kalender"
+          icon={<CalendarDays className="size-5" />}
+          title="Kalender"
+          text="Träningar, matcher och kallelser"
+        />
       </section>
+
 
       {activeTeam && (
         <Link

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, ClipboardList, MapPin, Plus, Search, Trash2 } from "lucide-react";
+import { CalendarPlus, CheckCircle2, ClipboardList, MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
 import { Button } from "@/components/ui/button";
@@ -93,6 +93,17 @@ function PlanTrainingPage() {
     return planningStatus(id, plans.data ?? [], resources.data ?? []);
   }
 
+  /** Grön = klar, orange = påbörjad, röd = oplanerad. */
+  function statusBadge(id: string) {
+    const status = statusFor(id);
+    if (status === "done")
+      return { text: "Klar", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300", dot: "bg-emerald-500" };
+    if (status === "started")
+      return { text: "Påbörjad", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300", dot: "bg-amber-500" };
+    return { text: "Oplanerad", cls: "bg-destructive/15 text-destructive", dot: "bg-destructive" };
+  }
+
+
   const coaches = useQuery({
     queryKey: ["event-coaches", trainings.map((item) => item.id).join(",")],
     queryFn: () => fetchEventCoaches(trainings.map((item) => item.id)),
@@ -147,6 +158,28 @@ function PlanTrainingPage() {
     },
     onError: () => toast.error("Det gick inte att spara träningsplaneringen."),
   });
+
+  /** Markerar planeringen som klar (grön) eller öppnar den igen. */
+  const finishPlan = useMutation({
+    mutationFn: async (done: boolean) => {
+      if (!user || !selected) throw new Error("Välj en träning först.");
+      await saveEventPlan({
+        eventId: selected.id,
+        teamId: selected.team_id,
+        userId: user.id,
+        notes: notes || plan.data?.notes || null,
+        planningDone: done,
+      });
+    },
+    onSuccess: (_data, done) => {
+      queryClient.invalidateQueries({ queryKey: ["event-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["event-plans"] });
+      toast.success(done ? "Planeringen är klar." : "Planeringen är öppen igen.");
+    },
+    onError: () => toast.error("Det gick inte att spara statusen."),
+  });
+
+
 
   const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills });
 
@@ -228,19 +261,15 @@ function PlanTrainingPage() {
           )}
           <ul className="mt-3 space-y-2">
             {trainings.map((event) => {
-              const status = statusFor(event.id);
               const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
-              const badge =
-                status === "done"
-                  ? { text: "Planerad", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" }
-                  : status === "started"
-                    ? { text: "Påbörjad", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" }
-                    : { text: "Oplanerad", cls: "bg-destructive/15 text-destructive" };
+              const badge = statusBadge(event.id);
               return (
                 <li
                   key={event.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
                 >
+                  <span className={`h-10 w-1.5 shrink-0 rounded-full ${badge.dot}`} aria-hidden />
+
                   <button
                     type="button"
                     onClick={() => openPlanning(event.id)}
@@ -357,30 +386,38 @@ function PlanTrainingPage() {
               {trainings.map((event) => {
                 const count = (resources.data ?? []).filter((row) => row.event_id === event.id).length;
                 const active = event.id === eventId;
+                const badge = statusBadge(event.id);
                 return (
                   <li key={event.id}>
                     <button
                       type="button"
                       aria-pressed={active}
                       onClick={() => setEventId(event.id)}
-                      className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                      className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
                         active ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
                       }`}
                     >
-                      <p className="font-semibold">{event.title ?? "Träning"}</p>
-                      <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {event.team_name ?? "Lag"}
-                        {event.location ? ` · ${event.location}` : ""}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {plannedLabel(count)} ·{" "}
-                        {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
-                      </p>
+                      <span className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${badge.dot}`} aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold">{event.title ?? "Träning"}</span>
+                        <span className="block text-sm text-primary">{formatDateTime(event.starts_at)}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {event.team_name ?? "Lag"}
+                          {event.location ? ` · ${event.location}` : ""}
+                        </span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {plannedLabel(count)} ·{" "}
+                          {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
+                        </span>
+                      </span>
+                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}>
+                        {badge.text}
+                      </span>
                     </button>
                   </li>
                 );
               })}
+
             </ul>
           </div>
 
@@ -578,12 +615,33 @@ function PlanTrainingPage() {
                     />
                   </div>
 
-                  <Button className="mt-3" onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
-                    Spara träningsplaneringen
-                  </Button>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="secondary" onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
+                      Spara utkast
+                    </Button>
+                    {plan.data?.planning_done ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => finishPlan.mutate(false)}
+                        disabled={finishPlan.isPending}
+                      >
+                        Öppna planeringen igen
+                      </Button>
+                    ) : (
+                      <Button onClick={() => finishPlan.mutate(true)} disabled={finishPlan.isPending}>
+                        <CheckCircle2 className="size-4" /> Slutför planering
+                      </Button>
+                    )}
+                  </div>
+                  {plan.data?.planning_done && (
+                    <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                      <CheckCircle2 className="size-3.5" aria-hidden /> Planeringen är klar
+                    </p>
+                  )}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Planeringen syns på aktiviteten i lagets kalender under ”Planerat träningsinnehåll”.
+                    När du slutför planeringen blir träningen grön i listan över alla träningstillfällen.
                   </p>
+
                 </div>
               </div>
             </>
