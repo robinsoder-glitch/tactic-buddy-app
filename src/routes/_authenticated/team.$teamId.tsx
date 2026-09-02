@@ -44,6 +44,7 @@ const SUB_LINKS = [
   { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy },
   { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3 },
   { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
+  { to: "/team/$teamId/tranarsnack", label: "Tränarsnack", icon: MessagesSquare },
 ] as const;
 
 
