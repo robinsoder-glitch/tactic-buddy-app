@@ -8,6 +8,7 @@ import {
   Dumbbell,
   Images,
   Info,
+  MessagesSquare,
   Shield,
   ShieldCheck,
   Trophy,
