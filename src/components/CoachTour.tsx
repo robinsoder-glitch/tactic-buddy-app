@@ -14,7 +14,7 @@ function readRect(target?: string): Rect | null {
   if (!target || typeof document === "undefined") return null;
   const element = document.querySelector<HTMLElement>(`[data-tour="${target}"]`);
   if (!element) return null;
-  element.scrollIntoView({ block: "center", behavior: "smooth" });
+  element.scrollIntoView({ block: "center", behavior: "auto" });
   const box = element.getBoundingClientRect();
   if (box.width === 0 && box.height === 0) return null;
   return { top: box.top, left: box.left, width: box.width, height: box.height };
