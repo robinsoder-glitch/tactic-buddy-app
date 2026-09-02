@@ -1040,6 +1040,131 @@ export type Database = {
           },
         ]
       }
+      period_links: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          label: string | null
+          period_id: string
+          resource_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          label?: string | null
+          period_id: string
+          resource_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          period_id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "period_links_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "team_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      period_progression: {
+        Row: {
+          id: string
+          notes: string | null
+          period_id: string
+          step: number
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          period_id: string
+          step: number
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          period_id?: string
+          step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "period_progression_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "team_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_focus_areas: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          period_id: string | null
+          player_id: string
+          status: string
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          period_id?: string | null
+          player_id: string
+          status?: string
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          period_id?: string | null
+          player_id?: string
+          status?: string
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_focus_areas_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "team_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_focus_areas_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_focus_areas_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_guardians: {
         Row: {
           created_at: string
@@ -1077,6 +1202,68 @@ export type Database = {
             columns: ["player_id"]
             isOneToOne: false
             referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_observations: {
+        Row: {
+          created_at: string
+          created_by: string
+          event_id: string | null
+          focus_area_id: string | null
+          id: string
+          note: string
+          player_id: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          event_id?: string | null
+          focus_area_id?: string | null
+          id?: string
+          note: string
+          player_id: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          event_id?: string | null
+          focus_area_id?: string | null
+          id?: string
+          note?: string
+          player_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_observations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_observations_focus_area_id_fkey"
+            columns: ["focus_area_id"]
+            isOneToOne: false
+            referencedRelation: "player_focus_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_observations_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_observations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           },
         ]
@@ -1256,6 +1443,217 @@ export type Database = {
           is_adult_confirmed?: boolean
         }
         Relationships: []
+      }
+      session_run_attendance: {
+        Row: {
+          id: string
+          player_id: string
+          run_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          run_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          player_id?: string
+          run_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_run_attendance_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_run_attendance_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "session_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_run_items: {
+        Row: {
+          actual_seconds: number
+          id: string
+          item_id: string | null
+          kind: string
+          note: string | null
+          planned_minutes: number
+          resource_id: string | null
+          run_id: string
+          sort_order: number
+          status: string
+          title: string
+        }
+        Insert: {
+          actual_seconds?: number
+          id?: string
+          item_id?: string | null
+          kind?: string
+          note?: string | null
+          planned_minutes?: number
+          resource_id?: string | null
+          run_id: string
+          sort_order?: number
+          status?: string
+          title: string
+        }
+        Update: {
+          actual_seconds?: number
+          id?: string
+          item_id?: string | null
+          kind?: string
+          note?: string | null
+          planned_minutes?: number
+          resource_id?: string | null
+          run_id?: string
+          sort_order?: number
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_run_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "coach_session_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_run_items_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "session_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_run_player_notes: {
+        Row: {
+          id: string
+          note: string
+          player_id: string
+          run_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          note?: string
+          player_id: string
+          run_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          note?: string
+          player_id?: string
+          run_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_run_player_notes_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_run_player_notes_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "session_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_runs: {
+        Row: {
+          adjust_seconds: number
+          coach_id: string
+          created_at: string
+          current_index: number
+          ended_at: string | null
+          event_id: string | null
+          general_note: string | null
+          id: string
+          paused_at: string | null
+          paused_seconds: number
+          session_id: string
+          started_at: string
+          status: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          adjust_seconds?: number
+          coach_id?: string
+          created_at?: string
+          current_index?: number
+          ended_at?: string | null
+          event_id?: string | null
+          general_note?: string | null
+          id?: string
+          paused_at?: string | null
+          paused_seconds?: number
+          session_id: string
+          started_at?: string
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adjust_seconds?: number
+          coach_id?: string
+          created_at?: string
+          current_index?: number
+          ended_at?: string | null
+          event_id?: string | null
+          general_note?: string | null
+          id?: string
+          paused_at?: string | null
+          paused_seconds?: number
+          session_id?: string
+          started_at?: string
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_runs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_runs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "coach_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_runs_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tactic_frames: {
         Row: {
@@ -1725,6 +2123,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_periods: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_date: string
+          goal: string | null
+          id: string
+          main_theme: string
+          name: string
+          start_date: string
+          sub_themes: string[]
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          end_date: string
+          goal?: string | null
+          id?: string
+          main_theme: string
+          name: string
+          start_date: string
+          sub_themes?: string[]
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_date?: string
+          goal?: string | null
+          id?: string
+          main_theme?: string
+          name?: string
+          start_date?: string
+          sub_themes?: string[]
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_periods_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
