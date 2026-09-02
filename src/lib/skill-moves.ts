@@ -15,12 +15,17 @@ export type SkillMove = {
   practice: SkillStep[];
   phrases: string[];
   mistakes: string[];
-  videos: { label: string; url: string }[];
+  videos: { label: string; url: string; videoId?: string }[];
 };
 
 function search(term: string): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`;
 }
+
+function yt(id: string): string {
+  return `https://www.youtube.com/watch?v=${id}`;
+}
+
 
 export const SKILL_MOVES: SkillMove[] = [
   {
@@ -68,7 +73,7 @@ export const SKILL_MOVES: SkillMove[] = [
       "Barnet byter riktning men fortsätter i samma låga fart.",
     ],
     videos: [
-      { label: "How To Do A Body Feint In Soccer", url: search("How To Do A Body Feint In Soccer") },
+      { label: "Master the Body Feint", url: yt("EL8JLKUZ2m0"), videoId: "EL8JLKUZ2m0" },
       { label: "Learn 5 Effective Body Feints – Unisport", url: search("Learn 5 Effective Body Feints Unisport") },
     ],
   },
@@ -111,8 +116,8 @@ export const SKILL_MOVES: SkillMove[] = [
       "Barnet tittar ner och springer efter vändningen utan att se vart det är på väg.",
     ],
     videos: [
-      { label: "Soccer Skills for Kids – The Drag Back", url: search("Soccer Skills for Kids The Drag Back") },
-      { label: "How to Do a Drag Back Turn", url: search("How to Do a Drag Back Turn soccer") },
+      { label: "Drag back turn – teknik och disguise", url: yt("Zl3GGMTP8so"), videoId: "Zl3GGMTP8so" },
+      { label: "Step-over & pull-back för barn (Soccer Shots)", url: yt("L21_vRkoK6U"), videoId: "L21_vRkoK6U" },
     ],
   },
   {
@@ -155,7 +160,7 @@ export const SKILL_MOVES: SkillMove[] = [
       "Kroppen visar inte den falska riktningen.",
     ],
     videos: [
-      { label: "Inside Outside Tutorial – TopTekkers", url: search("Inside Outside Tutorial TopTekkers") },
+      { label: "Inside–outside touch – enkel genomgång", url: yt("MiFV4xXnCnY"), videoId: "MiFV4xXnCnY" },
       { label: "How To Do a Matthews in Soccer", url: search("How To Do a Matthews in Soccer") },
     ],
   },
@@ -204,8 +209,8 @@ export const SKILL_MOVES: SkillMove[] = [
       "Rörelsen görs mycket snabbt men utan att kroppen lutar och lurar försvararen.",
     ],
     videos: [
-      { label: "How To Do A Step Over – Soccer 101 by MOJO", url: search("How To Do A Step Over Soccer 101 MOJO") },
-      { label: "Three Simple Stepover Drills", url: search("Three Simple Stepover Drills soccer") },
+      { label: "Stepover-turn – ball control U8–U9", url: yt("QG1SuQuYMtI"), videoId: "QG1SuQuYMtI" },
+      { label: "How To Actually Do The Stepover", url: yt("b7P5MBS6yhc"), videoId: "b7P5MBS6yhc" },
     ],
   },
   {
@@ -253,8 +258,8 @@ export const SKILL_MOVES: SkillMove[] = [
       "Stödjefoten placeras för långt från bollen.",
     ],
     videos: [
-      { label: "Cruyff Turn – särskilt framtagen för barn 5–9 år", url: search("Cruyff Turn for kids soccer") },
-      { label: "How to Do a Cruyff Turn – Soccer Skills by MOJO", url: search("How to Do a Cruyff Turn Soccer Skills MOJO") },
+      { label: "How to Do a Cruyff Turn – Soccer Skills by MOJO", url: yt("K4JR-gK1SXU"), videoId: "K4JR-gK1SXU" },
+      { label: "Master the Cruyff Turn", url: yt("2Umwwo0YSg4"), videoId: "2Umwwo0YSg4" },
     ],
   },
 ];
