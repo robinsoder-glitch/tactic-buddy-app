@@ -40,8 +40,17 @@ export type TeamPlayer = {
   gender: string | null;
   photo_path: string | null;
   is_goalkeeper: boolean;
+  guardian1_name: string | null;
+  guardian1_phone: string | null;
+  guardian1_email: string | null;
+  guardian2_name: string | null;
+  guardian2_phone: string | null;
+  guardian2_email: string | null;
+  has_allergy: boolean;
+  allergy_note: string | null;
   photoUrl: string | null;
 };
+
 
 export type TeamPhoto = {
   id: string;
@@ -351,7 +360,10 @@ export async function removeMember(id: string) {
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
-    .select("id, name, number, birth_date, gender, photo_path, is_goalkeeper")
+    .select(
+      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
+    )
+
     .eq("team_id", teamId)
     .order("name");
   if (error) throw error;
@@ -374,6 +386,14 @@ export async function saveTeamPlayer(input: {
   gender: string | null;
   is_goalkeeper: boolean;
   photo_path: string | null;
+  guardian1_name?: string | null;
+  guardian1_phone?: string | null;
+  guardian1_email?: string | null;
+  guardian2_name?: string | null;
+  guardian2_phone?: string | null;
+  guardian2_email?: string | null;
+  has_allergy?: boolean;
+  allergy_note?: string | null;
 }) {
   const patch = {
     name: input.name,
@@ -382,7 +402,16 @@ export async function saveTeamPlayer(input: {
     gender: input.gender,
     is_goalkeeper: input.is_goalkeeper,
     photo_path: input.photo_path,
+    guardian1_name: input.guardian1_name ?? null,
+    guardian1_phone: input.guardian1_phone ?? null,
+    guardian1_email: input.guardian1_email ?? null,
+    guardian2_name: input.guardian2_name ?? null,
+    guardian2_phone: input.guardian2_phone ?? null,
+    guardian2_email: input.guardian2_email ?? null,
+    has_allergy: input.has_allergy ?? false,
+    allergy_note: input.allergy_note ?? null,
   };
+
   if (input.id) {
     const { error } = await supabase.from("players").update(patch).eq("id", input.id);
     if (error) throw error;

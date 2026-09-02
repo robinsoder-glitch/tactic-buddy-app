@@ -54,8 +54,19 @@ function SquadPage() {
   const [useExactDate, setUseExactDate] = useState(false);
   const [gender, setGender] = useState<string>("none");
   const [isGk, setIsGk] = useState(false);
+  const [guardians, setGuardians] = useState([
+    { name: "", phone: "", email: "" },
+    { name: "", phone: "", email: "" },
+  ]);
+  const [hasAllergy, setHasAllergy] = useState(false);
+  const [allergyNote, setAllergyNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function setGuardian(index: number, key: "name" | "phone" | "email", value: string) {
+    setGuardians((prev) => prev.map((item, i) => (i === index ? { ...item, [key]: value } : item)));
+  }
+
 
   const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
   const members = useQuery({
@@ -75,6 +86,12 @@ function SquadPage() {
     setUseExactDate(false);
     setGender("none");
     setIsGk(false);
+    setGuardians([
+      { name: "", phone: "", email: "" },
+      { name: "", phone: "", email: "" },
+    ]);
+    setHasAllergy(false);
+    setAllergyNote("");
     setFile(null);
     setOpen(true);
   }
@@ -88,6 +105,20 @@ function SquadPage() {
     setUseExactDate(hasExactBirthDate(player.birth_date));
     setGender(player.gender ?? "none");
     setIsGk(player.is_goalkeeper);
+    setGuardians([
+      {
+        name: player.guardian1_name ?? "",
+        phone: player.guardian1_phone ?? "",
+        email: player.guardian1_email ?? "",
+      },
+      {
+        name: player.guardian2_name ?? "",
+        phone: player.guardian2_phone ?? "",
+        email: player.guardian2_email ?? "",
+      },
+    ]);
+    setHasAllergy(player.has_allergy ?? false);
+    setAllergyNote(player.allergy_note ?? "");
     setFile(null);
     setOpen(true);
   }
@@ -101,6 +132,7 @@ function SquadPage() {
     setBusy(true);
     try {
       const photo_path = file ? await uploadTeamMedia(teamId, file, "players") : (editing?.photo_path ?? null);
+      const clean = (value: string) => (value.trim() ? value.trim() : null);
       await saveTeamPlayer({
         id: editing?.id,
         teamId,
@@ -111,7 +143,16 @@ function SquadPage() {
         gender,
         is_goalkeeper: isGk,
         photo_path,
+        guardian1_name: clean(guardians[0]!.name),
+        guardian1_phone: clean(guardians[0]!.phone),
+        guardian1_email: clean(guardians[0]!.email),
+        guardian2_name: clean(guardians[1]!.name),
+        guardian2_phone: clean(guardians[1]!.phone),
+        guardian2_email: clean(guardians[1]!.email),
+        has_allergy: hasAllergy,
+        allergy_note: hasAllergy ? clean(allergyNote) : null,
       });
+
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
       setOpen(false);
     } catch (error) {
@@ -222,7 +263,7 @@ function SquadPage() {
       </ul>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Redigera spelare" : "Ny spelare"}</DialogTitle>
           </DialogHeader>
@@ -290,6 +331,58 @@ function SquadPage() {
               />
               Målvakt (får egen tröjfärg på taktiktavlan)
             </label>
+
+            <fieldset className="space-y-3 rounded-lg border border-border p-3">
+              <legend className="px-1 text-sm font-semibold">Vårdnadshavare (frivilligt)</legend>
+              {guardians.map((guardian, index) => (
+                <div key={index} className="space-y-1.5">
+                  <Label htmlFor={`p-g${index}-name`}>Vårdnadshavare {index + 1}</Label>
+                  <Input
+                    id={`p-g${index}-name`}
+                    placeholder="Namn"
+                    value={guardian.name}
+                    onChange={(event) => setGuardian(index, "name", event.target.value)}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      type="tel"
+                      aria-label={`Mobil vårdnadshavare ${index + 1}`}
+                      placeholder="Mobil"
+                      value={guardian.phone}
+                      onChange={(event) => setGuardian(index, "phone", event.target.value)}
+                    />
+                    <Input
+                      type="email"
+                      aria-label={`E-post vårdnadshavare ${index + 1}`}
+                      placeholder="E-post"
+                      value={guardian.email}
+                      onChange={(event) => setGuardian(index, "email", event.target.value)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </fieldset>
+
+            <div className="space-y-2 rounded-lg border border-border p-3">
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={hasAllergy}
+                  onChange={(event) => setHasAllergy(event.target.checked)}
+                  className="size-4 accent-[var(--color-primary)]"
+                />
+                Allergi finns
+              </label>
+              {hasAllergy && (
+                <Input
+                  aria-label="Vilken allergi"
+                  placeholder="Vilken allergi? (frivilligt)"
+                  value={allergyNote}
+                  onChange={(event) => setAllergyNote(event.target.value)}
+                />
+              )}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="p-photo">Bild (frivilligt)</Label>
               <Input

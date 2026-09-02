@@ -981,9 +981,17 @@ export type Database = {
       }
       players: {
         Row: {
+          allergy_note: string | null
           birth_date: string | null
           created_at: string
           gender: string | null
+          guardian1_email: string | null
+          guardian1_name: string | null
+          guardian1_phone: string | null
+          guardian2_email: string | null
+          guardian2_name: string | null
+          guardian2_phone: string | null
+          has_allergy: boolean
           id: string
           is_goalkeeper: boolean
           member_user_id: string | null
@@ -996,9 +1004,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          allergy_note?: string | null
           birth_date?: string | null
           created_at?: string
           gender?: string | null
+          guardian1_email?: string | null
+          guardian1_name?: string | null
+          guardian1_phone?: string | null
+          guardian2_email?: string | null
+          guardian2_name?: string | null
+          guardian2_phone?: string | null
+          has_allergy?: boolean
           id?: string
           is_goalkeeper?: boolean
           member_user_id?: string | null
@@ -1011,9 +1027,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          allergy_note?: string | null
           birth_date?: string | null
           created_at?: string
           gender?: string | null
+          guardian1_email?: string | null
+          guardian1_name?: string | null
+          guardian1_phone?: string | null
+          guardian2_email?: string | null
+          guardian2_name?: string | null
+          guardian2_phone?: string | null
+          has_allergy?: boolean
           id?: string
           is_goalkeeper?: boolean
           member_user_id?: string | null
