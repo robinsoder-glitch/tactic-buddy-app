@@ -41,6 +41,16 @@ import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
 import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
+import { BrandLogo } from "@/components/BrandLogo";
+import {
+  BRAND_DESCRIPTION,
+  BRAND_EYEBROW,
+  BRAND_INTRO,
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  BRAND_TITLE,
+  brandMeta,
+} from "@/lib/brand";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,21 +70,7 @@ import {
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: "Fotbollsrummet – animerad fotbollstaktik" },
-      {
-        name: "description",
-        content:
-          "Bygg fotbollstaktik på mobilen: placera spelare från din spelarbank, rita löpningar och animera spelmoment steg för steg.",
-      },
-      { property: "og:title", content: "Fotbollsrummet – animerad fotbollstaktik" },
-      {
-        property: "og:description",
-        content: "Placera spelare, rita löpningar och animera spelmoment steg för steg.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
+    meta: brandMeta(BRAND_TITLE, BRAND_DESCRIPTION),
   }),
   component: HomePage,
 });
@@ -358,7 +354,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Fotbollsrummet</p>
+          <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" />
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
