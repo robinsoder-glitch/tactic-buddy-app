@@ -524,20 +524,34 @@ function MatchPlanner({
               <h2 className="font-medium">Ansvariga ledare</h2>
               <p className="text-sm text-muted-foreground">Minst en ledare krävs för status Klar.</p>
               <ul className="space-y-2">
-                {coaches.map((m) => (
-                  <li key={m.user_id}>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40">
-                      <Checkbox
-                        checked={coachIds.includes(m.user_id)}
-                        onCheckedChange={() =>
-                          setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]))
-                        }
-                      />
-                      <span className="flex-1 font-medium">{m.displayName ?? "Ledare"}</span>
-                      <span className="text-xs text-muted-foreground">{m.role === "head_coach" ? "Huvudtränare" : m.role === "club_admin" ? "Klubbadmin" : "Tränare"}</span>
-                    </label>
-                  </li>
-                ))}
+                {coaches.map((m) => {
+                  const checked = coachIds.includes(m.user_id);
+                  const toggle = () =>
+                    setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]));
+                  return (
+                    <li key={m.user_id}>
+                      <div
+                        role="checkbox"
+                        aria-checked={checked}
+                        tabIndex={0}
+                        onClick={toggle}
+                        onKeyDown={(e) => {
+                          if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            toggle();
+                          }
+                        }}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40"
+                      >
+                        <span onClick={(e) => e.stopPropagation()} className="inline-flex">
+                          <Checkbox checked={checked} onCheckedChange={toggle} tabIndex={-1} aria-hidden />
+                        </span>
+                        <span className="flex-1 font-medium">{m.displayName ?? "Ledare"}</span>
+                        <span className="text-xs text-muted-foreground">{m.role === "head_coach" ? "Huvudtränare" : m.role === "club_admin" ? "Klubbadmin" : "Tränare"}</span>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           )}
