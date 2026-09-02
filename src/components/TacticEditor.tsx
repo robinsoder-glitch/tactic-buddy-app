@@ -46,7 +46,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { ExportDialog } from "@/components/ExportDialog";
 import type { ExportSettings } from "@/components/ExportDialog";
 import { downloadTacticFile } from "@/lib/tactic-file";
-import { drawingsAtProgress, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
+import { displayDrawingsAt, interpolateFrames, normalizeTransitionPaths, uid } from "@/lib/tactics";
 import { appendSequence, applyTrail, insertSequenceAfter } from "@/lib/sequences";
 import {
   entry as historyEntry,
@@ -435,9 +435,11 @@ export function TacticEditor({ id }: { id: string }) {
   const segmentIndex = Math.min(Math.floor(progress), Math.max(frames.length - 2, 0));
   const segmentT = progress - segmentIndex;
   // Vägarna hör till målsekvensen: under övergången visas den sekvens vi är på väg mot.
-  const displayedDrawings = animating
-    ? drawingsAtProgress(frames, progress)
-    : (frame?.drawings ?? []);
+  // Pilar lagras aldrig – de härleds alltid ur föregående och aktuell bild.
+  const displayedDrawings = useMemo(
+    () => displayDrawingsAt(frames, progress, animating, current),
+    [frames, progress, animating, current],
+  );
   const passT = animating && frames.length > 1 ? Math.min(Math.max(segmentT, 0), 1) : null;
 
 
