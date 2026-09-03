@@ -120,6 +120,7 @@ function OnboardingPage() {
           <AccountSetupFields
             setup={setup}
             onChange={(patch) => setSetup((c) => ({ ...c, ...patch }))}
+            onCodeStatus={setCodeStatus}
           />
           {role === "coach" && (
             <p className="text-xs text-muted-foreground">
