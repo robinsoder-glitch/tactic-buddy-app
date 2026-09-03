@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { claimRole, findTeamByCode, joinTeamWithCode, updateProfile } from "./teams";
 
 export type AccountRole = "coach" | "player";
@@ -247,4 +248,20 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
     teamName: joined.teamName,
     status: joined.status,
   };
+}
+
+/**
+ * Slutför registreringen efter e-postbekräftelse – underlaget läses i första
+ * hand från auth-metadata, så det fungerar även på en annan enhet.
+ */
+export async function completePendingSetup(user: {
+  id: string;
+  user_metadata?: Record<string, unknown> | null;
+}): Promise<SetupResult | null> {
+  const setup = setupFromMetadata(user.user_metadata) ?? readSetup();
+  if (!setup) return null;
+  const result = await applyAccountSetup(user.id, setup);
+  clearSetup();
+  await supabase.auth.updateUser({ data: CLEARED_SETUP_METADATA });
+  return result;
 }
