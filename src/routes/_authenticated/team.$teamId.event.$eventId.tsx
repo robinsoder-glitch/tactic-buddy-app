@@ -112,7 +112,7 @@ function EventPage() {
     queryFn: () => fetchEventInvitations(eventId),
   });
 
-  const list = invites.data ?? [];
+  const list = useMemo(() => invites.data ?? [], [invites.data]);
   const guardedIds = guarded.data ?? [];
   const counts = countInvitations(list);
   const cancelled = Boolean(event.data?.cancelled_at);
@@ -553,13 +553,11 @@ function EventPage() {
             >
               {selected.length > 0 &&
               selected.length ===
-                (players.data ?? []).filter(
-                  (p) => !list.some((item) => item.player_id === p.id),
-                ).length
+                (players.data ?? []).filter((p) => !list.some((item) => item.player_id === p.id))
+                  .length
                 ? "Avmarkera alla"
                 : "Välj alla"}
             </Button>
-
           </div>
 
           <ul className="space-y-1">

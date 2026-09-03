@@ -141,7 +141,6 @@ function MatchPlanningPage() {
     })();
   }, [search.eventId, reloadKey]);
 
-
   const selected = events?.find((e) => e.id === eventId) ?? null;
 
   return (
@@ -1209,7 +1208,6 @@ function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
           onChanged={onChanged}
           savedMessage="Matchen har lagts till i kalendern."
         />
-
       )}
     </section>
   );

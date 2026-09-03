@@ -168,7 +168,7 @@ function OvningsbankPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tb-favorites"] }),
   });
 
-  const allCards = cards.data ?? [];
+  const allCards = useMemo(() => cards.data ?? [], [cards.data]);
   const catalog = useMemo(
     () =>
       buildCatalog([
