@@ -37,7 +37,6 @@ describe("huvudmenyn", () => {
     ]);
   });
 
-
   it("markerar aktiv flik", () => {
     const taktik = MAIN_TABS.find((tab) => tab.to === "/taktik")!;
     expect(isTabActive("/taktik", taktik)).toBe(true);
