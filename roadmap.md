@@ -212,3 +212,11 @@
 - [x] Atomiskt godkännande (approve_team_join_request) med koppling till spelarkort och intern notis
 - [x] Ansökningslistan visar namn, roll, barn, källa (spelarkod/tränarkod/personlig länk) och datum
 - [x] Tester: 358 gröna, typkontroll och lint utan fel
+
+## Etapp 3 – Tydlig medlemskommunikation (2026-09-04)
+- [x] Viktiga meddelanden med målgrupper, prioritet, schemaläggning och läskvitton
+- [x] /meddelanden med flikarna Viktigt, Aktiviteter och Skicka och följ upp
+- [x] Frågor och svar direkt på aktivitetssidan
+- [x] Tränarsnack kvar som separat ledarchatt, lässtatus flyttad till servern
+- [x] Notisräknare i menyn för olästa viktiga meddelanden
+- [x] Livetestat: skickat meddelande, mottagarförhandsvisning, läskvitto, fråga på aktivitet
