@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, CheckCheck, Inbox, Megaphone, Send } from "lucide-react";
+import { Bell, CheckCheck, Inbox, Megaphone, MessagesSquare, Send } from "lucide-react";
 import { toast } from "sonner";
 import {
   AUDIENCE_OPTIONS,
@@ -13,6 +13,7 @@ import {
   createAnnouncement,
   fetchAnnouncementReaders,
   fetchInbox,
+  fetchRecentEventMessages,
   fetchTeamAnnouncements,
   markAnnouncementRead,
   messageTime,
@@ -56,7 +57,7 @@ const LEADER_ROLES = ["coach", "head_coach", "club_admin"];
 function MessagesPage() {
   const { memberships, userId } = useAccount();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"inbox" | "sent">("inbox");
+  const [tab, setTab] = useState<"inbox" | "activities" | "sent">("inbox");
   const [unreadFirst, setUnreadFirst] = useState(true);
   const [teamFilter, setTeamFilter] = useState<string>("all");
 
@@ -87,6 +88,16 @@ function MessagesPage() {
 
   const unread = countUnreadInbox(inbox.data ?? []);
 
+  const myTeamIds = useMemo(
+    () => memberships.filter((m) => m.status === "approved").map((m) => m.team_id),
+    [memberships],
+  );
+  const activityMessages = useQuery({
+    queryKey: ["event-messages-recent", myTeamIds],
+    queryFn: () => fetchRecentEventMessages(myTeamIds),
+    enabled: tab === "activities" && myTeamIds.length > 0,
+  });
+
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-6">
       <header>
@@ -108,6 +119,16 @@ function MessagesPage() {
           <Inbox className="mr-2 inline size-4" aria-hidden />
           Viktigt {unread > 0 ? `(${unread} olästa)` : ""}
         </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "activities"}
+          onClick={() => setTab("activities")}
+          className={`min-h-[44px] rounded-lg border px-4 text-sm font-semibold ${tab === "activities" ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground"}`}
+        >
+          <MessagesSquare className="mr-2 inline size-4" aria-hidden />
+          Aktiviteter
+        </button>
         {coachTeams.length > 0 && (
           <button
             type="button"
@@ -121,6 +142,39 @@ function MessagesPage() {
           </button>
         )}
       </div>
+
+      {tab === "activities" && (
+        <section className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Senaste frågorna och svaren på lagets aktiviteter.
+          </p>
+          {activityMessages.isLoading && (
+            <p className="text-sm text-muted-foreground">Hämtar frågor …</p>
+          )}
+          {activityMessages.data?.length === 0 && (
+            <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+              Inga frågor ännu. Öppna en aktivitet i kalendern för att ställa den första.
+            </p>
+          )}
+          <ul className="space-y-2">
+            {(activityMessages.data ?? []).map((message) => (
+              <li key={message.id} className="rounded-xl border border-border bg-card p-4">
+                <p className="text-xs text-muted-foreground">
+                  {message.displayName ?? "Medlem"} · {messageTime(message.created_at)}
+                </p>
+                <p className="mt-1 text-sm">{message.body}</p>
+                <Link
+                  to="/team/$teamId/event/$eventId"
+                  params={{ teamId: message.team_id, eventId: message.event_id }}
+                  className="mt-2 inline-block text-sm font-semibold text-primary underline"
+                >
+                  {message.eventTitle ?? "Öppna aktiviteten"}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {tab === "inbox" && (
         <section className="space-y-3">

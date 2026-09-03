@@ -400,3 +400,48 @@ export async function deleteEventMessage(id: string): Promise<void> {
     .eq("id", id);
   if (error) throw new Error(error.message);
 }
+
+export type ActivityMessage = EventMessage & { eventTitle: string | null; eventStart: string | null };
+
+/** Senaste frågorna i alla lag användaren tillhör – till fliken Aktiviteter. */
+export async function fetchRecentEventMessages(teamIds: string[]): Promise<ActivityMessage[]> {
+  if (!teamIds.length) return [];
+  const { data, error } = await supabase
+    .from("event_messages")
+    .select("id, event_id, team_id, user_id, body, created_at, deleted_at")
+    .in("team_id", teamIds)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Omit<EventMessage, "displayName">[];
+  if (!rows.length) return [];
+  const [{ data: profiles }, { data: events }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, display_name")
+      .in("id", [...new Set(rows.map((row) => row.user_id))]),
+    supabase
+      .from("events")
+      .select("id, title, type, starts_at")
+      .in("id", [...new Set(rows.map((row) => row.event_id))]),
+  ]);
+  const names = new Map(
+    (profiles ?? []).map((p) => [p.id as string, (p.display_name as string | null) ?? null]),
+  );
+  const eventMap = new Map(
+    (events ?? []).map((e) => [
+      e.id as string,
+      {
+        title: ((e.title as string | null) ?? (e.type as string | null)) ?? null,
+        start: (e.starts_at as string | null) ?? null,
+      },
+    ]),
+  );
+  return rows.map((row) => ({
+    ...row,
+    displayName: names.get(row.user_id) ?? null,
+    eventTitle: eventMap.get(row.event_id)?.title ?? null,
+    eventStart: eventMap.get(row.event_id)?.start ?? null,
+  }));
+}
