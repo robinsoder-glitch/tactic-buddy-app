@@ -559,6 +559,25 @@ function MatchPlanner({
       {mode === "read" ? (
         <div className="space-y-5">
           <div className="rounded-xl border bg-card p-4">
+            <h2 className="font-display text-lg font-semibold">Kallelse</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Kallelser går aldrig ut automatiskt – du bestämmer när de skickas, och de går bara
+              till spelarna i truppen. Träningar har inga kallelser.
+            </p>
+            <p className="mt-2 text-sm font-semibold">
+              {invitations.length === 0
+                ? "Ingen kallelse har skickats ännu."
+                : `${invitations.length} spelare är kallade · ${
+                    invitations.filter((item) => item.status === "pending").length
+                  } utan svar.`}
+            </p>
+            <Button variant="outline" size="sm" className="mt-3" asChild>
+              <Link to="/team/$teamId/event/$eventId" params={{ teamId, eventId }}>
+                {invitations.length === 0 ? "Skicka kallelse" : "Hantera kallelsen"}
+              </Link>
+            </Button>
+          </div>
+          <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-3">
               <h1 className="text-lg font-semibold">
                 {event.home_team && event.away_team
