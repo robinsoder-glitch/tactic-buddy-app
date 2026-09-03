@@ -36,6 +36,8 @@ type Props = {
   newLabel?: string;
   /** Bekräftelse som visas när aktiviteten sparats. */
   savedMessage?: string;
+  /** Dölj listan (när sidan visar aktiviteterna i en egen lista). */
+  hideList?: boolean;
 };
 
 type ScheduleForm = {
