@@ -217,7 +217,7 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
         )}
       </div>
 
-      <ul className="mt-4 space-y-3">
+      <ul className={hideList ? "hidden" : "mt-4 space-y-3"}>
         {events.data?.length === 0 && (
           <li className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Inget inplanerat än.
