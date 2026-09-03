@@ -30,15 +30,13 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   component: KnowledgeArticlePage,
 });
 
-/** "Passar dig som tränar 8–9 år och spelar 5 mot 5." */
-function fitsYouText(data: Parameters<typeof knowledgeAgeLabel>[0]): string {
-  const age = knowledgeAgeLabel(data);
+/** "Passar dig som tränar barn och spelar 5 mot 5." */
+function fitsYouText(data: Parameters<typeof knowledgeFormatLabel>[0]): string {
   const format = knowledgeFormatLabel(data);
-  if (age && format) return `Passar dig som tränar ${age} och spelar ${format}.`;
-  if (age) return `Passar dig som tränar ${age}.`;
-  if (format) return `Passar dig som spelar ${format}.`;
+  if (format) return `Passar dig som tränar barn och spelar ${format}.`;
   return "Passar dig som tränar barn i fotboll.";
 }
+
 
 /** En sammanhängande text i stället för flera korta stycken. */
 function summaryText(data: {
