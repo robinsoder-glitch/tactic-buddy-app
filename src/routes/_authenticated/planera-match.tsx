@@ -347,7 +347,7 @@ function MatchPlanner({
         return;
       }
       const ok = window.confirm(
-        `Varning: ${planError}\n\nVill du spara ändå? Matchen får status Ej klar tills tillräckligt många spelare är uttagna.`,
+        `Varning: ${planError}\n\nVill du spara ändå? Du kan komplettera med fler spelare senare.`,
       );
       if (!ok) return;
       const hardError = validateMatchPlan({
