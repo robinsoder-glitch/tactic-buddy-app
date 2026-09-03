@@ -21,9 +21,21 @@ const TONE: Record<StepStatus, string> = {
  */
 /** Steg som inte visas i aktivitetsvyn – de gjorde översikten rörig. */
 const HIDDEN_STEPS: StepKey[] = ["execution", "followup"];
+/** Steg som bara visas för matcher. */
+const MATCH_ONLY_STEPS: StepKey[] = ["invitation"];
 
-export function EventStatusOverview({ steps }: { steps: Record<StepKey, StepStatus> }) {
-  const visible = STEP_ORDER.filter((step) => !HIDDEN_STEPS.includes(step));
+export function EventStatusOverview({
+  steps,
+  type = "training",
+}: {
+  steps: Record<StepKey, StepStatus>;
+  type?: "match" | "training";
+}) {
+  const visible = STEP_ORDER.filter((step) => {
+    if (HIDDEN_STEPS.includes(step)) return false;
+    if (MATCH_ONLY_STEPS.includes(step)) return type === "match";
+    return true;
+  });
   return (
     <section className="mt-5" aria-label="Lägesöversikt">
       <h2 className="text-sm font-semibold">Lägesöversikt</h2>
