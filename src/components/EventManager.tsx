@@ -36,6 +36,8 @@ type Props = {
   newLabel?: string;
   /** Bekräftelse som visas när aktiviteten sparats. */
   savedMessage?: string;
+  /** Dölj listan (när sidan visar aktiviteterna i en egen lista). */
+  hideList?: boolean;
 };
 
 type ScheduleForm = {
@@ -65,7 +67,7 @@ function timeOnly(value: string | null) {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage }: Props) {
+export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage, hideList }: Props) {
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -215,7 +217,7 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
         )}
       </div>
 
-      <ul className="mt-4 space-y-3">
+      <ul className={hideList ? "hidden" : "mt-4 space-y-3"}>
         {events.data?.length === 0 && (
           <li className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Inget inplanerat än.
