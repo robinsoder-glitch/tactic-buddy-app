@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GAME_FORMATS } from "@/lib/game-format";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -43,6 +44,7 @@ function AboutPage() {
   const [homeGround, setHomeGround] = useState("");
   const [name, setName] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
+  const [gameFormat, setGameFormat] = useState<string>("");
   const [gender, setGender] = useState("mixed");
   const [busy, setBusy] = useState(false);
 
@@ -114,6 +116,7 @@ function AboutPage() {
     setHomeGround(team.data.home_ground ?? "");
     setName(team.data.name);
     setAgeGroup(team.data.age_group ?? "");
+    setGameFormat(team.data.game_format ?? "");
     setGender(team.data.gender);
   }, [team.data]);
 
@@ -127,6 +130,7 @@ function AboutPage() {
       await updateTeam(teamId, {
         name,
         age_group: ageGroup || null,
+        game_format: gameFormat || null,
         gender,
         about: about || null,
         home_ground: homeGround || null,
@@ -205,6 +209,29 @@ function AboutPage() {
       <div className="space-y-1.5">
         <Label htmlFor="t-age">Åldersgrupp</Label>
         <Input id="t-age" value={ageGroup} onChange={(event) => setAgeGroup(event.target.value)} />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Spelform</Label>
+        <div className="grid grid-cols-4 gap-2">
+          {GAME_FORMATS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={gameFormat === item.id}
+              onClick={() => setGameFormat(item.id)}
+              className={`rounded-lg border px-2 py-2 text-sm ${
+                gameFormat === item.id
+                  ? "border-primary bg-primary/10 font-semibold"
+                  : "border-border"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Taktiktavlan ritar planen efter lagets spelform.
+        </p>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {Object.entries(TEAM_GENDER_LABELS).map(([value, label]) => (
