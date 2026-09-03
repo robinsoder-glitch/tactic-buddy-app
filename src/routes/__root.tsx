@@ -226,7 +226,6 @@ function RootComponent() {
     return unsubscribe;
   }, [router]);
 
-
   // Registrerar service workern så appen kan installeras och läsas offline.
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;

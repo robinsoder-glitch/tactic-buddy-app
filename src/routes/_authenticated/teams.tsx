@@ -9,8 +9,8 @@ import { createTeam, fetchClubs, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
 import { BackLink } from "@/components/BackLink";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
