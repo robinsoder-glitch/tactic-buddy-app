@@ -94,8 +94,7 @@ describe("baslinje: namn och lagseparation", () => {
 
 describe("regressionsmarkering: punkt 7 får inte byggas", () => {
   const matchPlan = readFileSync("src/lib/match-plan.ts", "utf8");
-  const sql = readFileSync("supabase/migrations", "utf8" as never) as unknown as string | undefined;
-  void sql;
+
 
   it("matchens laguppställning har bara den befintliga taktikkopplingen", () => {
     const tacticFields = [...matchPlan.matchAll(/\btactic[a-z_]*\b/gi)].map((m) =>
