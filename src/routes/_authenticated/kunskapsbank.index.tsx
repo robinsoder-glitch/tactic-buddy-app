@@ -232,15 +232,12 @@ function KunskapsbankPage() {
       <FilterPanel
         activeCount={
           (onlyFavorites ? 1 : 0) +
-          [category, level, age].filter((value) => value !== "all").length +
-          selectedTags.length
+          [category, level].filter((value) => value !== "all").length
         }
         onClear={() => {
           setOnlyFavorites(false);
           setCategory("all");
           setLevel("all");
-          setAge("all");
-          setSelectedTags([]);
         }}
         primary={
           <button
@@ -275,42 +272,6 @@ function KunskapsbankPage() {
             ]}
           />
         </FilterRow>
-        <FilterRow title="Ålder">
-          <FilterGroup
-            value={age}
-            onChange={setAge}
-            options={[
-              ["all", "Alla åldrar"],
-              ...[5, 6, 7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-            ]}
-          />
-        </FilterRow>
-        {tagOptions.length > 0 && (
-          <FilterRow title="Taggar">
-            <div className="flex flex-wrap items-center gap-1">
-              {tagOptions.map((tag) => {
-                const active = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() =>
-                      setSelectedTags((current) =>
-                        current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag],
-                      )
-                    }
-                    className={`rounded-full border px-3 py-1 text-xs ${
-                      active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
-            </div>
-          </FilterRow>
-        )}
       </FilterPanel>
 
 
@@ -393,8 +354,7 @@ function ArticleCard({
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <p className="text-xs tracking-wide text-muted-foreground">
-            {KB_CATEGORY_LABELS[article.category] ?? article.category} · {KB_LEVEL_LABELS[article.level] ?? article.level} ·{" "}
-            {ageLabel(article)}
+            {KB_CATEGORY_LABELS[article.category] ?? article.category} · {KB_LEVEL_LABELS[article.level] ?? article.level}
           </p>
           <h3 className="font-display text-lg font-semibold">{article.title}</h3>
           {article.summary && <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>}
