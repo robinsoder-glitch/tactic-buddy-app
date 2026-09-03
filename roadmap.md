@@ -190,3 +190,7 @@
 - [ ] Live: tränarkonto med tränarkod
 - [ ] Live: felfall – fel kodtyp, 5/7 tecken, ogiltig kod, befintlig e-post, arkiverat lag, roterad kod
 - [ ] Kod-/DB-genomgång + build och lint gröna, testdata rensad
+
+## Kunskapsbanken – kvalitetsrensning 2026-09-03
+- [ ] Kontrollera alla källänkar (döda/omdirigerade länkar avpubliceras)
+- [ ] Avpublicera artiklar som inte tillför tränarvärde eller saknar tydlig källa
