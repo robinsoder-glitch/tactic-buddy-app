@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/DateField";
 import {
   Dialog,
   DialogContent,
@@ -99,7 +100,7 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
 
         <label className="text-sm">
           Datum
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <DateField value={date} onChange={setDate} />
           {errors.date && <span className="text-xs text-destructive">{errors.date}</span>}
         </label>
 

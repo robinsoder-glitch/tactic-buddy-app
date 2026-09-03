@@ -45,6 +45,40 @@ export function MatchLineupEditor({
   }
 
   const suppressClickRef = useRef(false);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  /** Flyttar en spelare fritt på planen. Släpper man på en annan plats byter de position. */
+  function startSlotDrag(e: ReactPointerEvent, index: number) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let dragging = false;
+    const toPitch = (cx: number, cy: number) => {
+      const box = svgRef.current?.getBoundingClientRect();
+      if (!box) return null;
+      return {
+        x: Math.min(0.97, Math.max(0.03, (cx - box.left) / box.width)),
+        y: Math.min(0.95, Math.max(0.05, (cy - box.top) / box.height)),
+      };
+    };
+    const move = (ev: PointerEvent) => {
+      if (!dragging && Math.hypot(ev.clientX - startX, ev.clientY - startY) < 5) return;
+      dragging = true;
+      const point = toPitch(ev.clientX, ev.clientY);
+      if (!point) return;
+      onChange(
+        slots.map((slot, i) => (i === index ? { ...slot, x: point.x, y: point.y } : slot)),
+        bench,
+      );
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      if (dragging) suppressClickRef.current = true;
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
 
   function startDrag(e: ReactPointerEvent, playerId: string) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -75,6 +109,7 @@ export function MatchLineupEditor({
   return (
     <div ref={rootRef} className="space-y-3">
       <svg
+        ref={svgRef}
         viewBox="0 0 100 68"
         className="w-full touch-none rounded-lg border border-border bg-primary/10"
         role="application"
@@ -139,7 +174,11 @@ export function MatchLineupEditor({
               data-slot-index={i}
               className="cursor-pointer"
               onClick={() => handleSlotTap(i)}
-              onPointerDown={(e) => slot.player_id && startDrag(e, slot.player_id)}
+              onPointerDown={(e) => {
+                if (!slot.player_id) return;
+                if (selected) startDrag(e, slot.player_id);
+                else startSlotDrag(e, i);
+              }}
             >
               <circle cx={cx} cy={cy} r="6.5" fill="transparent" />
               <circle
@@ -184,7 +223,7 @@ export function MatchLineupEditor({
       <div>
         <p className="mb-1.5 text-xs font-medium text-muted-foreground">
           Bänken ({benchPlayers.length}) – tryck på en spelare och sedan på en plats, eller dra
-          spelaren dit.
+          spelaren dit. Spelarna på planen kan du dra fritt för att ändra uppställningen.
         </p>
         <div className="flex flex-wrap gap-2" data-bench>
           {benchPlayers.map(({ id, info }) => (

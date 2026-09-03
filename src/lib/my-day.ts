@@ -98,6 +98,22 @@ export function filterTodo(items: TodoItem[], context: string): TodoItem[] {
   return items;
 }
 
+/**
+ * Vart "Att göra"-kortet ska leda. Databasen pekar på aktivitetssidan, men
+ * ledaren vill komma direkt dit arbetet görs.
+ */
+export function todoLink(item: TodoItem): string {
+  if (item.kind === "invite_unanswered") return "/kallelser";
+  if (item.kind === "planning_missing" && item.event_id) {
+    const match = /match/i.test(item.title) || /match/i.test(item.subtitle ?? "");
+    return `${match ? "/planera-match" : "/planera-traning"}?eventId=${item.event_id}`;
+  }
+  if (item.kind === "attendance_missing" && item.team_id) {
+    return `/team/${item.team_id}/narvaro`;
+  }
+  return item.action_url;
+}
+
 export function sortTodo(items: TodoItem[]): TodoItem[] {
   return [...items].sort((a, b) => {
     if (a.priority !== b.priority) return a.priority - b.priority;

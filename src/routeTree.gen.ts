@@ -52,7 +52,6 @@ import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_aut
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_authenticated/traningspass.index'
 import { Route as AuthenticatedTraningspassIdRouteImport } from './routes/_authenticated/traningspass.$id'
-import { Route as AuthenticatedTraningspassNyttRouteImport } from './routes/_authenticated/traningspass.nytt'
 import { Route as AuthenticatedAdminLagIndexRouteImport } from './routes/_authenticated/admin.lag.index'
 import { Route as AuthenticatedAdminLagTeamIdRouteImport } from './routes/_authenticated/admin.lag.$teamId'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
@@ -308,12 +307,6 @@ const AuthenticatedTraningspassIdRoute =
     path: '/traningspass/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedTraningspassNyttRoute =
-  AuthenticatedTraningspassNyttRouteImport.update({
-    id: '/traningspass/nytt',
-    path: '/traningspass/nytt',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminLagIndexRoute =
   AuthenticatedAdminLagIndexRouteImport.update({
     id: '/lag/',
@@ -460,7 +453,6 @@ export interface FileRoutesByFullPath {
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
-  '/traningspass/nytt': typeof AuthenticatedTraningspassNyttRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
@@ -519,7 +511,6 @@ export interface FileRoutesByTo {
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
-  '/traningspass/nytt': typeof AuthenticatedTraningspassNyttRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/kalender': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
@@ -584,7 +575,6 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/_authenticated/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
-  '/_authenticated/traningspass/nytt': typeof AuthenticatedTraningspassNyttRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
@@ -649,7 +639,6 @@ export interface FileRouteTypes {
     | '/taktikbank/regler'
     | '/team/$teamId'
     | '/traningspass/$id'
-    | '/traningspass/nytt'
     | '/admin/'
     | '/kalender/'
     | '/kunskapsbank/'
@@ -708,7 +697,6 @@ export interface FileRouteTypes {
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
-    | '/traningspass/nytt'
     | '/admin'
     | '/kalender'
     | '/kunskapsbank'
@@ -772,7 +760,6 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/regler'
     | '/_authenticated/team/$teamId'
     | '/_authenticated/traningspass/$id'
-    | '/_authenticated/traningspass/nytt'
     | '/_authenticated/admin/'
     | '/_authenticated/kalender/'
     | '/_authenticated/kunskapsbank/'
@@ -1112,13 +1099,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraningspassIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/traningspass/nytt': {
-      id: '/_authenticated/traningspass/nytt'
-      path: '/traningspass/nytt'
-      fullPath: '/traningspass/nytt'
-      preLoaderRoute: typeof AuthenticatedTraningspassNyttRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin/lag/': {
       id: '/_authenticated/admin/lag/'
       path: '/lag'
@@ -1374,7 +1354,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTaktikbankReglerRoute: typeof AuthenticatedTaktikbankReglerRoute
   AuthenticatedTeamTeamIdRoute: typeof AuthenticatedTeamTeamIdRouteWithChildren
   AuthenticatedTraningspassIdRoute: typeof AuthenticatedTraningspassIdRouteWithChildren
-  AuthenticatedTraningspassNyttRoute: typeof AuthenticatedTraningspassNyttRoute
   AuthenticatedKunskapsbankIndexRoute: typeof AuthenticatedKunskapsbankIndexRoute
   AuthenticatedOvningsbankIndexRoute: typeof AuthenticatedOvningsbankIndexRoute
   AuthenticatedTaktikbankIndexRoute: typeof AuthenticatedTaktikbankIndexRoute
@@ -1411,7 +1390,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeamTeamIdRoute: AuthenticatedTeamTeamIdRouteWithChildren,
   AuthenticatedTraningspassIdRoute:
     AuthenticatedTraningspassIdRouteWithChildren,
-  AuthenticatedTraningspassNyttRoute: AuthenticatedTraningspassNyttRoute,
   AuthenticatedKunskapsbankIndexRoute: AuthenticatedKunskapsbankIndexRoute,
   AuthenticatedOvningsbankIndexRoute: AuthenticatedOvningsbankIndexRoute,
   AuthenticatedTaktikbankIndexRoute: AuthenticatedTaktikbankIndexRoute,

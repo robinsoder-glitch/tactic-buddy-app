@@ -13,6 +13,7 @@ import {
   nextLabel,
   sortTodo,
   todoBadge,
+  todoLink,
   type TodoItem,
 } from "@/lib/my-day";
 import { useAccount } from "@/hooks/useAccount";
@@ -178,7 +179,7 @@ function TodoCard({ item }: { item: TodoItem }) {
       <p className="mt-1 font-semibold">{item.title}</p>
       {item.subtitle && <p className="text-sm text-muted-foreground">{item.subtitle}</p>}
       {item.due_at && <p className="text-xs text-muted-foreground">{formatWhen(item.due_at)}</p>}
-      <Link to={item.action_url} className="mt-2 inline-block">
+      <Link to={todoLink(item)} className="mt-2 inline-block">
         <Button size="sm">{item.action_label}</Button>
       </Link>
     </li>

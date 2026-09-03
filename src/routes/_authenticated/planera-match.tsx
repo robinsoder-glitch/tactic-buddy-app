@@ -7,6 +7,7 @@ import { LineupPitch, type LineupPlayerInfo } from "@/components/LineupPitch";
 import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/DateField";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -733,12 +734,7 @@ function MatchPlanner({
                   <label className="text-sm font-medium" htmlFor="mp-date">
                     Datum
                   </label>
-                  <Input
-                    id="mp-date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
+                  <DateField id="mp-date" value={date} onChange={setDate} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium" htmlFor="mp-start">

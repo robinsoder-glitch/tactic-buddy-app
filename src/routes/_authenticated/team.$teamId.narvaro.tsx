@@ -340,7 +340,7 @@ function EventAttendance({
         rows.data ?? [],
       ),
     );
-    toast.info("Förslaget bygger på kallelsesvaren. Kontrollera vilka som deltog innan du sparar.");
+    toast.info("Nu är alla ifyllda enligt sina svar. Ändra dem som faktiskt inte var med.");
   };
 
   const visible = onlyUnregistered
@@ -384,14 +384,17 @@ function EventAttendance({
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Förslaget bygger på kallelsesvaren. Kontrollera vilka som faktiskt deltog innan du
-              sparar.
+              {eventType === "match"
+                ? "Genvägar: fyll i alla på en gång och ändra sedan dem som avviker."
+                : "Markera vilka som var med på träningen. Genvägen nedan fyller i alla på en gång."}
             </p>
           )}
           <div className="mt-2 flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={prepare}>
-              <ListChecks className="size-4" /> Förbered från kallelsesvaren
-            </Button>
+            {eventType === "match" && (
+              <Button size="sm" variant="outline" onClick={prepare}>
+                <ListChecks className="size-4" /> Fyll i enligt spelarnas svar
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
