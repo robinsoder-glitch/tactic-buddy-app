@@ -78,9 +78,7 @@ export function CoachInvites() {
           return (
             <li key={row.event.id} className="rounded-2xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">Match · {row.teamName}</p>
-              <h2 className="font-display text-xl font-semibold">
-                {eventDisplayTitle(row.event)}
-              </h2>
+              <h2 className="font-display text-xl font-semibold">{eventDisplayTitle(row.event)}</h2>
               <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <CalendarDays className="size-4" aria-hidden />
