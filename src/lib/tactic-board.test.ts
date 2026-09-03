@@ -96,7 +96,9 @@ describe("Formationer 3v3–11v11", () => {
   });
 
   it("planlayout och sortering följer spelformen", () => {
-    expect(pitchForFormation(3)).toBe("small");
+    expect(pitchForFormation(3)).toBe("five");
+    expect(pitchForFormation(7)).toBe("seven");
+    expect(pitchForFormation(9)).toBe("nine");
     expect(pitchForFormation(11)).toBe("full");
     expect(formationsForPitch("full")[0]!.players).toBe(11);
   });
