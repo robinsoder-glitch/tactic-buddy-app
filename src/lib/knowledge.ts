@@ -184,11 +184,7 @@ export type KnowledgeKind = "Artikel" | "Forskning" | "Resursbank" | "Verktyg";
 export function knowledgeKind(article: KnowledgeArticle): KnowledgeKind {
   const text = `${article.content_type ?? ""} ${article.source_type ?? ""}`.toLowerCase();
   if (text.includes("verktyg") || text.includes("app")) return "Verktyg";
-  if (
-    text.includes("resursbank") ||
-    text.includes("resursarkiv") ||
-    text.includes("dokumentarkiv")
-  )
+  if (text.includes("resursbank") || text.includes("resursarkiv") || text.includes("dokumentarkiv"))
     return "Resursbank";
   if (
     text.includes("vetenskap") ||
@@ -199,4 +195,3 @@ export function knowledgeKind(article: KnowledgeArticle): KnowledgeKind {
     return "Forskning";
   return "Artikel";
 }
-

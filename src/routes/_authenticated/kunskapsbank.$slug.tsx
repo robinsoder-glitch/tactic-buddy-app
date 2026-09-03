@@ -37,7 +37,6 @@ function fitsYouText(data: Parameters<typeof knowledgeFormatLabel>[0]): string {
   return "Passar dig som tränar barn i fotboll.";
 }
 
-
 /** En sammanhängande text i stället för flera korta stycken. */
 function summaryText(data: {
   summary_sv: string;
@@ -177,7 +176,6 @@ function KnowledgeArticlePage() {
               {data.checked_date ? ` · källgranskad ${data.checked_date}` : ""}
             </p>
           )}
-
 
           <RelatedContent sections={sections} />
         </article>
