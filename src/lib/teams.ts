@@ -292,6 +292,24 @@ export async function fetchMyMemberships() {
   }));
 }
 
+/** Antal obesvarade ansökningar per lag – används för notisprickar i menyn. */
+export async function fetchPendingJoinCounts(teamIds: string[]): Promise<Record<string, number>> {
+  if (!teamIds.length) return {};
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("status", "pending")
+    .in("team_id", teamIds);
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const id = row.team_id as string;
+    counts[id] = (counts[id] ?? 0) + 1;
+  }
+  return counts;
+}
+
+
 export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   const { data, error } = await supabase
     .from("team_members")
