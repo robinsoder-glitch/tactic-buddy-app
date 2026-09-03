@@ -238,6 +238,9 @@ function RunSession() {
     noteTimer.current = setTimeout(() => runId && saveNote.mutate(value), 800);
   }
 
+  const eventId = run.data?.event_id ?? null;
+  const unregistered = Math.max(0, (players.data?.length ?? 0) - (attendance.data?.length ?? 0));
+
   const summaryDialog = (
     <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
       <DialogContent>
@@ -252,8 +255,29 @@ function RunSession() {
           <li>
             Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}
           </li>
+          {unregistered > 0 && (
+            <li className="text-muted-foreground">
+              Ej registrerade spelare: {unregistered}. Komplettera närvaron så blir statistiken
+              rätt.
+            </li>
+          )}
         </ul>
         <DialogFooter>
+          {teamId && eventId && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSummaryOpen(false);
+                navigate({
+                  to: "/team/$teamId/narvaro",
+                  params: { teamId },
+                  search: { handelse: eventId, visa: "alla" },
+                });
+              }}
+            >
+              Komplettera närvaro
+            </Button>
+          )}
           <Button
             onClick={() => {
               setSummaryOpen(false);
