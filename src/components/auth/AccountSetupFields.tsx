@@ -20,10 +20,14 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
   const [checking, setChecking] = useState(false);
   // Sant när kontrollen misslyckades tekniskt – då är det inte samma sak som fel kod.
   const [lookupFailed, setLookupFailed] = useState(false);
+  // Tränare: startar man ett nytt lag eller går man med i ett befintligt via tränarkod?
+  const [coachJoins, setCoachJoins] = useState(() => !!setup.code?.trim());
   const code = setup.code?.trim() ?? "";
+  const isCoach = setup.role === "coach";
+  const showCodeField = showCode && (!isCoach || coachJoins);
 
   useEffect(() => {
-    if (!showCode || code.length < 4) {
+    if (!showCodeField || code.length < 4) {
       setMatch(null);
       setLookupFailed(false);
       return;
@@ -51,7 +55,7 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
       clearTimeout(timer);
       setChecking(false);
     };
-  }, [code, showCode]);
+  }, [code, showCodeField]);
 
   return (
     <div className="space-y-4">
@@ -140,11 +144,50 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
         </div>
       )}
 
-      {showCode && (
+      {showCode && isCoach && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Lag</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                setCoachJoins(false);
+                onChange({ code: "" });
+              }}
+              aria-pressed={!coachJoins}
+              className={`rounded-lg border p-3 text-left text-sm transition-colors ${
+                !coachJoins ? "border-primary bg-primary/10" : "border-border bg-card"
+              }`}
+            >
+              <span className="font-medium">Jag startar ett nytt lag</span>
+              <span className="block text-xs text-muted-foreground">
+                Du skapar laget direkt efter registreringen
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCoachJoins(true)}
+              aria-pressed={coachJoins}
+              className={`rounded-lg border p-3 text-left text-sm transition-colors ${
+                coachJoins ? "border-primary bg-primary/10" : "border-border bg-card"
+              }`}
+            >
+              <span className="font-medium">Jag går med i ett befintligt lag</span>
+              <span className="block text-xs text-muted-foreground">Du har fått en tränarkod</span>
+            </button>
+          </div>
+          {!coachJoins && (
+            <p className="text-xs text-muted-foreground">
+              Ingen kod behövs. När kontot är klart skapar du laget och får en spelarkod och en
+              tränarkod att dela ut.
+            </p>
+          )}
+        </div>
+      )}
+
+      {showCodeField && (
         <div className="space-y-1.5">
-          <Label htmlFor="setup-code">
-            {setup.role === "coach" ? "Tränarkod (om du har en)" : "Lagkod"}
-          </Label>
+          <Label htmlFor="setup-code">{isCoach ? "Tränarkod" : "Lagkod"}</Label>
           <Input
             id="setup-code"
             value={setup.code ?? ""}
