@@ -11,7 +11,6 @@ import {
   KB_LEVEL_LABELS,
   KB_STATUSES,
   KB_STATUS_LABELS,
-  ageLabel,
   allTags,
   deleteArticle,
   fetchArticles,
@@ -90,9 +89,9 @@ function KunskapsbankPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [level, setLevel] = useState("all");
-  const [age, setAge] = useState("all");
+  const age = "all";
   const [onlyFavorites, setOnlyFavorites] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const selectedTags: string[] = [];
   const [editing, setEditing] = useState<ArticleInput | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
 
@@ -153,7 +152,6 @@ function KunskapsbankPage() {
     onError: () => toast.error("Kunde inte radera artikeln"),
   });
 
-  const tagOptions = useMemo(() => allTags(visibleArticles(articles.data ?? [], isAdmin)), [articles.data, isAdmin]);
 
   const list = filterArticles(visibleArticles(articles.data ?? [], isAdmin), {
     query,
