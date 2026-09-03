@@ -16,6 +16,10 @@ import { AppNav } from "@/components/AppNav";
 import { BackButton } from "@/components/BackButton";
 import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { clearOfflineData, clearOtherUsers } from "@/lib/offline-cache";
+
 import { supabase } from "@/integrations/supabase/client";
 import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
 
@@ -145,8 +149,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -198,13 +205,27 @@ function RootComponent() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event === "SIGNED_OUT") clearOfflineData();
+      else {
+        if (session?.user?.id) clearOtherUsers(session.user.id);
+        queryClient.invalidateQueries();
+      }
     });
     return () => subscription.unsubscribe();
   }, [queryClient, router]);
+
+  // Registrerar service workern så appen kan installeras och läsas offline.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    if (window.location.hostname === "localhost") return;
+    const timer = window.setTimeout(() => {
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    }, 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     applyTheme(loadTheme());
@@ -219,11 +240,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
+      <OfflineBanner />
       <div className="min-h-screen pb-[76px] md:pb-8 md:pt-16">
         <BackButton />
         <Outlet />
       </div>
       <AppNav />
+      <InstallPrompt />
       <DebugInfoBox />
       <Toaster position="top-center" />
     </QueryClientProvider>

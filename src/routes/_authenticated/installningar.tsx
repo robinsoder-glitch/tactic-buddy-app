@@ -13,6 +13,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
@@ -158,6 +159,8 @@ function SettingsPage() {
           ))}
         </div>
       </section>
+
+      <NotificationSettingsCard userId={userId} />
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
