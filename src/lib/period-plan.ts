@@ -169,17 +169,15 @@ export async function addPeriodLink(input: {
   resourceId: string;
   label?: string | null;
 }) {
-  const { error } = await supabase
-    .from("period_links")
-    .upsert(
-      {
-        period_id: input.periodId,
-        kind: input.kind,
-        resource_id: input.resourceId,
-        label: input.label ?? null,
-      },
-      { onConflict: "period_id,kind,resource_id" },
-    );
+  const { error } = await supabase.from("period_links").upsert(
+    {
+      period_id: input.periodId,
+      kind: input.kind,
+      resource_id: input.resourceId,
+      label: input.label ?? null,
+    },
+    { onConflict: "period_id,kind,resource_id" },
+  );
   if (error) throw error;
 }
 
