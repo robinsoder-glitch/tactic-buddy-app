@@ -133,7 +133,7 @@ function AuthPage() {
           emailRedirectTo: window.location.origin,
           // Hela registreringsunderlaget följer med kontot – fungerar även om
           // bekräftelselänken öppnas på en annan telefon eller dator.
-          data: { display_name: setup.name.trim(), ...setupToMetadata(setup) },
+          data: setupToMetadata(setup),
         },
       });
       if (error) throw error;
