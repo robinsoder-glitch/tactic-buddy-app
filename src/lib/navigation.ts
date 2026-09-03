@@ -33,8 +33,8 @@ export const SECONDARY_LABEL = "Lag och verktyg";
 
 /** Spelare och vårdnadshavare ser bara sina egna sidor – ingen planering. */
 export const PLAYER_MAIN_TABS: MainTab[] = [
-  { to: "/kalender", label: "Kalender", exact: false },
   { to: "/kallelser", label: "Mina kallelser", exact: false },
+  { to: "/kalender", label: "Kalender", exact: false },
   { to: "/teams", label: "Mitt lag", exact: false },
   { to: "/kunskapsbank", label: "Kunskap", exact: false },
 ];
