@@ -224,13 +224,16 @@ export function Pitch({
     event.stopPropagation();
     // Hindrar att webbläsaren startar egen bild-/textdragning som annars avbryter pointer-flödet.
     event.preventDefault();
-    const target = event.currentTarget as unknown as SVGGElement;
-    try {
-      target.setPointerCapture?.(event.pointerId);
-      capturedRef.current = target;
-    } catch {
-      svgRef.current?.setPointerCapture?.(event.pointerId);
-      capturedRef.current = svgRef.current;
+    // Planens SVG är alltid capture-yta: då fortsätter dragningen även när pekaren
+    // lämnar spelarsymbolen eller webbläsaren saknar capture på enskilda element.
+    const svg = svgRef.current;
+    if (svg && typeof svg.setPointerCapture === "function") {
+      try {
+        svg.setPointerCapture(event.pointerId);
+        capturedRef.current = svg;
+      } catch {
+        capturedRef.current = null;
+      }
     }
     const point = toNormalized(event);
     dragId.current = object.id;
