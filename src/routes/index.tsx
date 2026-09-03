@@ -461,57 +461,23 @@ function TacticsDashboard({ userId }: { userId: string }) {
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
         <QuickCard
-          to="/skapa"
-          icon={<Plus className="size-5" />}
-          title="Ny taktik"
-          text="Tom taktik eller färdig mall"
-          primary
-        />
-        <QuickCard
           to="/planera-traning"
           icon={<ClipboardList className="size-5" />}
           title="Planera träning"
           text="Boka träningstillfälle och fyll det med innehåll"
+          primary
         />
         <QuickCard
           to="/planera-match"
           icon={<Trophy className="size-5" />}
           title="Planera match"
-          text="Matchupplägg, trupp och taktik"
-        />
-        {isCoach ? (
-          <QuickCard
-            to="/teams"
-            icon={<Shield className="size-5" />}
-            title="Mitt lag"
-            text="Trupp, kalender och närvaro"
-          />
-        ) : (
-          <QuickCard
-            to="/bank"
-            icon={<Users className="size-5" />}
-            title="Spelarbank"
-            text="Namn, nummer och bilder"
-          />
-        )}
-        <QuickCard
-          to="/kunskapsbank"
-          icon={<GraduationCap className="size-5" />}
-          title="Kunskap"
-          text="Artiklar och tips för barn- och ungdomstränare"
+          text="Trupp, laguppställning och ledare"
         />
         <QuickCard
-          to="/kalender"
-          icon={<CalendarDays className="size-5" />}
-          title="Kalender"
-          text="Träningar, matcher och kallelser"
-        />
-        <QuickCard
-          to="/tranarsnack"
-          icon={<MessagesSquare className="size-5" />}
-          title="Tränarsnack"
-          text="Chatt med lagets övriga ledare"
-          badge={unreadChat}
+          to="/skapa"
+          icon={<Plus className="size-5" />}
+          title="Ny taktik"
+          text="Tom taktik eller färdig mall"
         />
       </section>
 

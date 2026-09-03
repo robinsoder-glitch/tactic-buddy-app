@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { MAIN_TABS, MOBILE_PRIMARY, LEGACY_REDIRECTS, isTabActive } from "./navigation";
+import {
+  MAIN_TABS,
+  SECONDARY_TABS,
+  LEGACY_REDIRECTS,
+  isTabActive,
+  parentPathFor,
+} from "./navigation";
 import {
   selectionLabel,
   plannedLabel,
@@ -9,13 +15,18 @@ import {
 } from "./planning";
 
 describe("huvudmenyn", () => {
-  it("visar alla flikar i rätt ordning", () => {
+  it("visar fem primära arbetsområden i rätt ordning", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
       "Planera match",
       "Taktik",
-      "Kunskap",
       "Träningsbank",
+      "Kunskap",
+    ]);
+  });
+
+  it("samlar lag och verktyg i en sekundär meny", () => {
+    expect(SECONDARY_TABS.map((tab) => tab.label)).toEqual([
       "Kalender",
       "Närvaro",
       "Tränarsnack",
@@ -24,27 +35,27 @@ describe("huvudmenyn", () => {
     ]);
   });
 
-  it("når alla funktioner på mobil med högst två tryck", () => {
-    const reachable = new Set([...MOBILE_PRIMARY, ...MAIN_TABS.map((tab) => tab.to)]);
-    expect(MAIN_TABS.every((tab) => reachable.has(tab.to))).toBe(true);
-    expect(MOBILE_PRIMARY.length).toBeLessThanOrEqual(4);
-  });
-
   it("markerar aktiv flik", () => {
     const taktik = MAIN_TABS.find((tab) => tab.to === "/taktik")!;
     expect(isTabActive("/taktik", taktik)).toBe(true);
     expect(isTabActive("/kunskapsbank", taktik)).toBe(false);
   });
 
+  it("ger varje detaljsida en definierad föräldervy", () => {
+    expect(parentPathFor("/kunskapsbank/teknik")).toBe("/kunskapsbank");
+    expect(parentPathFor("/team/abc")).toBe("/teams");
+    expect(parentPathFor("/taktik")).toBeNull();
+  });
+
   it("leder gamla adresser till rätt ny sida", () => {
-    // /skapa och /taktikbank är egna sidor igen och ska aldrig omdirigeras.
     expect(LEGACY_REDIRECTS["/skapa"]).toBeUndefined();
     expect(LEGACY_REDIRECTS["/taktikbank"]).toBeUndefined();
     expect(LEGACY_REDIRECTS["/mina-kallelser"]).toBe("/kalender/kallelser");
   });
 
   it("har inga dubbla länkar till samma sida", () => {
-    expect(new Set(MAIN_TABS.map((tab) => tab.to)).size).toBe(MAIN_TABS.length);
+    const all = [...MAIN_TABS, ...SECONDARY_TABS].map((tab) => tab.to);
+    expect(new Set(all).size).toBe(all.length);
   });
 });
 

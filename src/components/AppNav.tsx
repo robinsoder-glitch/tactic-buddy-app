@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
+import { MAIN_TABS, SECONDARY_TABS, SECONDARY_LABEL, isTabActive } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -62,7 +62,7 @@ export function AppNav() {
   if (HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix)))
     return null;
 
-  const primary = MAIN_TABS.filter((tab) => MOBILE_PRIMARY.includes(tab.to));
+  const primary = MAIN_TABS;
 
   const topLink =
     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
@@ -90,7 +90,7 @@ export function AppNav() {
 
   return (
     <>
-      {/* Dator: alla åtta flikar i toppen. */}
+      {/* Dator: fem arbetsområden plus Lag och verktyg. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav-top"
@@ -117,6 +117,25 @@ export function AppNav() {
               );
             })}
           </ul>
+          <ul className="flex shrink-0 items-center gap-1 border-l border-border pl-2">
+            {SECONDARY_TABS.map((tab) => {
+              const active = isTabActive(pathname, tab);
+              return (
+                <li key={tab.to}>
+                  <Link
+                    to={tab.to}
+                    title={`${SECONDARY_LABEL}: ${tab.label}`}
+                    aria-label={tab.label}
+                    aria-current={active ? "page" : undefined}
+                    className={`${topLink} px-2 ${active ? "bg-accent text-foreground" : ""}`}
+                  >
+                    {renderIcon(tab.to, "size-4")}
+                    <span className="sr-only lg:not-sr-only">{tab.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
           {isAdmin && (
             <Link
               to="/admin"
@@ -130,7 +149,7 @@ export function AppNav() {
         </div>
       </nav>
 
-      {/* Mobil: fyra val plus en meny med alla åtta. */}
+      {/* Mobil: fem arbetsområden plus menyn Lag och verktyg. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav"
@@ -161,7 +180,7 @@ export function AppNav() {
               className={`${barLink} ${menuOpen ? "text-primary" : ""}`}
             >
               <Menu className="relative z-10 size-5" aria-hidden />
-              <span className="relative z-10">Meny</span>
+              <span className="relative z-10">Lag</span>
             </button>
             {menuOpen && (
               <ul
@@ -170,9 +189,9 @@ export function AppNav() {
                 className="absolute bottom-[calc(100%+0.5rem)] right-1 w-60 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
               >
                 <li role="none" className="border-b border-border px-4 py-3">
-                  <BrandLogo size={32} nameClassName="font-display text-sm font-bold" />
+                  <span className="text-sm font-bold">{SECONDARY_LABEL}</span>
                 </li>
-                {MAIN_TABS.map((tab) => {
+                {SECONDARY_TABS.map((tab) => {
                   const active = isTabActive(pathname, tab);
                   return (
                     <li key={tab.to} role="none">
