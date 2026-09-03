@@ -14,9 +14,9 @@ export type GameFormat = {
 };
 
 export const GAME_FORMATS: GameFormat[] = [
-  { id: "5v5", label: "5 mot 5", hint: "Ungefär 8–9 år", pitchType: "small" },
-  { id: "7v7", label: "7 mot 7", hint: "Ungefär 10–12 år", pitchType: "small" },
-  { id: "9v9", label: "9 mot 9", hint: "Ungefär 13–14 år", pitchType: "full" },
+  { id: "5v5", label: "5 mot 5", hint: "Ungefär 8–9 år", pitchType: "five" },
+  { id: "7v7", label: "7 mot 7", hint: "Ungefär 10–12 år", pitchType: "seven" },
+  { id: "9v9", label: "9 mot 9", hint: "Ungefär 13–14 år", pitchType: "nine" },
   { id: "11v11", label: "11 mot 11", hint: "Från ungefär 15 år", pitchType: "full" },
 ];
 
@@ -48,5 +48,14 @@ export function parseGameFormat(value: string | null | undefined): GameFormatId 
 
 /** Modern svensk text för planstorleken på ett taktikkort. */
 export function pitchTypeLabel(pitchType: PitchType): string {
-  return pitchType === "full" ? "9 mot 9 / 11 mot 11" : "5 mot 5 / 7 mot 7";
+  if (pitchType === "full") return "11 mot 11";
+  if (pitchType === "nine") return "9 mot 9";
+  if (pitchType === "seven") return "7 mot 7";
+  if (pitchType === "five") return "5 mot 5";
+  return "5 mot 5 / 7 mot 7";
+}
+
+/** Spelform som hör ihop med en planstorlek. */
+export function formatForPitchType(pitchType: PitchType): GameFormatId | null {
+  return GAME_FORMATS.find((format) => format.pitchType === pitchType)?.id ?? null;
 }

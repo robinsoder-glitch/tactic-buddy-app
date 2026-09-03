@@ -134,7 +134,13 @@ export const FORMATIONS: Formation[] = [
 /** Formationer som passar den valda planlayouten bäst hamnar först. */
 export function formationsForPitch(pitchType: PitchType): Formation[] {
   const preferred =
-    pitchType === "full" ? 11 : pitchType === "small" ? 5 : pitchType === "half" ? 9 : 7;
+    pitchType === "full"
+      ? 11
+      : pitchType === "nine" || pitchType === "half"
+        ? 9
+        : pitchType === "seven" || pitchType === "third"
+          ? 7
+          : 5;
   return [...FORMATIONS].sort(
     (a, b) => Math.abs(a.players - preferred) - Math.abs(b.players - preferred),
   );
@@ -200,6 +206,8 @@ export function buildLineup(slots: FormationSlot[], bank: LineupPlayer[]): Lineu
 
 /** Planlayout som hör ihop med formationens spelarantal. 9-manna spelas på 11-mannaplan. */
 export function pitchForFormation(players: number): PitchType {
-  if (players >= 9) return "full";
-  return "small";
+  if (players >= 11) return "full";
+  if (players >= 9) return "nine";
+  if (players >= 6) return "seven";
+  return "five";
 }

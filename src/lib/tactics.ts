@@ -1,4 +1,4 @@
-export type PitchType = "full" | "small" | "half" | "third";
+export type PitchType = "full" | "nine" | "seven" | "five" | "small" | "half" | "third";
 export type Team = "home" | "away";
 
 export type FieldObject = {
@@ -50,6 +50,9 @@ export type PlayerWithPhoto = PlayerRow & { photoUrl: string | null };
 
 export const PITCH_SIZES: Record<PitchType, { w: number; h: number; label: string }> = {
   full: { w: 105, h: 68, label: "11-manna" },
+  nine: { w: 72, h: 55, label: "9-manna" },
+  seven: { w: 60, h: 40, label: "7-manna" },
+  five: { w: 40, h: 30, label: "5-manna" },
   small: { w: 60, h: 40, label: "5/7-manna" },
   half: { w: 52.5, h: 68, label: "Halvplan" },
   third: { w: 35, h: 68, label: "Anfallszon" },

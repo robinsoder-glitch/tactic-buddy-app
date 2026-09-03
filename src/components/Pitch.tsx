@@ -245,11 +245,14 @@ export function Pitch({
 
   const markLine = "var(--color-pitch-line)";
   const partial = pitchType === "half" || pitchType === "third";
-  const boxDepth = pitchType === "small" ? 9 : 16.5;
-  const boxWidth = pitchType === "small" ? 20 : 40.3;
-  const goalDepth = pitchType === "small" ? 3 : 5.5;
-  const goalWidth = pitchType === "small" ? 9 : 18.3;
-  const circleR = pitchType === "small" ? 6 : 9.15;
+  // Små spelformer (5-, 7- och 9-manna) ritas med mindre straffområde, mål och mittcirkel.
+  const smallPitch = w < 80;
+  const scale = Math.min(1, w / 105);
+  const boxDepth = smallPitch ? Math.max(5, 12 * scale) : 16.5;
+  const boxWidth = smallPitch ? Math.max(12, 30 * scale) : 40.3;
+  const goalDepth = smallPitch ? Math.max(2, 4 * scale) : 5.5;
+  const goalWidth = smallPitch ? Math.max(6, 13 * scale) : 18.3;
+  const circleR = smallPitch ? Math.max(4, 8 * scale) : 9.15;
 
   function shapeColor(drawing: Pick<Drawing, "type" | "color">) {
     if (drawing.color) return drawing.color;
