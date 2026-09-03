@@ -67,11 +67,20 @@ function DrillPage() {
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <PickModeBanner />
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningsbanken">
-          <Link to="/ovningsbank" search={{ eventId: pick.eventId, teamId: pick.teamId }}>
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        {/* Öppnad från en pågående träningsplanering? Då leder pilen tillbaka dit. */}
+        {pick.eventId ? (
+          <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningen">
+            <Link to="/planera-traning" search={{ eventId: pick.eventId, mode: "edit" }}>
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningsbanken">
+            <Link to="/ovningsbank" search={{ eventId: pick.eventId, teamId: pick.teamId }}>
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+        )}
         <div className="min-w-0">
           <p className="text-xs tracking-wide text-muted-foreground">
             {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
