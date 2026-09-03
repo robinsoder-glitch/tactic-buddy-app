@@ -31,6 +31,7 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchMyTeams, saveEvent } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -179,11 +180,7 @@ function TaktikbankCard() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/taktikbank">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/taktikbank" label="Tillbaka" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-xs tracking-[0.25em] text-primary">
             {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} ·{" "}

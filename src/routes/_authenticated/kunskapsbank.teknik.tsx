@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -44,11 +45,7 @@ function TechniquePage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till kunskapsbanken">
-          <Link to="/kunskapsbank">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/kunskapsbank" label="Tillbaka till kunskapsbanken" />
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Kunskapsbank</p>
           <h1 className="font-display text-3xl font-bold">

@@ -11,6 +11,7 @@ import {
   type CoachSessionItem,
   type ItemKind,
 } from "@/lib/coach-sessions";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/visa")({
@@ -105,11 +106,7 @@ function SessionView() {
   return (
     <main className="print-area mx-auto max-w-3xl px-4 pb-32 pt-6 print:pt-0">
       <header className="flex items-center gap-2 print:hidden">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningar">
-          <Link to="/traningspass">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
         <div className="flex-1" />
         <Button asChild variant="outline" size="sm">
           <Link to="/traningspass/$id" params={{ id }} aria-label="Redigera träningspass">

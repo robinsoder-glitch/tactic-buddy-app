@@ -15,6 +15,7 @@ import {
 } from "@/lib/taktikbank";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { Input } from "@/components/ui/input";
@@ -174,11 +175,7 @@ function TaktikbankPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/taktik" label="Tillbaka" />
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Barnfotboll</p>
           <h1 className="font-display text-3xl font-bold">Taktikbank</h1>

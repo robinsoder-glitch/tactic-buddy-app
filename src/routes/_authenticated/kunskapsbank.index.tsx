@@ -40,6 +40,7 @@ import { KnowledgeTabs } from "@/components/KnowledgeTabs";
 import { ContentLinkAdmin } from "@/components/ContentLinkAdmin";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -187,11 +188,7 @@ function KunskapsbankPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/" label="Tillbaka" />
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Varför vi gör så här</p>
           <h1 className="font-display text-3xl font-bold">Kunskapsbank</h1>
