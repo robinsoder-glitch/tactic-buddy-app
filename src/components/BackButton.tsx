@@ -1,6 +1,7 @@
 import { useRouter, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { MAIN_TABS, SECONDARY_TABS, parentPathFor } from "@/lib/navigation";
+import { canGoBackInApp } from "@/lib/back-navigation";
 
 /**
  * Sidor som redan har en egen tillbaka-länk i sitt innehåll.
@@ -33,8 +34,9 @@ export function BackButton() {
   const parent = parentPathFor(pathname);
 
   const goBack = () => {
-    if (parent) router.navigate({ to: parent });
-    else if (typeof window !== "undefined" && window.history.length > 1) router.history.back();
+    // Föregående sida i appen först – annars den definierade föräldervyn.
+    if (canGoBackInApp()) router.history.back();
+    else if (parent) router.navigate({ to: parent });
     else router.navigate({ to: "/" });
   };
 

@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { fetchDistrictProfiles, fetchRulesets } from "@/lib/taktikbank";
 import { RulesView } from "@/components/rules/RulesView";
 import { useAccount } from "@/hooks/useAccount";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/taktikbank/regler")({
@@ -58,11 +59,7 @@ function ReglerPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/taktikbank">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/taktikbank" label="Tillbaka" />
         <h1 className="font-display text-3xl font-bold">Regler</h1>
       </header>
       <section className="mt-4">

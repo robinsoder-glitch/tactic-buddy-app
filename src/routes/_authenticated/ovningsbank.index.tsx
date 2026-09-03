@@ -34,6 +34,7 @@ import { createFromTemplate } from "@/lib/coach-sessions";
 import { DRILL_SECTIONS } from "@/lib/related-sections";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
@@ -262,11 +263,7 @@ function OvningsbankPage() {
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <PickModeBanner />
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/" label="Tillbaka" />
         <div>
           <p className="font-display text-xs tracking-[0.3em] text-primary">Så tränar ni det</p>
           <h1 className="font-display text-3xl font-bold">Träningsbank</h1>

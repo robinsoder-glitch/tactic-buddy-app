@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { BackLink } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/installningar")({
   head: () => ({
@@ -95,12 +96,7 @@ function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <Link
-        to="/"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden /> Tillbaka
-      </Link>
+      <BackLink fallback="/">Tillbaka</BackLink>
       <h1 className="mt-3 font-display text-3xl font-bold">Inställningar</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {profile?.display_name?.trim() || "Namnlös profil"}

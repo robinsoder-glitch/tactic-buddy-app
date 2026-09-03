@@ -27,6 +27,7 @@ import { useConfirm } from "@/components/ConfirmDelete";
 import { GuardianLinks } from "@/components/GuardianLinks";
 import { PlayerAccountLink } from "@/components/PlayerAccountLink";
 import { PlayerDevelopment } from "@/components/PlayerDevelopment";
+import { BackIconButton } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playerId")({
   component: PlayerPage,
@@ -88,11 +89,7 @@ function PlayerPage() {
   return (
     <section>
       <div className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till truppen">
-          <Link to="/team/$teamId" params={{ teamId }}>
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback={`/team/${teamId}`} label="Tillbaka till truppen" />
         <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
       </div>
 

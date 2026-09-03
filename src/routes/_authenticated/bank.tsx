@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { deletePlayer, fetchPlayers, savePlayer, uploadPlayerPhoto } from "@/lib/db";
 import { initials } from "@/lib/tactics";
 import type { PlayerWithPhoto } from "@/lib/tactics";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Input } from "@/components/ui/input";
@@ -114,11 +115,7 @@ function BankPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
-          <Link to="/">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/" label="Tillbaka" />
         <h1 className="font-display text-3xl font-bold">Spelarbank</h1>
       </header>
 

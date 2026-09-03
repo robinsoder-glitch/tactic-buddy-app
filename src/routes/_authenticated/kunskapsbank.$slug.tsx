@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { RelatedContent } from "@/components/RelatedContent";
 import { ARTICLE_SECTIONS } from "@/lib/related-sections";
+import { BackLink } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   head: () => ({
@@ -87,12 +88,7 @@ function KnowledgeArticlePage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6">
-      <Link
-        to="/kunskapsbank"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" /> Kunskapsbanken
-      </Link>
+      <BackLink fallback="/kunskapsbank">Kunskapsbanken</BackLink>
 
       {article.isLoading && <p className="mt-6 text-sm text-muted-foreground">Laddar artikeln…</p>}
 

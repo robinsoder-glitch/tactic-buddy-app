@@ -38,6 +38,7 @@ import {
 } from "@/lib/event-planning";
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -204,11 +205,7 @@ function MySessionsPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Träningsbanken">
-          <Link to="/ovningsbank">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/ovningsbank" label="Tillbaka till Träningsbanken" />
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Planera träningen</p>
           <h1 className="font-display text-3xl font-bold">Mina träningar</h1>

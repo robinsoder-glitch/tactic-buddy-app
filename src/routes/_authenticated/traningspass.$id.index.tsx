@@ -25,6 +25,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { SessionSharing } from "@/components/SessionSharing";
+import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -182,11 +183,7 @@ function SessionBuilder() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till Mina träningar">
-          <Link to="/traningspass">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
+        <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
           <h1 className="font-display text-2xl font-bold">{session.data.title}</h1>
