@@ -133,7 +133,7 @@
 - [x] Dela laguppställning: skrivskyddad länk (match_shares + get_shared_match), återkallelse, slutdatum, inga privata uppgifter
 - [x] Acceptanstester (live): 3v3-sparning med ledare+4 spelare, reload visar identisk data, grön Klar-etikett, läsläge, dubblettskydd/validering via enhetstester (273 gröna)
 - [x] Rättat: tryck-placering i MatchLineupEditor (pointerdown avmarkerade valet), svars­summering räknar uttagna utan kallelserad som Ej svarat, klickbara ledar-/spelarrader
-- [ ] Ej testat live: 5v5/7v7/9v9/11v11 (enhetstestade), giltig delningslänk utloggad (ogiltig token testad), RLS mellan två lag, påminnelse-debounce
+- [x] Live-testat 2026-09-03: 5v5/7v7/9v9/11v11 + 3v3 sparade och lästes tillbaka korrekt; validering avvisar dubbletter, fel antal, position utanför plan och avbytare som står på plan
 
 ## Instruktion 10E – Genomför träning
 - [x] Starta träning: exakt ett aktivt genomförande, Fortsätt pågående
@@ -170,4 +170,8 @@
 - [x] Fixat: sammanfattningen visas efter avslutad träning (tidigare dolde tomma läget dialogen)
 - [x] Testdata rensad efter genomgången
 - [x] Säkerhet: interna triggerfunktioner går inte längre att anropa; kvarvarande SECURITY DEFINER-funktioner är RLS-hjälpare och RPC:er med egna behörighetskontroller
-- [ ] Kvarstår otestat live: 5v5–11v11 fullskaligt, giltig delningslänk utloggad, RLS mellan två lag, påminnelse-debounce (enhetstestade)
+- [x] Live-testat 2026-09-03 (två riktiga konton/lag):
+  - [x] 3v3–11v11 fullskaligt: sparning + återläsning identisk
+  - [x] Giltig delningslänk utloggad: visar match, formation, nummer och namn – inga e-post/telefon/anteckningar; återkallad länk ger tomt
+  - [x] RLS mellan två lag: läsning av annat lags spelare/aktiviteter/kallelser ger 0 rader, sparning nekas ("Endast lagets tränare..."), insert nekas av RLS; anonym direktläsning ger 0 rader
+  - [x] Påminnelse-debounce: tre parallella tryck skapar nu exakt en notis (fixat med lås per aktivitet i send_invite_reminders)
