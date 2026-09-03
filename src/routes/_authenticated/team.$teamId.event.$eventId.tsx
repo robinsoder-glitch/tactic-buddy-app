@@ -551,8 +551,15 @@ function EventPage() {
                 setSelected(selected.length === all.length ? [] : all);
               }}
             >
-              Välj alla
+              {selected.length > 0 &&
+              selected.length ===
+                (players.data ?? []).filter(
+                  (p) => !list.some((item) => item.player_id === p.id),
+                ).length
+                ? "Avmarkera alla"
+                : "Välj alla"}
             </Button>
+
           </div>
 
           <ul className="space-y-1">
