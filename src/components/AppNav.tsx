@@ -11,6 +11,7 @@ import {
   MessagesSquare,
   Settings,
   Shield,
+  ShieldCheck,
   Trophy,
 } from "lucide-react";
 import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
@@ -36,7 +37,7 @@ const ICONS: Record<string, typeof Menu> = {
 
 export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const { user } = useAccount();
+  const { user, isAdmin } = useAccount();
   const unread = useUnreadChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
@@ -115,6 +116,16 @@ export function AppNav() {
               );
             })}
           </ul>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+              className={`${topLink} shrink-0 ${pathname.startsWith("/admin") ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+            >
+              <ShieldCheck className="size-4" aria-hidden />
+              <span>Admin</span>
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -176,6 +187,18 @@ export function AppNav() {
                     </li>
                   );
                 })}
+                {isAdmin && (
+                  <li role="none" className="border-t border-border">
+                    <Link
+                      role="menuitem"
+                      to="/admin"
+                      className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-foreground hover:bg-accent"
+                    >
+                      <ShieldCheck className="size-4" aria-hidden />
+                      Admin
+                    </Link>
+                  </li>
+                )}
               </ul>
             )}
           </li>

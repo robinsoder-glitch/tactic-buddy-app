@@ -27,6 +27,10 @@ import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenticated/tranarsnack'
 import { Route as DeladMatchTokenRouteImport } from './routes/delad-match.$token'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminInnehallRouteImport } from './routes/_authenticated/admin.innehall'
+import { Route as AuthenticatedAdminKontonRouteImport } from './routes/_authenticated/admin.konton'
+import { Route as AuthenticatedAdminLoggRouteImport } from './routes/_authenticated/admin.logg'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
@@ -43,6 +47,8 @@ import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_aut
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_authenticated/traningspass.index'
 import { Route as AuthenticatedTraningspassIdRouteImport } from './routes/_authenticated/traningspass.$id'
+import { Route as AuthenticatedAdminLagIndexRouteImport } from './routes/_authenticated/admin.lag.index'
+import { Route as AuthenticatedAdminLagTeamIdRouteImport } from './routes/_authenticated/admin.lag.$teamId'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
@@ -154,6 +160,28 @@ const TShareIdRoute = TShareIdRouteImport.update({
   path: '/t/$shareId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminInnehallRoute =
+  AuthenticatedAdminInnehallRouteImport.update({
+    id: '/innehall',
+    path: '/innehall',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminKontonRoute =
+  AuthenticatedAdminKontonRouteImport.update({
+    id: '/konton',
+    path: '/konton',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLoggRoute = AuthenticatedAdminLoggRouteImport.update({
+  id: '/logg',
+  path: '/logg',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedInbjudanTokenRoute =
   AuthenticatedInbjudanTokenRouteImport.update({
     id: '/inbjudan/$token',
@@ -247,6 +275,18 @@ const AuthenticatedTraningspassIdRoute =
     id: '/traningspass/$id',
     path: '/traningspass/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLagIndexRoute =
+  AuthenticatedAdminLagIndexRouteImport.update({
+    id: '/lag/',
+    path: '/lag/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLagTeamIdRoute =
+  AuthenticatedAdminLagTeamIdRouteImport.update({
+    id: '/lag/$teamId',
+    path: '/lag/$teamId',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedTeamTeamIdIndexRoute =
   AuthenticatedTeamTeamIdIndexRouteImport.update({
@@ -348,7 +388,7 @@ const AuthenticatedTeamTeamIdPlayerPlayerIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/kalender': typeof AuthenticatedKalenderRouteWithChildren
@@ -363,6 +403,9 @@ export interface FileRoutesByFullPath {
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
+  '/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -374,11 +417,13 @@ export interface FileRoutesByFullPath {
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/traningspass/': typeof AuthenticatedTraningspassIndexRoute
+  '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -391,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -399,7 +445,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
@@ -413,6 +458,9 @@ export interface FileRoutesByTo {
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
+  '/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -422,11 +470,13 @@ export interface FileRoutesByTo {
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/kalender': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank': typeof AuthenticatedOvningsbankIndexRoute
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
   '/traningspass': typeof AuthenticatedTraningspassIndexRoute
+  '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -439,6 +489,7 @@ export interface FileRoutesByTo {
   '/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/admin/lag': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -449,7 +500,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/bank': typeof AuthenticatedBankRoute
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/kalender': typeof AuthenticatedKalenderRouteWithChildren
@@ -464,6 +515,9 @@ export interface FileRoutesById {
   '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/_authenticated/admin/innehall': typeof AuthenticatedAdminInnehallRoute
+  '/_authenticated/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/_authenticated/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -475,11 +529,13 @@ export interface FileRoutesById {
   '/_authenticated/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
   '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/_authenticated/traningspass/$id': typeof AuthenticatedTraningspassIdRouteWithChildren
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/_authenticated/traningspass/': typeof AuthenticatedTraningspassIndexRoute
+  '/_authenticated/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
   '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
@@ -492,6 +548,7 @@ export interface FileRoutesById {
   '/_authenticated/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/_authenticated/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/_authenticated/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/_authenticated/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/_authenticated/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/_authenticated/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -517,6 +574,9 @@ export interface FileRouteTypes {
     | '/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/admin/innehall'
+    | '/admin/konton'
+    | '/admin/logg'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
@@ -528,11 +588,13 @@ export interface FileRouteTypes {
     | '/taktikbank/regler'
     | '/team/$teamId'
     | '/traningspass/$id'
+    | '/admin/'
     | '/kalender/'
     | '/kunskapsbank/'
     | '/ovningsbank/'
     | '/taktikbank/'
     | '/traningspass/'
+    | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/leaders'
@@ -545,6 +607,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/tranarsnack'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/admin/lag/'
     | '/team/$teamId/'
     | '/traningspass/$id/'
     | '/team/$teamId/event/$eventId'
@@ -553,7 +616,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/admin'
     | '/bank'
     | '/installningar'
     | '/mina-kallelser'
@@ -567,6 +629,9 @@ export interface FileRouteTypes {
     | '/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/admin/innehall'
+    | '/admin/konton'
+    | '/admin/logg'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
@@ -576,11 +641,13 @@ export interface FileRouteTypes {
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
+    | '/admin'
     | '/kalender'
     | '/kunskapsbank'
     | '/ovningsbank'
     | '/taktikbank'
     | '/traningspass'
+    | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
     | '/team/$teamId/leaders'
@@ -593,6 +660,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/tranarsnack'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/admin/lag'
     | '/team/$teamId'
     | '/traningspass/$id'
     | '/team/$teamId/event/$eventId'
@@ -617,6 +685,9 @@ export interface FileRouteTypes {
     | '/_authenticated/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/_authenticated/admin/innehall'
+    | '/_authenticated/admin/konton'
+    | '/_authenticated/admin/logg'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
     | '/_authenticated/kunskapsbank/$slug'
@@ -628,11 +699,13 @@ export interface FileRouteTypes {
     | '/_authenticated/taktikbank/regler'
     | '/_authenticated/team/$teamId'
     | '/_authenticated/traningspass/$id'
+    | '/_authenticated/admin/'
     | '/_authenticated/kalender/'
     | '/_authenticated/kunskapsbank/'
     | '/_authenticated/ovningsbank/'
     | '/_authenticated/taktikbank/'
     | '/_authenticated/traningspass/'
+    | '/_authenticated/admin/lag/$teamId'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
     | '/_authenticated/team/$teamId/leaders'
@@ -645,6 +718,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team/$teamId/tranarsnack'
     | '/_authenticated/traningspass/$id/genomfor'
     | '/_authenticated/traningspass/$id/visa'
+    | '/_authenticated/admin/lag/'
     | '/_authenticated/team/$teamId/'
     | '/_authenticated/traningspass/$id/'
     | '/_authenticated/team/$teamId/event/$eventId'
@@ -787,6 +861,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/innehall': {
+      id: '/_authenticated/admin/innehall'
+      path: '/innehall'
+      fullPath: '/admin/innehall'
+      preLoaderRoute: typeof AuthenticatedAdminInnehallRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/konton': {
+      id: '/_authenticated/admin/konton'
+      path: '/konton'
+      fullPath: '/admin/konton'
+      preLoaderRoute: typeof AuthenticatedAdminKontonRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/logg': {
+      id: '/_authenticated/admin/logg'
+      path: '/logg'
+      fullPath: '/admin/logg'
+      preLoaderRoute: typeof AuthenticatedAdminLoggRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/inbjudan/$token': {
       id: '/_authenticated/inbjudan/$token'
       path: '/inbjudan/$token'
@@ -898,6 +1000,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/traningspass/$id'
       preLoaderRoute: typeof AuthenticatedTraningspassIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/lag/': {
+      id: '/_authenticated/admin/lag/'
+      path: '/lag'
+      fullPath: '/admin/lag/'
+      preLoaderRoute: typeof AuthenticatedAdminLagIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/lag/$teamId': {
+      id: '/_authenticated/admin/lag/$teamId'
+      path: '/lag/$teamId'
+      fullPath: '/admin/lag/$teamId'
+      preLoaderRoute: typeof AuthenticatedAdminLagTeamIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/team/$teamId/': {
       id: '/_authenticated/team/$teamId/'
@@ -1014,6 +1130,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminInnehallRoute: typeof AuthenticatedAdminInnehallRoute
+  AuthenticatedAdminKontonRoute: typeof AuthenticatedAdminKontonRoute
+  AuthenticatedAdminLoggRoute: typeof AuthenticatedAdminLoggRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminLagTeamIdRoute: typeof AuthenticatedAdminLagTeamIdRoute
+  AuthenticatedAdminLagIndexRoute: typeof AuthenticatedAdminLagIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminInnehallRoute: AuthenticatedAdminInnehallRoute,
+  AuthenticatedAdminKontonRoute: AuthenticatedAdminKontonRoute,
+  AuthenticatedAdminLoggRoute: AuthenticatedAdminLoggRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminLagTeamIdRoute: AuthenticatedAdminLagTeamIdRoute,
+  AuthenticatedAdminLagIndexRoute: AuthenticatedAdminLagIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedKalenderRouteChildren {
   AuthenticatedKalenderKallelserRoute: typeof AuthenticatedKalenderKallelserRoute
   AuthenticatedKalenderIndexRoute: typeof AuthenticatedKalenderIndexRoute
@@ -1093,7 +1230,7 @@ const AuthenticatedTraningspassIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedKalenderRoute: typeof AuthenticatedKalenderRouteWithChildren
@@ -1123,7 +1260,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedBankRoute: AuthenticatedBankRoute,
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedKalenderRoute: AuthenticatedKalenderRouteWithChildren,
