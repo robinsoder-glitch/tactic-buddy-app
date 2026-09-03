@@ -214,6 +214,9 @@ function MySessionsPage() {
           <h1 className="font-display text-3xl font-bold">Mina träningar</h1>
         </div>
         {mine.length > 0 && (
+          <Button variant="outline" asChild>
+            <Link to="/traningspass/nytt">Mall eller kopia</Link>
+          </Button>
           <Button onClick={() => setCreateOpen(true)} aria-label="Skapa träning">
             <Plus className="size-4" /> Skapa träning
           </Button>

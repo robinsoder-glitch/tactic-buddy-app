@@ -327,6 +327,16 @@ function PlanTrainingPage() {
                 Datum, tid och plats. Träningen hamnar i kalendern.
               </p>
             </button>
+            <Link
+              to="/traningspass/nytt"
+              className="rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
+            >
+              <BookOpen className="size-6 text-primary" aria-hidden />
+              <h2 className="mt-3 font-display text-xl font-semibold">Nytt träningspass</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Skapa tomt pass, använd en mall eller kopiera ett tidigare pass.
+              </p>
+            </Link>
             <div className="rounded-xl border border-border bg-card p-5">
               <ClipboardList className="size-6 text-primary" aria-hidden />
               <h2 className="mt-3 font-display text-xl font-semibold">
