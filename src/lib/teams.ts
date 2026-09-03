@@ -225,7 +225,10 @@ export async function createTeam(input: {
   name: string;
   ageGroup: string;
   gender: string;
+  /** Spelform, t.ex. "5v5". Styr planstorleken på taktiktavlan. */
+  gameFormat?: string | null;
   homeGround?: string | null;
+
 }) {
   let clubId = input.clubId;
   if (!clubId && input.clubName.trim()) {
