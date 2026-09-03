@@ -5,6 +5,7 @@ import { Ban, CalendarDays, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import {
   NO_ACCOUNT_TEXT,
+  canRespondAsGuardian,
   canRespondSelf,
   emptyInviteMessage,
   hasLinkedPlayer,
