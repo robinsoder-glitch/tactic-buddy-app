@@ -62,7 +62,16 @@ function TeamsPage() {
     mutationFn: () => {
       if (!userId) throw new Error("Inte inloggad");
       if (!name.trim()) throw new Error("Ange ett lagnamn");
-      return createTeam({ userId, name, clubId, clubName, ageGroup, gender, gameFormat, homeGround });
+      return createTeam({
+        userId,
+        name,
+        clubId,
+        clubName,
+        ageGroup,
+        gender,
+        gameFormat,
+        homeGround,
+      });
     },
     onSuccess: (id) => {
       setOpen(false);

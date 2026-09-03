@@ -228,7 +228,6 @@ export async function createTeam(input: {
   /** Spelform, t.ex. "5v5". Styr planstorleken på taktiktavlan. */
   gameFormat?: string | null;
   homeGround?: string | null;
-
 }) {
   let clubId = input.clubId;
   if (!clubId && input.clubName.trim()) {
@@ -270,7 +269,10 @@ export async function createTeam(input: {
 export async function updateTeam(
   id: string,
   patch: Partial<
-    Pick<Team, "name" | "age_group" | "game_format" | "gender" | "about" | "home_ground" | "photo_path">
+    Pick<
+      Team,
+      "name" | "age_group" | "game_format" | "gender" | "about" | "home_ground" | "photo_path"
+    >
   >,
 ) {
   const { error } = await supabase.from("teams").update(patch).eq("id", id);
