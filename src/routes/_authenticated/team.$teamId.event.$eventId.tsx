@@ -429,7 +429,7 @@ function EventPage() {
         )}
       </section>
 
-      <EventStatusOverview steps={steps} />
+      <EventStatusOverview steps={steps} type={event.data?.type ?? "training"} />
 
       {isCoach && (
         <div className="mt-6">
