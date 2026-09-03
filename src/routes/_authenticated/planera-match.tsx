@@ -402,14 +402,30 @@ function MatchPlanner({
         required: effectiveRequired,
       });
       toast.success("Matchplanen är sparad");
-      onSaved(eventId);
-      setMode("read");
-      const lineup = await fetchLineup(eventId);
+      // Läsläget ska visa de nyss sparade uppgifterna utan omladdning.
+      const [{ data: freshEvent }, lineup, freshCoaches, freshSquad, freshPlan] = await Promise.all([
+        supabase.from("events").select("*").eq("id", eventId).single(),
+        fetchLineup(eventId),
+        fetchEventCoaches([eventId]),
+        (await import("@/lib/planning")).fetchSquad(eventId),
+        supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle(),
+      ]);
+      if (freshEvent) setEvent(freshEvent as unknown as MatchEvent);
       if (lineup) {
         setSlots(lineup.slots);
         setBench(lineup.bench);
         setTacticId(lineup.tactic_id);
       }
+      setCoachIds(freshCoaches.map((c) => c.user_id));
+      setPlayerIds(freshSquad);
+      setMeetInfo(freshPlan.data?.notes ?? "");
+      setPlanSaved(true);
+      onSaved(eventId, {
+        players: freshSquad.length,
+        coaches: freshCoaches.length,
+        event: freshEvent ? ({ ...(freshEvent as unknown as PlannableEvent) } as Partial<PlannableEvent>) : undefined,
+      });
+      setMode("read");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Kunde inte spara matchplanen");
     } finally {
