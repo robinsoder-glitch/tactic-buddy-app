@@ -9,6 +9,8 @@ export type Team = {
   id: string;
   name: string;
   age_group: string | null;
+  /** Spelform laget spelar, t.ex. 5v5. Styr planstorleken på taktiktavlan. */
+  game_format: string | null;
   gender: string;
   about: string | null;
   home_ground: string | null;
@@ -180,7 +182,7 @@ export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -198,7 +200,7 @@ export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
     )
     .eq("id", id)
     .single();
@@ -243,6 +245,7 @@ export async function createTeam(input: {
       club_id: clubId,
       name: input.name.trim(),
       age_group: input.ageGroup.trim() || null,
+      game_format: input.gameFormat ?? null,
       gender: input.gender,
       home_ground: input.homeGround?.trim() || null,
     })
@@ -264,7 +267,7 @@ export async function createTeam(input: {
 export async function updateTeam(
   id: string,
   patch: Partial<
-    Pick<Team, "name" | "age_group" | "gender" | "about" | "home_ground" | "photo_path">
+    Pick<Team, "name" | "age_group" | "game_format" | "gender" | "about" | "home_ground" | "photo_path">
   >,
 ) {
   const { error } = await supabase.from("teams").update(patch).eq("id", id);
