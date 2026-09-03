@@ -169,8 +169,15 @@ function KnowledgeArticlePage() {
             rel="noreferrer"
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 sm:w-auto"
           >
-            Läs vidare hos källan <ExternalLink className="size-4" />
+            Läs originalkällan <ExternalLink className="size-4" />
           </a>
+          {data.source_name && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Källa: {data.source_name}
+              {data.checked_date ? ` · källgranskad ${data.checked_date}` : ""}
+            </p>
+          )}
+
 
           <RelatedContent sections={sections} />
         </article>
