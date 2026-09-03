@@ -41,7 +41,11 @@ function item(sessionId: string, minutes: number, index: number): CoachSessionIt
 }
 
 describe("mallar", () => {
-  const own = { ...session({ id: "t1" }), is_template: true, visibility: "private" } as CoachSession;
+  const own = {
+    ...session({ id: "t1" }),
+    is_template: true,
+    visibility: "private",
+  } as CoachSession;
   const teamTemplate = {
     ...session({ id: "t2", user_id: "coach-2" }),
     is_template: true,

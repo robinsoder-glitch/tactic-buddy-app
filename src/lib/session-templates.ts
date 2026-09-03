@@ -154,10 +154,7 @@ export async function setTemplate(input: {
     visibility: input.visibility,
     ...(input.visibility === "team" ? { team_id: input.teamId ?? null } : {}),
   };
-  const { error } = await supabase
-    .from("coach_sessions")
-    .update(patch)
-    .eq("id", input.sessionId);
+  const { error } = await supabase.from("coach_sessions").update(patch).eq("id", input.sessionId);
   if (error) throw new Error(error.message);
 }
 

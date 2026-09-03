@@ -132,7 +132,10 @@ export function scoreTemplate(card: TemplateCard, input: RecommendationInput) {
     score += 2;
     reasons.push(`åldersgruppen är ${input.ageGroup}`);
   }
-  if (input.theme && matchesText(normalise(`${card.title} ${card.theme ?? ""}`), normalise(input.theme))) {
+  if (
+    input.theme &&
+    matchesText(normalise(`${card.title} ${card.theme ?? ""}`), normalise(input.theme))
+  ) {
     score += 3;
     reasons.push(`temat är ${input.theme}`);
   }
