@@ -61,7 +61,7 @@ export function MyDay() {
               <option value="all">Alla lag</option>
               {teams.map((team) => (
                 <option key={team.team_id} value={`team:${team.team_id}`}>
-                  {team.team_name ?? "Lag"}
+                  {team.team?.name ?? "Lag"}
                 </option>
               ))}
             </select>
