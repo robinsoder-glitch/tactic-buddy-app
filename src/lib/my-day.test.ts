@@ -103,3 +103,40 @@ describe("min dag", () => {
     expect(newsLabel("okänt")).toBe("Nyhet");
   });
 });
+
+describe("todoLink", () => {
+  const base = {
+    priority: 1,
+    team_id: "t1",
+    team_name: "Lag",
+    event_id: "e1",
+    player_id: null,
+    player_name: null,
+    subtitle: null,
+    due_at: null,
+    action_url: "/team/t1/event/e1",
+    action_label: "Öppna",
+  };
+
+  it("skickar obesvarade kallelser till kallelsesidan", () => {
+    expect(todoLink({ ...base, kind: "invite_unanswered", title: "Svara" })).toBe("/kallelser");
+  });
+
+  it("skickar matchplanering till planera match", () => {
+    expect(todoLink({ ...base, kind: "planning_missing", title: "Planera matchen" })).toBe(
+      "/planera-match?eventId=e1",
+    );
+  });
+
+  it("skickar träningsplanering till planera träning", () => {
+    expect(todoLink({ ...base, kind: "planning_missing", title: "Planera träningen" })).toBe(
+      "/planera-traning?eventId=e1",
+    );
+  });
+
+  it("skickar närvaro till lagets närvarolista", () => {
+    expect(todoLink({ ...base, kind: "attendance_missing", title: "Registrera närvaro" })).toBe(
+      "/team/t1/narvaro",
+    );
+  });
+});
