@@ -318,20 +318,6 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
   const previews = useQuery({ queryKey: ["tactic-previews"], queryFn: fetchTacticPreviews });
 
-  const nextEvent = useQuery({
-    queryKey: ["next-event", approved.map((item) => item.team_id).join(",")],
-    enabled: approved.length > 0,
-    queryFn: async () => {
-      const lists = await Promise.all(approved.map((item) => fetchEvents(item.team_id)));
-      const now = Date.now();
-      const upcoming = lists
-        .flat()
-        .filter((event) => new Date(event.starts_at).getTime() >= now)
-        .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-      return (upcoming[0] ?? null) as TeamEvent | null;
-    },
-  });
-
   const remove = useMutation({
     mutationFn: (id: string) => deleteTactic(id),
     onSuccess: () => {
