@@ -2656,6 +2656,7 @@ export type Database = {
         }[]
       }
       gen_team_code: { Args: never; Returns: string }
+      get_my_day_summary: { Args: never; Returns: Json }
       get_player_private: {
         Args: { _player_id: string }
         Returns: {
