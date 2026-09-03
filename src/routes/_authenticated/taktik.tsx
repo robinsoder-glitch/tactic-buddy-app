@@ -7,7 +7,7 @@ import { TacticEditor } from "@/components/TacticEditor";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
+import { deleteAllTactics, deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
 
@@ -85,6 +85,30 @@ function TacticPage() {
     onError: () => toast.error("Taktiken kunde inte raderas."),
   });
 
+  const removeAll = useMutation({
+    mutationFn: () => {
+      if (!user) throw new Error("Inte inloggad");
+      return deleteAllTactics(user.id);
+    },
+    onSuccess: (count) => {
+      setOpenId(null);
+      setBlankId(null);
+      void queryClient.invalidateQueries();
+      toast.success(count > 0 ? `${count} taktiker raderades.` : "Inga taktiker att radera.");
+    },
+    onError: () => toast.error("Taktikerna kunde inte raderas."),
+  });
+
+  async function askDeleteAll() {
+    const ok = await confirm({
+      title: "Radera alla taktiker",
+      description:
+        "Alla dina taktiker och deras steg tas bort permanent. Det går inte att ångra.",
+      confirmLabel: "Radera alla",
+    });
+    if (ok) removeAll.mutate();
+  }
+
   async function askDelete(id: string, name: string) {
     const ok = await confirm({
       title: "Radera taktik",
@@ -127,9 +151,22 @@ function TacticPage() {
       <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-display text-2xl font-bold">Mina taktiker</h2>
-          <Button size="sm" variant="secondary" disabled={!user} onClick={startNewBoard}>
-            Ny tom tavla
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="secondary" disabled={!user} onClick={startNewBoard}>
+              Ny tom tavla
+            </Button>
+            {list.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                disabled={!user || removeAll.isPending}
+                onClick={() => void askDeleteAll()}
+              >
+                <Trash2 className="h-4 w-4" /> Radera alla
+              </Button>
+            )}
+          </div>
         </div>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {list.length === 0 && (
