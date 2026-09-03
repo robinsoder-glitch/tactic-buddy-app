@@ -127,6 +127,7 @@ function TeamsPage() {
               </select>
               {!clubId && (
                 <Input
+                  aria-label="Klubbens namn"
                   placeholder="Klubbens namn"
                   value={clubName}
                   onChange={(event) => setClubName(event.target.value)}

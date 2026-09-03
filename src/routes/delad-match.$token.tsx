@@ -45,7 +45,7 @@ function SharedMatchPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <main className="mx-auto w-full max-w-2xl space-y-6 px-4 py-8">
         {loading && <p className="text-sm text-muted-foreground">Hämtar laguppställning…</p>}
         {!loading && !match && (

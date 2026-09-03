@@ -221,7 +221,7 @@ function AuthPage() {
   const showRoleStep = mode === "signup" && !role;
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-4 py-10 lg:grid-cols-[1fr_minmax(0,26rem)]">
+    <main className="mx-auto grid min-h-dvh w-full max-w-5xl items-center gap-10 px-4 py-10 lg:grid-cols-[1fr_minmax(0,26rem)]">
       <section className="order-2 lg:order-1">
         <BrandLogo size={56} showName={false} />
         <h2 className="mt-5 font-display text-3xl font-bold sm:text-4xl">{BRAND_NAME}</h2>

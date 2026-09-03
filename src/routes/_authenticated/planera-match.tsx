@@ -145,7 +145,7 @@ function MatchPlanningPage() {
   const selected = events?.find((e) => e.id === eventId) ?? null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
         {!selected && (
           <>
@@ -1096,7 +1096,7 @@ function ShareDialog({
         </p>
         {share ? (
           <div className="space-y-3">
-            <Input readOnly value={url ?? ""} onFocus={(e) => e.target.select()} />
+            <Input aria-label="Delningslänk" readOnly value={url ?? ""} onFocus={(e) => e.target.select()} />
             {share.expires_at && (
               <p className="text-xs text-muted-foreground">
                 Slutar gälla: {dateLabel(share.expires_at)}

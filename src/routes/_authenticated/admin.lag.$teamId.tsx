@@ -267,6 +267,7 @@ function AdminTeamDetail() {
               <p className="font-semibold">{member.displayName ?? member.user_id}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <select
+                  aria-label={`Roll för ${member.displayName ?? "medlem"}`}
                   className="min-h-11 rounded-lg border border-border bg-background px-2 text-sm"
                   value={member.role}
                   onChange={(e) => updateMember.mutate({ id: member.id, role: e.target.value })}
@@ -278,6 +279,7 @@ function AdminTeamDetail() {
                   ))}
                 </select>
                 <select
+                  aria-label={`Status för ${member.displayName ?? "medlem"}`}
                   className="min-h-11 rounded-lg border border-border bg-background px-2 text-sm"
                   value={member.status}
                   onChange={(e) => updateMember.mutate({ id: member.id, status: e.target.value })}

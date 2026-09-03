@@ -71,7 +71,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 p-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 p-6">
       <div className="flex items-center gap-3">
         <BrandLogo className="size-9" />
         <h1 className="text-2xl font-bold">Välj nytt lösenord</h1>

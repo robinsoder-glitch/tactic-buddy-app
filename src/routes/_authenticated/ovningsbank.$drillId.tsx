@@ -49,7 +49,7 @@ function DrillPage() {
 
   if (loading || drill.isLoading) {
     return (
-      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+      <main className="grid min-h-dvh place-items-center text-muted-foreground">Laddar…</main>
     );
   }
 

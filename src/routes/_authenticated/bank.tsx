@@ -126,6 +126,7 @@ function BankPage() {
 
       <div className="mt-4 flex gap-2">
         <Input
+          aria-label="Sök spelare"
           placeholder="Sök spelare"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -193,6 +194,7 @@ function BankPage() {
                 </p>
                 <input
                   ref={fileRef}
+                  aria-label="Välj eller ta ett foto på spelaren"
                   type="file"
                   accept="image/*"
                   capture="environment"

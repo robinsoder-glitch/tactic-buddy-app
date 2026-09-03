@@ -509,6 +509,7 @@ function RunSession() {
                   </div>
                   <Textarea
                     className="mt-2"
+                    aria-label={`Privat observation om ${player.name ?? "spelaren"}`}
                     rows={2}
                     placeholder="Privat observation (syns bara för lagets ledare)"
                     defaultValue={noteMap.get(player.id) ?? ""}
@@ -531,6 +532,7 @@ function RunSession() {
         <h2 className="font-display text-lg font-semibold">Anteckningar om träningen</h2>
         <Textarea
           className="mt-2"
+          aria-label="Anteckningar om träningen"
           rows={4}
           value={generalNote}
           placeholder="Vad fungerade? Vad tar vi med till nästa gång?"

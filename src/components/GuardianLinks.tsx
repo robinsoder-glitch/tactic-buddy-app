@@ -124,6 +124,7 @@ export function GuardianLinks({
             </select>
           </label>
           <Input
+            aria-label="Relation till spelaren"
             placeholder="Relation, till exempel mamma eller pappa"
             value={relation}
             onChange={(e) => setRelation(e.target.value)}

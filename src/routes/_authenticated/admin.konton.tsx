@@ -60,6 +60,7 @@ function AdminAccounts() {
   return (
     <section className="space-y-4">
       <input
+        aria-label="Sök på namn, e-post eller lag"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Sök på namn, e-post eller lag"
