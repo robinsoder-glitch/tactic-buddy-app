@@ -6,19 +6,22 @@ export type MainTab = {
   exact: boolean;
 };
 
-/** Fem primära arbetsområden – samma ordning på mobil och dator. */
+/** Primära arbetsområden – samma ordning på mobil och dator. */
 export const MAIN_TABS: MainTab[] = [
   { to: "/planera-traning", label: "Planera träning", exact: false },
   { to: "/planera-match", label: "Planera match", exact: false },
+  { to: "/kalender", label: "Kalender", exact: false },
+  { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/taktik", label: "Taktik", exact: false },
   { to: "/ovningsbank", label: "Träningsbank", exact: false },
   { to: "/kunskapsbank", label: "Kunskap", exact: false },
 ];
 
+/** Hur många primära flikar mobilens bottenmeny visar; resten hamnar i menyn. */
+export const MOBILE_MAIN_LIMIT = 4;
+
 /** Sekundär meny: Lag och verktyg. */
 export const SECONDARY_TABS: MainTab[] = [
-  { to: "/kalender", label: "Kalender", exact: false },
-  { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/tranarsnack", label: "Tränarsnack", exact: false },
   { to: "/teams", label: "Mina lag", exact: false },
   { to: "/installningar", label: "Inställningar", exact: false },
