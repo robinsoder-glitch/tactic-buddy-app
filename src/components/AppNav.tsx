@@ -43,13 +43,16 @@ export function AppNav() {
   const { total: pendingJoins } = usePendingJoins();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
+  const deskRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
   useEffect(() => {
     if (!menuOpen) return;
     const onPointer = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+      const node = event.target as Node;
+      if (!menuRef.current?.contains(node) && !deskRef.current?.contains(node))
+        setMenuOpen(false);
     };
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
     document.addEventListener("pointerdown", onPointer);
