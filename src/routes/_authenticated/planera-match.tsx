@@ -1206,7 +1206,7 @@ function NewMatchCreator({ onChanged }: { onChanged?: () => void }) {
           title="Matchtillfällen"
           newLabel="Boka match"
           hideList
-          onChanged={() => setReloadKey((n) => n + 1)}
+          onChanged={onChanged}
           savedMessage="Matchen har lagts till i kalendern."
         />
 
