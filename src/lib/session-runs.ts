@@ -309,3 +309,13 @@ export async function finishRun(input: {
     }
   }
 }
+
+/** Alla genomföranden som är kopplade till en aktivitet. */
+export async function fetchEventRuns(eventId: string): Promise<SessionRun[]> {
+  const { data, error } = await supabase
+    .from("session_runs")
+    .select(RUN_COLUMNS)
+    .eq("event_id", eventId);
+  if (error) throw error;
+  return (data ?? []) as unknown as SessionRun[];
+}

@@ -417,6 +417,48 @@ export type Database = {
           },
         ]
       }
+      event_change_log: {
+        Row: {
+          changed_by: string | null
+          changed_fields: Json
+          created_at: string
+          event_id: string
+          id: string
+          team_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_fields?: Json
+          created_at?: string
+          event_id: string
+          id?: string
+          team_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          changed_fields?: Json
+          created_at?: string
+          event_id?: string
+          id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_change_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_change_log_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_coaches: {
         Row: {
           created_at: string
@@ -2428,6 +2470,10 @@ export type Database = {
           team_id: string
           team_name: string
         }[]
+      }
+      log_event_change: {
+        Args: { _changed_fields: Json; _event_id: string; _notice: string }
+        Returns: string
       }
       player_team: { Args: { _player_id: string }; Returns: string }
       rotate_team_code: {
