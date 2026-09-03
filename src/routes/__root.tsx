@@ -201,13 +201,27 @@ function RootComponent() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event === "SIGNED_OUT") clearOfflineData();
+      else {
+        if (session?.user?.id) clearOtherUsers(session.user.id);
+        queryClient.invalidateQueries();
+      }
     });
     return () => subscription.unsubscribe();
   }, [queryClient, router]);
+
+  // Registrerar service workern så appen kan installeras och läsas offline.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    if (window.location.hostname === "localhost") return;
+    const timer = window.setTimeout(() => {
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    }, 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     applyTheme(loadTheme());
@@ -222,13 +236,16 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
+      <OfflineBanner />
       <div className="min-h-screen pb-[76px] md:pb-8 md:pt-16">
         <BackButton />
         <Outlet />
       </div>
       <AppNav />
+      <InstallPrompt />
       <DebugInfoBox />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }
+
