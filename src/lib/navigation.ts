@@ -22,6 +22,7 @@ export const MOBILE_MAIN_LIMIT = 4;
 
 /** Sekundär meny: Lag och verktyg. */
 export const SECONDARY_TABS: MainTab[] = [
+  { to: "/spelare", label: "Spelare", exact: false },
   { to: "/meddelanden", label: "Meddelanden", exact: false },
   { to: "/tranarsnack", label: "Tränarsnack", exact: false },
   { to: "/teams", label: "Mina lag", exact: false },
