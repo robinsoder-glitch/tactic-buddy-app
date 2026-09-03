@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { EventCoaches } from "@/components/EventCoaches";
 import { EventResources } from "@/components/EventResources";
+import { EventDiscussion } from "@/components/EventDiscussion";
 import { EventStatusOverview } from "@/components/EventStatusOverview";
 import { EventEditDialog } from "@/components/EventEditDialog";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
@@ -733,6 +734,8 @@ function EventPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <EventDiscussion eventId={eventId} teamId={teamId} />
 
       {event.data && (
         <EventEditDialog open={editing} onOpenChange={setEditing} event={event.data} />

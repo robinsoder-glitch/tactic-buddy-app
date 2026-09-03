@@ -52,37 +52,51 @@ export async function deleteTeamChatMessage(id: string) {
 }
 
 /* --------------------------- oläst-markering --------------------------- */
+/* Lässtatus sparas server-side i team_chat_reads så den följer med mellan enheter. */
 
-const READ_KEY = "taktiktavlan:tranarsnack-read";
+export type ChatRead = { team_id: string; last_read_at: string };
 
-type ReadMap = Record<string, string>;
-
-function loadReadMap(): ReadMap {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(window.localStorage.getItem(READ_KEY) ?? "{}") as ReadMap;
-  } catch {
-    return {};
-  }
+export async function fetchChatReads(teamIds: string[]): Promise<Record<string, string>> {
+  if (!teamIds.length) return {};
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return {};
+  const { data, error } = await supabase
+    .from("team_chat_reads")
+    .select("team_id, last_read_at")
+    .eq("user_id", userId)
+    .in("team_id", teamIds);
+  if (error) return {};
+  return Object.fromEntries(
+    ((data ?? []) as ChatRead[]).map((row) => [row.team_id, row.last_read_at]),
+  );
 }
 
 /** Sparar att lagets chatt är läst just nu. */
-export function markChatRead(teamId: string, when: string = new Date().toISOString()) {
-  if (typeof window === "undefined") return;
-  const map = loadReadMap();
-  map[teamId] = when;
-  window.localStorage.setItem(READ_KEY, JSON.stringify(map));
+export async function markChatRead(
+  teamId: string,
+  when: string = new Date().toISOString(),
+): Promise<void> {
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return;
+  await supabase
+    .from("team_chat_reads")
+    .upsert(
+      { team_id: teamId, user_id: userId, last_read_at: when },
+      { onConflict: "team_id,user_id" },
+    );
 }
 
 /** Räknar olästa meddelanden (skrivna av någon annan) i angivna lag. */
 export function countUnread(
   rows: { team_id: string; user_id: string; created_at: string }[],
   myUserId: string | null,
+  reads: Record<string, string> = {},
 ): number {
-  const read = loadReadMap();
   return rows.filter((row) => {
     if (myUserId && row.user_id === myUserId) return false;
-    const last = read[row.team_id];
+    const last = reads[row.team_id];
     return !last || row.created_at > last;
   }).length;
 }
@@ -92,16 +106,20 @@ export async function fetchUnreadChatCount(
   myUserId: string | null,
 ): Promise<number> {
   if (!teamIds.length) return 0;
-  const { data, error } = await supabase
-    .from("team_chat_messages")
-    .select("team_id, user_id, created_at")
-    .in("team_id", teamIds)
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const [{ data, error }, reads] = await Promise.all([
+    supabase
+      .from("team_chat_messages")
+      .select("team_id, user_id, created_at")
+      .in("team_id", teamIds)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    fetchChatReads(teamIds),
+  ]);
   if (error) return 0;
   return countUnread(
     (data ?? []) as { team_id: string; user_id: string; created_at: string }[],
     myUserId,
+    reads,
   );
 }
 

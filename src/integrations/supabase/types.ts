@@ -62,6 +62,41 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_recipients: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          id: string
+          notification_created_at: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          id?: string
+          notification_created_at?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          id?: string
+          notification_created_at?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_recipients_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "team_announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_notifications: {
         Row: {
           body: string | null
@@ -621,6 +656,54 @@ export type Database = {
           },
           {
             foreignKeyName: "event_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_messages: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          event_id: string
+          id: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          event_id: string
+          id?: string
+          team_id: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          event_id?: string
+          id?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_messages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_messages_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
@@ -2091,6 +2174,87 @@ export type Database = {
         }
         Relationships: []
       }
+      team_announcements: {
+        Row: {
+          audience_type: string
+          audience_user_ids: string[]
+          body: string
+          created_at: string
+          created_by: string
+          event_id: string | null
+          id: string
+          last_reminder_at: string | null
+          priority: string
+          publish_error: string | null
+          published_at: string | null
+          recipient_count: number
+          requires_read_receipt: boolean
+          scheduled_for: string | null
+          status: string
+          team_id: string
+          title: string
+          updated_at: string
+          without_account_count: number
+        }
+        Insert: {
+          audience_type?: string
+          audience_user_ids?: string[]
+          body: string
+          created_at?: string
+          created_by?: string
+          event_id?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          priority?: string
+          publish_error?: string | null
+          published_at?: string | null
+          recipient_count?: number
+          requires_read_receipt?: boolean
+          scheduled_for?: string | null
+          status?: string
+          team_id: string
+          title: string
+          updated_at?: string
+          without_account_count?: number
+        }
+        Update: {
+          audience_type?: string
+          audience_user_ids?: string[]
+          body?: string
+          created_at?: string
+          created_by?: string
+          event_id?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          priority?: string
+          publish_error?: string | null
+          published_at?: string | null
+          recipient_count?: number
+          requires_read_receipt?: boolean
+          scheduled_for?: string | null
+          status?: string
+          team_id?: string
+          title?: string
+          updated_at?: string
+          without_account_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_announcements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_announcements_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_chat_messages: {
         Row: {
           body: string
@@ -2119,6 +2283,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_chat_messages_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_chat_reads: {
+        Row: {
+          last_read_at: string
+          team_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_read_at?: string
+          team_id: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          last_read_at?: string
+          team_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_chat_reads_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
@@ -2421,12 +2614,28 @@ export type Database = {
           team_id: string
         }[]
       }
+      announcement_audience: {
+        Args: {
+          _audience_type: string
+          _event_id: string
+          _manual: string[]
+          _team_id: string
+        }
+        Returns: {
+          user_id: string
+        }[]
+      }
+      announcement_team: { Args: { _announcement_id: string }; Returns: string }
       approve_team_join_request: {
         Args: { _member_id: string }
         Returns: {
           linked_player_id: string
           member_role: string
         }[]
+      }
+      can_discuss_event: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
       }
       can_manage_attendance: {
         Args: { _team_id: string; _user_id: string }
@@ -2485,6 +2694,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_announcement_recipient: {
+        Args: { _announcement_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_guardian_of: { Args: { _player_id: string }; Returns: boolean }
       is_my_player: { Args: { _player_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
@@ -2509,7 +2722,20 @@ export type Database = {
         Args: { _changed_fields: Json; _event_id: string; _notice: string }
         Returns: string
       }
+      mark_announcement_read: {
+        Args: { _announcement_id: string }
+        Returns: undefined
+      }
       player_team: { Args: { _player_id: string }; Returns: string }
+      preview_announcement_audience: {
+        Args: {
+          _audience_type: string
+          _event_id: string
+          _manual?: string[]
+          _team_id: string
+        }
+        Returns: Json
+      }
       preview_team_invite: {
         Args: { _token: string }
         Returns: {
@@ -2521,6 +2747,15 @@ export type Database = {
           state: string
           team_name: string
         }[]
+      }
+      publish_scheduled_announcements: { Args: never; Returns: number }
+      publish_team_announcement: {
+        Args: { _announcement_id: string }
+        Returns: Json
+      }
+      remind_unread_announcement: {
+        Args: { _announcement_id: string }
+        Returns: Json
       }
       rotate_team_code: {
         Args: { _kind: string; _team_id: string }
