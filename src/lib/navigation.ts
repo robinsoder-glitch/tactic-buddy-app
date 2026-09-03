@@ -70,7 +70,7 @@ export function isTabActive(pathname: string, tab: MainTab): boolean {
  * huvud- eller verktygsflik, eller när ingen tydlig förälder finns.
  */
 export function parentPathFor(pathname: string): string | null {
-  const all = [...MAIN_TABS, ...SECONDARY_TABS];
+  const all = [...MAIN_TABS, ...SECONDARY_TABS, ...PLAYER_MAIN_TABS, ...PLAYER_SECONDARY_TABS];
   if (all.some((tab) => tab.to === pathname)) return null;
   const owner = all.find((tab) => pathname.startsWith(`${tab.to}/`));
   if (owner) return owner.to;
