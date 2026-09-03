@@ -1096,7 +1096,12 @@ function ShareDialog({
         </p>
         {share ? (
           <div className="space-y-3">
-            <Input aria-label="Delningslänk" readOnly value={url ?? ""} onFocus={(e) => e.target.select()} />
+            <Input
+              aria-label="Delningslänk"
+              readOnly
+              value={url ?? ""}
+              onFocus={(e) => e.target.select()}
+            />
             {share.expires_at && (
               <p className="text-xs text-muted-foreground">
                 Slutar gälla: {dateLabel(share.expires_at)}

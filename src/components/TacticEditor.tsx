@@ -1022,9 +1022,7 @@ export function TacticEditor({ id }: { id: string }) {
 
   if (tactic.isLoading || !tactic.data) {
     return (
-      <div className="grid min-h-dvh place-items-center text-muted-foreground">
-        Laddar taktik…
-      </div>
+      <div className="grid min-h-dvh place-items-center text-muted-foreground">Laddar taktik…</div>
     );
   }
 

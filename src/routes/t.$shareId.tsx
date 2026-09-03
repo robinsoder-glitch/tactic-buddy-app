@@ -68,9 +68,7 @@ function SharedTactic() {
 
   if (tactic.isLoading) {
     return (
-      <div className="grid min-h-dvh place-items-center text-muted-foreground">
-        Laddar taktik…
-      </div>
+      <div className="grid min-h-dvh place-items-center text-muted-foreground">Laddar taktik…</div>
     );
   }
 

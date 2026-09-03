@@ -40,9 +40,7 @@ function ReglerPage() {
   });
 
   if (loading) {
-    return (
-      <main className="grid min-h-dvh place-items-center text-muted-foreground">Laddar…</main>
-    );
+    return <main className="grid min-h-dvh place-items-center text-muted-foreground">Laddar…</main>;
   }
 
   if (!allowed) {
