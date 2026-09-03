@@ -20,6 +20,7 @@ import {
 import { formatDateTime } from "@/lib/teams";
 import { useAccount } from "@/hooks/useAccount";
 import { eventDisplayTitle, eventTypeLabel } from "@/lib/event-labels";
+import { fetchMyGuardedPlayerIds } from "@/lib/guardians";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/kalender/kallelser")({
@@ -52,10 +53,25 @@ function MyInvitesPage() {
     enabled: Boolean(userId),
   });
 
+  const guarded = useQuery({
+    queryKey: ["guarded-players", userId],
+    queryFn: () => fetchMyGuardedPlayerIds(userId),
+    enabled: Boolean(userId),
+  });
+  const guardedIds = guarded.data ?? [];
+
   const respond = useMutation({
-    mutationFn: ({ invitation, status }: { invitation: MyInvitation; status: InviteStatus }) => {
+    mutationFn: ({
+      invitation,
+      status,
+      role,
+    }: {
+      invitation: MyInvitation;
+      status: InviteStatus;
+      role: "player" | "guardian";
+    }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      return respondToInvitation({ invitation, status, userId, role: "player" });
+      return respondToInvitation({ invitation, status, userId, role });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-invitations"] }),
     onError: () => toast.error("Kunde inte spara svaret. Försök igen."),
@@ -134,6 +150,8 @@ function MyInvitesPage() {
 
               {group.invitations.map((invitation) => {
                 const mine = canRespondSelf(invitation, userId);
+                const guardianOf = canRespondAsGuardian(invitation, guardedIds);
+                const mayAnswer = mine || guardianOf;
                 return (
                   <div key={invitation.id} className="mt-3 border-t border-border/60 pt-3 first:border-0">
                     {showNames && (
@@ -143,7 +161,7 @@ function MyInvitesPage() {
                     <p className="mt-1 text-sm font-semibold">
                       Ditt svar: {inviteStatusLabel(invitation.status)}
                     </p>
-                    {mine && !cancelled ? (
+                    {mayAnswer && !cancelled ? (
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         {(["attending", "declined", "maybe"] as InviteStatus[]).map((status) => (
                           <Button
@@ -151,7 +169,13 @@ function MyInvitesPage() {
                             className="h-12"
                             variant={invitation.status === status ? "default" : "secondary"}
                             disabled={respond.isPending}
-                            onClick={() => respond.mutate({ invitation, status })}
+                            onClick={() =>
+                              respond.mutate({
+                                invitation,
+                                status,
+                                role: mine ? "player" : "guardian",
+                              })
+                            }
                           >
                             {inviteStatusLabel(status)}
                           </Button>
@@ -159,7 +183,9 @@ function MyInvitesPage() {
                       </div>
                     ) : (
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {cancelled ? "Aktiviteten är inställd. Nya svar är stängda." : NO_ACCOUNT_TEXT}
+                        {cancelled
+                          ? "Aktiviteten är inställd. Nya svar är stängda."
+                          : NO_ACCOUNT_TEXT}
                       </p>
                     )}
                   </div>
