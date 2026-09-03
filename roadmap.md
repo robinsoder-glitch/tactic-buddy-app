@@ -195,3 +195,10 @@
 ## Kunskapsbanken – kvalitetsrensning 2026-09-03
 - [x] Kontrollerade alla 100 källänkar: alla lever (tre svarar 403 mot robotar men fungerar i webbläsare)
 - [x] Avpublicerade fyra sidor om utländska tränarutbildningar/länkarkiv (KB051, KB052, KB054, KB083)
+
+## Granskningsrapport 2026-09-03 (extern QA)
+- [x] Kunskapsbank: 28 nivåändringar, KB043 avpublicerad, KB091 ny kategori/sammanfattning
+- [x] Kunskapsbank: nya sammanfattningar KB048, KB050, KB069, KB072, KB081; direktlänkar KB053, KB064
+- [x] Kunskapsbank UI: åldersetiketter borta, tydlig märkning Artikel/Forskning/Resursbank/Verktyg, källa vid knappen
+- [ ] P0: godkänd spelare/vårdnadshavare ska automatiskt kopplas till spelarpost (approve_team_join_request)
+- [ ] KB043: sammanfatta poddavsnittet och publicera igen
