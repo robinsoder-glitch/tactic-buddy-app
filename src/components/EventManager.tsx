@@ -67,7 +67,7 @@ function timeOnly(value: string | null) {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage }: Props) {
+export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage, hideList }: Props) {
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
