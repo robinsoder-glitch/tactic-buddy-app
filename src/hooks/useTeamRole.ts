@@ -10,7 +10,10 @@ export function useTeamRole(teamId: string) {
     queryFn: () => fetchTeam(teamId),
     enabled: !!teamId,
   });
-  const membership = memberships.find((item) => item.team_id === teamId);
+  const teamMemberships = memberships.filter((item) => item.team_id === teamId);
+  // Finns flera rader för samma lag vinner alltid den godkända.
+  const membership =
+    teamMemberships.find((item) => item.status === "approved") ?? teamMemberships[0] ?? undefined;
   const isOwner = Boolean(userId && team.data?.created_by === userId);
 
   const access = teamAccess({
