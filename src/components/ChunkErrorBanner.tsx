@@ -10,6 +10,7 @@ import {
 
 export function ChunkErrorBanner() {
   const [detail, setDetail] = useState<string | null>(null);
+  const [network, setNetwork] = useState(false);
   const [newVersion, setNewVersion] = useState(false);
   const [reloading, setReloading] = useState(false);
   const signature = useRef<string | null>(null);
