@@ -3,7 +3,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 type AdminContext = {
-  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> };
+  supabase: {
+    rpc: (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  };
   userId: string;
 };
 
@@ -66,7 +71,7 @@ export const listAccounts = createServerFn({ method: "POST" })
     for (let page = 1; page <= 20; page += 1) {
       const { data, error } = await db.auth.admin.listUsers({ page, perPage: 200 });
       if (error) throw new Error(error.message);
-      users.push(...(data.users as (typeof users)));
+      users.push(...(data.users as typeof users));
       if (!data.users.length || data.users.length < 200) break;
     }
 
