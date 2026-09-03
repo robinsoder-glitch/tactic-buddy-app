@@ -69,8 +69,11 @@ export function AppNav() {
 
   const { main: primary, secondary } = tabsForRole(isCoach || isAdmin);
 
-  const topLink =
-    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+  const secondaryActive =
+    secondary.some((tab) => isTabActive(pathname, tab)) || pathname.startsWith("/admin");
+  const secondaryBadge =
+    (secondary.some((tab) => tab.to === "/tranarsnack") ? unread : 0) +
+    (isCoach && secondary.some((tab) => tab.to === "/teams") ? pendingJoins : 0);
 
   const barLink =
     "relative flex min-h-[4rem] w-full flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors";
