@@ -244,7 +244,8 @@ export function AccountSetupFields({
             onChange={(event) =>
               onChange({ code: normalizeTeamCode(event.target.value).slice(0, TEAM_CODE_LENGTH) })
             }
-            maxLength={TEAM_CODE_LENGTH}
+            // Lite marginal så att inklistrade koder med blanksteg inte kapas.
+            maxLength={TEAM_CODE_LENGTH + 6}
             inputMode="text"
             autoCapitalize="characters"
             placeholder="T.ex. A1B2C3"

@@ -9,8 +9,20 @@ const PATTERNS: { test: RegExp; message: string }[] = [
     message: "Fel e-post eller lösenord. Har du glömt lösenordet kan du återställa det.",
   },
   {
+    test: /user already registered|already been registered|email address is already/i,
+    message: "Det finns redan ett konto med den e-postadressen. Logga in i stället.",
+  },
+  {
     test: /email not confirmed/i,
     message: "Bekräfta din e-postadress via länken i mejlet innan du loggar in.",
+  },
+  {
+    test: /password should be at least|password is too short/i,
+    message: "Lösenordet måste vara minst 6 tecken.",
+  },
+  {
+    test: /email address.*invalid|invalid email/i,
+    message: "E-postadressen ser inte giltig ut. Kontrollera stavningen.",
   },
   {
     test: /password is known to be weak|weak password/i,

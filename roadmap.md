@@ -182,3 +182,11 @@
 - [x] "Radera alla taktiker"
 - [x] Spara matchplan → tillbaka till matchlistan
 - [x] Rätta registrering och lagkodsflöde (spelarkod/tränarkod, 6 tecken, metadata, guardian-namn, tester)
+
+## Extremtest 2026-09-03 (alla kontotyper och koder)
+- [ ] Live: tränarkonto utan kod → skapa lag → hämta spelarkod/tränarkod
+- [ ] Live: spelarkonto med spelarkod
+- [ ] Live: vårdnadshavarkonto med spelarkod (Hej Maria, barn Elias separat)
+- [ ] Live: tränarkonto med tränarkod
+- [ ] Live: felfall – fel kodtyp, 5/7 tecken, ogiltig kod, befintlig e-post, arkiverat lag, roterad kod
+- [ ] Kod-/DB-genomgång + build och lint gröna, testdata rensad
