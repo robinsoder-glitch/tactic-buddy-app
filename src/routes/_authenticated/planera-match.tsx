@@ -1163,7 +1163,7 @@ function ShareDialog({
   );
 }
 
-function NewMatchCreator({ onChanged }: { onChanged?: () => void }) {
+function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
   const { user, memberships, loading } = useAccount();
 
   const coachTeams = memberships.filter(
