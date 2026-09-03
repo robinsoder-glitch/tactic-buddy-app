@@ -197,6 +197,17 @@ export async function deleteTactic(id: string) {
   if (error) throw error;
 }
 
+/** Raderar alla taktiker för användaren, även det osparade utkastet. */
+export async function deleteAllTactics(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from("tactics")
+    .delete()
+    .eq("user_id", userId)
+    .select("id");
+  if (error) throw error;
+  return (data ?? []).length;
+}
+
 export async function duplicateTactic(userId: string, id: string) {
   const source = await fetchTactic(id);
   const { data, error } = await supabase

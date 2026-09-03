@@ -507,6 +507,8 @@ function MatchPlanner({
           : {}),
       });
       setMode("read");
+      // Tillbaka till matchlistan så att man ser den uppdaterade statusen.
+      onClose();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Kunde inte spara matchplanen");
     } finally {
