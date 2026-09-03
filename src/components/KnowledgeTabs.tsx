@@ -3,7 +3,11 @@ import { Link } from "@tanstack/react-router";
 const base =
   "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-colors";
 
-export function KnowledgeTabs({ active }: { active: "articles" | "mistakes" | "technique" | "favorites" }) {
+export function KnowledgeTabs({
+  active,
+}: {
+  active: "articles" | "mistakes" | "technique" | "favorites";
+}) {
   const cls = (isActive: boolean) =>
     `${base} ${
       isActive
