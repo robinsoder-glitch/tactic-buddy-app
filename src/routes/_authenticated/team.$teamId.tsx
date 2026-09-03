@@ -48,10 +48,12 @@ const SUB_LINKS = [
 
 function TeamLayout() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId" });
-  const { status, isApproved, loading, isCoach: isCoachRole } = useTeamRole(teamId);
+  const { isPending, isApproved, loading, isCoach: isCoachRole } = useTeamRole(teamId);
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
-  if (!loading && status === "pending") {
+  // Endast den som verkligen väntar på godkännande spärras – aldrig en ledare
+  // eller lagets ägare, även om det finns en gammal ansökningsrad kvar.
+  if (!loading && isPending && !isApproved && !isCoachRole) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <Shield className="mx-auto size-8 text-primary" />
