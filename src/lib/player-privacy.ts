@@ -31,7 +31,11 @@ export function hasExactBirthDate(value: string | null | undefined): boolean {
  * Gör om formulärets värden till det som sparas.
  * Ett år lagras som "ÅÅÅÅ-01-01" så att befintlig kolumn kan återanvändas.
  */
-export function toStoredBirth(input: { year: string; exactDate?: string | null; useExact?: boolean }): string | null {
+export function toStoredBirth(input: {
+  year: string;
+  exactDate?: string | null;
+  useExact?: boolean;
+}): string | null {
   if (input.useExact && input.exactDate && DATE.test(input.exactDate)) return input.exactDate;
   const year = input.year.trim();
   if (!YEAR.test(year)) return null;

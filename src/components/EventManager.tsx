@@ -25,7 +25,6 @@ import {
 import { useConfirm } from "@/components/ConfirmDelete";
 import { hasErrors, splitLocal, toIso, validateEventTimes } from "@/lib/event-datetime";
 
-
 type Props = {
   teamId: string;
   userId: string | null;
@@ -67,7 +66,16 @@ function timeOnly(value: string | null) {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function EventManager({ teamId, userId, isCoach, type, title, newLabel, savedMessage, hideList }: Props) {
+export function EventManager({
+  teamId,
+  userId,
+  isCoach,
+  type,
+  title,
+  newLabel,
+  savedMessage,
+  hideList,
+}: Props) {
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -171,7 +179,9 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
         type,
         title: heading.trim() || null,
         starts_at: startsAtIso,
-        ends_at: submittedSchedule.end ? toIso(submittedSchedule.date, submittedSchedule.end) : null,
+        ends_at: submittedSchedule.end
+          ? toIso(submittedSchedule.date, submittedSchedule.end)
+          : null,
         meet_at:
           type === "match" && submittedSchedule.meet
             ? toIso(submittedSchedule.date, submittedSchedule.meet)
@@ -200,7 +210,6 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
     }
   }
 
-
   const remove = useMutation({
     mutationFn: (id: string) => deleteEvent(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["events", teamId] }),
@@ -226,7 +235,11 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
         {events.data?.map((event) => (
           <li key={event.id} className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-start gap-3">
-              <button type="button" className="min-w-0 flex-1 text-left" onClick={() => isCoach && openEdit(event)}>
+              <button
+                type="button"
+                className="min-w-0 flex-1 text-left"
+                onClick={() => isCoach && openEdit(event)}
+              >
                 <p className="font-display text-lg font-semibold">
                   {event.title ??
                     (type === "match"
@@ -236,9 +249,7 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                       : "Träning")}
                 </p>
                 {type === "match" && event.match_kind && (
-                  <p className="text-xs tracking-wide text-muted-foreground">
-                    {event.match_kind}
-                  </p>
+                  <p className="text-xs tracking-wide text-muted-foreground">{event.match_kind}</p>
                 )}
                 <p className="text-sm text-primary">
                   {formatDateTime(event.starts_at)}
@@ -251,7 +262,8 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                 )}
                 {event.kit && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Shirt className="size-3" /> {event.kit === "away" ? "Bortatröja" : "Hemmatröja"}
+                    <Shirt className="size-3" />{" "}
+                    {event.kit === "away" ? "Bortatröja" : "Hemmatröja"}
                   </p>
                 )}
                 {event.location && (
@@ -271,13 +283,19 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                       title: type === "match" ? "Radera match" : "Radera träning",
                       description: "Händelsen tas bort från lagets kalender permanent.",
                     }).then((ok) => ok && remove.mutate(event.id));
-                  }}>
+                  }}
+                >
                   <Trash2 className="size-4" />
                 </Button>
               )}
             </div>
             {type === "training" && (
-              <EventResources eventId={event.id} teamId={teamId} userId={userId} isCoach={isCoach} />
+              <EventResources
+                eventId={event.id}
+                teamId={teamId}
+                userId={userId}
+                isCoach={isCoach}
+              />
             )}
           </li>
         ))}
@@ -309,11 +327,19 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="e-home">Hemmalag</Label>
-                    <Input id="e-home" value={homeTeam} onChange={(e) => setHomeTeam(e.target.value)} />
+                    <Input
+                      id="e-home"
+                      value={homeTeam}
+                      onChange={(e) => setHomeTeam(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="e-away">Bortalag</Label>
-                    <Input id="e-away" value={awayTeam} onChange={(e) => setAwayTeam(e.target.value)} />
+                    <Input
+                      id="e-away"
+                      value={awayTeam}
+                      onChange={(e) => setAwayTeam(e.target.value)}
+                    />
                   </div>
                 </div>
               </>
@@ -339,7 +365,9 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                 aria-invalid={Boolean(visibleErrors.date)}
                 onChange={(event) => updateSchedule("date", event.target.value)}
               />
-              {visibleErrors.date && <p className="text-sm text-destructive">{visibleErrors.date}</p>}
+              {visibleErrors.date && (
+                <p className="text-sm text-destructive">{visibleErrors.date}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -353,7 +381,9 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                   aria-invalid={Boolean(visibleErrors.start)}
                   onChange={(event) => updateSchedule("start", event.target.value)}
                 />
-                {visibleErrors.start && <p className="text-sm text-destructive">{visibleErrors.start}</p>}
+                {visibleErrors.start && (
+                  <p className="text-sm text-destructive">{visibleErrors.start}</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="e-end">Till (frivillig)</Label>
@@ -365,7 +395,9 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                   aria-invalid={Boolean(visibleErrors.end)}
                   onChange={(event) => updateSchedule("end", event.target.value)}
                 />
-                {visibleErrors.end && <p className="text-sm text-destructive">{visibleErrors.end}</p>}
+                {visibleErrors.end && (
+                  <p className="text-sm text-destructive">{visibleErrors.end}</p>
+                )}
               </div>
             </div>
 
@@ -381,7 +413,9 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
                     aria-invalid={Boolean(visibleErrors.meet)}
                     onChange={(event) => updateSchedule("meet", event.target.value)}
                   />
-                  {visibleErrors.meet && <p className="text-sm text-destructive">{visibleErrors.meet}</p>}
+                  {visibleErrors.meet && (
+                    <p className="text-sm text-destructive">{visibleErrors.meet}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
@@ -483,7 +517,7 @@ export function EventManager({ teamId, userId, isCoach, type, title, newLabel, s
           </DialogFooter>
         </DialogContent>
       </Dialog>
-  {confirmDialog}
+      {confirmDialog}
     </section>
   );
 }

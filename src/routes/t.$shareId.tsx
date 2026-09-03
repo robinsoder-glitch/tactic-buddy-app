@@ -13,10 +13,14 @@ export const Route = createFileRoute("/t/$shareId")({
       { title: "Delad taktik – se spelmomentet animerat" },
       {
         name: "description",
-        content: "Titta på ett delat spelmoment: spelarnas löpningar, passningar och tränarens anteckningar.",
+        content:
+          "Titta på ett delat spelmoment: spelarnas löpningar, passningar och tränarens anteckningar.",
       },
       { property: "og:title", content: "Delad taktik – se spelmomentet animerat" },
-      { property: "og:description", content: "Titta på ett delat fotbollsmoment med löpningar och passningar." },
+      {
+        property: "og:description",
+        content: "Titta på ett delat fotbollsmoment med löpningar och passningar.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -28,7 +32,10 @@ const STEP_MS = 1400;
 
 function SharedTactic() {
   const { shareId } = Route.useParams();
-  const tactic = useQuery({ queryKey: ["shared", shareId], queryFn: () => fetchSharedTactic(shareId) });
+  const tactic = useQuery({
+    queryKey: ["shared", shareId],
+    queryFn: () => fetchSharedTactic(shareId),
+  });
 
   const frames = useMemo(() => tactic.data?.frames ?? [], [tactic.data]);
   const [progress, setProgress] = useState(0);
@@ -60,7 +67,11 @@ function SharedTactic() {
   }, [playing, loop, frames.length]);
 
   if (tactic.isLoading) {
-    return <div className="grid min-h-screen place-items-center text-muted-foreground">Laddar taktik…</div>;
+    return (
+      <div className="grid min-h-screen place-items-center text-muted-foreground">
+        Laddar taktik…
+      </div>
+    );
   }
 
   if (tactic.error || !tactic.data) {

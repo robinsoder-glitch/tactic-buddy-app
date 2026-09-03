@@ -88,12 +88,12 @@ const CATEGORY_TO_SV: Record<string, string> = {
 const SV_TO_CATEGORY: Record<string, string> = {
   "Börja som tränare": "coaching",
   "Ledarskap och pedagogik": "coaching",
-  "Träningsplanering": "coaching",
+  Träningsplanering: "coaching",
   "Teknik med boll": "technique",
   "Spelförståelse och taktik": "game_understanding",
   "Fysik och motorik": "physical",
   "Kost, vätska och återhämtning": "nutrition",
-  "Målvakt": "goalkeeper",
+  Målvakt: "goalkeeper",
   "Laget, relationer och föräldrar": "team_environment",
   "Trygghet och inkludering": "team_environment",
   "Skador och skadeprevention": "injury",
@@ -223,7 +223,6 @@ export async function deleteArticle(id: string) {
   if (error) throw error;
 }
 
-
 /** Vanliga användare får bara se publicerade och verifierade artiklar. */
 export function visibleArticles(articles: KbArticle[], isAdmin: boolean): KbArticle[] {
   if (isAdmin) return articles;
@@ -243,7 +242,8 @@ export type ArticleFilter = {
 export function filterArticles(articles: KbArticle[], filter: ArticleFilter): KbArticle[] {
   return articles.filter((article) => {
     if (filter.onlyFavorites && !filter.favorites?.has(`article:${article.id}`)) return false;
-    if (filter.category && filter.category !== "all" && article.category !== filter.category) return false;
+    if (filter.category && filter.category !== "all" && article.category !== filter.category)
+      return false;
     if (filter.level && filter.level !== "all" && article.level !== filter.level) return false;
     if (filter.tags?.length) {
       const tags = (article.tags ?? []).map((tag) => tag.toLowerCase());
@@ -256,7 +256,12 @@ export function filterArticles(articles: KbArticle[], filter: ArticleFilter): Kb
     }
     const needle = (filter.query ?? "").trim().toLowerCase();
     if (!needle) return true;
-    const haystack = [article.title, article.summary ?? "", article.coach_value ?? "", ...(article.tags ?? [])]
+    const haystack = [
+      article.title,
+      article.summary ?? "",
+      article.coach_value ?? "",
+      ...(article.tags ?? []),
+    ]
       .join(" ")
       .toLowerCase();
     return needle.split(/\s+/).every((word) => haystack.includes(word));
@@ -265,7 +270,8 @@ export function filterArticles(articles: KbArticle[], filter: ArticleFilter): Kb
 
 export function ageLabel(article: KbArticle): string {
   if (article.age_min === null && article.age_max === null) return "Alla åldrar";
-  if (article.age_min !== null && article.age_max !== null) return `${article.age_min}–${article.age_max} år`;
+  if (article.age_min !== null && article.age_max !== null)
+    return `${article.age_min}–${article.age_max} år`;
   if (article.age_min !== null) return `Från ${article.age_min} år`;
   return `Till ${article.age_max} år`;
 }
@@ -274,7 +280,9 @@ export function ageLabel(article: KbArticle): string {
 export function allTags(articles: KbArticle[]): string[] {
   const set = new Set<string>();
   for (const article of articles) for (const tag of article.tags ?? []) set.add(tag.trim());
-  return Array.from(set).filter(Boolean).sort((a, b) => a.localeCompare(b, "sv"));
+  return Array.from(set)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "sv"));
 }
 
 /** Validerar en artikel innan den sparas. Returnerar svenska felmeddelanden. */
@@ -283,13 +291,16 @@ export function validateArticle(input: ArticleInput): string[] {
   const title = input.title?.trim() ?? "";
   if (!title) errors.push("Ange en titel.");
   if (title.length > 200) errors.push("Titeln får vara högst 200 tecken.");
-  if ((input.summary ?? "").length > 1000) errors.push("Sammanfattningen får vara högst 1000 tecken.");
-  if (!KB_CATEGORIES.includes(input.category as KbCategory)) errors.push("Välj en giltig kategori.");
+  if ((input.summary ?? "").length > 1000)
+    errors.push("Sammanfattningen får vara högst 1000 tecken.");
+  if (!KB_CATEGORIES.includes(input.category as KbCategory))
+    errors.push("Välj en giltig kategori.");
   if (!KB_LEVELS.includes(input.level as KbLevel)) errors.push("Välj en giltig kunskapsnivå.");
   if (!KB_STATUSES.includes(input.status as KbStatus)) errors.push("Välj en giltig status.");
 
   const url = (input.source_url ?? "").trim();
-  if (url && !/^https?:\/\/\S+$/i.test(url)) errors.push("Länken måste börja med http:// eller https://.");
+  if (url && !/^https?:\/\/\S+$/i.test(url))
+    errors.push("Länken måste börja med http:// eller https://.");
 
   if (input.age_min !== null && input.age_max !== null && input.age_min > input.age_max) {
     errors.push("Ålder från kan inte vara högre än ålder till.");
@@ -309,7 +320,8 @@ export function validateArticle(input: ArticleInput): string[] {
   }
 
   if (input.status === "verified") {
-    if (!input.source_name?.trim() || !url) errors.push("En verifierad artikel behöver både källa och länk.");
+    if (!input.source_name?.trim() || !url)
+      errors.push("En verifierad artikel behöver både källa och länk.");
     if (!input.reviewed_at) errors.push("En verifierad artikel behöver ett granskningsdatum.");
   }
   if (input.is_published && input.status !== "verified") {
@@ -368,25 +380,27 @@ export function parseArticleImport(raw: string, existing: KbArticle[]): ImportRe
 
 function normalizeImported(item: Record<string, unknown>): ArticleInput {
   const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
-  const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? Math.round(value) : null);
-  const date = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 10) : null);
+  const num = (value: unknown) =>
+    typeof value === "number" && Number.isFinite(value) ? Math.round(value) : null;
+  const date = (value: unknown) =>
+    typeof value === "string" && value.trim() ? value.trim().slice(0, 10) : null;
   return {
-    title: text(item['title']),
-    summary: text(item['summary']) || null,
-    coach_value: text(item['coach_value']) || null,
-    category: text(item['category']) || "coaching",
-    age_min: num(item['age_min']),
-    age_max: num(item['age_max']),
-    level: text(item['level']) || "basic",
-    source_name: text(item['source_name']) || null,
-    source_url: text(item['source_url']) || null,
-    published_at: date(item['published_at']),
-    reviewed_at: date(item['reviewed_at']),
-    tags: Array.isArray(item['tags'])
-      ? (item['tags'] as unknown[]).map((tag) => String(tag).trim()).filter(Boolean)
+    title: text(item["title"]),
+    summary: text(item["summary"]) || null,
+    coach_value: text(item["coach_value"]) || null,
+    category: text(item["category"]) || "coaching",
+    age_min: num(item["age_min"]),
+    age_max: num(item["age_max"]),
+    level: text(item["level"]) || "basic",
+    source_name: text(item["source_name"]) || null,
+    source_url: text(item["source_url"]) || null,
+    published_at: date(item["published_at"]),
+    reviewed_at: date(item["reviewed_at"]),
+    tags: Array.isArray(item["tags"])
+      ? (item["tags"] as unknown[]).map((tag) => String(tag).trim()).filter(Boolean)
       : [],
-    status: text(item['status']) || "unverified",
-    is_published: item['is_published'] === true,
+    status: text(item["status"]) || "unverified",
+    is_published: item["is_published"] === true,
   };
 }
 
@@ -400,4 +414,3 @@ export async function importArticles(articles: ArticleInput[], _userId: string) 
   if (error) throw error;
   return rows.length;
 }
-

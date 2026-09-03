@@ -9,5 +9,13 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/training")({
 function TrainingPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/training" });
   const { isCoach, userId } = useTeamRole(teamId);
-  return <EventManager teamId={teamId} userId={userId} isCoach={isCoach} type="training" title="Träningar" />;
+  return (
+    <EventManager
+      teamId={teamId}
+      userId={userId}
+      isCoach={isCoach}
+      type="training"
+      title="Träningar"
+    />
+  );
 }

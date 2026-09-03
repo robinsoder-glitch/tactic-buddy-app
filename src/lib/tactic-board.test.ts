@@ -152,7 +152,6 @@ describe("Pilar hör till rätt sekvens", () => {
     frames = appendSequence(frames);
     frames = applyMove(frames, 2, b.id, { x: 0.7, y: 0.8 });
 
-
     const inSeq1 = movementDrawings(frames, 1).map((d) => d.objectId);
     const inSeq2 = movementDrawings(frames, 2).map((d) => d.objectId);
     expect(inSeq1).toEqual([a.id]);

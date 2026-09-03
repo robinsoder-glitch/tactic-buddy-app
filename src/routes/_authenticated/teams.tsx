@@ -21,7 +21,10 @@ export const Route = createFileRoute("/_authenticated/teams")({
   head: () => ({
     meta: [
       { title: "Mina lag – Fotbollsrummet" },
-      { name: "description", content: "Skapa och hantera dina lag: klubb, åldersgrupp, kön och lagkod för spelarna." },
+      {
+        name: "description",
+        content: "Skapa och hantera dina lag: klubb, åldersgrupp, kön och lagkod för spelarna.",
+      },
       { property: "og:title", content: "Mina lag – Fotbollsrummet" },
       { property: "og:description", content: "Skapa klubb och lag, bjud in spelare med lagkoden." },
       { property: "og:type", content: "website" },
@@ -62,7 +65,8 @@ function TeamsPage() {
       queryClient.invalidateQueries();
       navigate({ to: "/team/$teamId", params: { teamId: id } });
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Kunde inte skapa laget"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Kunde inte skapa laget"),
   });
 
   if (!isCoach) {
@@ -119,11 +123,21 @@ function TeamsPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="team-name">Lagnamn</Label>
-              <Input id="team-name" placeholder="T.ex. PF-18 FO" value={name} onChange={(event) => setName(event.target.value)} />
+              <Input
+                id="team-name"
+                placeholder="T.ex. PF-18 FO"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="age">Åldersgrupp</Label>
-              <Input id="age" placeholder="T.ex. P14 eller 2012" value={ageGroup} onChange={(event) => setAgeGroup(event.target.value)} />
+              <Input
+                id="age"
+                placeholder="T.ex. P14 eller 2012"
+                value={ageGroup}
+                onChange={(event) => setAgeGroup(event.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ground">Hemmaplan</Label>
@@ -144,7 +158,9 @@ function TeamsPage() {
                   type="button"
                   onClick={() => setGender(value)}
                   className={`rounded-lg border px-2 py-2 text-sm ${
-                    gender === value ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
+                    gender === value
+                      ? "border-primary bg-primary/15"
+                      : "border-border text-muted-foreground"
                   }`}
                 >
                   {label}
@@ -200,16 +216,21 @@ function TeamsPage() {
                 )}
               </h2>
               <p className="text-xs text-muted-foreground">
-                {[team.club?.name, team.age_group, TEAM_GENDER_LABELS[team.gender]].filter(Boolean).join(" · ")}
+                {[team.club?.name, team.age_group, TEAM_GENDER_LABELS[team.gender]]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
-            <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{team.join_code}</span>
+            <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">
+              {team.join_code}
+            </span>
           </Link>
         ))}
       </section>
 
       <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du godkänner dem i truppen.
+        <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du
+        godkänner dem i truppen.
       </p>
     </main>
   );

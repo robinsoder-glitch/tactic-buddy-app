@@ -66,24 +66,37 @@ function SharedMatchPage() {
               </h1>
               <p className="text-sm text-muted-foreground">
                 {new Date(match.starts_at).toLocaleString("sv-SE", {
-                  weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
                 {match.location ? ` · ${match.location}` : ""}
                 {match.match_kind ? ` · ${match.match_kind}` : ""}
               </p>
               {match.meet_at && (
                 <p className="text-sm text-muted-foreground">
-                  Samling {new Date(match.meet_at).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Samling{" "}
+                  {new Date(match.meet_at).toLocaleTimeString("sv-SE", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               )}
             </div>
             <LineupPitch slots={slots} players={players} />
             {match.bench.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                Avbytare: {match.bench.map((p) => `${p.number != null ? `${p.number} ` : ""}${p.name}`).join(", ")}
+                Avbytare:{" "}
+                {match.bench
+                  .map((p) => `${p.number != null ? `${p.number} ` : ""}${p.name}`)
+                  .join(", ")}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">Delad via {BRAND_NAME} – skrivskyddad visning.</p>
+            <p className="text-xs text-muted-foreground">
+              Delad via {BRAND_NAME} – skrivskyddad visning.
+            </p>
           </>
         )}
       </main>

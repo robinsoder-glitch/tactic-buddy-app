@@ -55,7 +55,10 @@ export async function createContentLink(input: ContentLinkInput, userId: string)
   }
 }
 
-export async function updateContentLink(id: string, patch: { note?: string | null; sort_order?: number }) {
+export async function updateContentLink(
+  id: string,
+  patch: { note?: string | null; sort_order?: number },
+) {
   const { error } = await supabase.from("content_links").update(patch).eq("id", id);
   if (error) throw error;
 }
@@ -143,7 +146,10 @@ export function relatedSections(
   catalog: Map<string, string>,
 ): RelatedSection[] {
   return spec
-    .map((section) => ({ title: section.title, items: relatedItems(links, self, section.types, catalog) }))
+    .map((section) => ({
+      title: section.title,
+      items: relatedItems(links, self, section.types, catalog),
+    }))
     .filter((section) => section.items.length > 0);
 }
 

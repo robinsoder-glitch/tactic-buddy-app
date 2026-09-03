@@ -31,10 +31,14 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/periodplan")(
       { title: "Periodplan – lagets teman i fyra till sex veckor" },
       {
         name: "description",
-        content: "Planera lagets perioder med huvudtema, delteman, mål och progression i fyra steg.",
+        content:
+          "Planera lagets perioder med huvudtema, delteman, mål och progression i fyra steg.",
       },
       { property: "og:title", content: "Periodplan" },
-      { property: "og:description", content: "Huvudtema, delteman, mål och progression för lagets period." },
+      {
+        property: "og:description",
+        content: "Huvudtema, delteman, mål och progression för lagets period.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -42,7 +46,15 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/periodplan")(
   component: PeriodPlan,
 });
 
-const emptyForm = { name: "", start_date: "", end_date: "", main_theme: "", sub1: "", sub2: "", goal: "" };
+const emptyForm = {
+  name: "",
+  start_date: "",
+  end_date: "",
+  main_theme: "",
+  sub1: "",
+  sub2: "",
+  goal: "",
+};
 
 function PeriodPlan() {
   const { teamId } = Route.useParams();
@@ -52,10 +64,22 @@ function PeriodPlan() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const periods = useQuery({ queryKey: ["team-periods", teamId], queryFn: () => fetchPeriods(teamId) });
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
-  const focus = useQuery({ queryKey: ["focus-areas", teamId], queryFn: () => fetchFocusAreas(teamId) });
-  const observations = useQuery({ queryKey: ["observations", teamId], queryFn: () => fetchObservations(teamId) });
+  const periods = useQuery({
+    queryKey: ["team-periods", teamId],
+    queryFn: () => fetchPeriods(teamId),
+  });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
+  const focus = useQuery({
+    queryKey: ["focus-areas", teamId],
+    queryFn: () => fetchFocusAreas(teamId),
+  });
+  const observations = useQuery({
+    queryKey: ["observations", teamId],
+    queryFn: () => fetchObservations(teamId),
+  });
 
   const list = periods.data ?? [];
   const activePeriod = selected
@@ -104,8 +128,10 @@ function PeriodPlan() {
   });
 
   const saveStep = useMutation({
-    mutationFn: ({ step, notes }: { step: number; notes: string }) => saveProgression(activePeriod!.id, step, notes),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["period-progression", activePeriod?.id] }),
+    mutationFn: ({ step, notes }: { step: number; notes: string }) =>
+      saveProgression(activePeriod!.id, step, notes),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["period-progression", activePeriod?.id] }),
     onError: () => toast.error("Steget kunde inte sparas."),
   });
 
@@ -116,7 +142,9 @@ function PeriodPlan() {
   });
 
   if (!isCoach) {
-    return <p className="text-sm text-muted-foreground">Periodplanen är bara till för lagets ledare.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">Periodplanen är bara till för lagets ledare.</p>
+    );
   }
 
   return (
@@ -224,7 +252,8 @@ function PeriodPlan() {
                 <button className="min-w-0 flex-1 text-left" onClick={() => setSelected(period.id)}>
                   <span className="block font-medium">{period.name}</span>
                   <span className="block text-xs text-muted-foreground">
-                    {period.start_date} – {period.end_date} · {periodWeeks(period)} veckor · {period.main_theme}
+                    {period.start_date} – {period.end_date} · {periodWeeks(period)} veckor ·{" "}
+                    {period.main_theme}
                   </span>
                 </button>
                 <Button
@@ -243,13 +272,18 @@ function PeriodPlan() {
 
       {activePeriod && (
         <section className="space-y-3 rounded-xl border border-border bg-card p-4">
-          <h3 className="font-display text-lg font-semibold">Progression: {activePeriod.main_theme}</h3>
+          <h3 className="font-display text-lg font-semibold">
+            Progression: {activePeriod.main_theme}
+          </h3>
           {activePeriod.sub_themes.length > 0 && (
-            <p className="text-sm text-muted-foreground">Delteman: {activePeriod.sub_themes.join(" · ")}</p>
+            <p className="text-sm text-muted-foreground">
+              Delteman: {activePeriod.sub_themes.join(" · ")}
+            </p>
           )}
           {activePeriod.goal && <p className="text-sm">{activePeriod.goal}</p>}
           <p className="text-sm text-muted-foreground">
-            Föregående periods tema: {earlier ? `${earlier.name} – ${earlier.main_theme}` : "Ingen tidigare period"}
+            Föregående periods tema:{" "}
+            {earlier ? `${earlier.name} – ${earlier.main_theme}` : "Ingen tidigare period"}
           </p>
           {PROGRESSION_STEPS.map((step) => {
             const saved = (progression.data ?? []).find((row) => row.step === step.step);
@@ -263,7 +297,9 @@ function PeriodPlan() {
                   id={`step-${step.step}`}
                   rows={2}
                   defaultValue={saved?.notes ?? ""}
-                  onBlur={(event) => saveStep.mutate({ step: step.step, notes: event.target.value })}
+                  onBlur={(event) =>
+                    saveStep.mutate({ step: step.step, notes: event.target.value })
+                  }
                 />
               </div>
             );
@@ -274,15 +310,18 @@ function PeriodPlan() {
       <section className="rounded-xl border border-border bg-card p-4">
         <h3 className="font-display text-lg font-semibold">Spelarutveckling i laget</h3>
         <p className="text-sm text-muted-foreground">
-          Ingen topplista och inga betyg. Bara en översikt över vilka som har ett fokusområde och när du senast skrev
-          en observation.
+          Ingen topplista och inga betyg. Bara en översikt över vilka som har ett fokusområde och
+          när du senast skrev en observation.
         </p>
         <p className="mt-2 text-sm">
           {overview.withFocus} med fokusområde · {overview.withoutFocus} utan
         </p>
         <ul className="mt-3 space-y-1 text-sm">
           {overview.latestObservation.map((row) => (
-            <li key={row.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
+            <li
+              key={row.id}
+              className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+            >
               <span>{row.name}</span>
               <span className="text-xs text-muted-foreground">
                 {row.hasFocus ? "Har fokusområde" : "Inget fokusområde"} ·{" "}

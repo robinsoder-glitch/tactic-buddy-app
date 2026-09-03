@@ -106,7 +106,14 @@ describe("Sekvenser – endast uttryckliga kommandon skapar en sekvens", () => {
       frames = appendSequence(frames);
       const x = 0.2 + step * 0.12;
       frames = applyTrail(frames, step, p.id, "run", { x: x - 0.12, y: 0.5 }, { x, y: 0.5 });
-      frames = applyTrail(frames, step, b.id, "pass", { x: x - 0.1, y: 0.5 }, { x: x + 0.02, y: 0.5 });
+      frames = applyTrail(
+        frames,
+        step,
+        b.id,
+        "pass",
+        { x: x - 0.1, y: 0.5 },
+        { x: x + 0.02, y: 0.5 },
+      );
     }
     expect(frames).toHaveLength(6);
     const roundTrip: Frame[] = JSON.parse(JSON.stringify(frames));

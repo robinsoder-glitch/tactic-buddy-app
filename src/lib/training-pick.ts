@@ -1,4 +1,11 @@
-import { addDraftItem, emptyDraft, hasResource, loadDraft, storeDraft, type DraftKind } from "@/lib/training-draft";
+import {
+  addDraftItem,
+  emptyDraft,
+  hasResource,
+  loadDraft,
+  storeDraft,
+  type DraftKind,
+} from "@/lib/training-draft";
 
 /** Sökparametrar som håller ihop resan mellan planeringen och Träningsbanken. */
 export type PickSearch = {

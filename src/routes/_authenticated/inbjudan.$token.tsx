@@ -10,7 +10,10 @@ export const Route = createFileRoute("/_authenticated/inbjudan/$token")({
   head: () => ({
     meta: [
       { title: "Inbjudan till lag – Fotbollsrummet" },
-      { name: "description", content: "Acceptera din personliga inbjudan att bli ledare i ett lag." },
+      {
+        name: "description",
+        content: "Acceptera din personliga inbjudan att bli ledare i ett lag.",
+      },
       { property: "og:title", content: "Inbjudan till lag – Fotbollsrummet" },
       { property: "og:description", content: "Acceptera din personliga inbjudan till laget." },
       { property: "og:type", content: "website" },
@@ -50,7 +53,8 @@ function InvitePage() {
       <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
       <h1 className="mt-4 text-2xl font-semibold">Inbjudan till laget</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Inbjudan är personlig, kan bara användas en gång och gäller den e-postadress du är inloggad med.
+        Inbjudan är personlig, kan bara användas en gång och gäller den e-postadress du är inloggad
+        med.
       </p>
       {error && (
         <p className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground">

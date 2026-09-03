@@ -44,7 +44,9 @@ describe("datum och tid för träningar och matcher", () => {
   });
 
   it("låter sluttiden vara frivillig", () => {
-    expect(hasErrors(validateEventTimes({ date: "2026-09-05", start: "17:00", end: "" }))).toBe(false);
+    expect(hasErrors(validateEventTimes({ date: "2026-09-05", start: "17:00", end: "" }))).toBe(
+      false,
+    );
   });
 
   it("klagar vid rätt fält när sluttiden är före starttiden", () => {

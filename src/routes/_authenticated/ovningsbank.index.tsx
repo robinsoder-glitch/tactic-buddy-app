@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, ChevronDown, Dumbbell, Search, Star } from "lucide-react";
-import { doneCount, loadProgress, resetSession, toggleBlock, type SessionProgress } from "@/lib/session-progress";
+import {
+  doneCount,
+  loadProgress,
+  resetSession,
+  toggleBlock,
+  type SessionProgress,
+} from "@/lib/session-progress";
 import {
   addFavorite,
   fetchDrills,
@@ -32,7 +38,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 
-
 type OvningsbankSearch = {
   flik?: "ovningar" | "malvakt" | "pass" | undefined;
   markera?: string | undefined;
@@ -42,13 +47,19 @@ type OvningsbankSearch = {
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/")({
   validateSearch: (search: Record<string, unknown>): OvningsbankSearch => {
-    const flik = search['flik'];
-    const markera = search['markera'];
+    const flik = search["flik"];
+    const markera = search["markera"];
     return {
       flik: flik === "malvakt" || flik === "pass" || flik === "ovningar" ? flik : undefined,
       markera: typeof markera === "string" && markera ? markera : undefined,
-      eventId: typeof search['eventId'] === "string" && search['eventId'] ? (search['eventId'] as string) : undefined,
-      teamId: typeof search['teamId'] === "string" && search['teamId'] ? (search['teamId'] as string) : undefined,
+      eventId:
+        typeof search["eventId"] === "string" && search["eventId"]
+          ? (search["eventId"] as string)
+          : undefined,
+      teamId:
+        typeof search["teamId"] === "string" && search["teamId"]
+          ? (search["teamId"] as string)
+          : undefined,
     };
   },
   head: () => ({
@@ -79,8 +90,7 @@ function OvningsbankPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const search = Route.useSearch();
-  const initialTab: Tab =
-    search.flik === "malvakt" ? "Målvaktsövningar" : "Övningar";
+  const initialTab: Tab = search.flik === "malvakt" ? "Målvaktsövningar" : "Övningar";
   const [tab, setTab] = useState<Tab>(initialTab);
   const highlight = search.markera ?? null;
   const [query, setQuery] = useState("");
@@ -99,23 +109,45 @@ function OvningsbankPage() {
 
   useEffect(() => {
     if (!highlight) return;
-    const prefix = search.flik === "malvakt" ? "malvakt" : search.flik === "pass" ? "pass" : "ovning";
+    const prefix =
+      search.flik === "malvakt" ? "malvakt" : search.flik === "pass" ? "pass" : "ovning";
     const timer = window.setTimeout(() => {
-      document.getElementById(`${prefix}-${highlight}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document
+        .getElementById(`${prefix}-${highlight}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 300);
     return () => window.clearTimeout(timer);
   }, [highlight, search.flik]);
-
 
   const allowed = isCoach || isAdmin;
 
   const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: allowed });
   const cards = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
-  const keepers = useQuery({ queryKey: ["tb-gk"], queryFn: fetchGoalkeeperCards, enabled: allowed });
-  const sessions = useQuery({ queryKey: ["tb-sessions"], queryFn: fetchTrainingSessions, enabled: allowed });
-  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
-  const links = useQuery({ queryKey: ["content-links"], queryFn: fetchContentLinks, enabled: allowed });
-  const articles = useQuery({ queryKey: ["knowledge-articles"], queryFn: fetchKnowledgeArticles, enabled: allowed });
+  const keepers = useQuery({
+    queryKey: ["tb-gk"],
+    queryFn: fetchGoalkeeperCards,
+    enabled: allowed,
+  });
+  const sessions = useQuery({
+    queryKey: ["tb-sessions"],
+    queryFn: fetchTrainingSessions,
+    enabled: allowed,
+  });
+  const favorites = useQuery({
+    queryKey: ["tb-favorites"],
+    queryFn: fetchFavorites,
+    enabled: allowed,
+  });
+  const links = useQuery({
+    queryKey: ["content-links"],
+    queryFn: fetchContentLinks,
+    enabled: allowed,
+  });
+  const articles = useQuery({
+    queryKey: ["knowledge-articles"],
+    queryFn: fetchKnowledgeArticles,
+    enabled: allowed,
+  });
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
@@ -135,15 +167,34 @@ function OvningsbankPage() {
   const catalog = useMemo(
     () =>
       buildCatalog([
-        ...(articles.data ?? []).map((item) => ({ type: "article" as const, id: item.slug, title: item.title_sv })),
+        ...(articles.data ?? []).map((item) => ({
+          type: "article" as const,
+          id: item.slug,
+          title: item.title_sv,
+        })),
         ...allCards.map((item) => ({ type: "tactic" as const, id: item.id, title: item.title })),
-        ...(drills.data ?? []).map((item) => ({ type: "drill" as const, id: item.id, title: item.title })),
-        ...(keepers.data ?? []).map((item) => ({ type: "goalkeeper" as const, id: item.id, title: item.title })),
-        ...(sessions.data ?? []).map((item) => ({ type: "session" as const, id: item.id, title: item.title })),
+        ...(drills.data ?? []).map((item) => ({
+          type: "drill" as const,
+          id: item.id,
+          title: item.title,
+        })),
+        ...(keepers.data ?? []).map((item) => ({
+          type: "goalkeeper" as const,
+          id: item.id,
+          title: item.title,
+        })),
+        ...(sessions.data ?? []).map((item) => ({
+          type: "session" as const,
+          id: item.id,
+          title: item.title,
+        })),
       ]),
     [articles.data, allCards, drills.data, keepers.data, sessions.data],
   );
-  const formats = useMemo(() => Array.from(new Set(allCards.map((card) => card.format))), [allCards]);
+  const formats = useMemo(
+    () => Array.from(new Set(allCards.map((card) => card.format))),
+    [allCards],
+  );
   const areas = useMemo(
     () => Array.from(new Set(allCards.map((card) => card.phase).filter(Boolean) as string[])),
     [allCards],
@@ -173,7 +224,9 @@ function OvningsbankPage() {
   });
 
   if (loading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   if (!allowed) {
@@ -182,14 +235,18 @@ function OvningsbankPage() {
         <Dumbbell className="mx-auto size-8 text-primary" />
         <h1 className="mt-3 font-display text-2xl font-bold">Träningsbanken</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Träningsbanken är till för tränare och lagledare. Innehållet här används när du planerar träning.
+          Träningsbanken är till för tränare och lagledare. Innehållet här används när du planerar
+          träning.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" variant="secondary" asChild>
             <Link to="/planera-traning">Till Planera träning</Link>
           </Button>
         </div>
-        <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
           Till startsidan
         </Link>
       </main>
@@ -215,8 +272,8 @@ function OvningsbankPage() {
       </header>
 
       <p className="mt-2 text-sm text-muted-foreground">
-        Här hittar du övningar, målvaktsövningar och färdiga träningspass. Taktikbanken visar vad laget ska göra –
-        här visas hur ni tränar på det.
+        Här hittar du övningar, målvaktsövningar och färdiga träningspass. Taktikbanken visar vad
+        laget ska göra – här visas hur ni tränar på det.
       </p>
 
       <nav className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Delar av träningsbanken">
@@ -227,7 +284,9 @@ function OvningsbankPage() {
             onClick={() => setTab(item)}
             aria-pressed={tab === item}
             className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm ${
-              tab === item ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+              tab === item
+                ? "border-primary bg-primary/15 text-foreground"
+                : "border-border text-muted-foreground"
             }`}
           >
             {item}
@@ -266,7 +325,9 @@ function OvningsbankPage() {
             onClick={() => setOnlyFavorites((value) => !value)}
             aria-pressed={onlyFavorites}
             className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-              onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+              onlyFavorites
+                ? "border-primary bg-primary/15 text-foreground"
+                : "border-border text-muted-foreground"
             }`}
           >
             <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
@@ -281,7 +342,9 @@ function OvningsbankPage() {
                 onChange={setAge}
                 options={[
                   ["all", "Alla åldrar"],
-                  ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
+                  ...[7, 8, 9, 10, 11, 12].map(
+                    (year) => [String(year), `${year} år`] as [string, string],
+                  ),
                 ]}
               />
             </FilterRow>
@@ -325,7 +388,6 @@ function OvningsbankPage() {
         )}
       </FilterPanel>
 
-
       {tab === "Övningar" && (
         <section className="mt-4 space-y-3" aria-label="Övningar">
           {drills.isLoading && <p className="text-sm text-muted-foreground">Laddar övningar…</p>}
@@ -348,7 +410,9 @@ function OvningsbankPage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-xs tracking-wide text-muted-foreground">
                     {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
-                    {meta.areas.length ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}` : ""}
+                    {meta.areas.length
+                      ? ` · ${meta.areas.map((a) => label(PHASE_LABELS, a)).join(" · ")}`
+                      : ""}
                     {` · ${drillDurationLabel(drill)}`}
                   </p>
                   <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
@@ -357,7 +421,12 @@ function OvningsbankPage() {
 
                   <div className="relative z-10">
                     <RelatedContent
-                      sections={relatedSections(links.data ?? [], { type: "drill", id: drill.id }, DRILL_SECTIONS, catalog)}
+                      sections={relatedSections(
+                        links.data ?? [],
+                        { type: "drill", id: drill.id },
+                        DRILL_SECTIONS,
+                        catalog,
+                      )}
                     />
                   </div>
                   <div className="relative z-10 mt-3">
@@ -377,7 +446,6 @@ function OvningsbankPage() {
                   />
                 </div>
               </article>
-
             );
           })}
           {!drills.isLoading && visibleDrills.length === 0 && (
@@ -430,16 +498,22 @@ function OvningsbankPage() {
                 onClick={() => toggleFavorite.mutate({ kind: "goalkeeper", id: card.id })}
               />
               <div className="mt-3">
-<PickDrillButton kind="goalkeeper" resourceId={card.id} title={card.title} size="sm" />
+                <PickDrillButton
+                  kind="goalkeeper"
+                  resourceId={card.id}
+                  title={card.title}
+                  size="sm"
+                />
               </div>
             </article>
           ))}
           {!keepers.isLoading && visibleKeepers.length === 0 && (
-            <p className="text-sm text-muted-foreground">Inga målvaktsövningar matchar sökningen.</p>
+            <p className="text-sm text-muted-foreground">
+              Inga målvaktsövningar matchar sökningen.
+            </p>
           )}
         </section>
       )}
-
     </main>
   );
 }
@@ -475,7 +549,9 @@ function FilterGroup({
           type="button"
           onClick={() => onChange(key)}
           className={`rounded-full border px-3 py-1 text-xs ${
-            value === key ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            value === key
+              ? "border-primary bg-primary/15 text-foreground"
+              : "border-border text-muted-foreground"
           }`}
         >
           {text}

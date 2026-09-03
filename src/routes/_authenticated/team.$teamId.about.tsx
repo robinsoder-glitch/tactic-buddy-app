@@ -52,7 +52,8 @@ function AboutPage() {
   async function newCode(kind: "player" | "coach") {
     const ok = await confirm({
       title: kind === "coach" ? "Skapa ny tränarkod" : "Skapa ny lagkod",
-      description: "Den gamla koden slutar fungera direkt. Alla som ska gå med behöver den nya koden.",
+      description:
+        "Den gamla koden slutar fungera direkt. Alla som ska gå med behöver den nya koden.",
       confirmLabel: "Skapa ny kod",
       tone: "default",
     });
@@ -70,7 +71,6 @@ function AboutPage() {
     await navigator.clipboard.writeText(code ?? "");
     toast.success("Kod kopierad");
   }
-
 
   async function toggleArchive() {
     const ok = await confirm({
@@ -120,8 +120,18 @@ function AboutPage() {
   async function save(file?: File | null) {
     setBusy(true);
     try {
-      const photo_path = file && userId ? await uploadTeamMedia(teamId, file, "team") : (team.data?.photo_path ?? null);
-      await updateTeam(teamId, { name, age_group: ageGroup || null, gender, about: about || null, home_ground: homeGround || null, photo_path });
+      const photo_path =
+        file && userId
+          ? await uploadTeamMedia(teamId, file, "team")
+          : (team.data?.photo_path ?? null);
+      await updateTeam(teamId, {
+        name,
+        age_group: ageGroup || null,
+        gender,
+        about: about || null,
+        home_ground: homeGround || null,
+        photo_path,
+      });
       await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["teams"] });
       toast.success("Sparat");
@@ -149,7 +159,9 @@ function AboutPage() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs tracking-wide text-muted-foreground">Lagkod för spelare och föräldrar</p>
+          <p className="text-xs tracking-wide text-muted-foreground">
+            Lagkod för spelare och föräldrar
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="font-mono text-2xl tracking-widest">{team.data?.join_code}</span>
             <Button size="sm" variant="secondary" onClick={() => copyCode(team.data?.join_code)}>
@@ -168,7 +180,11 @@ function AboutPage() {
           <p className="text-xs tracking-wide text-muted-foreground">Tränarkod för nya ledare</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="font-mono text-2xl tracking-widest">{team.data?.coach_join_code}</span>
-            <Button size="sm" variant="secondary" onClick={() => copyCode(team.data?.coach_join_code)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => copyCode(team.data?.coach_join_code)}
+            >
               <Copy className="size-4" aria-hidden /> Kopiera
             </Button>
             <Button size="sm" variant="ghost" onClick={() => newCode("coach")}>
@@ -176,11 +192,11 @@ function AboutPage() {
             </Button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Dela bara med personer som ska vara ledare. Ansökan måste godkännas av en tränare i laget.
+            Dela bara med personer som ska vara ledare. Ansökan måste godkännas av en tränare i
+            laget.
           </p>
         </div>
       </div>
-
 
       <div className="space-y-1.5">
         <Label htmlFor="t-name">Lagnamn</Label>
@@ -197,7 +213,9 @@ function AboutPage() {
             type="button"
             onClick={() => setGender(value)}
             className={`rounded-lg border px-2 py-2 text-sm ${
-              gender === value ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
+              gender === value
+                ? "border-primary bg-primary/15"
+                : "border-border text-muted-foreground"
             }`}
           >
             {label}
@@ -215,7 +233,12 @@ function AboutPage() {
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="t-about">Beskrivning</Label>
-        <Textarea id="t-about" rows={5} value={about} onChange={(event) => setAbout(event.target.value)} />
+        <Textarea
+          id="t-about"
+          rows={5}
+          value={about}
+          onChange={(event) => setAbout(event.target.value)}
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="t-photo">Lagbild</Label>
@@ -240,7 +263,11 @@ function AboutPage() {
           </p>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={toggleArchive}>
-              {archived ? <ArchiveRestore className="size-4" aria-hidden /> : <Archive className="size-4" aria-hidden />}
+              {archived ? (
+                <ArchiveRestore className="size-4" aria-hidden />
+              ) : (
+                <Archive className="size-4" aria-hidden />
+              )}
               {archived ? "Återställ laget" : "Arkivera laget"}
             </Button>
             <Button variant="destructive" onClick={removeTeam}>

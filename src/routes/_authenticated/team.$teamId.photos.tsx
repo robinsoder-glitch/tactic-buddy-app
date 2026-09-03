@@ -22,7 +22,10 @@ function PhotosPage() {
   const [caption, setCaption] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const photos = useQuery({ queryKey: ["team-photos", teamId], queryFn: () => fetchTeamPhotos(teamId) });
+  const photos = useQuery({
+    queryKey: ["team-photos", teamId],
+    queryFn: () => fetchTeamPhotos(teamId),
+  });
 
   async function upload(file: File | null) {
     if (!file || !userId) return;
@@ -85,7 +88,10 @@ function PhotosPage() {
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {photos.data?.map((photo) => (
-          <figure key={photo.id} className="overflow-hidden rounded-xl border border-border bg-card">
+          <figure
+            key={photo.id}
+            className="overflow-hidden rounded-xl border border-border bg-card"
+          >
             {photo.url && (
               <img
                 src={photo.url}
@@ -114,7 +120,7 @@ function PhotosPage() {
           </figure>
         ))}
       </div>
-  {confirmDialog}
+      {confirmDialog}
     </section>
   );
 }

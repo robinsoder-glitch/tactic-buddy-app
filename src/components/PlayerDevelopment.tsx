@@ -101,12 +101,15 @@ export function PlayerDevelopment({
       <header>
         <h2 className="font-display text-lg font-semibold">Utveckling</h2>
         <p className="text-sm text-muted-foreground">
-          Privat för lagets ledare. Inga betyg och inga jämförelser mellan barn – bara vad spelaren tränar på just nu.
+          Privat för lagets ledare. Inga betyg och inga jämförelser mellan barn – bara vad spelaren
+          tränar på just nu.
         </p>
       </header>
 
       <div className="space-y-2">
-        <Label htmlFor="focus-title">Nytt fokusområde ({activeCount} av {MAX_ACTIVE_FOCUS} aktiva)</Label>
+        <Label htmlFor="focus-title">
+          Nytt fokusområde ({activeCount} av {MAX_ACTIVE_FOCUS} aktiva)
+        </Label>
         <div className="flex gap-2">
           <Input
             id="focus-title"
@@ -148,7 +151,9 @@ export function PlayerDevelopment({
             </div>
           </li>
         ))}
-        {areas.length === 0 && <li className="text-sm text-muted-foreground">Inget fokusområde ännu.</li>}
+        {areas.length === 0 && (
+          <li className="text-sm text-muted-foreground">Inget fokusområde ännu.</li>
+        )}
       </ul>
 
       <div className="space-y-2">
@@ -174,7 +179,10 @@ export function PlayerDevelopment({
               </option>
             ))}
           </select>
-          <Button onClick={() => saveObservation.mutate()} disabled={saveObservation.isPending || !note.trim()}>
+          <Button
+            onClick={() => saveObservation.mutate()}
+            disabled={saveObservation.isPending || !note.trim()}
+          >
             Spara observation
           </Button>
         </div>
@@ -182,7 +190,10 @@ export function PlayerDevelopment({
 
       <ul className="space-y-2">
         {(observations.data ?? []).map((observation) => (
-          <li key={observation.id} className="flex items-start justify-between gap-2 rounded-lg border border-border p-3">
+          <li
+            key={observation.id}
+            className="flex items-start justify-between gap-2 rounded-lg border border-border p-3"
+          >
             <div>
               <p className="text-sm">{observation.note}</p>
               <p className="text-xs text-muted-foreground">

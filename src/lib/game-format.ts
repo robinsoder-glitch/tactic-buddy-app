@@ -34,7 +34,12 @@ export function parseGameFormat(value: string | null | undefined): GameFormatId 
   const text = value.toLowerCase().replace(/\s+/g, "");
   for (const format of GAME_FORMATS) {
     const digits = format.id.split("v")[0];
-    if (text.includes(format.id) || text.includes(`${digits}mot${digits}`) || text.includes(`${digits}-manna`) || text.includes(`${digits}manna`)) {
+    if (
+      text.includes(format.id) ||
+      text.includes(`${digits}mot${digits}`) ||
+      text.includes(`${digits}-manna`) ||
+      text.includes(`${digits}manna`)
+    ) {
       return format.id;
     }
   }

@@ -34,12 +34,7 @@ export function insertSequenceAfter(frames: Frame[], index: number): Frame[] {
 }
 
 /** Flyttar ett objekt i den aktiva sekvensen. Skapar aldrig en sekvens. */
-export function applyMove(
-  frames: Frame[],
-  index: number,
-  objectId: string,
-  point: Point,
-): Frame[] {
+export function applyMove(frames: Frame[], index: number, objectId: string, point: Point): Frame[] {
   return frames.map((frame, i) =>
     i === index
       ? {

@@ -6,7 +6,12 @@ import {
   type VerificationLabel,
 } from "@/lib/rules-presentation";
 
-type RulesetInput = { id: string; format: string; season: string | null; data: Record<string, unknown> };
+type RulesetInput = {
+  id: string;
+  format: string;
+  season: string | null;
+  data: Record<string, unknown>;
+};
 type DistrictInput = { id: string; name: string; data: Record<string, unknown> };
 
 const STATUS_STYLE: Record<VerificationLabel, string> = {
@@ -48,7 +53,9 @@ function DistrictBlock({ district }: { district: DistrictDeviation }) {
         <h4 className="text-sm font-semibold">{district.name}</h4>
         <StatusBadge status={district.status} />
       </div>
-      {district.season && <p className="mt-1 text-xs text-muted-foreground">Säsong {district.season}</p>}
+      {district.season && (
+        <p className="mt-1 text-xs text-muted-foreground">Säsong {district.season}</p>
+      )}
       {unverified && (
         <p className="mt-2 flex gap-2 text-xs text-destructive">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -175,7 +182,9 @@ export function RulesetView({
 
       {isAdmin && adminDistricts.length > 0 && (
         <div className="mt-5 rounded-lg border border-dashed border-destructive/50 p-3">
-          <h3 className="font-display text-base font-semibold">Endast admin: ej verifierade distriktsuppgifter</h3>
+          <h3 className="font-display text-base font-semibold">
+            Endast admin: ej verifierade distriktsuppgifter
+          </h3>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             {adminDistricts.map((district) => (
               <DistrictBlock key={district.id} district={district} />
@@ -202,7 +211,11 @@ export function RulesView({
   return (
     <div className="space-y-4 pb-24">
       {rulesets.map((ruleset) => (
-        <RulesetView key={ruleset.id} view={buildRulesPresentation(ruleset, districts)} isAdmin={isAdmin} />
+        <RulesetView
+          key={ruleset.id}
+          view={buildRulesPresentation(ruleset, districts)}
+          isAdmin={isAdmin}
+        />
       ))}
     </div>
   );

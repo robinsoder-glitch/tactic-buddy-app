@@ -17,10 +17,14 @@ export const Route = createFileRoute("/_authenticated/taktik")({
       { title: "Taktik – rita och animera spelmoment" },
       {
         name: "description",
-        content: "Flytta spelare och boll på planen, bygg steg och spela upp taktiken. Här finns även färdiga taktiker.",
+        content:
+          "Flytta spelare och boll på planen, bygg steg och spela upp taktiken. Här finns även färdiga taktiker.",
       },
       { property: "og:title", content: "Taktik" },
-      { property: "og:description", content: "Interaktiv taktiktavla med egna och färdiga taktiker." },
+      {
+        property: "og:description",
+        content: "Interaktiv taktiktavla med egna och färdiga taktiker.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -137,7 +141,9 @@ function TacticPage() {
             <li
               key={tactic.id}
               className={`flex items-center gap-2 rounded-xl border transition-colors ${
-                tactic.id === activeId ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60"
+                tactic.id === activeId
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card hover:border-primary/60"
               }`}
             >
               <button
@@ -178,9 +184,13 @@ function TacticPage() {
             <li key={card.id} className="rounded-xl border border-border bg-card p-4">
               <h3 className="font-display text-lg font-semibold">{card.title}</h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                {[formatLabelFor(card.format), label(PHASE_LABELS, card.phase)].filter(Boolean).join(" · ")}
+                {[formatLabelFor(card.format), label(PHASE_LABELS, card.phase)]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">{card.purpose ?? "Sammanfattning saknas."}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {card.purpose ?? "Sammanfattning saknas."}
+              </p>
               <Button className="mt-3" size="sm" variant="secondary" asChild>
                 <Link to="/taktikbank/$cardId" params={{ cardId: card.id }}>
                   Visa taktik

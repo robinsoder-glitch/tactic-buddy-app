@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_authenticated/tranarsnack")({
         content: "Intern chatt där lagets tränare delar instruktioner, råd och tips med varandra.",
       },
       { property: "og:title", content: "Tränarsnack – chatt för lagets ledare" },
-      { property: "og:description", content: "Dela instruktioner, råd och tips med lagets övriga ledare." },
+      {
+        property: "og:description",
+        content: "Dela instruktioner, råd och tips med lagets övriga ledare.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,7 +26,9 @@ export const Route = createFileRoute("/_authenticated/tranarsnack")({
 
 function TranarsnackPage() {
   const { memberships, loading } = useAccount();
-  const coachTeams = memberships.filter((item) => item.status === "approved" && item.role === "coach");
+  const coachTeams = memberships.filter(
+    (item) => item.status === "approved" && item.role === "coach",
+  );
   const [teamId, setTeamId] = useState<string | null>(null);
   const active = teamId ?? coachTeams[0]?.team_id ?? null;
 
@@ -62,7 +67,10 @@ function TranarsnackPage() {
         {!loading && !active && (
           <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Tränarsnack finns för dig som är ledare i ett lag.
-            <Link to="/teams" className="mt-3 block text-primary underline-offset-4 hover:underline">
+            <Link
+              to="/teams"
+              className="mt-3 block text-primary underline-offset-4 hover:underline"
+            >
               Till Mina lag
             </Link>
           </div>

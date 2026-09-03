@@ -40,10 +40,42 @@ const events = [
 ];
 
 const rows: AttendanceRow[] = [
-  { id: "1", event_id: "t1", team_id: "team-1", player_id: "p1", status: "present", note: null, minutes_played: null },
-  { id: "2", event_id: "t2", team_id: "team-1", player_id: "p1", status: "partial", note: null, minutes_played: null },
-  { id: "3", event_id: "m1", team_id: "team-1", player_id: "p1", status: "absent", note: null, minutes_played: 0 },
-  { id: "4", event_id: "t1", team_id: "team-1", player_id: "p2", status: "absent", note: null, minutes_played: null },
+  {
+    id: "1",
+    event_id: "t1",
+    team_id: "team-1",
+    player_id: "p1",
+    status: "present",
+    note: null,
+    minutes_played: null,
+  },
+  {
+    id: "2",
+    event_id: "t2",
+    team_id: "team-1",
+    player_id: "p1",
+    status: "partial",
+    note: null,
+    minutes_played: null,
+  },
+  {
+    id: "3",
+    event_id: "m1",
+    team_id: "team-1",
+    player_id: "p1",
+    status: "absent",
+    note: null,
+    minutes_played: 0,
+  },
+  {
+    id: "4",
+    event_id: "t1",
+    team_id: "team-1",
+    player_id: "p2",
+    status: "absent",
+    note: null,
+    minutes_played: null,
+  },
 ];
 
 describe("närvaro", () => {
@@ -100,7 +132,11 @@ describe("närvaro", () => {
 
   it("bygger csv med svenska rubriker", () => {
     const csv = attendanceCsv(
-      summarize([{ id: "p1", name: "Vincent" }], pastEvents(events, new Date("2026-08-30T00:00:00Z")), rows),
+      summarize(
+        [{ id: "p1", name: "Vincent" }],
+        pastEvents(events, new Date("2026-08-30T00:00:00Z")),
+        rows,
+      ),
     );
     expect(csv.split("\n")[0]).toContain("Träningsnärvaro %");
     expect(csv).toContain("Vincent;2;2;100;0;1;0");

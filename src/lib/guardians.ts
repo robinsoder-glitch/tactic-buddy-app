@@ -20,7 +20,9 @@ export type GuardianLink = {
 };
 
 /** Spelar-id som den inloggade vårdnadshavaren får svara för. */
-export async function fetchMyGuardedPlayerIds(userId: string | null | undefined): Promise<string[]> {
+export async function fetchMyGuardedPlayerIds(
+  userId: string | null | undefined,
+): Promise<string[]> {
   if (!userId) return [];
   const { data, error } = await supabase
     .from("player_guardians")
@@ -45,8 +47,13 @@ export async function fetchPlayerGuardians(playerId: string): Promise<GuardianLi
   const { data: profiles } = await supabase
     .from("profiles")
     .select("id, display_name")
-    .in("id", rows.map((row) => row.guardian_user_id));
-  const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
+    .in(
+      "id",
+      rows.map((row) => row.guardian_user_id),
+    );
+  const names = new Map(
+    (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+  );
 
   return rows.map((row) => ({ ...row, guardianName: names.get(row.guardian_user_id) ?? null }));
 }
@@ -57,18 +64,16 @@ export async function linkGuardian(input: {
   relation: string | null;
   createdBy: string;
 }): Promise<void> {
-  const { error } = await supabase
-    .from("player_guardians")
-    .upsert(
-      {
-        player_id: input.playerId,
-        guardian_user_id: input.guardianUserId,
-        relation: input.relation,
-        is_active: true,
-        created_by: input.createdBy,
-      },
-      { onConflict: "player_id,guardian_user_id" },
-    );
+  const { error } = await supabase.from("player_guardians").upsert(
+    {
+      player_id: input.playerId,
+      guardian_user_id: input.guardianUserId,
+      relation: input.relation,
+      is_active: true,
+      created_by: input.createdBy,
+    },
+    { onConflict: "player_id,guardian_user_id" },
+  );
   if (error) throw error;
 }
 

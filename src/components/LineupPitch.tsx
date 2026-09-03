@@ -17,12 +17,61 @@ export function LineupPitch({
   showNames?: boolean;
 }) {
   return (
-    <svg viewBox="0 0 100 68" className="w-full rounded-lg border border-border bg-primary/10" role="img" aria-label="Laguppställning">
-      <rect x="1" y="1" width="98" height="66" rx="2" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-      <line x1="50" y1="1" x2="50" y2="67" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-      <circle cx="50" cy="34" r="8" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-      <rect x="1" y="20" width="10" height="28" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-      <rect x="89" y="20" width="10" height="28" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
+    <svg
+      viewBox="0 0 100 68"
+      className="w-full rounded-lg border border-border bg-primary/10"
+      role="img"
+      aria-label="Laguppställning"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="98"
+        height="66"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        strokeWidth="0.6"
+      />
+      <line
+        x1="50"
+        y1="1"
+        x2="50"
+        y2="67"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        strokeWidth="0.6"
+      />
+      <circle
+        cx="50"
+        cy="34"
+        r="8"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        strokeWidth="0.6"
+      />
+      <rect
+        x="1"
+        y="20"
+        width="10"
+        height="28"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        strokeWidth="0.6"
+      />
+      <rect
+        x="89"
+        y="20"
+        width="10"
+        height="28"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        strokeWidth="0.6"
+      />
       {slots.map((slot, i) => {
         const cx = slot.x * 100;
         const cy = slot.y * 68;
@@ -51,7 +100,14 @@ export function LineupPitch({
               {player ? (player.number ?? "") : "?"}
             </text>
             {showNames && (
-              <text x={cx} y={cy + 7.4} textAnchor="middle" fontSize="2.7" fill="currentColor" fillOpacity="0.85">
+              <text
+                x={cx}
+                y={cy + 7.4}
+                textAnchor="middle"
+                fontSize="2.7"
+                fill="currentColor"
+                fillOpacity="0.85"
+              >
                 {player ? player.name.split(" ")[0] : "Tom plats"}
                 {slot.gk ? " (MV)" : ""}
               </text>

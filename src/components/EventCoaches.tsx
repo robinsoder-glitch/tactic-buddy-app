@@ -5,7 +5,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addEventCoach, coachLabel, fetchEventCoaches, removeEventCoach } from "@/lib/event-coaches";
+import {
+  addEventCoach,
+  coachLabel,
+  fetchEventCoaches,
+  removeEventCoach,
+} from "@/lib/event-coaches";
 import { fetchTeamMembers } from "@/lib/teams";
 
 type Props = {
@@ -23,7 +28,10 @@ export function EventCoaches({ eventId, teamId, userId, canEdit }: Props) {
   const [pick, setPick] = useState("");
   const [note, setNote] = useState("");
 
-  const coaches = useQuery({ queryKey: ["event-coaches", eventId], queryFn: () => fetchEventCoaches([eventId]) });
+  const coaches = useQuery({
+    queryKey: ["event-coaches", eventId],
+    queryFn: () => fetchEventCoaches([eventId]),
+  });
   const members = useQuery({
     queryKey: ["team-members", teamId],
     queryFn: () => fetchTeamMembers(teamId),
@@ -125,7 +133,10 @@ export function EventCoaches({ eventId, teamId, userId, canEdit }: Props) {
               onChange={(event) => setNote(event.target.value)}
             />
           </div>
-          <Button onClick={() => add.mutate()} disabled={add.isPending || coachOptions.length === 0}>
+          <Button
+            onClick={() => add.mutate()}
+            disabled={add.isPending || coachOptions.length === 0}
+          >
             <UserPlus className="size-4" /> Lägg till
           </Button>
         </div>

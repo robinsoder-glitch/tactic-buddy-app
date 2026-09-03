@@ -16,12 +16,7 @@ import { fetchCoachSessions } from "@/lib/coach-sessions";
 import { fetchCoachDrills } from "@/lib/coach-drills";
 import { fetchTactics } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type Props = {
   eventId: string;
@@ -46,8 +41,16 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
     queryKey: ["event-resources", eventId],
     queryFn: () => fetchEventResources([eventId]),
   });
-  const tactics = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: open || links.isSuccess });
-  const drills = useQuery({ queryKey: ["tb-drills"], queryFn: fetchDrills, enabled: open || links.isSuccess });
+  const tactics = useQuery({
+    queryKey: ["tb-tactics"],
+    queryFn: fetchTacticCards,
+    enabled: open || links.isSuccess,
+  });
+  const drills = useQuery({
+    queryKey: ["tb-drills"],
+    queryFn: fetchDrills,
+    enabled: open || links.isSuccess,
+  });
   const sessions = useQuery({
     queryKey: ["tb-sessions"],
     queryFn: fetchTrainingSessions,
@@ -135,7 +138,10 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
       <ul className="mt-2 space-y-1">
         {items.length === 0 && <li className="text-xs text-muted-foreground">Inget kopplat än.</li>}
         {items.map((item, index) => (
-          <li key={item.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
+          <li
+            key={item.id}
+            className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm"
+          >
             <span className="text-xs text-muted-foreground">
               {index + 1}. {KIND_LABELS[item.kind]}
             </span>
@@ -164,7 +170,9 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
                 {titleFor(item.kind, item.resource_id)}
               </Link>
             ) : (
-              <span className="min-w-0 flex-1 truncate">{titleFor(item.kind, item.resource_id)}</span>
+              <span className="min-w-0 flex-1 truncate">
+                {titleFor(item.kind, item.resource_id)}
+              </span>
             )}
             {item.minutes ? (
               <span className="shrink-0 rounded-full bg-background px-2 py-0.5 text-xs text-muted-foreground">
@@ -172,7 +180,11 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
               </span>
             ) : null}
             {isCoach && (
-              <button type="button" aria-label="Ta bort koppling" onClick={() => remove.mutate(item.id)}>
+              <button
+                type="button"
+                aria-label="Ta bort koppling"
+                onClick={() => remove.mutate(item.id)}
+              >
                 <X className="size-4 text-muted-foreground" />
               </button>
             )}
@@ -208,7 +220,9 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
               ] as [string, EventResourceKind, { id: string; title: string }[]][]
             ).map(([heading, kind, list]) => (
               <section key={heading}>
-                <h3 className="font-display text-sm tracking-wide text-muted-foreground">{heading}</h3>
+                <h3 className="font-display text-sm tracking-wide text-muted-foreground">
+                  {heading}
+                </h3>
                 <ul className="mt-1 space-y-1">
                   {list.length === 0 && (
                     <li className="text-xs text-muted-foreground">Inget att välja här ännu.</li>

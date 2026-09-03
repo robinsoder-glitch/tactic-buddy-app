@@ -68,9 +68,6 @@ export function ChunkErrorBanner() {
     return () => window.clearInterval(timer);
   }, [newVersion, reloading]);
 
-
-
-
   useEffect(() => {
     // New build deployed while this tab was open → refresh silently once.
     if (checkBuildVersion() && canAutoReload()) {
@@ -104,7 +101,6 @@ export function ChunkErrorBanner() {
         void hardReload();
       }
     };
-
 
     const onError = (e: ErrorEvent) => void trigger(e.message ?? "");
     const onRejection = (e: PromiseRejectionEvent) => {
@@ -152,7 +148,6 @@ export function ChunkErrorBanner() {
                   : "Ladda om för att se den senaste versionen."}
           </p>
         </div>
-
 
         <button
           onClick={() => {

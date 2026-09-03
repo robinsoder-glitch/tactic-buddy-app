@@ -9,7 +9,6 @@ import {
   GraduationCap,
   Heart,
   Trophy,
-
   Download,
   Link2,
   MessagesSquare,
@@ -88,7 +87,11 @@ function HomePage() {
   }, [loading, user, account.loading, account.roles.length, navigate]);
 
   if (loading || (user && account.loading)) {
-    return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Laddar…</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+        Laddar…
+      </div>
+    );
   }
 
   if (!user) return <Landing />;
@@ -126,7 +129,10 @@ function PlayerHome() {
 
       <section className="mt-6 space-y-3">
         {pending.map((item) => (
-          <p key={item.id} className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+          <p
+            key={item.id}
+            className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground"
+          >
             Din ansökan till {item.team?.name ?? "laget"} väntar på tränarens godkännande.
           </p>
         ))}
@@ -148,7 +154,9 @@ function PlayerHome() {
             <Shield className="size-5 text-primary" />
             <div>
               <h2 className="font-display text-xl font-semibold">{item.team?.name ?? "Laget"}</h2>
-              <p className="text-xs text-muted-foreground">Trupp, kalender, träningar och matcher</p>
+              <p className="text-xs text-muted-foreground">
+                Trupp, kalender, träningar och matcher
+              </p>
             </div>
           </Link>
         ))}
@@ -364,7 +372,9 @@ function TacticsDashboard({ userId }: { userId: string }) {
       return matchesQuery && matchesTeam;
     });
     return [...list].sort((a, b) =>
-      sort === "name" ? a.name.localeCompare(b.name, "sv") : b.updated_at.localeCompare(a.updated_at),
+      sort === "name"
+        ? a.name.localeCompare(b.name, "sv")
+        : b.updated_at.localeCompare(a.updated_at),
     );
   }, [tactics.data, query, sort, teamFilter]);
 
@@ -395,13 +405,20 @@ function TacticsDashboard({ userId }: { userId: string }) {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" />
+          <BrandLogo
+            size={32}
+            nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary"
+          />
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            {new Date().toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
+            {new Date().toLocaleDateString("sv-SE", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
           </p>
         </div>
         <Button
@@ -443,7 +460,13 @@ function TacticsDashboard({ userId }: { userId: string }) {
       )}
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
-        <QuickCard to="/skapa" icon={<Plus className="size-5" />} title="Ny taktik" text="Tom taktik eller färdig mall" primary />
+        <QuickCard
+          to="/skapa"
+          icon={<Plus className="size-5" />}
+          title="Ny taktik"
+          text="Tom taktik eller färdig mall"
+          primary
+        />
         <QuickCard
           to="/planera-traning"
           icon={<ClipboardList className="size-5" />}
@@ -457,9 +480,19 @@ function TacticsDashboard({ userId }: { userId: string }) {
           text="Matchupplägg, trupp och taktik"
         />
         {isCoach ? (
-          <QuickCard to="/teams" icon={<Shield className="size-5" />} title="Mitt lag" text="Trupp, kalender och närvaro" />
+          <QuickCard
+            to="/teams"
+            icon={<Shield className="size-5" />}
+            title="Mitt lag"
+            text="Trupp, kalender och närvaro"
+          />
         ) : (
-          <QuickCard to="/bank" icon={<Users className="size-5" />} title="Spelarbank" text="Namn, nummer och bilder" />
+          <QuickCard
+            to="/bank"
+            icon={<Users className="size-5" />}
+            title="Spelarbank"
+            text="Namn, nummer och bilder"
+          />
         )}
         <QuickCard
           to="/kunskapsbank"
@@ -481,7 +514,6 @@ function TacticsDashboard({ userId }: { userId: string }) {
           badge={unreadChat}
         />
       </section>
-
 
       {activeTeam && (
         <Link
@@ -527,7 +559,11 @@ function TacticsDashboard({ userId }: { userId: string }) {
             className="mt-2 flex items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3"
           >
             <div className="w-28 shrink-0 overflow-hidden rounded-lg">
-              <TacticThumb pitchType={latest.pitch_type} frame={previews.data?.[latest.id] ?? null} width={220} />
+              <TacticThumb
+                pitchType={latest.pitch_type}
+                frame={previews.data?.[latest.id] ?? null}
+                width={220}
+              />
             </div>
             <div className="min-w-0">
               <h3 className="truncate font-display text-xl font-semibold">{latest.name}</h3>
@@ -637,7 +673,11 @@ function TacticsDashboard({ userId }: { userId: string }) {
                 className="absolute inset-0 z-0"
                 aria-label={`Öppna ${tactic.name}`}
               />
-              <TacticThumb pitchType={tactic.pitch_type} frame={previews.data?.[tactic.id] ?? null} width={420} />
+              <TacticThumb
+                pitchType={tactic.pitch_type}
+                frame={previews.data?.[tactic.id] ?? null}
+                width={420}
+              />
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-display text-lg font-semibold">{tactic.name}</h3>
@@ -649,7 +689,12 @@ function TacticsDashboard({ userId }: { userId: string }) {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Fler åtgärder" className="relative z-10">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Fler åtgärder"
+                      className="relative z-10"
+                    >
                       <MoreVertical className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -688,11 +733,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
           ))}
 
           {!showAll && visible.length > shown.length && (
-            <Button
-              variant="secondary"
-              className="sm:col-span-2"
-              onClick={() => setShowAll(true)}
-            >
+            <Button variant="secondary" className="sm:col-span-2" onClick={() => setShowAll(true)}>
               Visa alla {visible.length} taktiker
             </Button>
           )}

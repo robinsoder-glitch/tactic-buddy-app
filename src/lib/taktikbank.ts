@@ -86,7 +86,12 @@ export type GoalkeeperCardData = {
   sources?: Source[];
 };
 
-export type GoalkeeperCard = { id: string; title: string; purpose: string | null; data: GoalkeeperCardData };
+export type GoalkeeperCard = {
+  id: string;
+  title: string;
+  purpose: string | null;
+  data: GoalkeeperCardData;
+};
 
 /** Full mall för en övning i Träningsbanken. */
 export type DrillData = {
@@ -231,7 +236,6 @@ export async function fetchDrill(id: string): Promise<Drill> {
   return data as unknown as Drill;
 }
 
-
 export async function fetchTrainingSessions(): Promise<TrainingSessionCard[]> {
   const { data, error } = await supabase
     .from("tb_training_sessions")
@@ -242,19 +246,28 @@ export async function fetchTrainingSessions(): Promise<TrainingSessionCard[]> {
 }
 
 export async function fetchFormations(): Promise<Formation[]> {
-  const { data, error } = await supabase.from("tb_formations").select("id, format, name, data").order("id");
+  const { data, error } = await supabase
+    .from("tb_formations")
+    .select("id, format, name, data")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as unknown as Formation[];
 }
 
 export async function fetchRulesets(): Promise<Ruleset[]> {
-  const { data, error } = await supabase.from("tb_rulesets").select("id, format, season, data").order("id");
+  const { data, error } = await supabase
+    .from("tb_rulesets")
+    .select("id, format, season, data")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as unknown as Ruleset[];
 }
 
 export async function fetchDistrictProfiles(): Promise<DistrictProfile[]> {
-  const { data, error } = await supabase.from("tb_district_profiles").select("id, name, data").order("id");
+  const { data, error } = await supabase
+    .from("tb_district_profiles")
+    .select("id, name, data")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as unknown as DistrictProfile[];
 }
@@ -289,7 +302,6 @@ export async function removeFavorite(userId: string, kind: FavoriteKind, resourc
 }
 
 /* ---------- etiketter ---------- */
-
 
 /**
  * Svenska etiketter för alla spelmoment och faser som finns i banken.
@@ -352,7 +364,6 @@ export function label(map: Record<string, string>, key: string | null | undefine
   if (!key) return "";
   return map[key] ?? FALLBACK_LABELS[key] ?? key.replace(/_/g, " ");
 }
-
 
 /* ---------- konvertering till appens animationsmodell ---------- */
 

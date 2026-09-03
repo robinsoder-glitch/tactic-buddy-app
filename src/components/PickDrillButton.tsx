@@ -27,7 +27,13 @@ type Props = {
  * Visar "Lägg till i denna träning" när Träningsbanken öppnats från en
  * träningsplanering, annars den vanliga dialogen för att välja aktivitet.
  */
-export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, size = "sm" }: Props) {
+export function PickDrillButton({
+  kind,
+  resourceId,
+  title,
+  defaultMinutes = 10,
+  size = "sm",
+}: Props) {
   const search = parsePickSearch(useSearch({ strict: false }) as Record<string, unknown>);
   const navigate = useNavigate();
   const [duplicate, setDuplicate] = useState(false);
@@ -60,7 +66,7 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind: "drill", resourceId, title, minutes: Number(minutes) || defaultMinutes },
+      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes },
       { allowDuplicate },
     );
     if (!added) {
@@ -91,12 +97,18 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
           min
         </label>
       </span>
-      {event && <span className="ml-2 text-xs text-muted-foreground">{formatDateTime(event.starts_at)}</span>}
+      {event && (
+        <span className="ml-2 text-xs text-muted-foreground">
+          {formatDateTime(event.starts_at)}
+        </span>
+      )}
 
       <Dialog open={duplicate} onOpenChange={setDuplicate}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Övningen finns redan i träningen. Vill du lägga till den en gång till?</DialogTitle>
+            <DialogTitle>
+              Övningen finns redan i träningen. Vill du lägga till den en gång till?
+            </DialogTitle>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDuplicate(false)}>

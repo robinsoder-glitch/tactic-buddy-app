@@ -59,7 +59,9 @@ export function teamAccess(input: TeamAccessInput): TeamAccess {
   const leaderRoles = ["coach", "head_coach", "club_admin"];
   const isCoach =
     signedIn &&
-    (isOwner || input.isAdmin || (approvedMember && leaderRoles.includes(input.membership?.role ?? "")));
+    (isOwner ||
+      input.isAdmin ||
+      (approvedMember && leaderRoles.includes(input.membership?.role ?? "")));
   const isGuardian = signedIn && approvedMember && input.membership?.role === "guardian";
   const isApproved = signedIn && (isOwner || input.isAdmin || approvedMember);
 
@@ -75,8 +77,10 @@ export function teamAccess(input: TeamAccessInput): TeamAccess {
     canInviteLeaders: isOwner || input.isAdmin,
     canArchiveTeam: isOwner || input.isAdmin,
     canDeleteTeam: isOwner || input.isAdmin,
-    canViewAttendance: isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
-    canManageAttendance: isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
+    canViewAttendance:
+      isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
+    canManageAttendance:
+      isCoach || (approvedMember && Boolean(input.membership?.canManageAttendance)),
     canViewStats: isCoach,
   };
 }

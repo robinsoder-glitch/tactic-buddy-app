@@ -1,7 +1,6 @@
 declare const __BUILD_ID__: string;
 
-export const BUILD_ID: string =
-  typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : "unknown";
+export const BUILD_ID: string = typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : "unknown";
 
 export const BUILD_MODE: string = import.meta.env.MODE;
 

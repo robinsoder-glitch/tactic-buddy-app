@@ -72,7 +72,11 @@ export async function buildTacticPdf(options: PdfExportOptions) {
     doc.setFontSize(11);
     doc.text("Fotbollsrummet", margin, margin + 4);
     doc.setFontSize(orientation === "landscape" ? 30 : 24);
-    doc.text(doc.splitTextToSize(options.title, page.w - margin * 2) as string[], margin, margin + 22);
+    doc.text(
+      doc.splitTextToSize(options.title, page.w - margin * 2) as string[],
+      margin,
+      margin + 22,
+    );
     doc.setFontSize(12);
     let y = margin + 44;
     const meta = [
@@ -126,11 +130,7 @@ export async function buildTacticPdf(options: PdfExportOptions) {
     doc.text(options.title, margin, margin);
     doc.setFontSize(10);
     const label = frame.name && frame.name.trim() !== `Steg ${index + 1}` ? ` · ${frame.name}` : "";
-    doc.text(
-      `Steg ${index + 1} av ${frames.length}${label}`,
-      margin,
-      margin + 6,
-    );
+    doc.text(`Steg ${index + 1} av ${frames.length}${label}`, margin, margin + 6);
 
     const sideBySide = orientation === "landscape";
     const listWidth = sideBySide ? Math.min(78, page.w * 0.28) : page.w - margin * 2;
@@ -179,7 +179,9 @@ export async function buildTacticPdf(options: PdfExportOptions) {
     }
 
     doc.setFontSize(8);
-    doc.text(`Steg ${index + 1} / ${frames.length}`, page.w - margin, page.h - 6, { align: "right" });
+    doc.text(`Steg ${index + 1} / ${frames.length}`, page.w - margin, page.h - 6, {
+      align: "right",
+    });
   });
 
   return doc;

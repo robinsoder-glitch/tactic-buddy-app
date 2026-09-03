@@ -35,8 +35,16 @@ describe("drill-quality", () => {
 
   it("underkänner tomma listor, tom text och ogiltigt åldersspann", () => {
     const bad: Pick<Drill, "data"> = {
-      data: { ...complete.data, purpose: "  ", equipment: [], ageFit: { min: 10, max: 8 }, defaultMinutes: 0 },
+      data: {
+        ...complete.data,
+        purpose: "  ",
+        equipment: [],
+        ageFit: { min: 10, max: 8 },
+        defaultMinutes: 0,
+      },
     };
-    expect(missingDrillFields(bad).sort()).toEqual(["ageFit", "defaultMinutes", "equipment", "purpose"].sort());
+    expect(missingDrillFields(bad).sort()).toEqual(
+      ["ageFit", "defaultMinutes", "equipment", "purpose"].sort(),
+    );
   });
 });

@@ -4,11 +4,26 @@
  */
 
 const PATTERNS: { test: RegExp; message: string }[] = [
-  { test: /row-level security|permission denied|not authorized|violates row/i, message: "Du har inte behörighet till det här." },
-  { test: /duplicate key|already exists|23505/i, message: "Det finns redan en post med de uppgifterna." },
-  { test: /foreign key|23503/i, message: "Uppgiften används på annat håll och kan inte ändras just nu." },
-  { test: /failed to fetch|network|timeout|offline/i, message: "Ingen kontakt med servern. Kontrollera nätet och försök igen." },
-  { test: /jwt|token|session|not authenticated/i, message: "Din inloggning har gått ut. Logga in igen." },
+  {
+    test: /row-level security|permission denied|not authorized|violates row/i,
+    message: "Du har inte behörighet till det här.",
+  },
+  {
+    test: /duplicate key|already exists|23505/i,
+    message: "Det finns redan en post med de uppgifterna.",
+  },
+  {
+    test: /foreign key|23503/i,
+    message: "Uppgiften används på annat håll och kan inte ändras just nu.",
+  },
+  {
+    test: /failed to fetch|network|timeout|offline/i,
+    message: "Ingen kontakt med servern. Kontrollera nätet och försök igen.",
+  },
+  {
+    test: /jwt|token|session|not authenticated/i,
+    message: "Din inloggning har gått ut. Logga in igen.",
+  },
   { test: /not found|no rows/i, message: "Vi hittade inte det du letade efter." },
 ];
 

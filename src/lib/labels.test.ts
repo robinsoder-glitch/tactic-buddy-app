@@ -44,7 +44,11 @@ describe("svenska etiketter i Taktikbank och Träningsbank", () => {
   it("visar inga engelska uttryck", () => {
     const visible = [...MOMENTS, ...PHASES]
       .map((key) => label(PHASE_LABELS, key))
-      .concat(Object.values(GAME_MOMENT_LABELS), Object.values(PHASE_LABELS), Object.values(ROLE_LABELS))
+      .concat(
+        Object.values(GAME_MOMENT_LABELS),
+        Object.values(PHASE_LABELS),
+        Object.values(ROLE_LABELS),
+      )
       .join(" | ")
       .toLowerCase();
     for (const phrase of ENGLISH) expect(visible).not.toContain(phrase.toLowerCase());

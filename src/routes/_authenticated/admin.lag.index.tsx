@@ -29,10 +29,14 @@ function AdminTeams() {
               <div className="min-w-0">
                 <h2 className="truncate font-display text-xl font-semibold">{team.name}</h2>
                 <p className="text-xs text-muted-foreground">
-                  {[club?.name, team.age_group, team.archived_at ? "Arkiverat" : null].filter(Boolean).join(" · ")}
+                  {[club?.name, team.age_group, team.archived_at ? "Arkiverat" : null]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
               </div>
-              <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{team.join_code}</span>
+              <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">
+                {team.join_code}
+              </span>
             </div>
           </Link>
         );

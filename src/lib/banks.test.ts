@@ -98,7 +98,9 @@ describe("Träningsbanken", () => {
   it("respekterar favoriter", () => {
     const favorites = new Set(["drill:d1"]);
     expect(filterDrills([drill()], [card()], { onlyFavorites: true, favorites })).toHaveLength(1);
-    expect(filterDrills([drill()], [card()], { onlyFavorites: true, favorites: new Set() })).toHaveLength(0);
+    expect(
+      filterDrills([drill()], [card()], { onlyFavorites: true, favorites: new Set() }),
+    ).toHaveLength(0);
   });
 });
 
@@ -118,7 +120,20 @@ describe("Kunskapsbanken", () => {
   });
 
   it("filtrerar på kategori, nivå, ålder och sökord", () => {
-    const list = [article(), article({ id: "a2", category: "technique", level: "advanced", age_min: 11, age_max: null, title: "Finter", summary: "Teknikövningar", coach_value: "Fler finter", tags: ["teknik"] })];
+    const list = [
+      article(),
+      article({
+        id: "a2",
+        category: "technique",
+        level: "advanced",
+        age_min: 11,
+        age_max: null,
+        title: "Finter",
+        summary: "Teknikövningar",
+        coach_value: "Fler finter",
+        tags: ["teknik"],
+      }),
+    ];
     expect(filterArticles(list, { category: "technique" })).toHaveLength(1);
     expect(filterArticles(list, { level: "basic" })).toHaveLength(1);
     expect(filterArticles(list, { age: "12" }).map((item) => item.id)).toEqual(["a2"]);
@@ -167,13 +182,19 @@ describe("kunskapsbank import och validering", () => {
 
   it("hoppar över dubbletter vid import", () => {
     const existing = [{ ...base, id: "1" }];
-    const result = parseArticleImport(JSON.stringify([base, { ...base, title: "Ny", source_url: "https://x.se/b" }]), existing);
+    const result = parseArticleImport(
+      JSON.stringify([base, { ...base, title: "Ny", source_url: "https://x.se/b" }]),
+      existing,
+    );
     expect(result.duplicates).toBe(1);
     expect(result.toImport).toHaveLength(1);
   });
 
   it("filtrerar på taggar", () => {
-    const rows = [{ ...base, id: "1" }, { ...base, id: "2", tags: ["kost"] }];
+    const rows = [
+      { ...base, id: "1" },
+      { ...base, id: "2", tags: ["kost"] },
+    ];
     expect(filterArticles(rows, { tags: ["kost"] })).toHaveLength(1);
     expect(allTags(rows)).toEqual(["kost", "teknik"]);
   });

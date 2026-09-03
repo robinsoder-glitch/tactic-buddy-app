@@ -96,7 +96,11 @@ export async function fetchCoachSessions(): Promise<CoachSession[]> {
 }
 
 export async function fetchCoachSession(id: string): Promise<CoachSession | null> {
-  const { data, error } = await supabase.from("coach_sessions").select(SESSION_COLUMNS).eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("coach_sessions")
+    .select(SESSION_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw error;
   return (data ?? null) as unknown as CoachSession | null;
 }
@@ -112,7 +116,10 @@ export async function fetchSessionItems(sessionId: string): Promise<CoachSession
 }
 
 export async function fetchAllSessionItems(): Promise<CoachSessionItem[]> {
-  const { data, error } = await supabase.from("coach_session_items").select(ITEM_COLUMNS).order("sort_order");
+  const { data, error } = await supabase
+    .from("coach_session_items")
+    .select(ITEM_COLUMNS)
+    .order("sort_order");
   if (error) throw error;
   return (data ?? []) as unknown as CoachSessionItem[];
 }
@@ -144,7 +151,10 @@ export async function createCoachSession(
   return (data as { id: string }).id;
 }
 
-export async function updateCoachSession(id: string, patch: Partial<SessionDraft> & { status?: string }) {
+export async function updateCoachSession(
+  id: string,
+  patch: Partial<SessionDraft> & { status?: string },
+) {
   const { error } = await supabase.from("coach_sessions").update(patch).eq("id", id);
   if (error) throw error;
 }
@@ -194,7 +204,10 @@ export async function deleteSessionItem(id: string) {
 export async function saveItemOrder(items: CoachSessionItem[]) {
   for (const [index, item] of items.entries()) {
     if (item.sort_order === index) continue;
-    const { error } = await supabase.from("coach_session_items").update({ sort_order: index }).eq("id", item.id);
+    const { error } = await supabase
+      .from("coach_session_items")
+      .update({ sort_order: index })
+      .eq("id", item.id);
     if (error) throw error;
   }
 }
@@ -205,7 +218,11 @@ export function nextSortOrder(items: { sort_order: number }[]): number {
 }
 
 /** Flyttar en del uppåt eller nedåt och numrerar om ordningen. */
-export function moveItem<T extends { sort_order: number }>(items: T[], index: number, direction: -1 | 1): T[] {
+export function moveItem<T extends { sort_order: number }>(
+  items: T[],
+  index: number,
+  direction: -1 | 1,
+): T[] {
   const list = [...items];
   const target = index + direction;
   if (index < 0 || index >= list.length || target < 0 || target >= list.length) return items;
@@ -243,7 +260,10 @@ export function templateItems(template: TrainingSessionCard): NewItem[] {
 }
 
 /** Kopierar en redaktionell mall till ett nytt personligt träningspass. */
-export async function createFromTemplate(template: TrainingSessionCard, userId: string): Promise<string> {
+export async function createFromTemplate(
+  template: TrainingSessionCard,
+  userId: string,
+): Promise<string> {
   const sessionId = await createCoachSession(
     {
       ...emptyDraft,
@@ -274,7 +294,10 @@ export async function createFromTemplate(template: TrainingSessionCard, userId: 
 }
 
 /** Duplicerar ett personligt träningspass med alla delar. */
-export async function duplicateCoachSession(session: CoachSession, userId: string): Promise<string> {
+export async function duplicateCoachSession(
+  session: CoachSession,
+  userId: string,
+): Promise<string> {
   const items = await fetchSessionItems(session.id);
   const newId = await createCoachSession(
     {

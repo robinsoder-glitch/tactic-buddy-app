@@ -6,7 +6,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
       { title: "Admin – Fotbollsrummet" },
-      { name: "description", content: "Administrera alla klubbar, lag, konton och innehåll i Fotbollsrummet." },
+      {
+        name: "description",
+        content: "Administrera alla klubbar, lag, konton och innehåll i Fotbollsrummet.",
+      },
       { property: "og:title", content: "Admin – Fotbollsrummet" },
       { property: "og:description", content: "Administrera klubbar, lag, konton och innehåll." },
       { property: "og:type", content: "website" },
@@ -31,7 +34,9 @@ function AdminLayout() {
 
   if (loading) return <p className="p-8 text-center text-muted-foreground">Laddar…</p>;
   if (!isAdmin) {
-    return <p className="p-8 text-center text-muted-foreground">Du har inte behörighet till adminvyn.</p>;
+    return (
+      <p className="p-8 text-center text-muted-foreground">Du har inte behörighet till adminvyn.</p>
+    );
   }
 
   return (
@@ -48,7 +53,9 @@ function AdminLayout() {
               key={tab.to}
               to={tab.to}
               className={`rounded-lg border border-border px-3 py-2 text-sm font-semibold ${
-                active ? "bg-primary text-primary-foreground" : "bg-card text-foreground hover:bg-accent"
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-foreground hover:bg-accent"
               }`}
             >
               {tab.label}

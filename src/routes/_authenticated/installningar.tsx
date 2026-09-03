@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, KeyRound, Lock, LogOut, Palette, Shield, SlidersHorizontal, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  KeyRound,
+  Lock,
+  LogOut,
+  Palette,
+  Shield,
+  SlidersHorizontal,
+  UserRound,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
@@ -19,7 +28,10 @@ export const Route = createFileRoute("/_authenticated/installningar")({
       { title: "Inställningar – Fotbollsrummet" },
       { name: "description", content: "Profil, lag, tavlans standardval och kontoinställningar." },
       { property: "og:title", content: "Inställningar – Fotbollsrummet" },
-      { property: "og:description", content: "Hantera profil, lag och standardval för taktiktavlan." },
+      {
+        property: "og:description",
+        content: "Hantera profil, lag och standardval för taktiktavlan.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -55,7 +67,11 @@ function SettingsPage() {
     if (!userId) return;
     setSavingProfile(true);
     try {
-      await updateProfile({ id: userId, display_name: name.trim() || null, birth_date: birth || null });
+      await updateProfile({
+        id: userId,
+        display_name: name.trim() || null,
+        birth_date: birth || null,
+      });
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profilen sparad");
     } catch (error) {
@@ -78,7 +94,10 @@ function SettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" aria-hidden /> Tillbaka
       </Link>
       <h1 className="mt-3 font-display text-3xl font-bold">Inställningar</h1>
@@ -96,7 +115,12 @@ function SettingsPage() {
         </div>
         <div>
           <Label htmlFor="birth">Födelsedatum</Label>
-          <Input id="birth" type="date" value={birth} onChange={(event) => setBirth(event.target.value)} />
+          <Input
+            id="birth"
+            type="date"
+            value={birth}
+            onChange={(event) => setBirth(event.target.value)}
+          />
         </div>
         <Button onClick={saveProfile} disabled={savingProfile}>
           Spara profil
@@ -108,7 +132,8 @@ function SettingsPage() {
           <Palette className="size-4 text-primary" /> Utseende
         </h2>
         <p className="text-xs text-muted-foreground">
-          Ljust läge är standard och syns bäst utomhus. Följ enheten byter automatiskt efter telefonens inställning.
+          Ljust läge är standard och syns bäst utomhus. Följ enheten byter automatiskt efter
+          telefonens inställning.
         </p>
         <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Temaval">
           {(["light", "system", "dark"] as ThemeChoice[]).map((value) => (
@@ -188,7 +213,9 @@ function SettingsPage() {
           />
         </div>
         <div>
-          <Label htmlFor="scale">Storlek på spelarsymboler: {Math.round(prefs.playerScale * 100)}%</Label>
+          <Label htmlFor="scale">
+            Storlek på spelarsymboler: {Math.round(prefs.playerScale * 100)}%
+          </Label>
           <input
             id="scale"
             type="range"
@@ -199,7 +226,9 @@ function SettingsPage() {
             onChange={(event) => patchPrefs({ playerScale: Number(event.target.value) })}
             className="mt-2 w-full accent-primary"
           />
-          <p className="text-xs text-muted-foreground">100 % = en spelares armspännvidd (~1,4 m) i planens skala.</p>
+          <p className="text-xs text-muted-foreground">
+            100 % = en spelares armspännvidd (~1,4 m) i planens skala.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Label className="flex-1">Rutnätets finhet</Label>
@@ -217,14 +246,23 @@ function SettingsPage() {
           <Label className="flex-1">Standardplan</Label>
           <select
             value={prefs.pitchType}
-            onChange={(event) => patchPrefs({ pitchType: event.target.value as AppPrefs["pitchType"] })}
+            onChange={(event) =>
+              patchPrefs({ pitchType: event.target.value as AppPrefs["pitchType"] })
+            }
             className="rounded-md border border-input bg-background px-2 py-1 text-sm"
           >
             <option value="small">Smålag (5/7)</option>
             <option value="full">Helplan (11)</option>
           </select>
         </div>
-        <Button variant="outline" onClick={() => { setPrefs(DEFAULT_PREFS); savePrefs(DEFAULT_PREFS); toast.success("Standardvärden återställda"); }}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setPrefs(DEFAULT_PREFS);
+            savePrefs(DEFAULT_PREFS);
+            toast.success("Standardvärden återställda");
+          }}
+        >
           Återställ standardvärden
         </Button>
       </section>
@@ -233,7 +271,9 @@ function SettingsPage() {
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Shield className="size-4 text-primary" /> Mina lag
         </h2>
-        {approved.length === 0 && <p className="text-sm text-muted-foreground">Du är inte med i något lag ännu.</p>}
+        {approved.length === 0 && (
+          <p className="text-sm text-muted-foreground">Du är inte med i något lag ännu.</p>
+        )}
         {approved.map((item) => (
           <Link
             key={item.id}
@@ -244,10 +284,15 @@ function SettingsPage() {
             <span className="truncate">
               {item.team?.name ?? "Lag"}
               {item.team?.gender && (
-                <span className="text-muted-foreground"> · {TEAM_GENDER_LABELS[item.team.gender]}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {TEAM_GENDER_LABELS[item.team.gender]}
+                </span>
               )}
             </span>
-            <span className="text-xs text-muted-foreground">{item.role === "coach" ? "Ledare" : "Spelare"}</span>
+            <span className="text-xs text-muted-foreground">
+              {item.role === "coach" ? "Ledare" : "Spelare"}
+            </span>
           </Link>
         ))}
         {isCoach && (
@@ -256,7 +301,10 @@ function SettingsPage() {
           </Link>
         )}
         {isAdmin && (
-          <Link to="/admin" className="block text-sm text-primary underline-offset-4 hover:underline">
+          <Link
+            to="/admin"
+            className="block text-sm text-primary underline-offset-4 hover:underline"
+          >
             Adminöversikt
           </Link>
         )}
@@ -267,8 +315,8 @@ function SettingsPage() {
           <Lock className="size-4 text-primary" /> Integritet
         </h2>
         <p className="text-sm text-muted-foreground">
-          Vi sparar så lite som möjligt om barn. Foton är alltid frivilliga och syns bara för laget. Av spelarens
-          födelsedatum använder appen bara åldersgruppen.
+          Vi sparar så lite som möjligt om barn. Foton är alltid frivilliga och syns bara för laget.
+          Av spelarens födelsedatum använder appen bara åldersgruppen.
         </p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
           <li>Bilder ligger i ett privat utrymme och nås bara av lagets medlemmar.</li>

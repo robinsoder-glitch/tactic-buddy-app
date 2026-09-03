@@ -34,9 +34,14 @@ export function SessionSharing({
   const [eventId, setEventId] = useState("");
 
   const events = useQuery({ queryKey: ["upcoming-events"], queryFn: () => fetchUpcomingEvents() });
-  const links = useQuery({ queryKey: ["session-links", sessionId], queryFn: () => fetchSessionLinks([sessionId]) });
+  const links = useQuery({
+    queryKey: ["session-links", sessionId],
+    queryFn: () => fetchSessionLinks([sessionId]),
+  });
 
-  const coachTeams = account.memberships.filter((item) => item.role === "coach" && item.status === "approved");
+  const coachTeams = account.memberships.filter(
+    (item) => item.role === "coach" && item.status === "approved",
+  );
   const coachTeamIds = useMemo(() => new Set(coachTeams.map((item) => item.team_id)), [coachTeams]);
 
   const options = useMemo(
@@ -97,8 +102,8 @@ export function SessionSharing({
         <CalendarClock className="size-5 text-primary" /> Koppla till kalendern
       </h2>
       <p className="text-sm text-muted-foreground">
-        Koppla {title} till en träning eller match. Då ser lagets övriga tränare passet på aktiviteten och kan köra det
-        om du inte kan vara med.
+        Koppla {title} till en träning eller match. Då ser lagets övriga tränare passet på
+        aktiviteten och kan köra det om du inte kan vara med.
       </p>
 
       {list.length > 0 && (
@@ -127,7 +132,8 @@ export function SessionSharing({
         <p className="text-sm text-muted-foreground">Hämtar kommande aktiviteter…</p>
       ) : options.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Det finns inga kommande träningar eller matcher i dina lag. Lägg först in en aktivitet i lagets kalender.
+          Det finns inga kommande träningar eller matcher i dina lag. Lägg först in en aktivitet i
+          lagets kalender.
         </p>
       ) : (
         <div className="flex flex-wrap items-end gap-2">
@@ -172,7 +178,8 @@ export function SessionSharing({
             ))}
           </select>
           <p className="text-xs text-muted-foreground">
-            Delade träningar kan läsas och köras av lagets godkända tränare. Bara du kan ändra i dem.
+            Delade träningar kan läsas och köras av lagets godkända tränare. Bara du kan ändra i
+            dem.
           </p>
         </div>
       )}

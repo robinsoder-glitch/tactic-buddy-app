@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/vanliga-misst
       { property: "og:title", content: "10 vanliga tränarmisstag – viktigast först" },
       {
         property: "og:description",
-        content: "Trygghet, jämn speltid, glädje och mindre prat – tio saker att rätta först i barnfotbollen.",
+        content:
+          "Trygghet, jämn speltid, glädje och mindre prat – tio saker att rätta först i barnfotbollen.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -44,21 +45,23 @@ function CoachMistakesPage() {
         </Button>
         <div className="flex-1">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Kunskapsbank</p>
-          <h1 className="font-display text-3xl font-bold">10 vanliga tränarmisstag – viktigast först</h1>
+          <h1 className="font-display text-3xl font-bold">
+            10 vanliga tränarmisstag – viktigast först
+          </h1>
         </div>
       </header>
 
       <KnowledgeTabs active="mistakes" />
 
       <p className="mt-4 max-w-[70ch] text-sm text-muted-foreground">
-        Listan gäller fotboll för barn 5–8 år. Nummer 1 är viktigast att rätta först. Ordningen väger samman
-        trygghet, hur ofta problemet återkommer och hur mycket det påverkar barnens glädje, motivation,
-        deltagande och lärande.
+        Listan gäller fotboll för barn 5–8 år. Nummer 1 är viktigast att rätta först. Ordningen
+        väger samman trygghet, hur ofta problemet återkommer och hur mycket det påverkar barnens
+        glädje, motivation, deltagande och lärande.
       </p>
       <p className="mt-3 max-w-[70ch] rounded-xl border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        Det finns ingen enskild studie som exakt rangordnar alla tio misstagen. Listan är en samlad bedömning
-        utifrån riktlinjer från SvFF, Riksidrottsförbundet och FIFA samt forskning om tränarbeteende och
-        motivation.
+        Det finns ingen enskild studie som exakt rangordnar alla tio misstagen. Listan är en samlad
+        bedömning utifrån riktlinjer från SvFF, Riksidrottsförbundet och FIFA samt forskning om
+        tränarbeteende och motivation.
       </p>
 
       <Accordion type="single" collapsible className="mt-6 space-y-3">
@@ -91,7 +94,8 @@ function CoachMistakesPage() {
           Underlag för listan
         </h2>
         <p className="mt-1 max-w-[70ch] text-sm text-muted-foreground">
-          Ordningen är en samlad bedömning utifrån följande källor, inte en vetenskapligt bevisad rangordning.
+          Ordningen är en samlad bedömning utifrån följande källor, inte en vetenskapligt bevisad
+          rangordning.
         </p>
         <ol className="mt-3 space-y-2 text-sm">
           {MISTAKE_SOURCES.map((source) => (
@@ -129,7 +133,9 @@ function MistakeContent({ mistake }: { mistake: CoachMistake }) {
       </div>
       <div>
         <h3 className="font-semibold">Säg så här</h3>
-        <blockquote className="mt-1 border-l-2 border-primary pl-3 italic">{mistake.coachPhrase}</blockquote>
+        <blockquote className="mt-1 border-l-2 border-primary pl-3 italic">
+          {mistake.coachPhrase}
+        </blockquote>
       </div>
     </div>
   );

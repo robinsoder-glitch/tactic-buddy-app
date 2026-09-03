@@ -58,11 +58,16 @@ export function runElapsedSeconds(
 
 /** Hur länge det aktuella momentet har pågått. */
 export function currentItemSeconds(
-  run: Pick<SessionRun, "started_at" | "paused_at" | "paused_seconds" | "ended_at" | "current_index">,
+  run: Pick<
+    SessionRun,
+    "started_at" | "paused_at" | "paused_seconds" | "ended_at" | "current_index"
+  >,
   items: Pick<SessionRunItem, "actual_seconds">[],
   nowMs: number,
 ): number {
-  const before = items.slice(0, run.current_index).reduce((sum, item) => sum + item.actual_seconds, 0);
+  const before = items
+    .slice(0, run.current_index)
+    .reduce((sum, item) => sum + item.actual_seconds, 0);
   return Math.max(0, runElapsedSeconds(run, nowMs) - before);
 }
 
@@ -79,11 +84,15 @@ export function formatClock(seconds: number): string {
   const minutes = Math.floor((total % 3600) / 60);
   const secs = total % 60;
   const pad = (value: number) => String(value).padStart(2, "0");
-  return hours > 0 ? `${sign}${hours}:${pad(minutes)}:${pad(secs)}` : `${sign}${pad(minutes)}:${pad(secs)}`;
+  return hours > 0
+    ? `${sign}${hours}:${pad(minutes)}:${pad(secs)}`
+    : `${sign}${pad(minutes)}:${pad(secs)}`;
 }
 
 /** Sammanfattning efter avslutat pass. */
-export function runSummary(items: Pick<SessionRunItem, "planned_minutes" | "actual_seconds" | "status">[]) {
+export function runSummary(
+  items: Pick<SessionRunItem, "planned_minutes" | "actual_seconds" | "status">[],
+) {
   const planned = items.reduce((sum, item) => sum + item.planned_minutes * 60, 0);
   const actual = items.reduce((sum, item) => sum + item.actual_seconds, 0);
   return {
@@ -110,7 +119,11 @@ export async function fetchActiveRun(sessionId: string): Promise<SessionRun | nu
 }
 
 export async function fetchRun(runId: string): Promise<SessionRun | null> {
-  const { data, error } = await supabase.from("session_runs").select(RUN_COLUMNS).eq("id", runId).maybeSingle();
+  const { data, error } = await supabase
+    .from("session_runs")
+    .select(RUN_COLUMNS)
+    .eq("id", runId)
+    .maybeSingle();
   if (error) throw error;
   return (data ?? null) as unknown as SessionRun | null;
 }
@@ -133,9 +146,13 @@ export async function startRun(sessionId: string, eventId?: string | null): Prom
   const existing = await fetchActiveRun(sessionId);
   if (existing) return existing;
 
-  const [session, items] = await Promise.all([fetchCoachSession(sessionId), fetchSessionItems(sessionId)]);
+  const [session, items] = await Promise.all([
+    fetchCoachSession(sessionId),
+    fetchSessionItems(sessionId),
+  ]);
   if (!session) throw new Error("Träningspasset kunde inte hittas.");
-  if (items.length === 0) throw new Error("Passet saknar innehåll. Lägg till minst en del innan du startar.");
+  if (items.length === 0)
+    throw new Error("Passet saknar innehåll. Lägg till minst en del innan du startar.");
 
   const { data, error } = await supabase
     .from("session_runs")
@@ -205,31 +222,44 @@ export async function addMinute(item: SessionRunItem) {
 }
 
 export async function fetchRunAttendance(runId: string): Promise<RunAttendanceRow[]> {
-  const { data, error } = await supabase.from("session_run_attendance").select("player_id, status").eq("run_id", runId);
+  const { data, error } = await supabase
+    .from("session_run_attendance")
+    .select("player_id, status")
+    .eq("run_id", runId);
   if (error) throw error;
   return (data ?? []) as unknown as RunAttendanceRow[];
 }
 
-export async function setRunAttendance(runId: string, playerId: string, status: RunAttendanceStatus) {
-  const { error } = await supabase
-    .from("session_run_attendance")
-    .upsert({ run_id: runId, player_id: playerId, status, updated_at: new Date().toISOString() }, {
+export async function setRunAttendance(
+  runId: string,
+  playerId: string,
+  status: RunAttendanceStatus,
+) {
+  const { error } = await supabase.from("session_run_attendance").upsert(
+    { run_id: runId, player_id: playerId, status, updated_at: new Date().toISOString() },
+    {
       onConflict: "run_id,player_id",
-    });
+    },
+  );
   if (error) throw error;
 }
 
 export async function fetchRunPlayerNotes(runId: string): Promise<RunPlayerNote[]> {
-  const { data, error } = await supabase.from("session_run_player_notes").select("player_id, note").eq("run_id", runId);
+  const { data, error } = await supabase
+    .from("session_run_player_notes")
+    .select("player_id, note")
+    .eq("run_id", runId);
   if (error) throw error;
   return (data ?? []) as unknown as RunPlayerNote[];
 }
 
 export async function setRunPlayerNote(runId: string, playerId: string, note: string) {
-  const { error } = await supabase.from("session_run_player_notes").upsert(
-    { run_id: runId, player_id: playerId, note, updated_at: new Date().toISOString() },
-    { onConflict: "run_id,player_id" },
-  );
+  const { error } = await supabase
+    .from("session_run_player_notes")
+    .upsert(
+      { run_id: runId, player_id: playerId, note, updated_at: new Date().toISOString() },
+      { onConflict: "run_id,player_id" },
+    );
   if (error) throw error;
 }
 
@@ -238,7 +268,11 @@ export async function setRunPlayerNote(runId: string, playerId: string, note: st
  * och markerar passet som genomfört. Närvaron speglas till lagets aktivitet
  * när passet är kopplat till en träning i kalendern.
  */
-export async function finishRun(input: { run: SessionRun; items: SessionRunItem[]; userId: string }) {
+export async function finishRun(input: {
+  run: SessionRun;
+  items: SessionRunItem[];
+  userId: string;
+}) {
   const { run, items, userId } = input;
   const current = items[run.current_index];
   if (current && current.status === "pending") {
@@ -250,7 +284,10 @@ export async function finishRun(input: { run: SessionRun; items: SessionRunItem[
     ended_at: new Date().toISOString(),
     paused_at: null,
   });
-  const { error } = await supabase.from("coach_sessions").update({ status: "done" }).eq("id", run.session_id);
+  const { error } = await supabase
+    .from("coach_sessions")
+    .update({ status: "done" })
+    .eq("id", run.session_id);
   if (error) throw error;
 
   if (run.event_id && run.team_id) {

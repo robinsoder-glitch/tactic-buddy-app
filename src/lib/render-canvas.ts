@@ -14,7 +14,6 @@ const COLORS = {
   pass: "#f2c14b",
 };
 
-
 function safeColor(ctx: CanvasRenderingContext2D, color: string, fallback: string) {
   try {
     const previous = ctx.fillStyle;
@@ -32,7 +31,13 @@ function shapeColor(ctx: CanvasRenderingContext2D, drawing: Drawing) {
   return drawing.type === "pass" ? COLORS.pass : COLORS.line;
 }
 
-function pentagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, rotation: number) {
+function pentagon(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  rotation: number,
+) {
   ctx.beginPath();
   for (let i = 0; i < 5; i += 1) {
     const angle = rotation + (-Math.PI / 2 + (i * 2 * Math.PI) / 5);
@@ -45,7 +50,13 @@ function pentagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
   ctx.fill();
 }
 
-function soccerBall(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, lineWidth: number) {
+function soccerBall(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  lineWidth: number,
+) {
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = "#ffffff";
@@ -57,11 +68,24 @@ function soccerBall(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: nu
   pentagon(ctx, cx, cy, r * 0.38, 0);
   for (let i = 0; i < 5; i += 1) {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5 + Math.PI / 5;
-    pentagon(ctx, cx + r * 0.68 * Math.cos(angle), cy + r * 0.68 * Math.sin(angle), r * 0.3, angle + Math.PI / 2);
+    pentagon(
+      ctx,
+      cx + r * 0.68 * Math.cos(angle),
+      cy + r * 0.68 * Math.sin(angle),
+      r * 0.3,
+      angle + Math.PI / 2,
+    );
   }
 }
 
-function arrowHead(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, size: number) {
+function arrowHead(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  size: number,
+) {
   const angle = Math.atan2(y2 - y1, x2 - x1);
   ctx.beginPath();
   ctx.moveTo(x2, y2);
@@ -182,7 +206,15 @@ export function drawScene(
 
     if (drawing.type === "circle") {
       ctx.beginPath();
-      ctx.ellipse((x1 + x2) / 2, (y1 + y2) / 2, Math.abs(x2 - x1) / 2, Math.abs(y2 - y1) / 2, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        (x1 + x2) / 2,
+        (y1 + y2) / 2,
+        Math.abs(x2 - x1) / 2,
+        Math.abs(y2 - y1) / 2,
+        0,
+        0,
+        Math.PI * 2,
+      );
       ctx.globalAlpha = 0.14;
       ctx.fill();
       ctx.globalAlpha = 1;
@@ -260,7 +292,9 @@ export function drawScene(
     ctx.stroke();
 
     const photo =
-      object.photoUrl && options.showPhotos !== false ? options.photos?.get(object.photoUrl) : undefined;
+      object.photoUrl && options.showPhotos !== false
+        ? options.photos?.get(object.photoUrl)
+        : undefined;
     if (photo) {
       ctx.save();
       ctx.beginPath();
@@ -298,7 +332,6 @@ export function drawScene(
       ctx.fillStyle = "#ffffff";
       ctx.fillText(object.label, cx, cy + tokenR * 2);
     }
-
   }
 
   if (options.note) {

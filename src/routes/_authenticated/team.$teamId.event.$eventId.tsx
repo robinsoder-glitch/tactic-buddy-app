@@ -26,7 +26,6 @@ import {
   expectedAttendance,
   fetchEventInvitations,
   inviteStatusLabel,
-
   respondToInvitation,
   saveInvitationPlan,
   setEventCancelled,
@@ -57,7 +56,10 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/event/$eventI
           "Se tid, plats och kallelse för en träning eller match, och håll koll på vilka spelare som kommer.",
       },
       { property: "og:title", content: "Kallelse och deltagare" },
-      { property: "og:description", content: "Vilka kommer, kommer inte, kanske eller har inte svarat." },
+      {
+        property: "og:description",
+        content: "Vilka kommer, kommer inte, kanske eller har inte svarat.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -80,13 +82,22 @@ function EventPage() {
   const [respondBy, setRespondByValue] = useState("");
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
-  const plan = useQuery({ queryKey: ["event-plan", eventId], queryFn: () => fetchEventPlan(eventId) });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
+  const plan = useQuery({
+    queryKey: ["event-plan", eventId],
+    queryFn: () => fetchEventPlan(eventId),
+  });
   const planResources = useQuery({
     queryKey: ["event-resources", eventId],
     queryFn: () => fetchEventResources([eventId]),
   });
-  const eventSquad = useQuery({ queryKey: ["event-squad", eventId], queryFn: () => fetchSquad(eventId) });
+  const eventSquad = useQuery({
+    queryKey: ["event-squad", eventId],
+    queryFn: () => fetchSquad(eventId),
+  });
   const planCoaches = useQuery({
     queryKey: ["event-coaches", eventId],
     queryFn: () => fetchEventCoaches([eventId]),
@@ -156,10 +167,6 @@ function EventPage() {
     },
   });
 
-
-
-
-
   const respond = useMutation({
     mutationFn: ({ invitation, status }: { invitation: Invitation; status: InviteStatus }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
@@ -167,11 +174,7 @@ function EventPage() {
         invitation,
         status,
         userId,
-        role: isCoach
-          ? "coach"
-          : canRespondSelf(invitation, userId)
-            ? "player"
-            : "guardian",
+        role: isCoach ? "coach" : canRespondSelf(invitation, userId) ? "player" : "guardian",
       });
     },
     onSuccess: (_data, vars) => {
@@ -304,13 +307,16 @@ function EventPage() {
           <h2 className="font-display text-xl font-bold">
             {event.data?.type === "match" ? "Matchplanering" : "Träningsplanering"}
           </h2>
-          <PlanStatusBadge status={planStatus({
-            type: event.data?.type ?? "training",
-            planSaved: !!plan.data,
-            resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic").length,
-            playerCount: (eventSquad.data ?? []).length,
-            coachCount: (planCoaches.data ?? []).length,
-          })} />
+          <PlanStatusBadge
+            status={planStatus({
+              type: event.data?.type ?? "training",
+              planSaved: !!plan.data,
+              resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic")
+                .length,
+              playerCount: (eventSquad.data ?? []).length,
+              coachCount: (planCoaches.data ?? []).length,
+            })}
+          />
         </div>
         {event.data?.type === "match" ? (
           <>
@@ -376,7 +382,9 @@ function EventPage() {
             </dl>
 
             {meta?.message && (
-              <p className="mt-3 rounded-xl border border-border bg-card p-3 text-sm">{meta.message}</p>
+              <p className="mt-3 rounded-xl border border-border bg-card p-3 text-sm">
+                {meta.message}
+              </p>
             )}
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -432,7 +440,9 @@ function EventPage() {
                         <p className="truncate font-semibold">
                           {invitation.playerName}
                           {invitation.playerActive === false && (
-                            <span className="ml-2 text-xs font-normal text-muted-foreground">Inaktiv</span>
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">
+                              Inaktiv
+                            </span>
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -500,9 +510,6 @@ function EventPage() {
           <DialogHeader>
             <DialogTitle>{list.length > 0 ? "Hantera kallelse" : "Skapa kallelse"}</DialogTitle>
           </DialogHeader>
-
-
-
 
           <label className="text-sm">
             Sista svarsdag

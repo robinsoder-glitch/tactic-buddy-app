@@ -23,8 +23,13 @@ export async function fetchTeamChat(teamId: string): Promise<ChatMessage[]> {
   if (!rows.length) return [];
 
   const ids = [...new Set(rows.map((row) => row.user_id))];
-  const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
-  const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  const names = new Map(
+    (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+  );
   return rows.map((row) => ({ ...row, displayName: names.get(row.user_id) ?? null }));
 }
 
@@ -82,7 +87,10 @@ export function countUnread(
   }).length;
 }
 
-export async function fetchUnreadChatCount(teamIds: string[], myUserId: string | null): Promise<number> {
+export async function fetchUnreadChatCount(
+  teamIds: string[],
+  myUserId: string | null,
+): Promise<number> {
   if (!teamIds.length) return 0;
   const { data, error } = await supabase
     .from("team_chat_messages")
@@ -91,7 +99,10 @@ export async function fetchUnreadChatCount(teamIds: string[], myUserId: string |
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) return 0;
-  return countUnread((data ?? []) as { team_id: string; user_id: string; created_at: string }[], myUserId);
+  return countUnread(
+    (data ?? []) as { team_id: string; user_id: string; created_at: string }[],
+    myUserId,
+  );
 }
 
 /** Kort tidsetikett, t.ex. "5 sep 19:00". */

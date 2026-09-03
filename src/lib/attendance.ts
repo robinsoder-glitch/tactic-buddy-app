@@ -33,15 +33,22 @@ export function minutesFromShare(share: number, durationMinutes: number | null):
 }
 
 /** Andel av matchen i procent, avrundat till heltal. */
-export function playingTimeShare(minutes: number | null, durationMinutes: number | null): number | null {
+export function playingTimeShare(
+  minutes: number | null,
+  durationMinutes: number | null,
+): number | null {
   if (minutes === null || !durationMinutes || durationMinutes <= 0) return null;
   return Math.round((minutes / durationMinutes) * 100);
 }
 
 /** Validerar speltid mot matchens längd. Returnerar svenskt felmeddelande eller null. */
-export function validateMinutes(minutes: number | null, durationMinutes: number | null): string | null {
+export function validateMinutes(
+  minutes: number | null,
+  durationMinutes: number | null,
+): string | null {
   if (minutes === null) return null;
-  if (!Number.isFinite(minutes) || !Number.isInteger(minutes)) return "Ange speltiden i hela minuter.";
+  if (!Number.isFinite(minutes) || !Number.isInteger(minutes))
+    return "Ange speltiden i hela minuter.";
   if (minutes < 0) return "Speltiden kan inte vara negativ.";
   if (durationMinutes && minutes > durationMinutes) {
     return `Speltiden kan inte vara längre än matchens ${durationMinutes} minuter.`;
@@ -62,13 +69,19 @@ export type AttendanceRow = {
 const COLUMNS = "id, event_id, team_id, player_id, status, note, minutes_played";
 
 export async function fetchTeamAttendance(teamId: string): Promise<AttendanceRow[]> {
-  const { data, error } = await supabase.from("event_attendance").select(COLUMNS).eq("team_id", teamId);
+  const { data, error } = await supabase
+    .from("event_attendance")
+    .select(COLUMNS)
+    .eq("team_id", teamId);
   if (error) throw error;
   return (data ?? []) as unknown as AttendanceRow[];
 }
 
 export async function fetchEventAttendance(eventId: string): Promise<AttendanceRow[]> {
-  const { data, error } = await supabase.from("event_attendance").select(COLUMNS).eq("event_id", eventId);
+  const { data, error } = await supabase
+    .from("event_attendance")
+    .select(COLUMNS)
+    .eq("event_id", eventId);
   if (error) throw error;
   return (data ?? []) as unknown as AttendanceRow[];
 }
@@ -250,6 +263,9 @@ export function eventLabel(event: TeamEvent): string {
 
 /** Sparar matchens totala längd i minuter (krävs för andelsbaserade snabbval). */
 export async function setMatchDuration(eventId: string, minutes: number | null) {
-  const { error } = await supabase.from("events").update({ match_duration_minutes: minutes }).eq("id", eventId);
+  const { error } = await supabase
+    .from("events")
+    .update({ match_duration_minutes: minutes })
+    .eq("id", eventId);
   if (error) throw error;
 }

@@ -34,7 +34,9 @@ function Chips({
           aria-pressed={value === key}
           onClick={() => onChange(key)}
           className={`rounded-full border px-3 py-1 text-xs ${
-            value === key ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            value === key
+              ? "border-primary bg-primary/15 text-foreground"
+              : "border-border text-muted-foreground"
           }`}
         >
           {text}
@@ -53,7 +55,6 @@ export function KnowledgeLibrary() {
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const articles = useQuery({ queryKey: ["knowledge-articles"], queryFn: fetchKnowledgeArticles });
@@ -61,7 +62,9 @@ export function KnowledgeLibrary() {
   const favoriteSet = useMemo(
     () =>
       new Set(
-        (favorites.data ?? []).filter((item) => item.kind === "article").map((item) => item.resource_id),
+        (favorites.data ?? [])
+          .filter((item) => item.kind === "article")
+          .map((item) => item.resource_id),
       ),
     [favorites.data],
   );
@@ -108,14 +111,20 @@ export function KnowledgeLibrary() {
           label="Kategori"
           value={category}
           onChange={setCategory}
-          options={[["all", "Alla kategorier"], ...categories.map((item) => [item, item] as [string, string])]}
+          options={[
+            ["all", "Alla kategorier"],
+            ...categories.map((item) => [item, item] as [string, string]),
+          ]}
         />
         {levels.length > 1 && (
           <Chips
             label="Nivå"
             value={level}
             onChange={setLevel}
-            options={[["all", "Alla nivåer"], ...levels.map((item) => [item, item] as [string, string])]}
+            options={[
+              ["all", "Alla nivåer"],
+              ...levels.map((item) => [item, item] as [string, string]),
+            ]}
           />
         )}
         <button
@@ -123,13 +132,14 @@ export function KnowledgeLibrary() {
           aria-pressed={onlyFavorites}
           onClick={() => setOnlyFavorites((value) => !value)}
           className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-            onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            onlyFavorites
+              ? "border-primary bg-primary/15 text-foreground"
+              : "border-border text-muted-foreground"
           }`}
         >
           <Star className="size-3.5" /> Mina favoriter
         </button>
       </div>
-
 
       <p className="mt-3 text-xs text-muted-foreground">
         {articles.isLoading ? "Laddar artiklar…" : `${list.length} av ${all.length} artiklar`}
@@ -138,40 +148,43 @@ export function KnowledgeLibrary() {
       <div className="mt-2 space-y-3">
         {shown.map((article) => (
           <div key={article.id} className="relative">
-          <button
-            type="button"
-            aria-pressed={favoriteSet.has(article.id)}
-            aria-label={
-              favoriteSet.has(article.id)
-                ? `Ta bort ${article.title_sv} från Mina favoriter`
-                : `Spara ${article.title_sv} i Mina favoriter`
-            }
-            onClick={() => toggleFavorite.mutate({ id: article.id, active: favoriteSet.has(article.id) })}
-            className="absolute right-2 top-2 z-10 rounded-full p-2 text-muted-foreground hover:text-primary"
-          >
-            <Star className={`size-4 ${favoriteSet.has(article.id) ? "fill-current text-primary" : ""}`} />
-          </button>
-          <Link
-            to="/kunskapsbank/$slug"
-            params={{ slug: article.slug }}
-            className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary"
-          >
-            <p className="text-xs tracking-wide text-muted-foreground">
-              {article.category} · {knowledgeAgeLabel(article)}
-              {article.level ? ` · ${article.level}` : ""}
-            </p>
-            <h3 className="mt-1 font-display text-lg font-semibold">{article.title_sv}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{article.summary_sv}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              {article.reading_minutes ? (
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="size-3.5" /> {article.reading_minutes} min
-                </span>
-              ) : null}
-            </div>
-          </Link>
-          <div className="mt-2">
-          </div>
+            <button
+              type="button"
+              aria-pressed={favoriteSet.has(article.id)}
+              aria-label={
+                favoriteSet.has(article.id)
+                  ? `Ta bort ${article.title_sv} från Mina favoriter`
+                  : `Spara ${article.title_sv} i Mina favoriter`
+              }
+              onClick={() =>
+                toggleFavorite.mutate({ id: article.id, active: favoriteSet.has(article.id) })
+              }
+              className="absolute right-2 top-2 z-10 rounded-full p-2 text-muted-foreground hover:text-primary"
+            >
+              <Star
+                className={`size-4 ${favoriteSet.has(article.id) ? "fill-current text-primary" : ""}`}
+              />
+            </button>
+            <Link
+              to="/kunskapsbank/$slug"
+              params={{ slug: article.slug }}
+              className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary"
+            >
+              <p className="text-xs tracking-wide text-muted-foreground">
+                {article.category} · {knowledgeAgeLabel(article)}
+                {article.level ? ` · ${article.level}` : ""}
+              </p>
+              <h3 className="mt-1 font-display text-lg font-semibold">{article.title_sv}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{article.summary_sv}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                {article.reading_minutes ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="size-3.5" /> {article.reading_minutes} min
+                  </span>
+                ) : null}
+              </div>
+            </Link>
+            <div className="mt-2"></div>
           </div>
         ))}
 

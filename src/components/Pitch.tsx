@@ -85,7 +85,6 @@ export function tokenFill(object: FieldObject) {
   return object.team === "home" ? "var(--color-team-home)" : "var(--color-team-away)";
 }
 
-
 function tokenText(object: FieldObject) {
   if (object.gk) return "var(--color-team-gk-foreground)";
   return object.team === "home"
@@ -122,12 +121,13 @@ export function Pitch({
   const dragOffset = useRef<{ x: number; y: number } | null>(null);
   const capturedRef = useRef<Element | null>(null);
 
-  const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const [pending, setPending] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(
+    null,
+  );
 
   // Spelarsymbolen motsvarar en spelares armspännvidd (~1,4 m) i förhållande till planmåtten (koordinater = meter)
   const tokenR = 0.7 * (tokenScale || 1);
   const isShapeTool = tool === "run" || tool === "pass" || tool === "zone" || tool === "circle";
-
 
   /** Skärmkoordinater -> plankoordinater 0..1 via SVG:ns egen matris. */
   function toNormalized(event: React.PointerEvent) {
@@ -224,13 +224,16 @@ export function Pitch({
     event.stopPropagation();
     // Hindrar att webbläsaren startar egen bild-/textdragning som annars avbryter pointer-flödet.
     event.preventDefault();
-    const target = event.currentTarget as unknown as SVGGElement;
-    try {
-      target.setPointerCapture?.(event.pointerId);
-      capturedRef.current = target;
-    } catch {
-      svgRef.current?.setPointerCapture?.(event.pointerId);
-      capturedRef.current = svgRef.current;
+    // Planens SVG är alltid capture-yta: då fortsätter dragningen även när pekaren
+    // lämnar spelarsymbolen eller webbläsaren saknar capture på enskilda element.
+    const svg = svgRef.current;
+    if (svg && typeof svg.setPointerCapture === "function") {
+      try {
+        svg.setPointerCapture(event.pointerId);
+        capturedRef.current = svg;
+      } catch {
+        capturedRef.current = null;
+      }
     }
     const point = toNormalized(event);
     dragId.current = object.id;
@@ -239,8 +242,6 @@ export function Pitch({
     dragOffset.current = { x: object.x - point.x, y: object.y - point.y };
     onSelectObject?.(object.id);
   }
-
-
 
   const markLine = "var(--color-pitch-line)";
   const partial = pitchType === "half" || pitchType === "third";
@@ -320,14 +321,19 @@ export function Pitch({
         strokeWidth={w * 0.005}
         strokeLinecap="round"
         strokeDasharray={drawing.type === "pass" ? `${w * 0.015} ${w * 0.012}` : undefined}
-        markerEnd={preview ? undefined : drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"}
+        markerEnd={
+          preview ? undefined : drawing.type === "run" ? "url(#arrow-run)" : "url(#arrow-pass)"
+        }
         {...common}
       />
     );
   }
 
+  // Exakt en boll ska synas. Finns ett bollobjekt på planen är det den som rör sig –
+  // då ritas ingen extra boll längs passningslinjen.
+  const hasBallObject = objects.some((object) => object.kind === "ball");
   const passBalls =
-    passT == null
+    passT == null || hasBallObject
       ? []
       : drawings
           .filter((drawing) => drawing.type === "pass")
@@ -336,7 +342,6 @@ export function Pitch({
             x: (drawing.x1 + (drawing.x2 - drawing.x1) * passT) * w,
             y: (drawing.y1 + (drawing.y2 - drawing.y1) * passT) * h,
           }));
-
 
   return (
     <div
@@ -352,12 +357,29 @@ export function Pitch({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onLostPointerCapture={() => handlePointerUp()}
       >
         <defs>
-          <marker id="arrow-run" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <marker
+            id="arrow-run"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto-start-reverse"
+          >
             <path d="M 0 0 L 10 5 L 0 10 z" fill={markLine} />
           </marker>
-          <marker id="arrow-pass" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <marker
+            id="arrow-pass"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto-start-reverse"
+          >
             <path d="M 0 0 L 10 5 L 0 10 z" fill="oklch(0.9 0.16 90)" />
           </marker>
           <pattern id="stripes" width={w / 10} height={h} patternUnits="userSpaceOnUse">
@@ -385,10 +407,22 @@ export function Pitch({
           {partial ? (
             <>
               {pitchType === "half" && (
-                <path d={`M 1 ${h / 2 - circleR} A ${circleR} ${circleR} 0 0 1 1 ${h / 2 + circleR}`} />
+                <path
+                  d={`M 1 ${h / 2 - circleR} A ${circleR} ${circleR} 0 0 1 1 ${h / 2 + circleR}`}
+                />
               )}
-              <rect x={w - 1 - boxDepth} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
-              <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+              <rect
+                x={w - 1 - boxDepth}
+                y={(h - boxWidth) / 2}
+                width={boxDepth}
+                height={boxWidth}
+              />
+              <rect
+                x={w - 1 - goalDepth}
+                y={(h - goalWidth) / 2}
+                width={goalDepth}
+                height={goalWidth}
+              />
             </>
           ) : (
             <>
@@ -396,9 +430,19 @@ export function Pitch({
               <circle cx={w / 2} cy={h / 2} r={circleR} />
               <circle cx={w / 2} cy={h / 2} r={w * 0.004} fill={markLine} />
               <rect x={1} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
-              <rect x={w - 1 - boxDepth} y={(h - boxWidth) / 2} width={boxDepth} height={boxWidth} />
+              <rect
+                x={w - 1 - boxDepth}
+                y={(h - boxWidth) / 2}
+                width={boxDepth}
+                height={boxWidth}
+              />
               <rect x={1} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
-              <rect x={w - 1 - goalDepth} y={(h - goalWidth) / 2} width={goalDepth} height={goalWidth} />
+              <rect
+                x={w - 1 - goalDepth}
+                y={(h - goalWidth) / 2}
+                width={goalDepth}
+                height={goalWidth}
+              />
             </>
           )}
         </g>
@@ -406,10 +450,22 @@ export function Pitch({
         {gridStep ? (
           <g stroke="rgba(255,255,255,0.13)" strokeWidth={w * 0.0012}>
             {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
-              <line key={`gx-${i}`} x1={(i + 1) * gridStep * w} y1={0} x2={(i + 1) * gridStep * w} y2={h} />
+              <line
+                key={`gx-${i}`}
+                x1={(i + 1) * gridStep * w}
+                y1={0}
+                x2={(i + 1) * gridStep * w}
+                y2={h}
+              />
             ))}
             {Array.from({ length: Math.round(1 / gridStep) - 1 }, (_, i) => (
-              <line key={`gy-${i}`} x1={0} y1={(i + 1) * gridStep * h} x2={w} y2={(i + 1) * gridStep * h} />
+              <line
+                key={`gy-${i}`}
+                x1={0}
+                y1={(i + 1) * gridStep * h}
+                x2={w}
+                y2={(i + 1) * gridStep * h}
+              />
             ))}
           </g>
         ) : null}
@@ -435,8 +491,6 @@ export function Pitch({
             <SoccerBall r={tokenR * 0.82} strokeWidth={w * 0.0016} />
           </g>
         ))}
-
-
 
         {objects.map((object) => {
           const cx = object.x * w;
@@ -495,7 +549,6 @@ export function Pitch({
                 onPointerDown={(event) => startObjectDrag(event, object)}
               >
                 <SoccerBall r={tokenR * 0.82} strokeWidth={w * 0.0016} />
-
               </g>
             );
           }
@@ -510,7 +563,9 @@ export function Pitch({
               <circle
                 r={tokenR}
                 fill={tokenFill(object)}
-                stroke={isSelected ? "white" : object.gk ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.35)"}
+                stroke={
+                  isSelected ? "white" : object.gk ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.35)"
+                }
                 strokeWidth={isSelected ? w * 0.005 : object.gk ? w * 0.004 : w * 0.002}
               />
               {object.photoUrl && showPhotos ? (
@@ -556,7 +611,6 @@ export function Pitch({
                   {object.label}
                 </text>
               )}
-
             </g>
           );
         })}

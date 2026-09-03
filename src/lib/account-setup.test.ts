@@ -34,20 +34,26 @@ describe("validateSetup tränare", () => {
 
 describe("validateSetup spelare", () => {
   it("kräver lagkod när den behövs", () => {
-    expect(validateSetup({ role: "player", name: "Elias" }, { requireCode: true })).toMatch(/lagkod/i);
-    expect(validateSetup({ role: "player", name: "Elias", code: "A1B2C3" }, { requireCode: true })).toBeNull();
+    expect(validateSetup({ role: "player", name: "Elias" }, { requireCode: true })).toMatch(
+      /lagkod/i,
+    );
+    expect(
+      validateSetup({ role: "player", name: "Elias", code: "A1B2C3" }, { requireCode: true }),
+    ).toBeNull();
   });
 
   it("kräver spelarens namn för föräldrakonto", () => {
-    expect(validateSetup({ role: "player", name: "Maria", isGuardian: true })).toMatch(/spelarens namn/i);
+    expect(validateSetup({ role: "player", name: "Maria", isGuardian: true })).toMatch(
+      /spelarens namn/i,
+    );
   });
 
   it("hänvisar barn under 13 till föräldrakonto", () => {
     const birth = new Date();
     birth.setFullYear(birth.getFullYear() - 10);
-    expect(validateSetup({ role: "player", name: "Elias", birth: birth.toISOString().slice(0, 10) })).toMatch(
-      /vårdnadshavare/i,
-    );
+    expect(
+      validateSetup({ role: "player", name: "Elias", birth: birth.toISOString().slice(0, 10) }),
+    ).toMatch(/vårdnadshavare/i);
   });
 });
 
@@ -61,9 +67,9 @@ describe("roleFromCodeMatch", () => {
 
 describe("profileDisplayName", () => {
   it("visar vårdnadshavare tydligt", () => {
-    expect(profileDisplayName({ role: "player", name: "Maria", isGuardian: true, playerName: "Elias" })).toBe(
-      "Maria (vårdnadshavare för Elias)",
-    );
+    expect(
+      profileDisplayName({ role: "player", name: "Maria", isGuardian: true, playerName: "Elias" }),
+    ).toBe("Maria (vårdnadshavare för Elias)");
     expect(profileDisplayName({ role: "coach", name: "Anna" })).toBe("Anna");
   });
 });

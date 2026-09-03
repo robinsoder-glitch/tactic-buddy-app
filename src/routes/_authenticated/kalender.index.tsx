@@ -73,7 +73,9 @@ function CalendarOverview() {
     return planStatus({
       type: event.type ?? "training",
       planSaved: (plans.data ?? []).some((row) => row.event_id === event.id),
-      resourceCount: (resources.data ?? []).filter((row) => row.event_id === event.id && row.kind !== "tactic").length,
+      resourceCount: (resources.data ?? []).filter(
+        (row) => row.event_id === event.id && row.kind !== "tactic",
+      ).length,
       playerCount: (squads.data ?? []).filter((row) => row.event_id === event.id).length,
       coachCount: (coaches.data ?? []).filter((row) => row.event_id === event.id).length,
     });
@@ -84,7 +86,9 @@ function CalendarOverview() {
   }
 
   if (events.isError) {
-    return <p className="pt-6 text-sm text-muted-foreground">Kalendern kunde inte hämtas just nu.</p>;
+    return (
+      <p className="pt-6 text-sm text-muted-foreground">Kalendern kunde inte hämtas just nu.</p>
+    );
   }
 
   const list = events.data ?? [];
@@ -113,7 +117,9 @@ function CalendarOverview() {
                     <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
                       {eventTypeLabel(event)}
                     </p>
-                    {eventTitleLine(event) && <p className="font-medium">{eventTitleLine(event)}</p>}
+                    {eventTitleLine(event) && (
+                      <p className="font-medium">{eventTitleLine(event)}</p>
+                    )}
                     <p className="mt-1 flex flex-wrap items-center gap-2">
                       <PlanStatusBadge status={statusFor(event)} />
                       {isCancelled(event) && (
@@ -123,7 +129,9 @@ function CalendarOverview() {
                       )}
                     </p>
                     <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                    {event.team_name && <p className="text-xs text-muted-foreground">{event.team_name}</p>}
+                    {event.team_name && (
+                      <p className="text-xs text-muted-foreground">{event.team_name}</p>
+                    )}
                     {event.location && (
                       <p className="flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="size-3" /> {event.location}

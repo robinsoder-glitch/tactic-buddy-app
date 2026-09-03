@@ -26,7 +26,10 @@ export type CoachDrillInput = {
 };
 
 /** Enkel validering som används av både formuläret och testerna. */
-export function validateCoachDrill(input: { title: string; minutes: string | number }): string | null {
+export function validateCoachDrill(input: {
+  title: string;
+  minutes: string | number;
+}): string | null {
   if (!String(input.title).trim()) return "Ange en titel för övningen.";
   const minutes = Number(input.minutes);
   if (!Number.isFinite(minutes) || minutes <= 0) return "Ange tid i minuter.";
@@ -36,13 +39,18 @@ export function validateCoachDrill(input: { title: string; minutes: string | num
 export async function fetchCoachDrills(): Promise<CoachDrill[]> {
   const { data, error } = await supabase
     .from("coach_drills")
-    .select("id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library")
+    .select(
+      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library",
+    )
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as CoachDrill[];
 }
 
-export async function createCoachDrill(input: CoachDrillInput, userId: string): Promise<CoachDrill> {
+export async function createCoachDrill(
+  input: CoachDrillInput,
+  userId: string,
+): Promise<CoachDrill> {
   const { data, error } = await supabase
     .from("coach_drills")
     .insert({
@@ -56,7 +64,9 @@ export async function createCoachDrill(input: CoachDrillInput, userId: string): 
       coach_focus: input.coachFocus?.trim() || null,
       in_library: Boolean(input.inLibrary),
     })
-    .select("id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library")
+    .select(
+      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library",
+    )
     .single();
   if (error) throw error;
   return data as CoachDrill;

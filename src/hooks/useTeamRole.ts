@@ -5,7 +5,11 @@ import { useAccount } from "./useAccount";
 
 export function useTeamRole(teamId: string) {
   const { memberships, userId, isAdmin, loading } = useAccount();
-  const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId), enabled: !!teamId });
+  const team = useQuery({
+    queryKey: ["team", teamId],
+    queryFn: () => fetchTeam(teamId),
+    enabled: !!teamId,
+  });
   const membership = memberships.find((item) => item.team_id === teamId);
   const isOwner = Boolean(userId && team.data?.created_by === userId);
 
@@ -17,7 +21,9 @@ export function useTeamRole(teamId: string) {
       ? {
           role: membership.role,
           status: membership.status,
-          canManageAttendance: Boolean((membership as { can_manage_attendance?: boolean }).can_manage_attendance),
+          canManageAttendance: Boolean(
+            (membership as { can_manage_attendance?: boolean }).can_manage_attendance,
+          ),
         }
       : null,
   });

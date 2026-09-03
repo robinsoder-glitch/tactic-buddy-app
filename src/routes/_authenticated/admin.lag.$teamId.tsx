@@ -29,10 +29,19 @@ function AdminTeamDetail() {
   const queryClient = useQueryClient();
   const removeTeam = useServerFn(deleteTeam);
 
-  const detail = useQuery({ queryKey: ["admin-team", teamId], queryFn: () => fetchTeamAdminDetail(teamId) });
+  const detail = useQuery({
+    queryKey: ["admin-team", teamId],
+    queryFn: () => fetchTeamAdminDetail(teamId),
+  });
   const clubs = useQuery({ queryKey: ["admin-clubs"], queryFn: fetchAllClubs });
 
-  const [form, setForm] = useState({ name: "", age_group: "", gender: "mixed", home_ground: "", club_id: "" });
+  const [form, setForm] = useState({
+    name: "",
+    age_group: "",
+    gender: "mixed",
+    home_ground: "",
+    club_id: "",
+  });
 
   useEffect(() => {
     const team = detail.data?.team;
@@ -95,7 +104,10 @@ function AdminTeamDetail() {
 
   const togglePlayer = useMutation({
     mutationFn: async (input: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from("players").update({ is_active: input.is_active }).eq("id", input.id);
+      const { error } = await supabase
+        .from("players")
+        .update({ is_active: input.is_active })
+        .eq("id", input.id);
       if (error) throw error;
     },
     onSuccess: refresh,
@@ -162,7 +174,11 @@ function AdminTeamDetail() {
         <h2 className="font-display text-2xl font-bold">Laguppgifter</h2>
         <label className="block text-sm font-semibold">
           Namn
-          <input className={field} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <input
+            className={field}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block text-sm font-semibold">
@@ -175,7 +191,11 @@ function AdminTeamDetail() {
           </label>
           <label className="block text-sm font-semibold">
             Kön
-            <select className={field} value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
+            <select
+              className={field}
+              value={form.gender}
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            >
               <option value="mixed">Mixat</option>
               <option value="boys">Pojkar</option>
               <option value="girls">Flickor</option>
@@ -228,7 +248,9 @@ function AdminTeamDetail() {
             type="button"
             className="min-h-11 rounded-lg border border-destructive px-4 text-sm font-semibold text-destructive hover:bg-destructive/10"
             onClick={() => {
-              const answer = window.prompt(`Skriv lagets namn (${team.name}) för att radera det permanent.`);
+              const answer = window.prompt(
+                `Skriv lagets namn (${team.name}) för att radera det permanent.`,
+              );
               if (answer?.trim() === team.name) dropTeam.mutate();
             }}
           >
@@ -283,17 +305,24 @@ function AdminTeamDetail() {
         <h2 className="font-display text-2xl font-bold">Trupp</h2>
         <ul className="mt-3 space-y-2">
           {(detail.data?.players ?? []).map((player) => (
-            <li key={player.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3">
+            <li
+              key={player.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+            >
               <span className="font-semibold">
                 {player.number != null ? `#${player.number} ` : ""}
                 {player.name}
-                {!player.is_active && <span className="ml-2 text-xs text-muted-foreground">(inaktiv)</span>}
+                {!player.is_active && (
+                  <span className="ml-2 text-xs text-muted-foreground">(inaktiv)</span>
+                )}
               </span>
               <span className="flex gap-2">
                 <button
                   type="button"
                   className="min-h-11 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent"
-                  onClick={() => togglePlayer.mutate({ id: player.id, is_active: !player.is_active })}
+                  onClick={() =>
+                    togglePlayer.mutate({ id: player.id, is_active: !player.is_active })
+                  }
                 >
                   {player.is_active ? "Inaktivera" : "Aktivera"}
                 </button>
@@ -301,7 +330,8 @@ function AdminTeamDetail() {
                   type="button"
                   className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
                   onClick={() => {
-                    if (window.confirm(`Ta bort ${player.name} ur truppen?`)) removePlayer.mutate(player.id);
+                    if (window.confirm(`Ta bort ${player.name} ur truppen?`))
+                      removePlayer.mutate(player.id);
                   }}
                 >
                   Ta bort

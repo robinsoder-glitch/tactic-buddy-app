@@ -1,7 +1,17 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, Copy, ListChecks, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Copy,
+  ListChecks,
+  Pencil,
+  Plus,
+  Sparkles,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   addSessionItem,
@@ -124,7 +134,9 @@ function MySessionsPage() {
                 Kopplad till kalendern: {linked.map((link) => linkLabel(link)).join(" · ")}
               </p>
             ) : (
-              <p className="mt-1 text-xs text-muted-foreground">Inte kopplad till någon aktivitet ännu.</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Inte kopplad till någon aktivitet ännu.
+              </p>
             )}
           </div>
           <span className="rounded-full border border-border px-2 py-0.5 text-xs">
@@ -134,13 +146,21 @@ function MySessionsPage() {
 
         <div className="mt-3 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link to="/traningspass/$id/visa" params={{ id: session.id }} aria-label={`Öppna ${session.title}`}>
+            <Link
+              to="/traningspass/$id/visa"
+              params={{ id: session.id }}
+              aria-label={`Öppna ${session.title}`}
+            >
               Öppna
             </Link>
           </Button>
           {editable && (
             <Button asChild variant="outline" size="sm">
-              <Link to="/traningspass/$id" params={{ id: session.id }} aria-label={`Redigera ${session.title}`}>
+              <Link
+                to="/traningspass/$id"
+                params={{ id: session.id }}
+                aria-label={`Redigera ${session.title}`}
+              >
                 <Pencil className="size-4" /> Redigera
               </Link>
             </Button>
@@ -196,11 +216,13 @@ function MySessionsPage() {
       </header>
 
       <p className="mt-3 text-sm text-muted-foreground">
-        Bygg hela träningen och koppla den sedan till en träning i lagets kalender. Då kan lagets övriga tränare se och
-        köra passet, även om du själv inte kan vara med.
+        Bygg hela träningen och koppla den sedan till en träning i lagets kalender. Då kan lagets
+        övriga tränare se och köra passet, även om du själv inte kan vara med.
       </p>
 
-      {sessions.isLoading && <p className="mt-6 text-sm text-muted-foreground">Laddar dina träningar…</p>}
+      {sessions.isLoading && (
+        <p className="mt-6 text-sm text-muted-foreground">Laddar dina träningar…</p>
+      )}
 
       {sessions.isError && (
         <p className="mt-6 text-sm text-muted-foreground">
@@ -211,7 +233,9 @@ function MySessionsPage() {
       {!sessions.isLoading && !sessions.isError && mine.length === 0 && (
         <div className="mt-8 rounded-xl border border-dashed border-border p-8 text-center">
           <ListChecks className="mx-auto size-8 text-primary" />
-          <p className="mt-3 font-display text-lg font-semibold">Du har inte skapat någon träning ännu.</p>
+          <p className="mt-3 font-display text-lg font-semibold">
+            Du har inte skapat någon träning ännu.
+          </p>
           <Button className="mt-4" onClick={() => setCreateOpen(true)}>
             <Plus className="size-4" /> Skapa din första träning
           </Button>
@@ -226,7 +250,8 @@ function MySessionsPage() {
             <Users className="size-5 text-primary" /> Lagets träningar
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Träningar som andra tränare i dina lag har delat. Du kan köra dem eller kopiera dem till dina egna.
+            Träningar som andra tränare i dina lag har delat. Du kan köra dem eller kopiera dem till
+            dina egna.
           </p>
           <div className="mt-3 space-y-3">{shared.map((session) => card(session, false))}</div>
         </section>
@@ -323,7 +348,9 @@ function CreateSessionDialog({
       setEventId("");
       setError(null);
       toast.success(
-        selectedEvent ? "Träningen skapades och kopplades till kalendern" : "Träningen sparades som utkast",
+        selectedEvent
+          ? "Träningen skapades och kopplades till kalendern"
+          : "Träningen sparades som utkast",
       );
       onCreated(id);
     },
@@ -402,11 +429,16 @@ function CreateSessionDialog({
               {drills.isLoading ? (
                 <p className="text-sm text-muted-foreground">Hämtar övningar…</p>
               ) : (drills.data ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Det finns inga övningar i Träningsbanken ännu.</p>
+                <p className="text-sm text-muted-foreground">
+                  Det finns inga övningar i Träningsbanken ännu.
+                </p>
               ) : (
                 <div className="max-h-56 space-y-1 overflow-y-auto rounded-md border border-border p-2">
                   {(drills.data ?? []).map((drill) => (
-                    <label key={drill.id} className="flex items-start gap-2 rounded p-1 text-sm hover:bg-muted/50">
+                    <label
+                      key={drill.id}
+                      className="flex items-start gap-2 rounded p-1 text-sm hover:bg-muted/50"
+                    >
                       <input
                         type="checkbox"
                         className="mt-1"
@@ -435,7 +467,6 @@ function CreateSessionDialog({
               </p>
             </div>
           )}
-
 
           <div className="space-y-1">
             <Label htmlFor="new-event">Koppla till träning i kalendern (frivilligt)</Label>

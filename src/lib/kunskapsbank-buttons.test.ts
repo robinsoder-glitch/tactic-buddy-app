@@ -23,7 +23,12 @@ function knowledgeFiles(): string[] {
 
 const FORBIDDEN_TEXTS = ["Lägg till träningspass", "Lägg till träning", "Lägg till i träning"];
 const FORBIDDEN_CODE = ["AddToTrainingButton", "AddToTrainingDialog", "PlanTrainingDialog"];
-const FORBIDDEN_LINKS = ["/traningspass/nytt", "createCoachSession", "addSessionItem", "addResourceToEvent"];
+const FORBIDDEN_LINKS = [
+  "/traningspass/nytt",
+  "createCoachSession",
+  "addSessionItem",
+  "addResourceToEvent",
+];
 
 describe("Kunskapsbanken – inga knappar för att skapa träningar", () => {
   const files = knowledgeFiles();

@@ -7,7 +7,11 @@ export const MISSING_TEXT = "Uppgiften saknas och behöver kontrolleras.";
 
 export type VerificationLabel = "Verifierad" | "Behöver kontrolleras" | "Ej verifierad";
 
-export type RuleSource = { title: string; url?: string | undefined; reviewedAt?: string | undefined };
+export type RuleSource = {
+  title: string;
+  url?: string | undefined;
+  reviewedAt?: string | undefined;
+};
 
 export type RuleSection = {
   key: string;
@@ -61,7 +65,8 @@ function range(value: unknown): string | undefined {
   if (!record) return undefined;
   const min = num(record["min"]);
   const max = num(record["max"]);
-  if (min !== undefined && max !== undefined) return min === max ? formatNumber(min) : `${formatNumber(min)}–${formatNumber(max)}`;
+  if (min !== undefined && max !== undefined)
+    return min === max ? formatNumber(min) : `${formatNumber(min)}–${formatNumber(max)}`;
   return min !== undefined ? formatNumber(min) : max !== undefined ? formatNumber(max) : undefined;
 }
 function formatNumber(value: number): string {
@@ -101,7 +106,14 @@ function section(
   help?: string,
 ): RuleSection {
   const missing = !value;
-  return { key, title, intro, value: value ?? MISSING_TEXT, help: missing ? undefined : help, missing };
+  return {
+    key,
+    title,
+    intro,
+    value: value ?? MISSING_TEXT,
+    help: missing ? undefined : help,
+    missing,
+  };
 }
 
 function playersText(data: Json): string | undefined {
@@ -155,7 +167,11 @@ function keeperText(data: Json): string | undefined {
   const punt = data["goalkeeperPuntAllowed"];
   const backpass = data["goalkeeperBackpassHandsAllowed"];
   if (typeof punt === "boolean")
-    parts.push(punt ? "Målvakten får utkast och utspark i luften." : "Målvakten får inte sparka bollen i luften – spelet startas på marken.");
+    parts.push(
+      punt
+        ? "Målvakten får utkast och utspark i luften."
+        : "Målvakten får inte sparka bollen i luften – spelet startas på marken.",
+    );
   if (typeof backpass === "boolean")
     parts.push(
       backpass
@@ -176,7 +192,10 @@ function retreatText(data: Json): string | undefined {
   const parts: string[] = [];
   if (position) parts.push(`Retreatlinjen ligger vid ${position}.`);
   if (release) parts.push(release);
-  if (typeof quick === "boolean") parts.push(quick ? "Snabb igångsättning är tillåten." : "Snabb igångsättning är inte tillåten.");
+  if (typeof quick === "boolean")
+    parts.push(
+      quick ? "Snabb igångsättning är tillåten." : "Snabb igångsättning är inte tillåten.",
+    );
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
@@ -203,7 +222,8 @@ function ageText(data: Json): string | undefined {
   const min = num(age?.["min"]);
   const max = num(age?.["max"]);
   if (min === undefined && max === undefined) return undefined;
-  if (min !== undefined && max !== undefined) return `Spelformen används för spelare ${min}–${max} år.`;
+  if (min !== undefined && max !== undefined)
+    return `Spelformen används för spelare ${min}–${max} år.`;
   return `Spelformen används från ${min ?? max} år.`;
 }
 
@@ -244,7 +264,11 @@ const OVERRIDE_SENTENCE: Record<string, (value: unknown) => string | undefined> 
   },
 };
 
-export function buildDistrictDeviation(profile: { id: string; name: string; data: Json }): DistrictDeviation {
+export function buildDistrictDeviation(profile: {
+  id: string;
+  name: string;
+  data: Json;
+}): DistrictDeviation {
   const data = profile.data ?? {};
   const status = districtStatus(data["verificationStatus"]);
   const overrides = obj(data["overrides"]) ?? {};
@@ -255,7 +279,9 @@ export function buildDistrictDeviation(profile: { id: string; name: string; data
       return sentence ? `I ${profile.name} gäller i stället ${sentence}.` : undefined;
     })
     .filter((line): line is string => Boolean(line));
-  const notes = (Array.isArray(data["competitionNotes"]) ? (data["competitionNotes"] as unknown[]) : [])
+  const notes = (
+    Array.isArray(data["competitionNotes"]) ? (data["competitionNotes"] as unknown[]) : []
+  )
     .map((note) => str(note))
     .filter((note): note is string => Boolean(note));
   return {
@@ -293,7 +319,9 @@ export function buildRulesPresentation(
       "Antal spelare",
       "Så många spelare laget har på planen samtidigt.",
       playersText(data),
-      str(obj(data["players"])?.["substitutions"]) ? `Byten: ${str(obj(data["players"])?.["substitutions"])}` : undefined,
+      str(obj(data["players"])?.["substitutions"])
+        ? `Byten: ${str(obj(data["players"])?.["substitutions"])}`
+        : undefined,
     ),
     section(
       "plan-mal",
@@ -314,7 +342,12 @@ export function buildRulesPresentation(
       "Var motståndarna ska stå när målvakten sätter igång spelet.",
       retreatText(data),
     ),
-    section("fasta-situationer", "Fasta situationer", "Frisparkar, hörnor och igångsättningar.", setPiecesText(data)),
+    section(
+      "fasta-situationer",
+      "Fasta situationer",
+      "Frisparkar, hörnor och igångsättningar.",
+      setPiecesText(data),
+    ),
     section(
       "fyramalsregeln",
       "Fyramålsregeln",

@@ -2,7 +2,13 @@ import { CheckCircle2, CircleAlert } from "lucide-react";
 import { planStatusLabel, type PlanStatus } from "@/lib/plan-status";
 
 /** Samma badge används i alla vyer så statusen aldrig ser olika ut. */
-export function PlanStatusBadge({ status, className = "" }: { status: PlanStatus; className?: string }) {
+export function PlanStatusBadge({
+  status,
+  className = "",
+}: {
+  status: PlanStatus;
+  className?: string;
+}) {
   const done = status === "done";
   const Icon = done ? CheckCircle2 : CircleAlert;
   return (

@@ -159,13 +159,9 @@ export async function openBlankTactic(userId: string, name = "Tom tavla"): Promi
   return createTactic(userId, name, "full", null, { draft: true });
 }
 
-
 /** Markerar utkastet som en riktig, sparad taktik. */
 export async function publishTactic(id: string, name: string) {
-  const { error } = await supabase
-    .from("tactics")
-    .update({ name, is_draft: false })
-    .eq("id", id);
+  const { error } = await supabase.from("tactics").update({ name, is_draft: false }).eq("id", id);
   if (error) throw new Error(error.message);
 }
 
@@ -185,7 +181,6 @@ export async function createTacticFromFrames(
   await saveFrames(data.id as string, userId, frames);
   return data.id as string;
 }
-
 
 export async function setTacticPitchType(id: string, pitchType: PitchType) {
   const { error } = await supabase.from("tactics").update({ pitch_type: pitchType }).eq("id", id);
@@ -257,7 +252,9 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
     is_public: data.is_public as boolean,
     is_draft: Boolean(data.is_draft),
     team_id: (data.team_id as string | null) ?? null,
-    frames: frames.length ? frames : [{ id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] }],
+    frames: frames.length
+      ? frames
+      : [{ id: crypto.randomUUID(), name: "Steg 1", objects: [], drawings: [] }],
   };
 }
 
@@ -281,7 +278,10 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
   const { error } = await supabase.from("tactic_frames").insert(payload);
   if (error) throw new Error(error.message);
 
-  await supabase.from("tactics").update({ updated_at: new Date().toISOString() }).eq("id", tacticId);
+  await supabase
+    .from("tactics")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", tacticId);
 }
 
 export async function setTacticSharing(id: string, isPublic: boolean) {

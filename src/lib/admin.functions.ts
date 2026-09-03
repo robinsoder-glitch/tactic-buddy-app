@@ -2,7 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
+type AdminContext = {
+  supabase: {
+    rpc: (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  };
+  userId: string;
+};
+
+async function assertAdmin(context: AdminContext) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
@@ -48,14 +58,20 @@ export type AdminAccount = {
 export const listAccounts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminAccount[]> => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const db = await admin();
 
-    const users: { id: string; email?: string | null; created_at: string; last_sign_in_at?: string | null; email_confirmed_at?: string | null }[] = [];
+    const users: {
+      id: string;
+      email?: string | null;
+      created_at: string;
+      last_sign_in_at?: string | null;
+      email_confirmed_at?: string | null;
+    }[] = [];
     for (let page = 1; page <= 20; page += 1) {
       const { data, error } = await db.auth.admin.listUsers({ page, perPage: 200 });
       if (error) throw new Error(error.message);
-      users.push(...(data.users as any[]));
+      users.push(...(data.users as typeof users));
       if (!data.users.length || data.users.length < 200) break;
     }
 
@@ -96,7 +112,7 @@ export const setAdminRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), makeAdmin: z.boolean() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const db = await admin();
 
     if (data.makeAdmin) {
@@ -127,7 +143,7 @@ export const deleteAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ userId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     if (data.userId === context.userId) throw new Error("Du kan inte radera ditt eget konto här.");
     const db = await admin();
 
@@ -149,10 +165,14 @@ export const deleteTeam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ teamId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const db = await admin();
 
-    const { data: team } = await db.from("teams").select("name").eq("id", data.teamId).maybeSingle();
+    const { data: team } = await db
+      .from("teams")
+      .select("name")
+      .eq("id", data.teamId)
+      .maybeSingle();
     const { data: events } = await db.from("events").select("id").eq("team_id", data.teamId);
     const eventIds = (events ?? []).map((e) => e.id);
 

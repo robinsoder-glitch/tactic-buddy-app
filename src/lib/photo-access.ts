@@ -52,13 +52,7 @@ export function isBucketPublic(bucket: string): boolean {
 
 export type AccessDecision = {
   allowed: boolean;
-  reason:
-    | "owner"
-    | "team-member"
-    | "admin"
-    | "not-signed-in"
-    | "not-team-member"
-    | "orphan-object";
+  reason: "owner" | "team-member" | "admin" | "not-signed-in" | "not-team-member" | "orphan-object";
 };
 
 /** Motsvarar SELECT-policyerna på storage.objects för player-photos. */

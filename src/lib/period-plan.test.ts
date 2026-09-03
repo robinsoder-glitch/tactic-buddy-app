@@ -45,8 +45,26 @@ describe("periodblock", () => {
 });
 
 const periods: TeamPeriod[] = [
-  { id: "1", team_id: "t", name: "P1", start_date: "2026-08-01", end_date: "2026-08-29", main_theme: "A", sub_themes: [], goal: null },
-  { id: "2", team_id: "t", name: "P2", start_date: "2026-09-01", end_date: "2026-09-29", main_theme: "B", sub_themes: [], goal: null },
+  {
+    id: "1",
+    team_id: "t",
+    name: "P1",
+    start_date: "2026-08-01",
+    end_date: "2026-08-29",
+    main_theme: "A",
+    sub_themes: [],
+    goal: null,
+  },
+  {
+    id: "2",
+    team_id: "t",
+    name: "P2",
+    start_date: "2026-09-01",
+    end_date: "2026-09-29",
+    main_theme: "B",
+    sub_themes: [],
+    goal: null,
+  },
 ];
 
 describe("perioder i tiden", () => {
