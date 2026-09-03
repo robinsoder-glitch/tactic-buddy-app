@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/admin/logg")({
 });
 
 function AdminLog() {
-  const log = useQuery({ queryKey: ["admin-audit-log"], queryFn: () => fetchAuditLog(200) });
+  const log = useQuery({ queryKey: ["admin-audit-log"], queryFn: fetchAuditLog });
 
   if (log.isLoading) return <p className="text-muted-foreground">Laddar logg…</p>;
   if (log.error) return <p className="text-destructive">{friendlyError(log.error)}</p>;
