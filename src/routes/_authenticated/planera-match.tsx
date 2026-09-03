@@ -155,7 +155,7 @@ function MatchPlanningPage() {
                 Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning.
               </p>
             </div>
-            <NewMatchCreator />
+            <NewMatchCreator onChanged={() => setReloadKey((n) => n + 1)} />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
               <p className="text-sm text-muted-foreground">
