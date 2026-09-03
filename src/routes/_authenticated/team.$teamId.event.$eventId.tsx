@@ -2,14 +2,35 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { EventCoaches } from "@/components/EventCoaches";
 import { EventResources } from "@/components/EventResources";
+import { EventStatusOverview } from "@/components/EventStatusOverview";
+import { EventEditDialog } from "@/components/EventEditDialog";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlan, fetchEventResources, fetchSquad } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
+import { fetchEventAttendance } from "@/lib/attendance";
+import { fetchEventRuns } from "@/lib/session-runs";
+import { splitLocal } from "@/lib/event-datetime";
+import {
+  COACH_ACTION_LABELS,
+  EVENT_STATE_LABELS,
+  coachPrimaryAction,
+  eventState,
+  memberPrimaryAction,
+  stepStatuses,
+  type CoachActionKey,
+} from "@/lib/event-status";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Ban, Bell, CalendarDays, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Ban, Bell, CalendarDays, MapPin, Pencil, Users } from "lucide-react";
 import { toast } from "sonner";
-import { fetchEvent, fetchTeamPlayers, formatDateTime } from "@/lib/teams";
+import {
+  fetchEvent,
+  fetchPendingJoinCounts,
+  fetchTeam,
+  fetchTeamPlayers,
+  formatDateTime,
+} from "@/lib/teams";
+
 import {
   INVITE_STATUSES,
   NO_ACCOUNT_TEXT,
@@ -111,12 +132,71 @@ function EventPage() {
     queryKey: ["invitations", eventId],
     queryFn: () => fetchEventInvitations(eventId),
   });
+  const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
+  const attendance = useQuery({
+    queryKey: ["event-attendance", eventId],
+    queryFn: () => fetchEventAttendance(eventId),
+  });
+  const runs = useQuery({
+    queryKey: ["event-runs", eventId],
+    queryFn: () => fetchEventRuns(eventId),
+  });
+  const pendingMembers = useQuery({
+    queryKey: ["pending-join-counts", teamId],
+    queryFn: () => fetchPendingJoinCounts([teamId]),
+    enabled: isCoach,
+  });
 
   const list = useMemo(() => invites.data ?? [], [invites.data]);
   const guardedIds = guarded.data ?? [];
   const counts = countInvitations(list);
   const cancelled = Boolean(event.data?.cancelled_at);
   const meta = list[0];
+  const [editing, setEditing] = useState(false);
+
+  const sessionResourceId =
+    (planResources.data ?? []).find((row) => row.kind === "session")?.resource_id ?? null;
+
+  const snapshot = {
+    now: Date.now(),
+    startsAt: event.data?.starts_at ?? new Date().toISOString(),
+    endsAt: event.data?.ends_at ?? null,
+    cancelledAt: event.data?.cancelled_at ?? null,
+    type: event.data?.type ?? "training",
+    hasLocation: Boolean(event.data?.location),
+    pendingMembers: pendingMembers.data?.[teamId] ?? 0,
+    invitationCount: counts.total,
+    pendingResponses: counts.pending,
+    planDone:
+      planStatus({
+        type: event.data?.type ?? "training",
+        planSaved: !!plan.data,
+        resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic").length,
+        playerCount: (eventSquad.data ?? []).length,
+        coachCount: (planCoaches.data ?? []).length,
+      }) === "done",
+    runActive: (runs.data ?? []).some((run) => run.status === "active"),
+    runFinished: (runs.data ?? []).some((run) => run.status !== "active"),
+    attendanceCount: (attendance.data ?? []).length,
+    expectedPlayers: (players.data ?? []).length,
+    hasFollowup: Boolean(plan.data?.notes?.trim()),
+  };
+
+  const state = eventState(snapshot);
+  const steps = stepStatuses(snapshot);
+  const coachAction = coachPrimaryAction(snapshot);
+  const myInvites = list.filter(
+    (item) => canRespondSelf(item, userId) || canRespondAsGuardian(item, guardedIds),
+  );
+  const memberAction = memberPrimaryAction({
+    now: snapshot.now,
+    startsAt: snapshot.startsAt,
+    endsAt: snapshot.endsAt,
+    cancelledAt: snapshot.cancelledAt,
+    hasPendingResponse: myInvites.some((item) => item.status === "pending"),
+    hasUnreadMessage: false,
+  });
+
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
@@ -256,6 +336,9 @@ function EventPage() {
       ? `${event.data?.home_team ?? "Hemma"} – ${event.data?.away_team ?? "Borta"}`
       : "Träning");
 
+  const typeLabel =
+    event.data?.type === "match" ? "Match" : event.data?.type === "training" ? "Träning" : "Övrigt";
+
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-6">
       <Link
@@ -267,79 +350,131 @@ function EventPage() {
       </Link>
 
       <header className="mt-3">
-        {cancelled && (
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-destructive/15 px-3 py-1 text-xs font-semibold text-destructive">
-            <Ban className="size-3.5" /> Inställd
-          </p>
-        )}
-        <h1 className="font-display text-3xl font-bold">{title}</h1>
+        <p className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded-full bg-secondary px-3 py-1">{typeLabel}</span>
+          <span
+            className={`rounded-full px-3 py-1 ${
+              state === "cancelled"
+                ? "bg-destructive/15 text-destructive"
+                : state === "ongoing"
+                  ? "bg-primary/15 text-primary"
+                  : "bg-secondary"
+            }`}
+          >
+            {state === "cancelled" && <Ban className="mr-1 inline size-3.5" />}
+            {EVENT_STATE_LABELS[state]}
+          </span>
+        </p>
+        <h1 className="mt-2 font-display text-3xl font-bold">{title}</h1>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <CalendarDays className="size-4" />
             {event.data ? formatDateTime(event.data.starts_at) : "Laddar…"}
+            {event.data?.ends_at ? `–${splitLocal(event.data.ends_at).time}` : ""}
           </span>
+          {event.data?.meet_at && <span>Samling {splitLocal(event.data.meet_at).time}</span>}
           {event.data?.location && (
             <span className="inline-flex items-center gap-1">
               <MapPin className="size-4" />
               {event.data.location}
             </span>
           )}
+          {team.data?.name && <span>{team.data.name}</span>}
         </p>
         {event.data?.notes && <p className="mt-2 text-sm">{event.data.notes}</p>}
+
         {isCoach && event.data && (
-          <Button
-            variant={cancelled ? "secondary" : "ghost"}
-            size="sm"
-            className="mt-3"
-            onClick={() => cancel.mutate(!cancelled)}
-          >
-            {cancelled ? "Aktivera aktiviteten igen" : "Ställ in aktiviteten"}
-          </Button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+              <Pencil className="size-4" /> Ändra aktivitet
+            </Button>
+            <Button
+              variant={cancelled ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => cancel.mutate(!cancelled)}
+            >
+              {cancelled ? "Aktivera aktiviteten igen" : "Ställ in aktiviteten"}
+            </Button>
+          </div>
         )}
       </header>
 
-      <div className="mt-6">
-        <EventCoaches eventId={eventId} teamId={teamId} userId={userId} canEdit={isCoach} />
-      </div>
-
-      <section className="mt-6 rounded-xl border border-border bg-card p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-xl font-bold">
-            {event.data?.type === "match" ? "Matchplanering" : "Träningsplanering"}
-          </h2>
-          <PlanStatusBadge
-            status={planStatus({
-              type: event.data?.type ?? "training",
-              planSaved: !!plan.data,
-              resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic")
-                .length,
-              playerCount: (eventSquad.data ?? []).length,
-              coachCount: (planCoaches.data ?? []).length,
-            })}
+      {/* Nästa steg för den inloggade rollen */}
+      <section className="mt-5 rounded-xl border border-border bg-card p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Nästa steg
+        </p>
+        {isCoach ? (
+          <CoachActionButton
+            action={coachAction}
+            teamId={teamId}
+            eventId={eventId}
+            isMatch={event.data?.type === "match"}
+            sessionId={sessionResourceId}
+            onCreateInvitation={openDialog}
+            onRemind={() => remind.mutate()}
+            reminding={remind.isPending}
           />
-        </div>
-        {event.data?.type === "match" ? (
-          <>
-            <p className="mt-3 text-sm font-semibold">Övrigt</p>
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-              {plan.data?.notes?.trim() ? plan.data.notes : "Ingen anteckning."}
-            </p>
-          </>
         ) : (
-          <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
+          <p className="mt-1 text-sm font-semibold">
+            {memberAction === "cancelled"
+              ? "Aktiviteten är inställd. Du behöver inte göra något."
+              : memberAction === "respond_invitation"
+                ? "Svara på kallelsen längre ned på sidan."
+                : "Allt är klart. Här ser du tid, plats och din kallelse."}
+          </p>
         )}
-        <Button variant="outline" size="sm" className="mt-3" asChild>
-          {event.data?.type === "match" ? (
-            <Link to="/planera-match" search={{ eventId }}>
-              Öppna planeringen
-            </Link>
-          ) : (
-            <Link to="/planera-traning" search={{ eventId, mode: "edit" as const }}>
-              Öppna planeringen
-            </Link>
-          )}
-        </Button>
       </section>
+
+      <EventStatusOverview steps={steps} />
+
+      {isCoach && (
+        <div className="mt-6">
+          <EventCoaches eventId={eventId} teamId={teamId} userId={userId} canEdit={isCoach} />
+        </div>
+      )}
+
+      {isCoach && (
+        <section className="mt-6 rounded-xl border border-border bg-card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-xl font-bold">
+              {event.data?.type === "match" ? "Matchplanering" : "Träningsplanering"}
+            </h2>
+            <PlanStatusBadge
+              status={planStatus({
+                type: event.data?.type ?? "training",
+                planSaved: !!plan.data,
+                resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic")
+                  .length,
+                playerCount: (eventSquad.data ?? []).length,
+                coachCount: (planCoaches.data ?? []).length,
+              })}
+            />
+          </div>
+          {event.data?.type === "match" ? (
+            <>
+              <p className="mt-3 text-sm font-semibold">Övrigt</p>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {plan.data?.notes?.trim() ? plan.data.notes : "Ingen anteckning."}
+              </p>
+            </>
+          ) : (
+            <EventResources eventId={eventId} teamId={teamId} userId={userId} isCoach={isCoach} />
+          )}
+          <Button variant="outline" size="sm" className="mt-3" asChild>
+            {event.data?.type === "match" ? (
+              <Link to="/planera-match" search={{ eventId }}>
+                Öppna planeringen
+              </Link>
+            ) : (
+              <Link to="/planera-traning" search={{ eventId, mode: "edit" as const }}>
+                Öppna planeringen
+              </Link>
+            )}
+          </Button>
+        </section>
+      )}
+
 
       <section className="mt-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
