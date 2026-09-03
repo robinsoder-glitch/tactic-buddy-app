@@ -42,7 +42,12 @@ describe("offline-cache", () => {
     const key = cacheKey("user-1", "invitations");
     globalThis.localStorage.setItem(
       key,
-      JSON.stringify({ version: CACHE_VERSION - 1, userId: "user-1", scope: "invitations", data: [1] }),
+      JSON.stringify({
+        version: CACHE_VERSION - 1,
+        userId: "user-1",
+        scope: "invitations",
+        data: [1],
+      }),
     );
     expect(readCache("user-1", "invitations")).toBeNull();
   });

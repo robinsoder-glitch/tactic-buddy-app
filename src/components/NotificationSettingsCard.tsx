@@ -85,7 +85,11 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
       }
       const registration = await navigator.serviceWorker?.ready;
       const endpoint = registration?.scope ?? window.location.origin;
-      await registerPushDevice(userId, `${endpoint}#${navigator.userAgent.slice(0, 40)}`, "Den här enheten");
+      await registerPushDevice(
+        userId,
+        `${endpoint}#${navigator.userAgent.slice(0, 40)}`,
+        "Den här enheten",
+      );
       await patchSettings({ push_enabled: true });
       toast.success("Push aktiverat på den här enheten.");
     } catch {
@@ -177,7 +181,9 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
               <div>
                 <p className="text-sm font-medium">Push på den här enheten</p>
                 <p className="text-xs text-muted-foreground">
-                  {settings.push_enabled ? "Aktiverat." : "Avstängt tills du väljer att slå på det."}
+                  {settings.push_enabled
+                    ? "Aktiverat."
+                    : "Avstängt tills du väljer att slå på det."}
                 </p>
               </div>
               <Button
@@ -193,7 +199,10 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
 
           <div className="space-y-2">
             {prefs.map((preference) => (
-              <div key={preference.kind} className="rounded-xl border border-border bg-background p-3">
+              <div
+                key={preference.kind}
+                className="rounded-xl border border-border bg-background p-3"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium">{KIND_LABELS[preference.kind]}</p>

@@ -32,9 +32,9 @@ describe("tider", () => {
   });
 
   it("stänger av tyst tid när användaren valt bort den", () => {
-    expect(isQuietTime(new Date("2026-01-01T22:00:00Z"), { ...DEFAULT_SETTINGS, quiet_enabled: false })).toBe(
-      false,
-    );
+    expect(
+      isQuietTime(new Date("2026-01-01T22:00:00Z"), { ...DEFAULT_SETTINGS, quiet_enabled: false }),
+    ).toBe(false);
   });
 });
 
@@ -43,26 +43,46 @@ describe("leverans", () => {
   const night = new Date("2026-01-01T22:30:00Z");
 
   it("skickar viktiga notiser direkt på dagen", () => {
-    const plan = planDelivery("event_cancelled", defaultPreference("event_cancelled"), DEFAULT_SETTINGS, day);
+    const plan = planDelivery(
+      "event_cancelled",
+      defaultPreference("event_cancelled"),
+      DEFAULT_SETTINGS,
+      day,
+    );
     expect(plan.timing).toBe("now");
     expect(plan.inApp).toBe(true);
   });
 
   it("håller tillbaka under tyst tid", () => {
-    const plan = planDelivery("event_changed", defaultPreference("event_changed"), DEFAULT_SETTINGS, night);
+    const plan = planDelivery(
+      "event_changed",
+      defaultPreference("event_changed"),
+      DEFAULT_SETTINGS,
+      night,
+    );
     expect(plan.timing).toBe("quiet");
   });
 
   it("släpper igenom viktigt när användaren tillåter det", () => {
-    const plan = planDelivery("announcement", defaultPreference("announcement"), {
-      ...DEFAULT_SETTINGS,
-      important_bypass_quiet: true,
-    }, night);
+    const plan = planDelivery(
+      "announcement",
+      defaultPreference("announcement"),
+      {
+        ...DEFAULT_SETTINGS,
+        important_bypass_quiet: true,
+      },
+      night,
+    );
     expect(plan.timing).toBe("now");
   });
 
   it("samlar ihop övrigt i daglig sammanfattning", () => {
-    const plan = planDelivery("invite_reminder", defaultPreference("invite_reminder"), DEFAULT_SETTINGS, day);
+    const plan = planDelivery(
+      "invite_reminder",
+      defaultPreference("invite_reminder"),
+      DEFAULT_SETTINGS,
+      day,
+    );
     expect(plan.timing).toBe("digest");
   });
 
@@ -70,7 +90,8 @@ describe("leverans", () => {
     const preference = { ...defaultPreference("announcement"), push: true };
     expect(planDelivery("announcement", preference, DEFAULT_SETTINGS, day).push).toBe(false);
     expect(
-      planDelivery("announcement", preference, { ...DEFAULT_SETTINGS, push_enabled: true }, day).push,
+      planDelivery("announcement", preference, { ...DEFAULT_SETTINGS, push_enabled: true }, day)
+        .push,
     ).toBe(true);
   });
 });
@@ -85,6 +106,8 @@ describe("inställningar och dubbletter", () => {
 
   it("skapar stabila dedupe-nycklar", () => {
     expect(dedupeKey(["event_changed", " ABC ", null, "V2"])).toBe("event_changed:abc:v2");
-    expect(dedupeKey(["event_changed", "abc", "v2"])).toBe(dedupeKey(["Event_Changed", "ABC", "v2"]));
+    expect(dedupeKey(["event_changed", "abc", "v2"])).toBe(
+      dedupeKey(["Event_Changed", "ABC", "v2"]),
+    );
   });
 });
