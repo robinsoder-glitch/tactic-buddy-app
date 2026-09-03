@@ -21,7 +21,7 @@ async function log(
   action: string,
   targetType: string,
   targetId: string | null,
-  details: Record<string, unknown> = {},
+  details: Record<string, string | number | boolean | null> = {},
 ) {
   const db = await admin();
   await db.from("admin_audit_log").insert({
