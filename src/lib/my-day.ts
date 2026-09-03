@@ -115,8 +115,9 @@ export function greetingName(displayName: string | null | undefined): string {
 
 /** Positiv text när inget behöver göras. */
 export function allDoneText(next: NextEvent[]): string {
-  if (!next.length) return "Allt är klart just nu. Inga aktiviteter är inplanerade.";
-  return `Allt är klart just nu. Nästa aktivitet är ${nextLabel(next[0])}.`;
+  const first = next[0];
+  if (!first) return "Allt är klart just nu. Inga aktiviteter är inplanerade.";
+  return `Allt är klart just nu. Nästa aktivitet är ${nextLabel(first)}.`;
 }
 
 export function nextLabel(event: NextEvent): string {
