@@ -102,7 +102,8 @@ export function stepStatuses(snapshot: EventSnapshot): Record<StepKey, StepStatu
   const details: StepStatus = snapshot.hasLocation ? "done" : "needs_action";
 
   let invitation: StepStatus;
-  if (cancelled) invitation = "not_applicable";
+  // Kallelser gäller bara matcher – träningar följs upp med närvaro i stället.
+  if (cancelled || snapshot.type !== "match") invitation = "not_applicable";
   else if (snapshot.invitationCount === 0) invitation = started ? "needs_action" : "not_started";
   else if (snapshot.pendingResponses === 0 || snapshot.invitationClosed) invitation = "done";
   else invitation = "in_progress";
@@ -178,12 +179,15 @@ export function coachPrimaryAction(snapshot: EventSnapshot): CoachActionKey {
   const state = eventState(snapshot);
   if (state === "cancelled") return "none";
 
-  if (snapshot.pendingMembers > 0 && snapshot.invitationCount === 0) return "manage_members";
-  if (snapshot.invitationCount === 0) return "create_invitation";
+  const isMatch = snapshot.type === "match";
+  if (isMatch && snapshot.pendingMembers > 0 && snapshot.invitationCount === 0)
+    return "manage_members";
+  if (isMatch && snapshot.invitationCount === 0) return "create_invitation";
 
   const start = new Date(snapshot.startsAt).getTime();
   const nearStart = !Number.isNaN(start) && start - snapshot.now <= REMIND_WINDOW_HOURS * 3_600_000;
-  if (snapshot.pendingResponses > 0 && nearStart && state === "upcoming") return "remind_pending";
+  if (isMatch && snapshot.pendingResponses > 0 && nearStart && state === "upcoming")
+    return "remind_pending";
 
   if (!snapshot.planDone) return "continue_planning";
 

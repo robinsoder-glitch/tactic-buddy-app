@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
 import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedKalenderRouteImport } from './routes/_authenticated/kalender'
+import { Route as AuthenticatedKallelserRouteImport } from './routes/_authenticated/kallelser'
 import { Route as AuthenticatedMeddelandenRouteImport } from './routes/_authenticated/meddelanden'
 import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedNarvaroRouteImport } from './routes/_authenticated/narvaro'
@@ -39,6 +40,7 @@ import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
 import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
 import { Route as AuthenticatedKunskapsbankSlugRouteImport } from './routes/_authenticated/kunskapsbank.$slug'
+import { Route as AuthenticatedKunskapsbankFavoriterRouteImport } from './routes/_authenticated/kunskapsbank.favoriter'
 import { Route as AuthenticatedKunskapsbankTeknikRouteImport } from './routes/_authenticated/kunskapsbank.teknik'
 import { Route as AuthenticatedKunskapsbankVanligaMisstagRouteImport } from './routes/_authenticated/kunskapsbank.vanliga-misstag'
 import { Route as AuthenticatedOvningsbankIndexRouteImport } from './routes/_authenticated/ovningsbank.index'
@@ -108,6 +110,11 @@ const AuthenticatedInstallningarRoute =
 const AuthenticatedKalenderRoute = AuthenticatedKalenderRouteImport.update({
   id: '/kalender',
   path: '/kalender',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedKallelserRoute = AuthenticatedKallelserRouteImport.update({
+  id: '/kallelser',
+  path: '/kallelser',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMeddelandenRoute =
@@ -229,6 +236,12 @@ const AuthenticatedKunskapsbankSlugRoute =
   AuthenticatedKunskapsbankSlugRouteImport.update({
     id: '/kunskapsbank/$slug',
     path: '/kunskapsbank/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedKunskapsbankFavoriterRoute =
+  AuthenticatedKunskapsbankFavoriterRouteImport.update({
+    id: '/kunskapsbank/favoriter',
+    path: '/kunskapsbank/favoriter',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedKunskapsbankTeknikRoute =
@@ -418,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/kalender': typeof AuthenticatedKalenderRouteWithChildren
+  '/kallelser': typeof AuthenticatedKallelserRoute
   '/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
@@ -437,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/kunskapsbank/favoriter': typeof AuthenticatedKunskapsbankFavoriterRoute
   '/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
   '/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
@@ -477,6 +492,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
+  '/kallelser': typeof AuthenticatedKallelserRoute
   '/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
@@ -496,6 +512,7 @@ export interface FileRoutesByTo {
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/kunskapsbank/favoriter': typeof AuthenticatedKunskapsbankFavoriterRoute
   '/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
   '/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
@@ -538,6 +555,7 @@ export interface FileRoutesById {
   '/_authenticated/bank': typeof AuthenticatedBankRoute
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/kalender': typeof AuthenticatedKalenderRouteWithChildren
+  '/_authenticated/kallelser': typeof AuthenticatedKallelserRoute
   '/_authenticated/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/narvaro': typeof AuthenticatedNarvaroRoute
@@ -557,6 +575,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
+  '/_authenticated/kunskapsbank/favoriter': typeof AuthenticatedKunskapsbankFavoriterRoute
   '/_authenticated/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
   '/_authenticated/kunskapsbank/vanliga-misstag': typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   '/_authenticated/ovningsbank/$drillId': typeof AuthenticatedOvningsbankDrillIdRoute
@@ -601,6 +620,7 @@ export interface FileRouteTypes {
     | '/bank'
     | '/installningar'
     | '/kalender'
+    | '/kallelser'
     | '/meddelanden'
     | '/mina-kallelser'
     | '/narvaro'
@@ -620,6 +640,7 @@ export interface FileRouteTypes {
     | '/admin/logg'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
+    | '/kunskapsbank/favoriter'
     | '/kunskapsbank/teknik'
     | '/kunskapsbank/vanliga-misstag'
     | '/ovningsbank/$drillId'
@@ -660,6 +681,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/bank'
     | '/installningar'
+    | '/kallelser'
     | '/meddelanden'
     | '/mina-kallelser'
     | '/narvaro'
@@ -679,6 +701,7 @@ export interface FileRouteTypes {
     | '/admin/logg'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
+    | '/kunskapsbank/favoriter'
     | '/kunskapsbank/teknik'
     | '/kunskapsbank/vanliga-misstag'
     | '/ovningsbank/$drillId'
@@ -720,6 +743,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bank'
     | '/_authenticated/installningar'
     | '/_authenticated/kalender'
+    | '/_authenticated/kallelser'
     | '/_authenticated/meddelanden'
     | '/_authenticated/mina-kallelser'
     | '/_authenticated/narvaro'
@@ -739,6 +763,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/logg'
     | '/_authenticated/kalender/kallelser'
     | '/_authenticated/kunskapsbank/$slug'
+    | '/_authenticated/kunskapsbank/favoriter'
     | '/_authenticated/kunskapsbank/teknik'
     | '/_authenticated/kunskapsbank/vanliga-misstag'
     | '/_authenticated/ovningsbank/$drillId'
@@ -840,6 +865,13 @@ declare module '@tanstack/react-router' {
       path: '/kalender'
       fullPath: '/kalender'
       preLoaderRoute: typeof AuthenticatedKalenderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kallelser': {
+      id: '/_authenticated/kallelser'
+      path: '/kallelser'
+      fullPath: '/kallelser'
+      preLoaderRoute: typeof AuthenticatedKallelserRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meddelanden': {
@@ -994,6 +1026,13 @@ declare module '@tanstack/react-router' {
       path: '/kunskapsbank/$slug'
       fullPath: '/kunskapsbank/$slug'
       preLoaderRoute: typeof AuthenticatedKunskapsbankSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kunskapsbank/favoriter': {
+      id: '/_authenticated/kunskapsbank/favoriter'
+      path: '/kunskapsbank/favoriter'
+      fullPath: '/kunskapsbank/favoriter'
+      preLoaderRoute: typeof AuthenticatedKunskapsbankFavoriterRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/kunskapsbank/teknik': {
@@ -1313,6 +1352,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedKalenderRoute: typeof AuthenticatedKalenderRouteWithChildren
+  AuthenticatedKallelserRoute: typeof AuthenticatedKallelserRoute
   AuthenticatedMeddelandenRoute: typeof AuthenticatedMeddelandenRoute
   AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedNarvaroRoute: typeof AuthenticatedNarvaroRoute
@@ -1325,6 +1365,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTranarsnackRoute: typeof AuthenticatedTranarsnackRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
+  AuthenticatedKunskapsbankFavoriterRoute: typeof AuthenticatedKunskapsbankFavoriterRoute
   AuthenticatedKunskapsbankTeknikRoute: typeof AuthenticatedKunskapsbankTeknikRoute
   AuthenticatedKunskapsbankVanligaMisstagRoute: typeof AuthenticatedKunskapsbankVanligaMisstagRoute
   AuthenticatedOvningsbankDrillIdRoute: typeof AuthenticatedOvningsbankDrillIdRoute
@@ -1345,6 +1386,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBankRoute: AuthenticatedBankRoute,
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedKalenderRoute: AuthenticatedKalenderRouteWithChildren,
+  AuthenticatedKallelserRoute: AuthenticatedKallelserRoute,
   AuthenticatedMeddelandenRoute: AuthenticatedMeddelandenRoute,
   AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedNarvaroRoute: AuthenticatedNarvaroRoute,
@@ -1357,6 +1399,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTranarsnackRoute: AuthenticatedTranarsnackRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
+  AuthenticatedKunskapsbankFavoriterRoute:
+    AuthenticatedKunskapsbankFavoriterRoute,
   AuthenticatedKunskapsbankTeknikRoute: AuthenticatedKunskapsbankTeknikRoute,
   AuthenticatedKunskapsbankVanligaMisstagRoute:
     AuthenticatedKunskapsbankVanligaMisstagRoute,
