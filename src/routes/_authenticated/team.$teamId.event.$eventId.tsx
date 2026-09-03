@@ -316,7 +316,7 @@ function EventPage() {
     const invited = new Set(list.map((item) => item.player_id));
     setSelected((players.data ?? []).map((player) => player.id).filter((id) => !invited.has(id)));
     setMessage(meta?.message ?? "");
-    setRespondByValue(meta?.respond_by ?? "");
+    setRespondByValue(meta?.respond_by ?? defaultRespondBy(event.data?.starts_at));
 
     setCreating(true);
   }
