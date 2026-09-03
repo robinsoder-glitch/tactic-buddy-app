@@ -162,8 +162,15 @@ function MatchPlanningPage() {
             teamId={selected.team_id}
             startInEdit={search.edit === "1" || !(planDone.get(selected.id) ?? false)}
             onClose={() => setEventId(null)}
-            onSaved={(id) => {
+            onSaved={(id, counts) => {
               setPlanDone((m) => new Map(m).set(id, true));
+              setSquadCounts((m) => new Map(m).set(id, counts.players));
+              setCoachCounts((m) => new Map(m).set(id, counts.coaches));
+              if (counts.event) {
+                setEvents((list) =>
+                  (list ?? []).map((item) => (item.id === id ? { ...item, ...counts.event } : item)),
+                );
+              }
             }}
           />
         )}
