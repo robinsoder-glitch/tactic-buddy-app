@@ -36,7 +36,7 @@ const ICONS: Record<string, typeof Menu> = {
 
 export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const { user } = useAccount();
+  const { user, isAdmin } = useAccount();
   const unread = useUnreadChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
