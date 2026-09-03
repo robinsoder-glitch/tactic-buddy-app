@@ -186,6 +186,16 @@ export async function assertMatchEvent(eventId: string): Promise<void> {
   }
 }
 
+/** Sista svarsdag = 7 dagar före matchstart (lokalt datum, yyyy-mm-dd). */
+export function defaultRespondBy(startsAt: string | null | undefined): string {
+  if (!startsAt) return "";
+  const start = new Date(startsAt);
+  if (Number.isNaN(start.getTime())) return "";
+  const due = new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}`;
+}
+
 export async function createInvitations(input: {
   eventId: string;
   teamId: string;
@@ -206,12 +216,21 @@ export async function createInvitations(input: {
   const allowed = new Set((active ?? []).map((row) => row.id as string));
   input = { ...input, playerIds: input.playerIds.filter((id) => allowed.has(id)) };
   if (input.playerIds.length === 0) return 0;
+  let respondBy = input.respondBy ?? null;
+  if (!respondBy) {
+    const { data: evt } = await supabase
+      .from("events")
+      .select("starts_at")
+      .eq("id", input.eventId)
+      .maybeSingle();
+    respondBy = defaultRespondBy(evt?.starts_at) || null;
+  }
   const rows = input.playerIds.map((playerId) => ({
     event_id: input.eventId,
     team_id: input.teamId,
     player_id: playerId,
     message: input.message,
-    respond_by: input.respondBy ?? null,
+    respond_by: respondBy,
     created_by: input.createdBy,
   }));
   const { data, error } = await supabase
