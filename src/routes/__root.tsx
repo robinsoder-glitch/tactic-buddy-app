@@ -16,6 +16,10 @@ import { AppNav } from "@/components/AppNav";
 import { BackButton } from "@/components/BackButton";
 import { ChunkErrorBanner } from "@/components/ChunkErrorBanner";
 import { DebugInfoBox } from "@/components/DebugInfoBox";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { clearOfflineData, clearOtherUsers } from "@/lib/offline-cache";
+
 import { supabase } from "@/integrations/supabase/client";
 import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
 
