@@ -31,7 +31,10 @@ export type TeamMember = {
   role: TeamMemberRole;
   status: "pending" | "approved";
   created_at: string;
+  joined_via?: string | null;
   displayName?: string | null;
+  /** Barnets namn när medlemmen är vårdnadshavare. */
+  guardianForName?: string | null;
 };
 
 /**
@@ -316,7 +319,7 @@ export async function fetchPendingJoinCounts(teamIds: string[]): Promise<Record<
 export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   const { data, error } = await supabase
     .from("team_members")
-    .select("id, team_id, user_id, role, status, created_at")
+    .select("id, team_id, user_id, role, status, created_at, joined_via")
     .eq("team_id", teamId)
     .order("created_at");
   if (error) throw error;
@@ -327,12 +330,22 @@ export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, guardian_for_name")
     .in("id", ids);
   const names = new Map(
-    (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+    (profiles ?? []).map((p) => [
+      p.id as string,
+      {
+        name: (p.display_name as string | null) ?? null,
+        child: (p as { guardian_for_name?: string | null }).guardian_for_name ?? null,
+      },
+    ]),
   );
-  return rows.map((row) => ({ ...row, displayName: names.get(row.user_id) ?? null }));
+  return rows.map((row) => ({
+    ...row,
+    displayName: names.get(row.user_id)?.name ?? null,
+    guardianForName: names.get(row.user_id)?.child ?? null,
+  }));
 }
 
 export type TeamCodeMatch = {
@@ -713,13 +726,16 @@ export function formatDateTime(value: string) {
 export type TeamInvite = {
   id: string;
   team_id: string;
-  email: string;
+  email: string | null;
   role: "coach" | "player";
   created_at: string;
   token: string;
   expires_at: string;
   accepted_at: string | null;
   revoked_at: string | null;
+  invite_kind: "email" | "link";
+  recipient_label: string | null;
+  target_player_id: string | null;
 };
 
 export type InviteState = "active" | "accepted" | "revoked" | "expired";
@@ -743,25 +759,36 @@ export function inviteLink(token: string): string {
   return `${origin}/inbjudan/${token}`;
 }
 
+const INVITE_COLUMNS =
+  "id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at, invite_kind, recipient_label, target_player_id";
+
 export async function fetchTeamInvites(teamId: string): Promise<TeamInvite[]> {
   const { data, error } = await supabase
     .from("team_invites")
-    .select("id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at")
+    .select(INVITE_COLUMNS)
     .eq("team_id", teamId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as TeamInvite[];
+  return (data ?? []) as unknown as TeamInvite[];
 }
 
 export async function addTeamInvite(input: {
   teamId: string;
   userId: string;
-  email: string;
+  /** Tom sträng eller null skapar en kopierbar länk utan e-postlås. */
+  email?: string | null;
   role?: "coach" | "player";
   days?: number;
+  kind?: "email" | "link";
+  recipientLabel?: string | null;
+  targetPlayerId?: string | null;
 }): Promise<TeamInvite> {
-  const email = input.email.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Ange en giltig e-postadress");
+  const kind = input.kind ?? "email";
+  const raw = (input.email ?? "").trim().toLowerCase();
+  if (kind === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw))
+    throw new Error("Ange en giltig e-postadress");
+  if (kind === "link" && raw && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw))
+    throw new Error("Ange en giltig e-postadress eller lämna fältet tomt");
   const days = input.days ?? 14;
   const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
@@ -769,18 +796,21 @@ export async function addTeamInvite(input: {
     .insert({
       team_id: input.teamId,
       created_by: input.userId,
-      email,
+      email: raw ? raw : null,
       role: input.role ?? "coach",
       expires_at: expires,
+      invite_kind: kind,
+      recipient_label: input.recipientLabel?.trim() || null,
+      target_player_id: input.targetPlayerId ?? null,
     })
-    .select("id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at")
+    .select(INVITE_COLUMNS)
     .single();
   if (error) {
     if (error.code === "23505")
       throw new Error("Det finns redan en öppen inbjudan till den adressen.");
     throw error;
   }
-  return data as TeamInvite;
+  return data as unknown as TeamInvite;
 }
 
 /** Revoke an invite so its one-time link stops working. */
@@ -803,11 +833,83 @@ export async function setMemberRole(id: string, role: TeamMemberRole) {
   if (error) throw error;
 }
 
-/** Accept a personal, one-time invite. Returns the team id. */
-export async function acceptTeamInvite(token: string): Promise<string> {
-  const { data, error } = await supabase.rpc("accept_team_invite", { _token: token });
+export type InvitePreview = {
+  state: "active" | "expired" | "used" | "revoked" | "archived" | "invalid";
+  team_name: string | null;
+  club_name: string | null;
+  age_group: string | null;
+  invite_role: "coach" | "player" | null;
+  expires_at: string | null;
+  email_locked: boolean;
+};
+
+/** Ofarlig förhandsvisning av en personlig inbjudan – fungerar utan inloggning. */
+export async function previewTeamInvite(token: string): Promise<InvitePreview> {
+  const { data, error } = await supabase.rpc("preview_team_invite", { _token: token });
   if (error) throw new Error(error.message);
-  return data as string;
+  const row = ((data ?? []) as unknown as InvitePreview[])[0];
+  return (
+    row ?? {
+      state: "invalid",
+      team_name: null,
+      club_name: null,
+      age_group: null,
+      invite_role: null,
+      expires_at: null,
+      email_locked: false,
+    }
+  );
+}
+
+export type AcceptInviteResult = {
+  teamId: string;
+  role: "coach" | "player" | "guardian";
+  status: "pending" | "approved";
+  alreadyMember: boolean;
+};
+
+/** Accept a personal, one-time invite. */
+export async function acceptTeamInvite(
+  token: string,
+  accountKind?: "player" | "guardian",
+): Promise<AcceptInviteResult> {
+  const { data, error } = await supabase.rpc("accept_team_invite", {
+    _token: token,
+    ...(accountKind ? { _account_kind: accountKind } : {}),
+  });
+  if (error) throw new Error(error.message);
+  const row = (
+    (data ?? []) as unknown as {
+      team_id: string;
+      member_role: "coach" | "player" | "guardian";
+      member_status: "pending" | "approved";
+      already_member: boolean;
+    }[]
+  )[0];
+  if (!row) throw new Error("Länken är ogiltig.");
+  return {
+    teamId: row.team_id,
+    role: row.member_role,
+    status: row.member_status,
+    alreadyMember: row.already_member,
+  };
+}
+
+/**
+ * Godkänner en ansökan i ett steg: medlemskapet blir godkänt, spelaren eller
+ * vårdnadshavaren kopplas till rätt spelarkort och personen får en intern notis.
+ */
+export async function approveTeamJoinRequest(
+  memberId: string,
+): Promise<{ role: string; linkedPlayerId: string | null }> {
+  const { data, error } = await supabase.rpc("approve_team_join_request", {
+    _member_id: memberId,
+  });
+  if (error) throw new Error(error.message);
+  const row = (
+    (data ?? []) as unknown as { member_role: string; linked_player_id: string | null }[]
+  )[0];
+  return { role: row?.member_role ?? "player", linkedPlayerId: row?.linked_player_id ?? null };
 }
 
 /* ---------------- archive & delete ---------------- */

@@ -2132,11 +2132,14 @@ export type Database = {
           accepted_by: string | null
           created_at: string
           created_by: string
-          email: string
+          email: string | null
           expires_at: string
           id: string
+          invite_kind: string
+          recipient_label: string | null
           revoked_at: string | null
           role: string
+          target_player_id: string | null
           team_id: string
           token: string
           updated_at: string
@@ -2146,11 +2149,14 @@ export type Database = {
           accepted_by?: string | null
           created_at?: string
           created_by: string
-          email: string
+          email?: string | null
           expires_at?: string
           id?: string
+          invite_kind?: string
+          recipient_label?: string | null
           revoked_at?: string | null
           role?: string
+          target_player_id?: string | null
           team_id: string
           token?: string
           updated_at?: string
@@ -2160,16 +2166,26 @@ export type Database = {
           accepted_by?: string | null
           created_at?: string
           created_by?: string
-          email?: string
+          email?: string | null
           expires_at?: string
           id?: string
+          invite_kind?: string
+          recipient_label?: string | null
           revoked_at?: string | null
           role?: string
+          target_player_id?: string | null
           team_id?: string
           token?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "team_invites_target_player_id_fkey"
+            columns: ["target_player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "team_invites_team_id_fkey"
             columns: ["team_id"]
@@ -2184,6 +2200,7 @@ export type Database = {
           can_manage_attendance: boolean
           created_at: string
           id: string
+          joined_via: string | null
           role: string
           status: string
           team_id: string
@@ -2194,6 +2211,7 @@ export type Database = {
           can_manage_attendance?: boolean
           created_at?: string
           id?: string
+          joined_via?: string | null
           role?: string
           status?: string
           team_id: string
@@ -2204,6 +2222,7 @@ export type Database = {
           can_manage_attendance?: boolean
           created_at?: string
           id?: string
+          joined_via?: string | null
           role?: string
           status?: string
           team_id?: string
@@ -2393,7 +2412,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      accept_team_invite: { Args: { _token: string }; Returns: string }
+      accept_team_invite: {
+        Args: { _account_kind?: string; _token: string }
+        Returns: {
+          already_member: boolean
+          member_role: string
+          member_status: string
+          team_id: string
+        }[]
+      }
+      approve_team_join_request: {
+        Args: { _member_id: string }
+        Returns: {
+          linked_player_id: string
+          member_role: string
+        }[]
+      }
       can_manage_attendance: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
@@ -2476,6 +2510,18 @@ export type Database = {
         Returns: string
       }
       player_team: { Args: { _player_id: string }; Returns: string }
+      preview_team_invite: {
+        Args: { _token: string }
+        Returns: {
+          age_group: string
+          club_name: string
+          email_locked: boolean
+          expires_at: string
+          invite_role: string
+          state: string
+          team_name: string
+        }[]
+      }
       rotate_team_code: {
         Args: { _kind: string; _team_id: string }
         Returns: string

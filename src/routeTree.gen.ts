@@ -27,12 +27,12 @@ import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenticated/tranarsnack'
 import { Route as DeladMatchTokenRouteImport } from './routes/delad-match.$token'
+import { Route as InbjudanTokenRouteImport } from './routes/inbjudan.$token'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInnehallRouteImport } from './routes/_authenticated/admin.innehall'
 import { Route as AuthenticatedAdminKontonRouteImport } from './routes/_authenticated/admin.konton'
 import { Route as AuthenticatedAdminLoggRouteImport } from './routes/_authenticated/admin.logg'
-import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
 import { Route as AuthenticatedKunskapsbankIndexRouteImport } from './routes/_authenticated/kunskapsbank.index'
@@ -161,6 +161,11 @@ const DeladMatchTokenRoute = DeladMatchTokenRouteImport.update({
   path: '/delad-match/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InbjudanTokenRoute = InbjudanTokenRouteImport.update({
+  id: '/inbjudan/$token',
+  path: '/inbjudan/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TShareIdRoute = TShareIdRouteImport.update({
   id: '/t/$shareId',
   path: '/t/$shareId',
@@ -188,12 +193,6 @@ const AuthenticatedAdminLoggRoute = AuthenticatedAdminLoggRouteImport.update({
   path: '/logg',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedInbjudanTokenRoute =
-  AuthenticatedInbjudanTokenRouteImport.update({
-    id: '/inbjudan/$token',
-    path: '/inbjudan/$token',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedKalenderIndexRoute =
   AuthenticatedKalenderIndexRouteImport.update({
     id: '/',
@@ -409,11 +408,11 @@ export interface FileRoutesByFullPath {
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
+  '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
-  '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
   '/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
@@ -465,11 +464,11 @@ export interface FileRoutesByTo {
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
+  '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
-  '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
   '/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
@@ -523,11 +522,11 @@ export interface FileRoutesById {
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
+  '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/_authenticated/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/_authenticated/admin/logg': typeof AuthenticatedAdminLoggRoute
-  '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
   '/_authenticated/kunskapsbank/teknik': typeof AuthenticatedKunskapsbankTeknikRoute
@@ -583,11 +582,11 @@ export interface FileRouteTypes {
     | '/teams'
     | '/tranarsnack'
     | '/delad-match/$token'
+    | '/inbjudan/$token'
     | '/t/$shareId'
     | '/admin/innehall'
     | '/admin/konton'
     | '/admin/logg'
-    | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
     | '/kunskapsbank/teknik'
@@ -639,11 +638,11 @@ export interface FileRouteTypes {
     | '/teams'
     | '/tranarsnack'
     | '/delad-match/$token'
+    | '/inbjudan/$token'
     | '/t/$shareId'
     | '/admin/innehall'
     | '/admin/konton'
     | '/admin/logg'
-    | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
     | '/kunskapsbank/teknik'
@@ -696,11 +695,11 @@ export interface FileRouteTypes {
     | '/_authenticated/teams'
     | '/_authenticated/tranarsnack'
     | '/delad-match/$token'
+    | '/inbjudan/$token'
     | '/t/$shareId'
     | '/_authenticated/admin/innehall'
     | '/_authenticated/admin/konton'
     | '/_authenticated/admin/logg'
-    | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
     | '/_authenticated/kunskapsbank/$slug'
     | '/_authenticated/kunskapsbank/teknik'
@@ -743,6 +742,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   DeladMatchTokenRoute: typeof DeladMatchTokenRoute
+  InbjudanTokenRoute: typeof InbjudanTokenRoute
   TShareIdRoute: typeof TShareIdRoute
 }
 
@@ -874,6 +874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeladMatchTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inbjudan/$token': {
+      id: '/inbjudan/$token'
+      path: '/inbjudan/$token'
+      fullPath: '/inbjudan/$token'
+      preLoaderRoute: typeof InbjudanTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/t/$shareId': {
       id: '/t/$shareId'
       path: '/t/$shareId'
@@ -908,13 +915,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/logg'
       preLoaderRoute: typeof AuthenticatedAdminLoggRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/inbjudan/$token': {
-      id: '/_authenticated/inbjudan/$token'
-      path: '/inbjudan/$token'
-      fullPath: '/inbjudan/$token'
-      preLoaderRoute: typeof AuthenticatedInbjudanTokenRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/kalender/': {
       id: '/_authenticated/kalender/'
@@ -1263,7 +1263,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTaktikRoute: typeof AuthenticatedTaktikRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTranarsnackRoute: typeof AuthenticatedTranarsnackRoute
-  AuthenticatedInbjudanTokenRoute: typeof AuthenticatedInbjudanTokenRoute
   AuthenticatedKunskapsbankSlugRoute: typeof AuthenticatedKunskapsbankSlugRoute
   AuthenticatedKunskapsbankTeknikRoute: typeof AuthenticatedKunskapsbankTeknikRoute
   AuthenticatedKunskapsbankVanligaMisstagRoute: typeof AuthenticatedKunskapsbankVanligaMisstagRoute
@@ -1293,7 +1292,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTaktikRoute: AuthenticatedTaktikRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTranarsnackRoute: AuthenticatedTranarsnackRoute,
-  AuthenticatedInbjudanTokenRoute: AuthenticatedInbjudanTokenRoute,
   AuthenticatedKunskapsbankSlugRoute: AuthenticatedKunskapsbankSlugRoute,
   AuthenticatedKunskapsbankTeknikRoute: AuthenticatedKunskapsbankTeknikRoute,
   AuthenticatedKunskapsbankVanligaMisstagRoute:
@@ -1320,6 +1318,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   DeladMatchTokenRoute: DeladMatchTokenRoute,
+  InbjudanTokenRoute: InbjudanTokenRoute,
   TShareIdRoute: TShareIdRoute,
 }
 export const routeTree = rootRouteImport

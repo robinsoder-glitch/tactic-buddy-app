@@ -202,3 +202,13 @@
 - [x] Kunskapsbank UI: åldersetiketter borta, tydlig märkning Artikel/Forskning/Resursbank/Verktyg, källa vid knappen
 - [ ] P0: godkänd spelare/vårdnadshavare ska automatiskt kopplas till spelarpost (approve_team_join_request)
 - [ ] KB043: sammanfatta poddavsnittet och publicera igen
+
+## Etapp 2 – Smart inbjudan, QR och godkännande (2026-09-04)
+- [x] Personlig engångslänk: valfri e-postlåsning, mottagarnamn, koppling till spelarkort, 2–30 dagar, återkallning
+- [x] Säker publik förhandsvisning (lagnamn, förening, åldersgrupp, roll, giltighetstid) utan personuppgifter
+- [x] QR-kod som kodar exakt den kopierade länken, med nedladdning
+- [x] Inbjudan bevaras genom inloggning/registrering (next-parameter + lokal reserv)
+- [x] Vårdnadshavare får rollen guardian, aldrig player; inga dubbla medlemskap
+- [x] Atomiskt godkännande (approve_team_join_request) med koppling till spelarkort och intern notis
+- [x] Ansökningslistan visar namn, roll, barn, källa (spelarkod/tränarkod/personlig länk) och datum
+- [x] Tester: 358 gröna, typkontroll och lint utan fel
