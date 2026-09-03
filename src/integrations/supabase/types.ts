@@ -384,6 +384,7 @@ export type Database = {
       }
       event_attendance: {
         Row: {
+          absence_reason: string | null
           created_at: string
           created_by: string
           event_id: string
@@ -399,6 +400,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          absence_reason?: string | null
           created_at?: string
           created_by: string
           event_id: string
@@ -414,6 +416,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          absence_reason?: string | null
           created_at?: string
           created_by?: string
           event_id?: string
@@ -2761,6 +2764,10 @@ export type Database = {
       rotate_team_code: {
         Args: { _kind: string; _team_id: string }
         Returns: string
+      }
+      save_event_attendance: {
+        Args: { _event_id: string; _rows: Json; _team_id: string }
+        Returns: number
       }
       save_match_plan: {
         Args: {
