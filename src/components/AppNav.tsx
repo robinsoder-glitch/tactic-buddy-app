@@ -21,6 +21,7 @@ import { MOBILE_MAIN_LIMIT, SECONDARY_LABEL, isTabActive, tabsForRole } from "@/
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { useUnreadInbox } from "@/hooks/useUnreadInbox";
+import { useOpenInvites } from "@/hooks/useOpenInvites";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
 import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/tranarsnack": MessagesSquare,
   "/teams": Shield,
   "/installningar": Settings,
+  "/kallelser": MailQuestion,
 };
 
 export function AppNav() {
@@ -49,6 +51,7 @@ export function AppNav() {
   const unread = useUnreadChat();
   const unreadInbox = useUnreadInbox();
   const { total: pendingJoins } = usePendingJoins();
+  const openInvites = useOpenInvites();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
@@ -98,7 +101,9 @@ export function AppNav() {
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
     const count =
-      to === "/meddelanden"
+      to === "/kallelser"
+        ? openInvites
+        : to === "/meddelanden"
         ? unreadInbox
         : to === "/tranarsnack"
           ? unread
@@ -106,7 +111,9 @@ export function AppNav() {
             ? pendingJoins
             : 0;
     const label =
-      to === "/meddelanden"
+      to === "/kallelser"
+        ? `${count} obesvarade kallelser`
+        : to === "/meddelanden"
         ? `${count} olästa viktiga meddelanden`
         : to === "/tranarsnack"
           ? `${count} olästa meddelanden`
