@@ -271,9 +271,13 @@ export async function updateTeam(
 /* ---------------- membership ---------------- */
 
 export async function fetchMyMemberships() {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return [];
   const { data, error } = await supabase
     .from("team_members")
     .select("id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender)")
+    .eq("user_id", uid)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((row) => ({
