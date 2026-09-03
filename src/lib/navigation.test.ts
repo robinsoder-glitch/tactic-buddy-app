@@ -19,6 +19,7 @@ describe("huvudmenyn", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
       "Matcher",
+      "Kallelser",
       "Kalender",
       "Närvaro",
       "Taktik",
