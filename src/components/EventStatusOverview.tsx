@@ -19,12 +19,16 @@ const TONE: Record<StepStatus, string> = {
  * Kompakt lägesöversikt. På mobil visas stegen som staplade kort,
  * aldrig som en horisontell stegindikator.
  */
+/** Steg som inte visas i aktivitetsvyn – de gjorde översikten rörig. */
+const HIDDEN_STEPS: StepKey[] = ["execution", "followup"];
+
 export function EventStatusOverview({ steps }: { steps: Record<StepKey, StepStatus> }) {
+  const visible = STEP_ORDER.filter((step) => !HIDDEN_STEPS.includes(step));
   return (
     <section className="mt-5" aria-label="Lägesöversikt">
       <h2 className="text-sm font-semibold">Lägesöversikt</h2>
       <ol className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {STEP_ORDER.map((step, index) => {
+        {visible.map((step, index) => {
           const status = steps[step];
           return (
             <li key={step} className={`rounded-xl border p-3 ${TONE[status]}`}>
