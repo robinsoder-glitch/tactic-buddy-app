@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { RoleChoice } from "@/components/auth/RoleChoice";
 import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
 import {
+  CLEARED_SETUP_METADATA,
   SETUP_ERRORS,
   applyAccountSetup,
   clearSetup,
