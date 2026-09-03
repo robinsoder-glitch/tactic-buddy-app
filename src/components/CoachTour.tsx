@@ -20,6 +20,21 @@ function readRect(target?: string): Rect | null {
   return { top: box.top, left: box.left, width: box.width, height: box.height };
 }
 
+/** Sant när en vanlig dialog (t.ex. Spara taktik) är öppen – då ska guiden vika undan. */
+function useDialogOpen() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const check = () =>
+      setDialogOpen(!!document.querySelector('[role="dialog"][data-state="open"]'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    return () => observer.disconnect();
+  }, []);
+  return dialogOpen;
+}
+
 /** Guidad rundtur med mörkad bakgrund och bubblor som pekar på rätt knapp. */
 export function CoachTour({
   steps,
@@ -32,6 +47,7 @@ export function CoachTour({
 }) {
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  const dialogOpen = useDialogOpen();
   const step = steps[index];
 
   useEffect(() => {
@@ -61,7 +77,8 @@ export function CoachTour({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open || !step) return null;
+  // En öppen dialog äger skärmen – guiden får inte ligga i vägen för knapparna.
+  if (!open || !step || dialogOpen) return null;
 
   const padding = 8;
   const spotlight = rect

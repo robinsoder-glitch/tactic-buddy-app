@@ -39,7 +39,6 @@ type Props = {
   hideList?: boolean;
   /** Anropas när en aktivitet skapats, ändrats eller tagits bort. */
   onChanged?: () => void;
-
 };
 
 type ScheduleForm = {
@@ -80,7 +79,6 @@ export function EventManager({
   hideList,
   onChanged,
 }: Props) {
-
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -223,7 +221,6 @@ export function EventManager({
       onChanged?.();
     },
   });
-
 
   return (
     <section>

@@ -221,7 +221,7 @@ function RunSession() {
     onError: () => toast.error("Det gick inte att avsluta träningen."),
   });
 
-  const list = items.data ?? [];
+  const list = useMemo(() => items.data ?? [], [items.data]);
   const active: SessionRun | null = run.data ?? null;
   const current = active ? list[active.current_index] : undefined;
   const next = active ? list[active.current_index + 1] : undefined;

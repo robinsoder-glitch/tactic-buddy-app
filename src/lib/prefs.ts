@@ -36,6 +36,9 @@ export const DEFAULT_PREFS: AppPrefs = {
 
 const KEY = "taktiktavlan:prefs";
 
+/** Skickas när inställningarna ändras, så öppna vyer kan uppdatera direkt. */
+export const PREFS_EVENT = "taktiktavlan:prefs-changed";
+
 export function loadPrefs(): AppPrefs {
   if (typeof window === "undefined") return DEFAULT_PREFS;
   try {
@@ -50,4 +53,17 @@ export function loadPrefs(): AppPrefs {
 export function savePrefs(prefs: AppPrefs) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(KEY, JSON.stringify(prefs));
+  window.dispatchEvent(new CustomEvent(PREFS_EVENT));
+}
+
+/** Lyssnar på ändrade inställningar (även från en annan flik). */
+export function subscribePrefs(listener: (prefs: AppPrefs) => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => listener(loadPrefs());
+  window.addEventListener(PREFS_EVENT, handler);
+  window.addEventListener("storage", handler);
+  return () => {
+    window.removeEventListener(PREFS_EVENT, handler);
+    window.removeEventListener("storage", handler);
+  };
 }

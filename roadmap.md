@@ -184,9 +184,14 @@
 - [x] Rätta registrering och lagkodsflöde (spelarkod/tränarkod, 6 tecken, metadata, guardian-namn, tester)
 
 ## Extremtest 2026-09-03 (alla kontotyper och koder)
-- [ ] Live: tränarkonto utan kod → skapa lag → hämta spelarkod/tränarkod
-- [ ] Live: spelarkonto med spelarkod
-- [ ] Live: vårdnadshavarkonto med spelarkod (Hej Maria, barn Elias separat)
-- [ ] Live: tränarkonto med tränarkod
-- [ ] Live: felfall – fel kodtyp, 5/7 tecken, ogiltig kod, befintlig e-post, arkiverat lag, roterad kod
-- [ ] Kod-/DB-genomgång + build och lint gröna, testdata rensad
+- [x] Live: tränarkonto utan kod → skapa lag → hämta spelarkod/tränarkod
+- [x] Live: spelarkonto med spelarkod
+- [x] Live: vårdnadshavarkonto med spelarkod (Hej Maria, barn Elias separat)
+- [x] Live: tränarkonto med tränarkod
+- [x] Live: felfall – fel kodtyp, 5/7 tecken, ogiltig kod (knappen låst)
+- [x] Klicktest taktiktavlan: placera spelare, spara, ladda om och öppna igen – mus och touch
+- [x] Kod-/DB-genomgång + build och lint gröna
+
+## Kunskapsbanken – kvalitetsrensning 2026-09-03
+- [x] Kontrollerade alla 100 källänkar: alla lever (tre svarar 403 mot robotar men fungerar i webbläsare)
+- [x] Avpublicerade fyra sidor om utländska tränarutbildningar/länkarkiv (KB051, KB052, KB054, KB083)

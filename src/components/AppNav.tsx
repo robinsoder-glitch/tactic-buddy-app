@@ -14,12 +14,7 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import {
-  MOBILE_MAIN_LIMIT,
-  SECONDARY_LABEL,
-  isTabActive,
-  tabsForRole,
-} from "@/lib/navigation";
+import { MOBILE_MAIN_LIMIT, SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
@@ -56,8 +51,7 @@ export function AppNav() {
     if (!menuOpen) return;
     const onPointer = (event: PointerEvent) => {
       const node = event.target as Node;
-      if (!menuRef.current?.contains(node) && !deskRef.current?.contains(node))
-        setMenuOpen(false);
+      if (!menuRef.current?.contains(node) && !deskRef.current?.contains(node)) setMenuOpen(false);
     };
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
     document.addEventListener("pointerdown", onPointer);

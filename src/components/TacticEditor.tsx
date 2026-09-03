@@ -1,4 +1,4 @@
-import { loadPrefs, type AppPrefs } from "@/lib/prefs";
+import { loadPrefs, subscribePrefs, type AppPrefs } from "@/lib/prefs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -212,7 +212,7 @@ export function TacticEditor({ id }: { id: string }) {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() => loadPrefs().speed);
   const [loop, setLoop] = useState(() => loadPrefs().loop);
-  const [prefs] = useState<AppPrefs>(() => loadPrefs());
+  const [prefs, setPrefs] = useState<AppPrefs>(() => loadPrefs());
   const gridStep = prefs.gridStep || GRID_FALLBACK;
   const [progress, setProgress] = useState(0);
   const [dirty, setDirty] = useState(false);
@@ -751,7 +751,10 @@ export function TacticEditor({ id }: { id: string }) {
     }
     window.addEventListener("keydown", onArrow);
     return () => window.removeEventListener("keydown", onArrow);
-  }, [nudge, selectedId]);
+  }, [nudge, selectedId, gridStep]);
+
+  // Ändrade inställningar (t.ex. rutnätets storlek) slår igenom direkt.
+  useEffect(() => subscribePrefs(setPrefs), []);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {

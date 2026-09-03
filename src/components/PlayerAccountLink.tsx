@@ -95,11 +95,7 @@ export function PlayerAccountLink({
             </select>
           </label>
           {current && (
-            <Button
-              variant="secondary"
-              disabled={save.isPending}
-              onClick={() => save.mutate(null)}
-            >
+            <Button variant="secondary" disabled={save.isPending} onClick={() => save.mutate(null)}>
               Koppla loss
             </Button>
           )}
@@ -107,8 +103,7 @@ export function PlayerAccountLink({
       )}
       {canEdit && options.length === 0 && !current && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Inga lediga spelarkonton. Spelaren behöver först skapa konto med lagkoden och bli
-          godkänd.
+          Inga lediga spelarkonton. Spelaren behöver först skapa konto med lagkoden och bli godkänd.
         </p>
       )}
     </div>
