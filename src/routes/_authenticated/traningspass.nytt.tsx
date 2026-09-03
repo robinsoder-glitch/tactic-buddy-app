@@ -175,13 +175,12 @@ function NewSessionPage() {
 
   // Filter för Kopiera tidigare pass.
   const [filters, setFilters] = useState<SessionFilters>({});
-  const previous = useMemo(
-    () => filterSessions(all, allItems, filters),
-    [all, allItems, filters],
-  );
+  const previous = useMemo(() => filterSessions(all, allItems, filters), [all, allItems, filters]);
   const themes = Array.from(new Set(all.map((row) => row.theme).filter(Boolean))) as string[];
   const ages = Array.from(new Set(all.map((row) => row.age_group).filter(Boolean))) as string[];
-  const formats = Array.from(new Set(all.map((row) => row.game_format).filter(Boolean))) as string[];
+  const formats = Array.from(
+    new Set(all.map((row) => row.game_format).filter(Boolean)),
+  ) as string[];
 
   function sessionMinutes(session: CoachSession) {
     return totalMinutes(allItems.filter((item) => item.session_id === session.id));
@@ -335,7 +334,11 @@ function NewSessionPage() {
                   <p className="font-semibold">{tip.item.title}</p>
                   <p className="text-xs text-muted-foreground">{tip.reason}</p>
                 </div>
-                <Button size="sm" onClick={() => copy.mutate(tip.item.id)} disabled={copy.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() => copy.mutate(tip.item.id)}
+                  disabled={copy.isPending}
+                >
                   Använd mallen
                 </Button>
               </li>
@@ -394,7 +397,11 @@ function NewSessionPage() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => copy.mutate(card.id)} disabled={copy.isPending}>
+                      <Button
+                        size="sm"
+                        onClick={() => copy.mutate(card.id)}
+                        disabled={copy.isPending}
+                      >
                         Använd mallen
                       </Button>
                       <Button size="sm" variant="outline" asChild>
@@ -441,7 +448,8 @@ function NewSessionPage() {
                             onClick={async () => {
                               const ok = await confirm({
                                 title: "Radera mallen?",
-                                description: "Mallen tas bort. Pass som skapats från den finns kvar.",
+                                description:
+                                  "Mallen tas bort. Pass som skapats från den finns kvar.",
                               });
                               if (ok) remove.mutate(card.id);
                             }}
@@ -469,9 +477,7 @@ function NewSessionPage() {
                 id="f-team"
                 className={selectClass}
                 value={filters.teamId ?? ""}
-                onChange={(event) =>
-                  setFilters({ ...filters, teamId: event.target.value || null })
-                }
+                onChange={(event) => setFilters({ ...filters, teamId: event.target.value || null })}
               >
                 <option value="">Alla lag</option>
                 {coachTeams.map((item) => (
@@ -606,11 +612,7 @@ function NewSessionPage() {
                     {session.status === "done" ? "Genomfört" : "Planerat"}
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  onClick={() => copy.mutate(session.id)}
-                  disabled={copy.isPending}
-                >
+                <Button size="sm" onClick={() => copy.mutate(session.id)} disabled={copy.isPending}>
                   Kopiera passet
                 </Button>
               </li>

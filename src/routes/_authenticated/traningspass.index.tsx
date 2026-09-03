@@ -223,7 +223,6 @@ function MySessionsPage() {
             </Button>
           </div>
         )}
-
       </header>
 
       <p className="mt-3 text-sm text-muted-foreground">
