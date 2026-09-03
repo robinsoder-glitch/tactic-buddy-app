@@ -42,6 +42,7 @@ import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
 import { BrandLogo } from "@/components/BrandLogo";
+import { MyDay } from "@/components/MyDay";
 import {
   BRAND_DESCRIPTION,
   BRAND_EYEBROW,
@@ -130,6 +131,10 @@ function PlayerHome() {
           <LogOut className="size-5" />
         </Button>
       </header>
+
+      <div className="mt-6">
+        <MyDay />
+      </div>
 
       <section className="mt-6 space-y-3">
         {pending.map((item) => (
@@ -313,20 +318,6 @@ function TacticsDashboard({ userId }: { userId: string }) {
   const tactics = useQuery({ queryKey: ["tactics"], queryFn: fetchTactics });
   const previews = useQuery({ queryKey: ["tactic-previews"], queryFn: fetchTacticPreviews });
 
-  const nextEvent = useQuery({
-    queryKey: ["next-event", approved.map((item) => item.team_id).join(",")],
-    enabled: approved.length > 0,
-    queryFn: async () => {
-      const lists = await Promise.all(approved.map((item) => fetchEvents(item.team_id)));
-      const now = Date.now();
-      const upcoming = lists
-        .flat()
-        .filter((event) => new Date(event.starts_at).getTime() >= now)
-        .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-      return (upcoming[0] ?? null) as TeamEvent | null;
-    },
-  });
-
   const remove = useMutation({
     mutationFn: (id: string) => deleteTactic(id),
     onSuccess: () => {
@@ -446,30 +437,9 @@ function TacticsDashboard({ userId }: { userId: string }) {
         </Button>
       </header>
 
-      {nextEvent.data && (
-        <Link
-          to="/team/$teamId"
-          params={{ teamId: nextEvent.data.team_id }}
-          className="mt-5 flex items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 p-4"
-        >
-          <CalendarDays className="size-5 shrink-0 text-primary" />
-          <div className="min-w-0">
-            <p className="text-xs tracking-wide text-primary">
-              Nästa {nextEvent.data.type === "match" ? "match" : "träning"}
-            </p>
-            <p className="truncate font-display text-lg font-semibold">
-              {nextEvent.data.title ??
-                (nextEvent.data.type === "match"
-                  ? `${nextEvent.data.home_team ?? "Hemma"} – ${nextEvent.data.away_team ?? "Borta"}`
-                  : "Träning")}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {formatDateTime(nextEvent.data.starts_at)}
-              {nextEvent.data.location ? ` · ${nextEvent.data.location}` : ""}
-            </p>
-          </div>
-        </Link>
-      )}
+      <div className="mt-5">
+        <MyDay />
+      </div>
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
         <QuickCard
