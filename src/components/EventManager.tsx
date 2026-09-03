@@ -37,6 +37,9 @@ type Props = {
   savedMessage?: string;
   /** Dölj listan (när sidan visar aktiviteterna i en egen lista). */
   hideList?: boolean;
+  /** Anropas när en aktivitet skapats, ändrats eller tagits bort. */
+  onChanged?: () => void;
+
 };
 
 type ScheduleForm = {
