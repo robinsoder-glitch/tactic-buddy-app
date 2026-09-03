@@ -106,6 +106,14 @@ function AuthPage() {
       });
       if (error) throw error;
 
+      // Supabase svarar 200 även när e-posten redan finns – då är identities tom.
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        toast.error("Det finns redan ett konto med den e-postadressen. Logga in i stället.");
+        setMode("signin");
+        setPassword("");
+        return;
+      }
+
       if (!data.session) {
         toast.success(
           "Kontot är skapat! Bekräfta din e-postadress och logga sedan in – vi kommer ihåg dina val.",
@@ -127,6 +135,25 @@ function AuthPage() {
       navigate({ to: "/" });
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte skapa kontot"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleForgotPassword() {
+    if (!email.trim()) {
+      toast.error("Fyll i din e-postadress först, så skickar vi en återställningslänk.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Vi har skickat en länk för att välja nytt lösenord. Kolla din e-post.");
+    } catch (error) {
+      toast.error(friendlyError(error, "Kunde inte skicka återställningslänken"));
     } finally {
       setBusy(false);
     }
@@ -257,6 +284,17 @@ function AuthPage() {
                 {mode === "signin" ? "Logga in" : "Skapa konto"}
               </Button>
             </form>
+
+            {mode === "signin" && (
+              <button
+                type="button"
+                className="mt-3 w-full text-sm text-muted-foreground underline-offset-4 hover:underline"
+                onClick={handleForgotPassword}
+                disabled={busy}
+              >
+                Glömt lösenordet?
+              </button>
+            )}
 
             <button
               type="button"
