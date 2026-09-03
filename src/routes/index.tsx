@@ -42,7 +42,7 @@ import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
 import { BrandLogo } from "@/components/BrandLogo";
-import { MyDay } from "@/components/MyDay";
+
 import {
   BRAND_DESCRIPTION,
   BRAND_EYEBROW,
@@ -131,10 +131,6 @@ function PlayerHome() {
           <LogOut className="size-5" />
         </Button>
       </header>
-
-      <div className="mt-6">
-        <MyDay />
-      </div>
 
       <section className="mt-6 space-y-3">
         {pending.map((item) => (
@@ -436,10 +432,6 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <LogOut className="size-5" />
         </Button>
       </header>
-
-      <div className="mt-5">
-        <MyDay />
-      </div>
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">
         <QuickCard

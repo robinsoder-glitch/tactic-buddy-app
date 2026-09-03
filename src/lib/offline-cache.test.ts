@@ -54,10 +54,10 @@ describe("offline-cache", () => {
 
   it("rensar allt vid utloggning", () => {
     writeCache("user-1", "upcoming", [1]);
-    writeCache("user-1", "my-day", [2]);
+    writeCache("user-1", "invitations", [2]);
     clearOfflineData();
     expect(readCache("user-1", "upcoming")).toBeNull();
-    expect(readCache("user-1", "my-day")).toBeNull();
+    expect(readCache("user-1", "invitations")).toBeNull();
   });
 
   it("rensar andra konton vid kontobyte", () => {
