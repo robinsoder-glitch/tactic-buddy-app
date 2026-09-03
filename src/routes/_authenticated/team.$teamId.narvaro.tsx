@@ -1,13 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarCheck, ChevronRight, Users } from "lucide-react";
+import { ArrowLeft, CalendarCheck, ChevronRight, ListChecks, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   ATTENDANCE_LABELS,
   ATTENDANCE_SHORT,
   ATTENDANCE_STATUSES,
-  clearAttendance,
   eventLabel,
   fetchEventAttendance,
   fetchTeamAttendance,
@@ -18,10 +17,24 @@ import {
   registeredCount,
   setMatchDuration,
   validateMinutes,
-  setAttendance,
-  setAttendanceForAll,
-  type AttendanceStatus,
 } from "@/lib/attendance";
+import {
+  ABSENCE_REASONS,
+  ABSENCE_REASON_LABELS,
+  ABSENCE_REASON_UNSET,
+  EMPTY_ENTRY,
+  attendanceStarted,
+  counterLabel,
+  draftFromInvitations,
+  draftFromRows,
+  isDirty,
+  markAll,
+  saveEventAttendance,
+  setEntry,
+  toPayload,
+  type Draft,
+} from "@/lib/attendance-draft";
+import { fetchEventInvitations } from "@/lib/invitations";
 import { fetchEvents, fetchTeamPlayers, formatDateTime } from "@/lib/teams";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import { Button } from "@/components/ui/button";
