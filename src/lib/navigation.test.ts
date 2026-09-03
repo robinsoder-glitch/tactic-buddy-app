@@ -29,6 +29,7 @@ describe("huvudmenyn", () => {
 
   it("samlar lag och verktyg i en sekundär meny", () => {
     expect(SECONDARY_TABS.map((tab) => tab.label)).toEqual([
+      "Meddelanden",
       "Tränarsnack",
       "Mina lag",
       "Inställningar",

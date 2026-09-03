@@ -36,8 +36,9 @@ export function TeamChatPanel({
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
     if (!isCoach) return;
-    markChatRead(teamId);
-    queryClient.invalidateQueries({ queryKey: ["team-chat-unread"] });
+    void markChatRead(teamId).then(() =>
+      queryClient.invalidateQueries({ queryKey: ["team-chat-unread"] }),
+    );
   }, [list.length, isCoach, teamId, queryClient]);
 
   const send = useMutation({

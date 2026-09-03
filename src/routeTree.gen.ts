@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedBankRouteImport } from './routes/_authenticated/bank'
 import { Route as AuthenticatedInstallningarRouteImport } from './routes/_authenticated/installningar'
 import { Route as AuthenticatedKalenderRouteImport } from './routes/_authenticated/kalender'
+import { Route as AuthenticatedMeddelandenRouteImport } from './routes/_authenticated/meddelanden'
 import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedNarvaroRouteImport } from './routes/_authenticated/narvaro'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -107,6 +108,12 @@ const AuthenticatedKalenderRoute = AuthenticatedKalenderRouteImport.update({
   path: '/kalender',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMeddelandenRoute =
+  AuthenticatedMeddelandenRouteImport.update({
+    id: '/meddelanden',
+    path: '/meddelanden',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMinaKallelserRoute =
   AuthenticatedMinaKallelserRouteImport.update({
     id: '/mina-kallelser',
@@ -398,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
   '/kalender': typeof AuthenticatedKalenderRouteWithChildren
+  '/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -454,6 +462,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/bank': typeof AuthenticatedBankRoute
   '/installningar': typeof AuthenticatedInstallningarRoute
+  '/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -512,6 +521,7 @@ export interface FileRoutesById {
   '/_authenticated/bank': typeof AuthenticatedBankRoute
   '/_authenticated/installningar': typeof AuthenticatedInstallningarRoute
   '/_authenticated/kalender': typeof AuthenticatedKalenderRouteWithChildren
+  '/_authenticated/meddelanden': typeof AuthenticatedMeddelandenRoute
   '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/narvaro': typeof AuthenticatedNarvaroRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/bank'
     | '/installningar'
     | '/kalender'
+    | '/meddelanden'
     | '/mina-kallelser'
     | '/narvaro'
     | '/onboarding'
@@ -628,6 +639,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/bank'
     | '/installningar'
+    | '/meddelanden'
     | '/mina-kallelser'
     | '/narvaro'
     | '/onboarding'
@@ -685,6 +697,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bank'
     | '/_authenticated/installningar'
     | '/_authenticated/kalender'
+    | '/_authenticated/meddelanden'
     | '/_authenticated/mina-kallelser'
     | '/_authenticated/narvaro'
     | '/_authenticated/onboarding'
@@ -802,6 +815,13 @@ declare module '@tanstack/react-router' {
       path: '/kalender'
       fullPath: '/kalender'
       preLoaderRoute: typeof AuthenticatedKalenderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meddelanden': {
+      id: '/_authenticated/meddelanden'
+      path: '/meddelanden'
+      fullPath: '/meddelanden'
+      preLoaderRoute: typeof AuthenticatedMeddelandenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mina-kallelser': {
@@ -1254,6 +1274,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBankRoute: typeof AuthenticatedBankRoute
   AuthenticatedInstallningarRoute: typeof AuthenticatedInstallningarRoute
   AuthenticatedKalenderRoute: typeof AuthenticatedKalenderRouteWithChildren
+  AuthenticatedMeddelandenRoute: typeof AuthenticatedMeddelandenRoute
   AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedNarvaroRoute: typeof AuthenticatedNarvaroRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -1283,6 +1304,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBankRoute: AuthenticatedBankRoute,
   AuthenticatedInstallningarRoute: AuthenticatedInstallningarRoute,
   AuthenticatedKalenderRoute: AuthenticatedKalenderRouteWithChildren,
+  AuthenticatedMeddelandenRoute: AuthenticatedMeddelandenRoute,
   AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedNarvaroRoute: AuthenticatedNarvaroRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,

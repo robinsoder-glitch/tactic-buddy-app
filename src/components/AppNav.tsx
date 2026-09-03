@@ -8,6 +8,7 @@ import {
   Dumbbell,
   GraduationCap,
   Menu,
+  Mail,
   MessagesSquare,
   Settings,
   Shield,
@@ -17,6 +18,7 @@ import {
 import { MOBILE_MAIN_LIMIT, SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
+import { useUnreadInbox } from "@/hooks/useUnreadInbox";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
 import { BrandLogo } from "@/components/BrandLogo";
 
@@ -31,6 +33,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
   "/narvaro": CalendarCheck,
+  "/meddelanden": Mail,
   "/tranarsnack": MessagesSquare,
   "/teams": Shield,
   "/installningar": Settings,
@@ -40,6 +43,7 @@ export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isAdmin, isCoach } = useAccount();
   const unread = useUnreadChat();
+  const unreadInbox = useUnreadInbox();
   const { total: pendingJoins } = usePendingJoins();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
@@ -73,6 +77,7 @@ export function AppNav() {
   const secondaryActive =
     secondary.some((tab) => isTabActive(pathname, tab)) || pathname.startsWith("/admin");
   const secondaryBadge =
+    (secondary.some((tab) => tab.to === "/meddelanden") ? unreadInbox : 0) +
     (secondary.some((tab) => tab.to === "/tranarsnack") ? unread : 0) +
     (isCoach && secondary.some((tab) => tab.to === "/teams") ? pendingJoins : 0);
 
@@ -81,9 +86,20 @@ export function AppNav() {
 
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
-    const count = to === "/tranarsnack" ? unread : to === "/teams" && isCoach ? pendingJoins : 0;
+    const count =
+      to === "/meddelanden"
+        ? unreadInbox
+        : to === "/tranarsnack"
+          ? unread
+          : to === "/teams" && isCoach
+            ? pendingJoins
+            : 0;
     const label =
-      to === "/tranarsnack" ? `${count} olästa meddelanden` : `${count} nya ansökningar till laget`;
+      to === "/meddelanden"
+        ? `${count} olästa viktiga meddelanden`
+        : to === "/tranarsnack"
+          ? `${count} olästa meddelanden`
+          : `${count} nya ansökningar till laget`;
     return (
       <span className="relative z-10 inline-flex">
         <Icon className={size} aria-hidden />
