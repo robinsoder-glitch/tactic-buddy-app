@@ -83,7 +83,10 @@ export function AccountSetupFields({
     };
   }, [code, showCodeField, complete]);
 
-  const kindError = codeKindError(setup, match ? (match.join_role === "coach" ? "coach" : "player") : null);
+  const kindError = codeKindError(
+    setup,
+    match ? (match.join_role === "coach" ? "coach" : "player") : null,
+  );
   const codeError = !showCodeField
     ? null
     : !complete

@@ -309,7 +309,6 @@ export async function fetchPendingJoinCounts(teamIds: string[]): Promise<Record<
   return counts;
 }
 
-
 export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   const { data, error } = await supabase
     .from("team_members")

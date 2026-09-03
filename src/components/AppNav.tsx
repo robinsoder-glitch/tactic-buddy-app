@@ -74,8 +74,7 @@ export function AppNav() {
 
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
-    const count =
-      to === "/tranarsnack" ? unread : to === "/teams" && isCoach ? pendingJoins : 0;
+    const count = to === "/tranarsnack" ? unread : to === "/teams" && isCoach ? pendingJoins : 0;
     const label =
       to === "/tranarsnack" ? `${count} olästa meddelanden` : `${count} nya ansökningar till laget`;
     return (

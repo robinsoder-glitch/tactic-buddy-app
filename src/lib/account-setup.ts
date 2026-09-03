@@ -115,7 +115,7 @@ export function profileDisplayName(setup: AccountSetup): string {
 
 /** Barnets namn sparas separat för vårdnadshavare. */
 export function guardianChildName(setup: AccountSetup): string | null {
-  return accountKindOf(setup) === "guardian" ? (setup.playerName?.trim() || null) : null;
+  return accountKindOf(setup) === "guardian" ? setup.playerName?.trim() || null : null;
 }
 
 /* --------- registreringsunderlag i auth-metadata (localStorage som reserv) --------- */

@@ -137,7 +137,9 @@ describe("applyAccountSetup", () => {
 
   it("avvisar arkiverat lag med databasens meddelande", async () => {
     findTeamByCode.mockResolvedValue(team("player"));
-    joinTeamWithCode.mockRejectedValue(new Error("Laget är arkiverat. Be din tränare om en ny kod."));
+    joinTeamWithCode.mockRejectedValue(
+      new Error("Laget är arkiverat. Be din tränare om en ny kod."),
+    );
     await expect(applyAccountSetup("user-1", player)).rejects.toThrow(/arkiverat/i);
   });
 

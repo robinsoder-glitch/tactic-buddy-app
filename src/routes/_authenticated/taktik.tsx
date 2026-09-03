@@ -102,8 +102,7 @@ function TacticPage() {
   async function askDeleteAll() {
     const ok = await confirm({
       title: "Radera alla taktiker",
-      description:
-        "Alla dina taktiker och deras steg tas bort permanent. Det går inte att ångra.",
+      description: "Alla dina taktiker och deras steg tas bort permanent. Det går inte att ångra.",
       confirmLabel: "Radera alla",
     });
     if (ok) removeAll.mutate();

@@ -7,7 +7,9 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   // Autogenererade filer ska inte lintas – de skrivs om av plattformen.
-  { ignores: ["dist", ".output", ".vinxi", "src/routeTree.gen.ts", "src/integrations/supabase/**"] },
+  {
+    ignores: ["dist", ".output", ".vinxi", "src/routeTree.gen.ts", "src/integrations/supabase/**"],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
