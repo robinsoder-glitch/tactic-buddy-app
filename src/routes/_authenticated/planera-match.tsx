@@ -73,6 +73,7 @@ function timeOnly(value: string): string {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 import { toast } from "sonner";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/planera-match")({
   head: () => ({
@@ -84,7 +85,11 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
       },
     ],
   }),
-  component: MatchPlanningPage,
+  component: () => (
+    <CoachOnly>
+      <MatchPlanningPage />
+    </CoachOnly>
+  ),
 });
 
 type MatchEvent = PlannableEvent & {

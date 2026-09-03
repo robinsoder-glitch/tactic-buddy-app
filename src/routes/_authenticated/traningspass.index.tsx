@@ -43,6 +43,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/traningspass/")({
   head: () => ({
@@ -62,7 +63,11 @@ export const Route = createFileRoute("/_authenticated/traningspass/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: MySessionsPage,
+  component: () => (
+    <CoachOnly>
+      <MySessionsPage />
+    </CoachOnly>
+  ),
 });
 
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";

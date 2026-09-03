@@ -104,12 +104,16 @@ function PlayerHome() {
   const { memberships, profile } = useAccount();
   const approved = memberships.filter((item) => item.status === "approved");
   const pending = memberships.filter((item) => item.status === "pending");
+  // Vårdnadshavare är inte spelare – rubriken ska visa rätt kontotyp.
+  const isGuardian = memberships.some((item) => item.role === "guardian");
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Spelare</p>
+          <p className="font-display text-xs tracking-[0.3em] text-primary">
+            {isGuardian ? "Vårdnadshavare" : "Spelare"}
+          </p>
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name ?? "Min profil"}
           </h1>

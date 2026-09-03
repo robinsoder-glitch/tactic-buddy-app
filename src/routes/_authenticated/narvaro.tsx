@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { CalendarCheck } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/narvaro")({
   head: () => ({
@@ -19,7 +20,11 @@ export const Route = createFileRoute("/_authenticated/narvaro")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: NarvaroPage,
+  component: () => (
+    <CoachOnly>
+      <NarvaroPage />
+    </CoachOnly>
+  ),
 });
 
 function NarvaroPage() {

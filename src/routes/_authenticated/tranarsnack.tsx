@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MessagesSquare } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { TeamChatPanel } from "@/components/TeamChatPanel";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/tranarsnack")({
   head: () => ({
@@ -21,7 +22,11 @@ export const Route = createFileRoute("/_authenticated/tranarsnack")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: TranarsnackPage,
+  component: () => (
+    <CoachOnly>
+      <TranarsnackPage />
+    </CoachOnly>
+  ),
 });
 
 function TranarsnackPage() {

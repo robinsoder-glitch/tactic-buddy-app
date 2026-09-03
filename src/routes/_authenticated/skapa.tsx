@@ -17,6 +17,7 @@ import type { GameFormatId } from "@/lib/game-format";
 import { cardToFrames, fetchTacticCards, GAME_MOMENT_LABELS, label } from "@/lib/taktikbank";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/skapa")({
   head: () => ({
@@ -36,7 +37,11 @@ export const Route = createFileRoute("/_authenticated/skapa")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CreatePage,
+  component: () => (
+    <CoachOnly>
+      <CreatePage />
+    </CoachOnly>
+  ),
 });
 
 function CreatePage() {
