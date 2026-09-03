@@ -190,7 +190,10 @@ function MatchPlanner({
   teamId: string;
   startInEdit: boolean;
   onClose: () => void;
-  onSaved: (eventId: string) => void;
+  onSaved: (
+    eventId: string,
+    counts: { players: number; coaches: number; event?: Partial<PlannableEvent> },
+  ) => void;
 }) {
   const [mode, setMode] = useState<"read" | "edit">(startInEdit ? "edit" : "read");
   const [loading, setLoading] = useState(true);
