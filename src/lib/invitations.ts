@@ -170,6 +170,22 @@ export async function fetchEventInvitations(eventId: string): Promise<Invitation
 }
 
 /** Skapar kallelser för valda spelare. Befintliga kallelser lämnas orörda. */
+/**
+ * Kallelser hör bara ihop med matcher. Träningar har närvaro i stället, så
+ * försök att skapa en kallelse till en träning stoppas redan här.
+ */
+export async function assertMatchEvent(eventId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from("events")
+    .select("type")
+    .eq("id", eventId)
+    .maybeSingle();
+  if (error) throw error;
+  if (data && data.type !== "match") {
+    throw new Error("Kallelser skickas bara till matcher. Träningar hanteras via närvaro.");
+  }
+}
+
 export async function createInvitations(input: {
   eventId: string;
   teamId: string;
@@ -179,6 +195,7 @@ export async function createInvitations(input: {
   createdBy: string;
 }): Promise<number> {
   if (input.playerIds.length === 0) return 0;
+  await assertMatchEvent(input.eventId);
   // Inaktiva spelare får aldrig nya kallelser.
   const { data: active, error: activeError } = await supabase
     .from("players")
@@ -411,7 +428,7 @@ export async function fetchMyInvitations(): Promise<MyInvitation[]> {
       const raw = row as never as { events: MyInvitation["event"]; teams: { name: string } | null };
       return { ...mapRow(row as never), event: raw.events, teamName: raw.teams?.name ?? null };
     })
-    .filter((item) => Boolean(item.event))
+    .filter((item) => Boolean(item.event) && item.event.type === "match")
     .sort((a, b) => a.event.starts_at.localeCompare(b.event.starts_at)) as MyInvitation[];
 }
 
