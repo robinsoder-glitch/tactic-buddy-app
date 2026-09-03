@@ -9,7 +9,6 @@ import {
   fetchMyDay,
   filterTodo,
   formatWhen,
-  greetingName,
   newsLabel,
   nextLabel,
   sortTodo,
@@ -21,7 +20,7 @@ import { Button } from "@/components/ui/button";
 
 /** Etapp 4 – personlig startsida: Att göra, Nästa aktivitet, Nytt sedan sist. */
 export function MyDay() {
-  const { profile, memberships, userId } = useAccount();
+  const { memberships, userId } = useAccount();
   const [context, setContext] = useState("all");
   const [showAll, setShowAll] = useState(false);
 
@@ -47,9 +46,7 @@ export function MyDay() {
   return (
     <section className="space-y-4" aria-label="Min dag">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-2xl font-bold">
-          {greetingName(profile?.display_name)}
-        </h2>
+        <h2 className="font-display text-2xl font-bold">Min dag</h2>
         {teams.length > 1 && (
           <label className="text-sm">
             <span className="sr-only">Välj lag</span>
