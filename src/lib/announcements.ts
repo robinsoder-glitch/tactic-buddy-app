@@ -401,7 +401,10 @@ export async function deleteEventMessage(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-export type ActivityMessage = EventMessage & { eventTitle: string | null; eventStart: string | null };
+export type ActivityMessage = EventMessage & {
+  eventTitle: string | null;
+  eventStart: string | null;
+};
 
 /** Senaste frågorna i alla lag användaren tillhör – till fliken Aktiviteter. */
 export async function fetchRecentEventMessages(teamIds: string[]): Promise<ActivityMessage[]> {
@@ -433,7 +436,7 @@ export async function fetchRecentEventMessages(teamIds: string[]): Promise<Activ
     (events ?? []).map((e) => [
       e.id as string,
       {
-        title: ((e.title as string | null) ?? (e.type as string | null)) ?? null,
+        title: (e.title as string | null) ?? (e.type as string | null) ?? null,
         start: (e.starts_at as string | null) ?? null,
       },
     ]),
