@@ -1,4 +1,3 @@
-import { keyMessages, practicalAdvice } from "@/lib/knowledge-summary";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
@@ -30,6 +29,24 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   }),
   component: KnowledgeArticlePage,
 });
+
+/** "Passar dig som tränar 8–9 år och spelar 5 mot 5." */
+function fitsYouText(data: Parameters<typeof knowledgeAgeLabel>[0]): string {
+  const age = knowledgeAgeLabel(data);
+  const format = knowledgeFormatLabel(data);
+  if (age && format) return `Passar dig som tränar ${age} och spelar ${format}.`;
+  if (age) return `Passar dig som tränar ${age}.`;
+  if (format) return `Passar dig som spelar ${format}.`;
+  return "Passar dig som tränar barn i fotboll.";
+}
+
+/** En sammanhängande text i stället för flera korta stycken. */
+function summaryText(data: { summary_sv: string; learn_sv?: string | null; coach_value?: string | null }): string {
+  return [data.summary_sv, data.learn_sv, data.coach_value]
+    .map((part) => (part ?? "").trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
 
 function KnowledgeArticlePage() {
   const { slug } = Route.useParams();
@@ -80,10 +97,7 @@ function KnowledgeArticlePage() {
 
       {data && (
         <article className="mt-4">
-          <p className="text-xs tracking-wide text-muted-foreground">
-            {data.category} · {knowledgeAgeLabel(data)}
-            {knowledgeFormatLabel(data) ? ` · ${knowledgeFormatLabel(data)}` : ""}
-          </p>
+          <p className="text-xs tracking-wide text-muted-foreground">{data.category}</p>
           <div className="mt-1 flex items-start gap-2">
             <h1 className="min-w-0 flex-1 font-display text-2xl font-semibold">{data.title_sv}</h1>
             <button
@@ -107,37 +121,12 @@ function KnowledgeArticlePage() {
             ) : null}
           </div>
 
-          <section className="mt-5 rounded-xl border border-border bg-card p-4">
+          <p className="mt-4 text-sm font-semibold">{fitsYouText(data)}</p>
+
+          <section className="mt-4 rounded-xl border border-border bg-card p-4">
             <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
-            <p className="mt-2 text-sm">{data.summary_sv}</p>
-            {data.learn_sv && <p className="mt-3 whitespace-pre-line text-sm">{data.learn_sv}</p>}
-            {data.coach_value && <p className="mt-3 text-sm">{data.coach_value}</p>}
+            <p className="mt-2 whitespace-pre-line text-sm">{summaryText(data)}</p>
           </section>
-
-          <section className="mt-3 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Huvudbudskap</h2>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-              {keyMessages(data).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          {(practicalAdvice(data).length > 0 || data.try_next_sv) && (
-            <section className="mt-3 rounded-xl border border-border bg-card p-4">
-              <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-                Testa på nästa träning
-              </h2>
-              {data.try_next_sv && <p className="mt-2 whitespace-pre-line text-sm">{data.try_next_sv}</p>}
-              {practicalAdvice(data).length > 0 && (
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                  {practicalAdvice(data).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          )}
 
           <a
             href={data.original_url}
