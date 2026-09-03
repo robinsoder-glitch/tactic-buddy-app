@@ -151,6 +151,8 @@ function EventPage() {
   const list = useMemo(() => invites.data ?? [], [invites.data]);
   const guardedIds = guarded.data ?? [];
   const counts = countInvitations(list);
+  // Kallelser hör bara ihop med matcher.
+  const isMatchEvent = event.data?.type === "match";
   const cancelled = Boolean(event.data?.cancelled_at);
   const meta = list[0];
   const [editing, setEditing] = useState(false);
@@ -475,169 +477,191 @@ function EventPage() {
         </section>
       )}
 
-      <section className="mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-2xl font-bold">Kallelse och deltagare</h2>
+      {!isMatchEvent && (
+        <section className="mt-6 rounded-xl border border-border bg-card p-4">
+          <h2 className="font-display text-xl font-bold">Närvaro i stället för kallelse</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Träningar har inga kallelser. Efter träningen prickar ledaren av truppen under Närvaro.
+          </p>
           {isCoach && (
-            <Button size="sm" onClick={openDialog}>
-              {list.length > 0 ? "Hantera kallelse" : "Skapa kallelse"}
+            <Button variant="outline" size="sm" className="mt-3" asChild>
+              <Link to="/team/$teamId/narvaro" params={{ teamId }} search={{ handelse: eventId }}>
+                Registrera närvaro
+              </Link>
             </Button>
           )}
-        </div>
+        </section>
+      )}
 
-        {invites.isError && (
-          <div className="mt-3">
-            <p className="text-sm text-muted-foreground">Kallelsen kunde inte hämtas just nu.</p>
-            <Button size="sm" className="mt-2" onClick={() => invites.refetch()}>
-              Försök igen
-            </Button>
-          </div>
-        )}
-
-        {!invites.isLoading && !invites.isError && list.length === 0 && (
-          <p className="mt-3 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-            {isCoach
-              ? "Ingen kallelse har skapats ännu."
-              : "Det finns ingen kallelse till den här aktiviteten."}
-          </p>
-        )}
-
-        {list.length > 0 && (
-          <>
-            <p className="mt-3 text-sm font-semibold">{summaryText(counts)}</p>
-            {meta?.respond_by && (
-              <p className="text-xs text-muted-foreground">Sista svarsdag: {meta.respond_by}</p>
-            )}
-            <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-              <Stat label="Kallade" value={counts.total} />
-              <Stat label="Beräknat antal" value={expectedAttendance(counts)} />
-              <Stat label="Saknar svar" value={counts.pending} />
-              <Stat label="Svarat" value={counts.total - counts.pending} />
-            </dl>
-
-            {meta?.message && (
-              <p className="mt-3 rounded-xl border border-border bg-card p-3 text-sm">
-                {meta.message}
-              </p>
-            )}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <FilterButton active={filter === "alla"} onClick={() => setFilter("alla")}>
-                Alla ({counts.total})
-              </FilterButton>
-              {INVITE_STATUSES.map((status) => (
-                <FilterButton
-                  key={status}
-                  active={filter === status}
-                  onClick={() => setFilter(status)}
-                >
-                  {inviteStatusLabel(status)} ({counts[status]})
-                </FilterButton>
-              ))}
-            </div>
-
-            {isCoach && counts.pending > 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="mt-3"
-                disabled={remind.isPending}
-                onClick={() => remind.mutate()}
-              >
-                <Bell className="size-4" /> Påminn obesvarade ({counts.pending})
+      {isMatchEvent && (
+        <section className="mt-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-2xl font-bold">Kallelse och deltagare</h2>
+            {isCoach && (
+              <Button size="sm" onClick={openDialog}>
+                {list.length > 0 ? "Hantera kallelse" : "Skapa kallelse"}
               </Button>
             )}
-            {isCoach && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {lastReminder
-                  ? `Senaste påminnelsen skickades ${formatDateTime(lastReminder)}. `
-                  : "Ingen påminnelse har skickats ännu. "}
-                {EXTERNAL_CHANNELS_TEXT}
-              </p>
-            )}
+          </div>
 
-            <ul className="mt-4 space-y-2">
-              {filtered.map((invitation) => {
-                const mine = canRespondSelf(invitation, userId);
-                const guardianOf = canRespondAsGuardian(invitation, guardedIds);
-                const mayAnswer = (isCoach || mine || guardianOf) && !cancelled;
-                const open = openRow === invitation.id;
-                return (
-                  <li key={invitation.id} className="rounded-xl border border-border bg-card">
-                    <button
-                      type="button"
-                      className="flex w-full flex-wrap items-center justify-between gap-2 p-3 text-left"
-                      onClick={() => setOpenRow(open ? null : invitation.id)}
-                      aria-expanded={open}
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate font-semibold">
-                          {invitation.playerName}
-                          {invitation.playerActive === false && (
-                            <span className="ml-2 text-xs font-normal text-muted-foreground">
-                              Inaktiv
-                            </span>
+          {invites.isError && (
+            <div className="mt-3">
+              <p className="text-sm text-muted-foreground">Kallelsen kunde inte hämtas just nu.</p>
+              <Button size="sm" className="mt-2" onClick={() => invites.refetch()}>
+                Försök igen
+              </Button>
+            </div>
+          )}
+
+          {!invites.isLoading && !invites.isError && list.length === 0 && (
+            <p className="mt-3 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+              {isCoach
+                ? "Ingen kallelse har skapats ännu."
+                : "Det finns ingen kallelse till den här aktiviteten."}
+            </p>
+          )}
+
+          {list.length > 0 && (
+            <>
+              <p className="mt-3 text-sm font-semibold">{summaryText(counts)}</p>
+              {meta?.respond_by && (
+                <p className="text-xs text-muted-foreground">Sista svarsdag: {meta.respond_by}</p>
+              )}
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+                <Stat label="Kallade" value={counts.total} />
+                <Stat label="Beräknat antal" value={expectedAttendance(counts)} />
+                <Stat label="Saknar svar" value={counts.pending} />
+                <Stat label="Svarat" value={counts.total - counts.pending} />
+              </dl>
+
+              {meta?.message && (
+                <p className="mt-3 rounded-xl border border-border bg-card p-3 text-sm">
+                  {meta.message}
+                </p>
+              )}
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <FilterButton active={filter === "alla"} onClick={() => setFilter("alla")}>
+                  Alla ({counts.total})
+                </FilterButton>
+                {INVITE_STATUSES.map((status) => (
+                  <FilterButton
+                    key={status}
+                    active={filter === status}
+                    onClick={() => setFilter(status)}
+                  >
+                    {inviteStatusLabel(status)} ({counts[status]})
+                  </FilterButton>
+                ))}
+              </div>
+
+              {isCoach && counts.pending > 0 && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="mt-3"
+                  disabled={remind.isPending}
+                  onClick={() => remind.mutate()}
+                >
+                  <Bell className="size-4" /> Påminn obesvarade ({counts.pending})
+                </Button>
+              )}
+              {isCoach && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {lastReminder
+                    ? `Senaste påminnelsen skickades ${formatDateTime(lastReminder)}. `
+                    : "Ingen påminnelse har skickats ännu. "}
+                  {EXTERNAL_CHANNELS_TEXT}
+                </p>
+              )}
+
+              <ul className="mt-4 space-y-2">
+                {filtered.map((invitation) => {
+                  const mine = canRespondSelf(invitation, userId);
+                  const guardianOf = canRespondAsGuardian(invitation, guardedIds);
+                  const mayAnswer = (isCoach || mine || guardianOf) && !cancelled;
+                  const open = openRow === invitation.id;
+                  return (
+                    <li key={invitation.id} className="rounded-xl border border-border bg-card">
+                      <button
+                        type="button"
+                        className="flex w-full flex-wrap items-center justify-between gap-2 p-3 text-left"
+                        onClick={() => setOpenRow(open ? null : invitation.id)}
+                        aria-expanded={open}
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">
+                            {invitation.playerName}
+                            {invitation.playerActive === false && (
+                              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                Inaktiv
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {inviteStatusLabel(invitation.status)}
+                            {invitation.responded_at
+                              ? ` · ${formatDateTime(invitation.responded_at)}`
+                              : ""}
+                            {invitation.respondedByName
+                              ? ` · av ${invitation.respondedByName}`
+                              : ""}
+                          </p>
+                          {invitation.comment && (
+                            <p className="mt-1 truncate text-xs italic text-muted-foreground">
+                              ”{invitation.comment}”
+                            </p>
                           )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {inviteStatusLabel(invitation.status)}
-                          {invitation.responded_at
-                            ? ` · ${formatDateTime(invitation.responded_at)}`
-                            : ""}
-                          {invitation.respondedByName ? ` · av ${invitation.respondedByName}` : ""}
-                        </p>
-                        {invitation.comment && (
-                          <p className="mt-1 truncate text-xs italic text-muted-foreground">
-                            ”{invitation.comment}”
+                        </div>
+                        <Users className="size-4 shrink-0 text-muted-foreground" />
+                      </button>
+
+                      <div className="px-3 pb-3">
+                        {mayAnswer ? (
+                          <div className="grid grid-cols-3 gap-2">
+                            {(["attending", "maybe", "declined"] as InviteStatus[]).map(
+                              (status) => (
+                                <Button
+                                  key={status}
+                                  size="sm"
+                                  className="h-12 text-sm"
+                                  variant={invitation.status === status ? "default" : "secondary"}
+                                  disabled={respond.isPending}
+                                  onClick={() => respond.mutate({ invitation, status })}
+                                >
+                                  {inviteStatusLabel(status)}
+                                </Button>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          !invitation.memberUserId &&
+                          isCoach === false && (
+                            <p className="text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
+                          )
+                        )}
+
+                        {isCoach && !invitation.memberUserId && (
+                          <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
+                        )}
+                        {cancelled && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            Aktiviteten är inställd. Nya svar är stängda.
                           </p>
                         )}
+                        {open && <InvitationHistory invitationId={invitation.id} />}
                       </div>
-                      <Users className="size-4 shrink-0 text-muted-foreground" />
-                    </button>
-
-                    <div className="px-3 pb-3">
-                      {mayAnswer ? (
-                        <div className="grid grid-cols-3 gap-2">
-                          {(["attending", "maybe", "declined"] as InviteStatus[]).map((status) => (
-                            <Button
-                              key={status}
-                              size="sm"
-                              className="h-12 text-sm"
-                              variant={invitation.status === status ? "default" : "secondary"}
-                              disabled={respond.isPending}
-                              onClick={() => respond.mutate({ invitation, status })}
-                            >
-                              {inviteStatusLabel(status)}
-                            </Button>
-                          ))}
-                        </div>
-                      ) : (
-                        !invitation.memberUserId &&
-                        isCoach === false && (
-                          <p className="text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
-                        )
-                      )}
-
-                      {isCoach && !invitation.memberUserId && (
-                        <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
-                      )}
-                      {cancelled && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          Aktiviteten är inställd. Nya svar är stängda.
-                        </p>
-                      )}
-                      {open && <InvitationHistory invitationId={invitation.id} />}
-                    </div>
-                  </li>
-                );
-              })}
-              {filtered.length === 0 && (
-                <li className="text-sm text-muted-foreground">Inga spelare i den här gruppen.</li>
-              )}
-            </ul>
-          </>
-        )}
-      </section>
+                    </li>
+                  );
+                })}
+                {filtered.length === 0 && (
+                  <li className="text-sm text-muted-foreground">Inga spelare i den här gruppen.</li>
+                )}
+              </ul>
+            </>
+          )}
+        </section>
+      )}
 
       <Dialog open={creating} onOpenChange={setCreating}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
