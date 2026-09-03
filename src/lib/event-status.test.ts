@@ -15,7 +15,7 @@ function snap(patch: Partial<EventSnapshot> = {}): EventSnapshot {
     startsAt: "2026-09-10T16:00:00Z",
     endsAt: "2026-09-10T17:30:00Z",
     cancelledAt: null,
-    type: "training",
+    type: "match",
     hasLocation: true,
     pendingMembers: 0,
     invitationCount: 12,
