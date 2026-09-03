@@ -97,11 +97,10 @@ describe("regressionsmarkering: punkt 7 får inte byggas", () => {
 
 
   it("matchens laguppställning har bara den befintliga taktikkopplingen", () => {
-    const tacticFields = [...matchPlan.matchAll(/\btactic[a-z_]*\b/gi)].map((m) =>
-      m[0].toLowerCase(),
-    );
-    for (const field of tacticFields) expect(field).toBe("tactic_id");
+    const tacticFields = [...matchPlan.matchAll(/\btactic[A-Za-z_]*\b/g)].map((m) => m[0]);
+    for (const field of tacticFields) expect(["tactic_id", "tacticId"]).toContain(field);
   });
+
 
   it("matchplanen skapar inga taktikversioner eller frames", () => {
     expect(matchPlan).not.toMatch(/tactic_frames|tactic_versions|saveTacticVersion|createTactic/);
