@@ -43,13 +43,16 @@ export function AppNav() {
   const { total: pendingJoins } = usePendingJoins();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
+  const deskRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
   useEffect(() => {
     if (!menuOpen) return;
     const onPointer = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+      const node = event.target as Node;
+      if (!menuRef.current?.contains(node) && !deskRef.current?.contains(node))
+        setMenuOpen(false);
     };
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
     document.addEventListener("pointerdown", onPointer);
@@ -66,8 +69,11 @@ export function AppNav() {
 
   const { main: primary, secondary } = tabsForRole(isCoach || isAdmin);
 
-  const topLink =
-    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+  const secondaryActive =
+    secondary.some((tab) => isTabActive(pathname, tab)) || pathname.startsWith("/admin");
+  const secondaryBadge =
+    (secondary.some((tab) => tab.to === "/tranarsnack") ? unread : 0) +
+    (isCoach && secondary.some((tab) => tab.to === "/teams") ? pendingJoins : 0);
 
   const barLink =
     "relative flex min-h-[4rem] w-full flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors";
@@ -100,56 +106,92 @@ export function AppNav() {
         data-testid="app-nav-top"
         className="fixed inset-x-0 top-0 z-40 hidden border-b border-border bg-background/95 backdrop-blur md:block supports-[backdrop-filter]:bg-background/85"
       >
-        <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
-          <Link to="/" className="mr-2 shrink-0">
-            <BrandLogo size={36} />
+        <div className="mx-auto flex h-14 max-w-6xl flex-nowrap items-stretch gap-3 px-4">
+          <Link to="/" className="flex shrink-0 items-center">
+            <BrandLogo size={32} />
           </Link>
-          <ul className="flex flex-1 flex-wrap items-center gap-1">
+          <ul className="flex min-w-0 flex-1 flex-nowrap items-stretch gap-1 overflow-x-auto">
             {primary.map((tab) => {
               const active = isTabActive(pathname, tab);
               return (
-                <li key={tab.to}>
+                <li key={tab.to} className="shrink-0">
                   <Link
                     to={tab.to}
                     aria-current={active ? "page" : undefined}
-                    className={`${topLink} ${active ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+                    className={`flex h-full items-center whitespace-nowrap border-b-2 px-3 text-sm font-semibold transition-colors ${
+                      active
+                        ? "border-primary text-foreground"
+                        : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+                    }`}
                   >
-                    {renderIcon(tab.to, "size-4")}
-                    <span>{tab.label}</span>
+                    {tab.label}
                   </Link>
                 </li>
               );
             })}
           </ul>
-          <ul className="flex shrink-0 items-center gap-1 border-l border-border pl-2">
-            {secondary.map((tab) => {
-              const active = isTabActive(pathname, tab);
-              return (
-                <li key={tab.to}>
-                  <Link
-                    to={tab.to}
-                    title={`${SECONDARY_LABEL}: ${tab.label}`}
-                    aria-label={tab.label}
-                    aria-current={active ? "page" : undefined}
-                    className={`${topLink} px-2 ${active ? "bg-accent text-foreground" : ""}`}
-                  >
-                    {renderIcon(tab.to, "size-4")}
-                    <span className="sr-only lg:not-sr-only">{tab.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          {isAdmin && (
-            <Link
-              to="/admin"
-              aria-current={pathname.startsWith("/admin") ? "page" : undefined}
-              className={`${topLink} shrink-0 ${pathname.startsWith("/admin") ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+
+          <div className="relative flex shrink-0 items-center" ref={deskRef}>
+            <button
+              type="button"
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              onClick={() => setMenuOpen((value) => !value)}
+              className={`flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold transition-colors hover:bg-accent ${
+                menuOpen || secondaryActive ? "bg-accent text-foreground" : "text-muted-foreground"
+              }`}
             >
-              <ShieldCheck className="size-4" aria-hidden />
-              <span>Admin</span>
-            </Link>
-          )}
+              <span className="relative inline-flex">
+                <Menu className="size-4" aria-hidden />
+                {secondaryBadge > 0 && (
+                  <span
+                    aria-label={`${secondaryBadge} nya notiser`}
+                    className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold leading-none text-destructive-foreground"
+                  >
+                    {secondaryBadge > 9 ? "9+" : secondaryBadge}
+                  </span>
+                )}
+              </span>
+              <span>{SECONDARY_LABEL}</span>
+            </button>
+            {menuOpen && (
+              <ul
+                role="menu"
+                aria-label={SECONDARY_LABEL}
+                className="absolute right-0 top-[calc(100%+0.25rem)] w-60 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+              >
+                {secondary.map((tab) => {
+                  const active = isTabActive(pathname, tab);
+                  return (
+                    <li key={tab.to} role="none">
+                      <Link
+                        role="menuitem"
+                        to={tab.to}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-accent ${active ? "text-primary" : "text-foreground"}`}
+                      >
+                        {renderIcon(tab.to, "size-4")}
+                        {tab.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+                {isAdmin && (
+                  <li role="none" className="border-t border-border">
+                    <Link
+                      role="menuitem"
+                      to="/admin"
+                      aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+                      className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-accent ${pathname.startsWith("/admin") ? "text-primary" : "text-foreground"}`}
+                    >
+                      <ShieldCheck className="size-4" aria-hidden />
+                      Admin
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
         </div>
       </nav>
 
