@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GAME_FORMATS, type GameFormatId } from "@/lib/game-format";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
@@ -45,6 +46,7 @@ function TeamsPage() {
   const [clubId, setClubId] = useState<string | null>(null);
   const [clubName, setClubName] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
+  const [gameFormat, setGameFormat] = useState<GameFormatId>("5v5");
   const [gender, setGender] = useState("mixed");
   const [homeGround, setHomeGround] = useState("");
 
@@ -60,7 +62,7 @@ function TeamsPage() {
     mutationFn: () => {
       if (!userId) throw new Error("Inte inloggad");
       if (!name.trim()) throw new Error("Ange ett lagnamn");
-      return createTeam({ userId, name, clubId, clubName, ageGroup, gender, homeGround });
+      return createTeam({ userId, name, clubId, clubName, ageGroup, gender, gameFormat, homeGround });
     },
     onSuccess: (id) => {
       setOpen(false);
@@ -139,6 +141,29 @@ function TeamsPage() {
                 value={ageGroup}
                 onChange={(event) => setAgeGroup(event.target.value)}
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Spelform</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {GAME_FORMATS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={gameFormat === item.id}
+                    onClick={() => setGameFormat(item.id)}
+                    className={`rounded-lg border px-2 py-2 text-sm ${
+                      gameFormat === item.id
+                        ? "border-primary bg-primary/10 font-semibold"
+                        : "border-border"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Styr planstorleken på taktiktavlan för laget.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ground">Hemmaplan</Label>
