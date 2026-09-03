@@ -326,8 +326,11 @@ export function Pitch({
     );
   }
 
+  // Exakt en boll ska synas. Finns ett bollobjekt på planen är det den som rör sig –
+  // då ritas ingen extra boll längs passningslinjen.
+  const hasBallObject = objects.some((object) => object.kind === "ball");
   const passBalls =
-    passT == null
+    passT == null || hasBallObject
       ? []
       : drawings
           .filter((drawing) => drawing.type === "pass")
