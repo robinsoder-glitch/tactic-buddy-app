@@ -60,7 +60,7 @@ export function PickDrillButton({ kind, resourceId, title, defaultMinutes = 10, 
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind: "drill", resourceId, title, minutes: Number(minutes) || defaultMinutes },
+      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes },
       { allowDuplicate },
     );
     if (!added) {

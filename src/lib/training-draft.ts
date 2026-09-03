@@ -3,7 +3,7 @@
  * Övningar hamnar först i utkastet – den publicerade planen ändras först vid Spara.
  * Utkastet lagras i sessionStorage så det överlever en resa till Träningsbanken.
  */
-export type DraftKind = "drill" | "session";
+export type DraftKind = "drill" | "goalkeeper" | "session";
 
 export type DraftItem = {
   /** Eget id per rad, så samma övning kan finnas flera gånger. */
