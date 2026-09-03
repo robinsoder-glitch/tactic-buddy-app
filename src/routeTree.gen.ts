@@ -24,6 +24,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPlaneraMatchRouteImport } from './routes/_authenticated/planera-match'
 import { Route as AuthenticatedPlaneraTraningRouteImport } from './routes/_authenticated/planera-traning'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
+import { Route as AuthenticatedSpelareRouteImport } from './routes/_authenticated/spelare'
 import { Route as AuthenticatedTaktikRouteImport } from './routes/_authenticated/taktik'
 import { Route as AuthenticatedTeamsRouteImport } from './routes/_authenticated/teams'
 import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenticated/tranarsnack'
@@ -145,6 +146,11 @@ const AuthenticatedPlaneraTraningRoute =
 const AuthenticatedSkapaRoute = AuthenticatedSkapaRouteImport.update({
   id: '/skapa',
   path: '/skapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSpelareRoute = AuthenticatedSpelareRouteImport.update({
+  id: '/spelare',
+  path: '/spelare',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTaktikRoute = AuthenticatedTaktikRouteImport.update({
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
+  '/spelare': typeof AuthenticatedSpelareRoute
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
+  '/spelare': typeof AuthenticatedSpelareRoute
   '/taktik': typeof AuthenticatedTaktikRoute
   '/teams': typeof AuthenticatedTeamsRoute
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
@@ -528,6 +536,7 @@ export interface FileRoutesById {
   '/_authenticated/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/_authenticated/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
+  '/_authenticated/spelare': typeof AuthenticatedSpelareRoute
   '/_authenticated/taktik': typeof AuthenticatedTaktikRoute
   '/_authenticated/teams': typeof AuthenticatedTeamsRoute
   '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
@@ -589,6 +598,7 @@ export interface FileRouteTypes {
     | '/planera-match'
     | '/planera-traning'
     | '/skapa'
+    | '/spelare'
     | '/taktik'
     | '/teams'
     | '/tranarsnack'
@@ -646,6 +656,7 @@ export interface FileRouteTypes {
     | '/planera-match'
     | '/planera-traning'
     | '/skapa'
+    | '/spelare'
     | '/taktik'
     | '/teams'
     | '/tranarsnack'
@@ -704,6 +715,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planera-match'
     | '/_authenticated/planera-traning'
     | '/_authenticated/skapa'
+    | '/_authenticated/spelare'
     | '/_authenticated/taktik'
     | '/_authenticated/teams'
     | '/_authenticated/tranarsnack'
@@ -864,6 +876,13 @@ declare module '@tanstack/react-router' {
       path: '/skapa'
       fullPath: '/skapa'
       preLoaderRoute: typeof AuthenticatedSkapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spelare': {
+      id: '/_authenticated/spelare'
+      path: '/spelare'
+      fullPath: '/spelare'
+      preLoaderRoute: typeof AuthenticatedSpelareRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/taktik': {
@@ -1281,6 +1300,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlaneraMatchRoute: typeof AuthenticatedPlaneraMatchRoute
   AuthenticatedPlaneraTraningRoute: typeof AuthenticatedPlaneraTraningRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
+  AuthenticatedSpelareRoute: typeof AuthenticatedSpelareRoute
   AuthenticatedTaktikRoute: typeof AuthenticatedTaktikRoute
   AuthenticatedTeamsRoute: typeof AuthenticatedTeamsRoute
   AuthenticatedTranarsnackRoute: typeof AuthenticatedTranarsnackRoute
@@ -1311,6 +1331,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlaneraMatchRoute: AuthenticatedPlaneraMatchRoute,
   AuthenticatedPlaneraTraningRoute: AuthenticatedPlaneraTraningRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
+  AuthenticatedSpelareRoute: AuthenticatedSpelareRoute,
   AuthenticatedTaktikRoute: AuthenticatedTaktikRoute,
   AuthenticatedTeamsRoute: AuthenticatedTeamsRoute,
   AuthenticatedTranarsnackRoute: AuthenticatedTranarsnackRoute,

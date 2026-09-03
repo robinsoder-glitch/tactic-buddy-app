@@ -14,6 +14,7 @@ import {
   Shield,
   ShieldCheck,
   Trophy,
+  UserPlus,
 } from "lucide-react";
 import { MOBILE_MAIN_LIMIT, SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
@@ -33,6 +34,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
   "/narvaro": CalendarCheck,
+  "/spelare": UserPlus,
   "/meddelanden": Mail,
   "/tranarsnack": MessagesSquare,
   "/teams": Shield,
