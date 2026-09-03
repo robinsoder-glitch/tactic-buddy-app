@@ -89,7 +89,7 @@ function HomePage() {
 
   if (loading || (user && account.loading)) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+      <div className="flex min-h-dvh items-center justify-center text-muted-foreground">
         Laddar…
       </div>
     );
@@ -521,6 +521,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <div className="flex gap-2">
             <input
               ref={fileInput}
+              aria-label="Importera taktikfil"
               type="file"
               accept=".json,application/json"
               className="hidden"
@@ -543,6 +544,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
 
         <div className="mt-3 flex flex-wrap gap-2">
           <Input
+            aria-label="Sök taktik"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Sök taktik…"
@@ -686,6 +688,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
             <DialogTitle>Byt namn</DialogTitle>
           </DialogHeader>
           <Input
+            aria-label="Nytt namn på taktiken"
             value={renameValue}
             onChange={(event) => setRenameValue(event.target.value)}
             placeholder="Namn på taktiken"

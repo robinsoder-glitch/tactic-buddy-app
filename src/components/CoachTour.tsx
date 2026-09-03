@@ -108,34 +108,35 @@ export function CoachTour({
       {spotlight ? (
         <>
           <div
+            aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 bg-foreground/40"
             style={{ height: Math.max(0, spotlight.top) }}
-            onClick={onClose}
           />
           <div
+            aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 bottom-0 bg-foreground/40"
             style={{ top: spotlight.top + spotlight.height }}
-            onClick={onClose}
           />
           <div
+            aria-hidden="true"
             className="pointer-events-none absolute left-0 bg-foreground/40"
             style={{
               top: spotlight.top,
               height: spotlight.height,
               width: Math.max(0, spotlight.left),
             }}
-            onClick={onClose}
           />
           <div
+            aria-hidden="true"
             className="pointer-events-none absolute right-0 bg-foreground/40"
             style={{
               top: spotlight.top,
               height: spotlight.height,
               left: spotlight.left + spotlight.width,
             }}
-            onClick={onClose}
           />
           <div
+            aria-hidden="true"
             className="pointer-events-none absolute rounded-xl ring-2 ring-primary"
             style={{
               top: spotlight.top,
@@ -146,7 +147,7 @@ export function CoachTour({
           />
         </>
       ) : (
-        <div className="pointer-events-none absolute inset-0 bg-foreground/40" onClick={onClose} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-foreground/40" />
       )}
       <div
         className="pointer-events-auto absolute w-80 max-w-[calc(100vw-24px)] animate-scale-in rounded-2xl border border-border bg-card p-4 shadow-lg"

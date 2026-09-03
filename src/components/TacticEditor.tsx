@@ -1022,9 +1022,7 @@ export function TacticEditor({ id }: { id: string }) {
 
   if (tactic.isLoading || !tactic.data) {
     return (
-      <div className="grid min-h-screen place-items-center text-muted-foreground">
-        Laddar taktik…
-      </div>
+      <div className="grid min-h-dvh place-items-center text-muted-foreground">Laddar taktik…</div>
     );
   }
 
@@ -1034,7 +1032,7 @@ export function TacticEditor({ id }: { id: string }) {
   const selectedObject = frame?.objects.find((object) => object.id === selectedId) ?? null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
+    <main className="mx-auto flex min-h-dvh max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
       <header className="flex items-center gap-2">
         <Button asChild variant="ghost" size="icon" aria-label="Tillbaka">
           <Link to="/">
