@@ -337,10 +337,33 @@ function MatchPlanner({
       setStep(0);
       return;
     }
-    const planError = validateMatchPlan({ playerIds, coachIds, slots, bench, required: FORMAT_PLAYERS[format] ?? 0 });
+    const requiredCount = FORMAT_PLAYERS[format] ?? 0;
+    const planError = validateMatchPlan({ playerIds, coachIds, slots, bench, required: requiredCount });
+    let effectiveRequired = requiredCount;
     if (planError) {
-      toast.error(planError);
-      return;
+      const isFewPlayers = planError.startsWith("Välj minst en spelare") || planError.startsWith("Det måste vara exakt");
+      if (!isFewPlayers) {
+        toast.error(planError);
+        return;
+      }
+      const ok = window.confirm(
+        `Varning: ${planError}\n\nVill du spara ändå? Du kan komplettera med fler spelare senare.`,
+      );
+      if (!ok) return;
+      const hardError = validateMatchPlan({
+        playerIds,
+        coachIds,
+        slots,
+        bench,
+        required: requiredCount,
+        allowFewPlayers: true,
+      });
+      if (hardError) {
+        toast.error(hardError);
+        return;
+      }
+      effectiveRequired = 0;
+      toast.warning("Matchplanen sparas med för få spelare.");
     }
     setSaving(true);
     try {
@@ -366,7 +389,7 @@ function MatchPlanner({
         slots,
         bench,
         tacticId,
-        required: FORMAT_PLAYERS[format] ?? 0,
+        required: effectiveRequired,
       });
       toast.success("Matchplanen är sparad");
       onSaved(eventId);

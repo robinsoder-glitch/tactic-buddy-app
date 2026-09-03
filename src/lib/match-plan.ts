@@ -144,12 +144,16 @@ export function validateMatchPlan(input: {
   slots: LineupSlot[];
   bench: string[];
   required: number;
+  /** Tillåt sparning trots för få spelare (användaren har bekräftat varningen). */
+  allowFewPlayers?: boolean;
 }): string | null {
-  if (input.playerIds.length === 0) return "Välj minst en spelare.";
+  if (!input.allowFewPlayers) {
+    if (input.playerIds.length === 0) return "Välj minst en spelare.";
+  }
   if (input.coachIds.length === 0) return "Välj minst en ledare.";
   const starters = lineupStarters(input.slots);
   if (new Set(starters).size !== starters.length) return "Samma spelare kan bara stå på en planposition.";
-  if (starters.length !== input.required)
+  if (!input.allowFewPlayers && starters.length !== input.required)
     return `Det måste vara exakt ${input.required} startspelare för vald spelform (nu ${starters.length}).`;
   const all = [...starters, ...input.bench];
   if (new Set(all).size !== all.length) return "En avbytare kan inte samtidigt stå på planen.";
