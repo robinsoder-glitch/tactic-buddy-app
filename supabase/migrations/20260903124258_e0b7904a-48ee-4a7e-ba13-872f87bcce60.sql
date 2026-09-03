@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.find_team_by_code(text) TO anon;
