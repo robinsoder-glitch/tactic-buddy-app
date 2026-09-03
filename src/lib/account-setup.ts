@@ -28,7 +28,10 @@ export function ageAt(birth: string, today = new Date()): number {
 }
 
 /** Returnerar ett felmeddelande på svenska, eller null när uppgifterna räcker. */
-export function validateSetup(setup: AccountSetup, options: { requireCode?: boolean } = {}): string | null {
+export function validateSetup(
+  setup: AccountSetup,
+  options: { requireCode?: boolean } = {},
+): string | null {
   if (!setup.name.trim()) return "Ange ditt namn";
 
   if (setup.role === "coach") {
@@ -103,7 +106,8 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
     display_name: profileDisplayName(setup),
     birth_date: setup.birth || null,
     ...(setup.role === "coach" ? { is_adult_confirmed: true } : {}),
-    guardian_for_name: setup.role === "player" && setup.isGuardian ? (setup.playerName?.trim() ?? null) : null,
+    guardian_for_name:
+      setup.role === "player" && setup.isGuardian ? (setup.playerName?.trim() ?? null) : null,
   });
 
   const code = setup.code?.trim();
@@ -115,5 +119,10 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
   const joined = await joinTeamWithCode(code);
   // Koden avgör rollen – en spelarkod kan aldrig ge tränarbehörighet.
   if (joined.role !== setup.role) await claimRole(userId, setup.role);
-  return { role: joined.role, teamId: joined.teamId, teamName: joined.teamName, status: joined.status };
+  return {
+    role: joined.role,
+    teamId: joined.teamId,
+    teamName: joined.teamName,
+    status: joined.status,
+  };
 }

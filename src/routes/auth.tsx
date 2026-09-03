@@ -99,12 +99,17 @@ function AuthPage() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin, data: { display_name: setup.name.trim() } },
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { display_name: setup.name.trim() },
+        },
       });
       if (error) throw error;
 
       if (!data.session) {
-        toast.success("Kontot är skapat! Bekräfta din e-postadress och logga sedan in – vi kommer ihåg dina val.");
+        toast.success(
+          "Kontot är skapat! Bekräfta din e-postadress och logga sedan in – vi kommer ihåg dina val.",
+        );
         setMode("signin");
         setPassword("");
         return;
@@ -129,7 +134,9 @@ function AuthPage() {
 
   async function handleGoogle() {
     if (mode === "signup" && role) storeSetup(setup);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
     if (result.error) {
       toast.error("Kunde inte logga in med Google");
       return;
@@ -159,9 +166,19 @@ function AuthPage() {
             </Link>
           </Button>
         )}
-        <BrandLogo size={32} nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary" className="lg:hidden" />
+        <BrandLogo
+          size={32}
+          nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary"
+          className="lg:hidden"
+        />
         <h1 className="mt-3 font-display text-3xl font-bold tracking-wide">
-          {mode === "signin" ? "Logga in" : showRoleStep ? "Skapa konto" : role === "coach" ? "Tränarkonto" : "Spelarkonto"}
+          {mode === "signin"
+            ? "Logga in"
+            : showRoleStep
+              ? "Skapa konto"
+              : role === "coach"
+                ? "Tränarkonto"
+                : "Spelarkonto"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "signin"
@@ -196,12 +213,18 @@ function AuthPage() {
               </button>
             )}
 
-            <Button variant="secondary" className="mt-4 w-full" onClick={handleGoogle} type="button">
+            <Button
+              variant="secondary"
+              className="mt-4 w-full"
+              onClick={handleGoogle}
+              type="button"
+            >
               Fortsätt med Google
             </Button>
 
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" /> eller <span className="h-px flex-1 bg-border" />
+              <span className="h-px flex-1 bg-border" /> eller{" "}
+              <span className="h-px flex-1 bg-border" />
             </div>
 
             <form className="space-y-4" onSubmit={mode === "signin" ? handleSignIn : handleSignUp}>
@@ -243,7 +266,9 @@ function AuthPage() {
                 setRole(null);
               }}
             >
-              {mode === "signin" ? "Har du inget konto? Skapa ett" : "Har du redan ett konto? Logga in"}
+              {mode === "signin"
+                ? "Har du inget konto? Skapa ett"
+                : "Har du redan ett konto? Logga in"}
             </button>
           </>
         )}

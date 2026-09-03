@@ -26,7 +26,6 @@ function yt(id: string): string {
   return `https://www.youtube.com/watch?v=${id}`;
 }
 
-
 export const SKILL_MOVES: SkillMove[] = [
   {
     rank: 1,
@@ -74,7 +73,10 @@ export const SKILL_MOVES: SkillMove[] = [
     ],
     videos: [
       { label: "Master the Body Feint", url: yt("EL8JLKUZ2m0"), videoId: "EL8JLKUZ2m0" },
-      { label: "Learn 5 Effective Body Feints – Unisport", url: search("Learn 5 Effective Body Feints Unisport") },
+      {
+        label: "Learn 5 Effective Body Feints – Unisport",
+        url: search("Learn 5 Effective Body Feints Unisport"),
+      },
     ],
   },
   {
@@ -109,15 +111,28 @@ export const SKILL_MOVES: SkillMove[] = [
         text: "En försvarare närmar sig långsamt framifrån. Anfallaren ska dra undan bollen precis innan försvararen når den.",
       },
     ],
-    phrases: ["Sulan på bollen!", "Dra – vänd – spring!", "Skydda bollen med kroppen!", "Titta bakom dig efter vändningen!"],
+    phrases: [
+      "Sulan på bollen!",
+      "Dra – vänd – spring!",
+      "Skydda bollen med kroppen!",
+      "Titta bakom dig efter vändningen!",
+    ],
     mistakes: [
       "Barnet sätter foten framför bollen i stället för ovanpå.",
       "Bollen dras för långt bakåt.",
       "Barnet tittar ner och springer efter vändningen utan att se vart det är på väg.",
     ],
     videos: [
-      { label: "Drag back turn – teknik och disguise", url: yt("Zl3GGMTP8so"), videoId: "Zl3GGMTP8so" },
-      { label: "Step-over & pull-back för barn (Soccer Shots)", url: yt("L21_vRkoK6U"), videoId: "L21_vRkoK6U" },
+      {
+        label: "Drag back turn – teknik och disguise",
+        url: yt("Zl3GGMTP8so"),
+        videoId: "Zl3GGMTP8so",
+      },
+      {
+        label: "Step-over & pull-back för barn (Soccer Shots)",
+        url: yt("L21_vRkoK6U"),
+        videoId: "L21_vRkoK6U",
+      },
     ],
   },
   {
@@ -126,7 +141,8 @@ export const SKILL_MOVES: SkillMove[] = [
     title: "Insida–utsida-finten",
     nameSv: "Insida–utsida eller insida–utsida-fint",
     nameEn: "Inside-outside move",
-    otherNames: "Matthews move eller Matthews-finten, uppkallad efter den engelske spelaren Sir Stanley Matthews.",
+    otherNames:
+      "Matthews move eller Matthews-finten, uppkallad efter den engelske spelaren Sir Stanley Matthews.",
     purpose:
       "Spelaren flyttar först bollen lite åt ena sidan och får försvararen att reagera. Därefter tar spelaren snabbt bollen åt motsatt håll med utsidan av samma fot.",
     howTo: [
@@ -153,14 +169,23 @@ export const SKILL_MOVES: SkillMove[] = [
         text: "En kon är försvarare. Två små mål placeras på var sin sida. Barnet lurar åt det ena målet och tar bollen genom det andra.",
       },
     ],
-    phrases: ["Liten touch in – stor touch ut!", "Samma fot två gånger!", "Lura med axeln!", "Explodera efter utsidan!"],
+    phrases: [
+      "Liten touch in – stor touch ut!",
+      "Samma fot två gånger!",
+      "Lura med axeln!",
+      "Explodera efter utsidan!",
+    ],
     mistakes: [
       "Den första bollkontakten blir för stor.",
       "Barnet använder olika fötter i stället för insidan och utsidan av samma fot.",
       "Kroppen visar inte den falska riktningen.",
     ],
     videos: [
-      { label: "Inside–outside touch – enkel genomgång", url: yt("MiFV4xXnCnY"), videoId: "MiFV4xXnCnY" },
+      {
+        label: "Inside–outside touch – enkel genomgång",
+        url: yt("MiFV4xXnCnY"),
+        videoId: "MiFV4xXnCnY",
+      },
       { label: "How To Do a Matthews in Soccer", url: search("How To Do a Matthews in Soccer") },
     ],
   },
@@ -209,7 +234,11 @@ export const SKILL_MOVES: SkillMove[] = [
       "Rörelsen görs mycket snabbt men utan att kroppen lutar och lurar försvararen.",
     ],
     videos: [
-      { label: "Stepover-turn – ball control U8–U9", url: yt("QG1SuQuYMtI"), videoId: "QG1SuQuYMtI" },
+      {
+        label: "Stepover-turn – ball control U8–U9",
+        url: yt("QG1SuQuYMtI"),
+        videoId: "QG1SuQuYMtI",
+      },
       { label: "How To Actually Do The Stepover", url: yt("b7P5MBS6yhc"), videoId: "b7P5MBS6yhc" },
     ],
   },
@@ -251,14 +280,23 @@ export const SKILL_MOVES: SkillMove[] = [
         text: "Försvararen följer anfallaren från sidan eller bakifrån. Anfallaren använder kroppen som skydd när bollen tas bakom stödjebenet.",
       },
     ],
-    phrases: ["Visa ett riktigt skott!", "Bollen bakom stödjebenet!", "Vänd axlarna!", "Skydda och spring!"],
+    phrases: [
+      "Visa ett riktigt skott!",
+      "Bollen bakom stödjebenet!",
+      "Vänd axlarna!",
+      "Skydda och spring!",
+    ],
     mistakes: [
       "Pass- eller skottfinten är för liten för att lura försvararen.",
       "Barnet sparkar bollen bakåt i stället för att föra den kontrollerat bakom stödjebenet.",
       "Stödjefoten placeras för långt från bollen.",
     ],
     videos: [
-      { label: "How to Do a Cruyff Turn – Soccer Skills by MOJO", url: yt("K4JR-gK1SXU"), videoId: "K4JR-gK1SXU" },
+      {
+        label: "How to Do a Cruyff Turn – Soccer Skills by MOJO",
+        url: yt("K4JR-gK1SXU"),
+        videoId: "K4JR-gK1SXU",
+      },
       { label: "Master the Cruyff Turn", url: yt("2Umwwo0YSg4"), videoId: "2Umwwo0YSg4" },
     ],
   },

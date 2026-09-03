@@ -48,20 +48,31 @@ import { fetchDrills, fetchGoalkeeperCards } from "@/lib/taktikbank";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine } from "@/lib/event-labels";
 
-type Search = { eventId?: string | undefined; mode?: "edit" | undefined; markera?: string | undefined };
+type Search = {
+  eventId?: string | undefined;
+  mode?: "edit" | undefined;
+  markera?: string | undefined;
+};
 
 export const Route = createFileRoute("/_authenticated/planera-traning")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    eventId: typeof search["eventId"] === "string" && search["eventId"] ? (search["eventId"] as string) : undefined,
+    eventId:
+      typeof search["eventId"] === "string" && search["eventId"]
+        ? (search["eventId"] as string)
+        : undefined,
     mode: search["mode"] === "edit" ? "edit" : undefined,
-    markera: typeof search["markera"] === "string" && search["markera"] ? (search["markera"] as string) : undefined,
+    markera:
+      typeof search["markera"] === "string" && search["markera"]
+        ? (search["markera"] as string)
+        : undefined,
   }),
   head: () => ({
     meta: [
       { title: "Planera träning – boka och fyll träningen med övningar" },
       {
         name: "description",
-        content: "Boka träningstillfällen i lagets kalender och planera innehållet med övningar ur Träningsbanken.",
+        content:
+          "Boka träningstillfällen i lagets kalender och planera innehållet med övningar ur Träningsbanken.",
       },
       { property: "og:title", content: "Planera träning" },
       { property: "og:description", content: "Boka träningstillfälle och planera innehållet." },
@@ -82,7 +93,9 @@ function PlanTrainingPage() {
   const eventId = search.eventId ?? null;
   const [view, setView] = useState<"start" | "book">("start");
 
-  const coachTeams = memberships.filter((item) => item.status === "approved" && item.role === "coach");
+  const coachTeams = memberships.filter(
+    (item) => item.status === "approved" && item.role === "coach",
+  );
   const [teamId, setTeamId] = useState<string>("");
   const activeTeam = teamId || coachTeams[0]?.team_id || "";
 
@@ -127,7 +140,9 @@ function PlanTrainingPage() {
       return (sessions.data ?? []).find((row) => row.id === resourceId)?.title ?? "Träningspass";
     }
     if (kind === "goalkeeper") {
-      return (keeperDrills.data ?? []).find((row) => row.id === resourceId)?.title ?? "Målvaktsövning";
+      return (
+        (keeperDrills.data ?? []).find((row) => row.id === resourceId)?.title ?? "Målvaktsövning"
+      );
     }
     return (
       (drills.data ?? []).find((row) => row.id === resourceId)?.title ??
@@ -166,7 +181,8 @@ function PlanTrainingPage() {
       notes: plan.data?.notes ?? "",
       items: publishedRows.map((row) => ({
         key: row.id,
-        kind: row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
+        kind:
+          row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
         resourceId: row.resource_id,
         title: titleFor(row.kind, row.resource_id),
         minutes: row.minutes,
@@ -179,7 +195,6 @@ function PlanTrainingPage() {
     storeDraft(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, resources.isLoading, plan.isLoading, publishedRows.length]);
-
 
   /** Alla ändringar går via utkastet och sparas i sessionStorage. */
   function update(next: TrainingDraft) {
@@ -205,7 +220,8 @@ function PlanTrainingPage() {
       toast.success("Träningsplaneringen har sparats.");
       navigate({ to: "/planera-traning", search: { markera: eventId ?? undefined } });
     },
-    onError: (error: Error) => toast.error(error.message || "Det gick inte att spara träningsplaneringen."),
+    onError: (error: Error) =>
+      toast.error(error.message || "Det gick inte att spara träningsplaneringen."),
   });
 
   // ---------- egen övning ----------
@@ -254,18 +270,32 @@ function PlanTrainingPage() {
       queryClient.invalidateQueries({ queryKey: ["coach-drills"] });
       setOwnOpen(false);
       setFormError(null);
-      setForm({ title: "", minutes: "10", instruction: "", purpose: "", equipment: "", focus: "", library: false });
+      setForm({
+        title: "",
+        minutes: "10",
+        instruction: "",
+        purpose: "",
+        equipment: "",
+        focus: "",
+        library: false,
+      });
       toast.success("Övningen lades till i träningen.");
     },
     onError: (error: Error) => setFormError(error.message),
   });
 
   // ---------- dubblett ----------
-  const [duplicate, setDuplicate] = useState<{ id: string; title: string; minutes: number | null } | null>(null);
+  const [duplicate, setDuplicate] = useState<{
+    id: string;
+    title: string;
+    minutes: number | null;
+  } | null>(null);
 
   function addSessionToDraft(sessionId: string, title: string, minutes: number | null) {
     if (!draft) return;
-    update(addDraftItem(draft, { kind: "session", resourceId: sessionId, title, minutes, note: null }));
+    update(
+      addDraftItem(draft, { kind: "session", resourceId: sessionId, title, minutes, note: null }),
+    );
     toast.success("Träningspasset lades till i utkastet.");
   }
 
@@ -288,20 +318,28 @@ function PlanTrainingPage() {
             >
               <CalendarPlus className="size-6 text-primary" aria-hidden />
               <h2 className="mt-3 font-display text-xl font-semibold">Boka träningstillfälle</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Datum, tid och plats. Träningen hamnar i kalendern.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Datum, tid och plats. Träningen hamnar i kalendern.
+              </p>
             </button>
             <div className="rounded-xl border border-border bg-card p-5">
               <ClipboardList className="size-6 text-primary" aria-hidden />
-              <h2 className="mt-3 font-display text-xl font-semibold">Planera ett träningstillfälle</h2>
+              <h2 className="mt-3 font-display text-xl font-semibold">
+                Planera ett träningstillfälle
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">Välj en träning i listan nedan.</p>
             </div>
           </div>
 
           <h2 className="mt-8 font-display text-xl font-semibold">Alla träningstillfällen</h2>
-          {events.isLoading && <p className="mt-2 text-sm text-muted-foreground">Hämtar kommande träningar…</p>}
+          {events.isLoading && (
+            <p className="mt-2 text-sm text-muted-foreground">Hämtar kommande träningar…</p>
+          )}
           {!events.isLoading && trainings.length === 0 && (
             <div className="mt-3 rounded-xl border border-dashed border-border p-6 text-center">
-              <p className="text-sm text-muted-foreground">Det finns inga kommande träningar att planera.</p>
+              <p className="text-sm text-muted-foreground">
+                Det finns inga kommande träningar att planera.
+              </p>
               <Button className="mt-3" onClick={() => setView("book")}>
                 <Plus className="size-4" /> Boka en träning
               </Button>
@@ -321,19 +359,28 @@ function PlanTrainingPage() {
                         : "border-border bg-card hover:border-primary/60"
                     }`}
                   >
-                    <span className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
+                    <span
+                      className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`}
+                      aria-hidden
+                    />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-xs tracking-wide text-muted-foreground">Träning</span>
+                      <span className="block text-xs tracking-wide text-muted-foreground">
+                        Träning
+                      </span>
                       {eventTitleLine(event) && (
                         <span className="block font-semibold">{eventTitleLine(event)}</span>
                       )}
-                      <span className="block text-sm text-primary">{formatDateTime(event.starts_at)}</span>
+                      <span className="block text-sm text-primary">
+                        {formatDateTime(event.starts_at)}
+                      </span>
                       <span className="block text-xs text-muted-foreground">
                         {event.team_name ?? "Lag"}
                         {event.location ? ` · ${event.location}` : ""}
                       </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        {coachSummary((coaches.data ?? []).filter((row) => row.event_id === event.id))}
+                        {coachSummary(
+                          (coaches.data ?? []).filter((row) => row.event_id === event.id),
+                        )}
                       </span>
                     </span>
                     <PlanStatusBadge status={status} />
@@ -352,7 +399,9 @@ function PlanTrainingPage() {
           </Button>
           {coachTeams.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              {loading ? "Hämtar dina lag…" : "Du behöver vara tränare i ett lag för att boka träningar."}
+              {loading
+                ? "Hämtar dina lag…"
+                : "Du behöver vara tränare i ett lag för att boka träningar."}
             </p>
           ) : (
             <>
@@ -403,7 +452,9 @@ function PlanTrainingPage() {
             <>
               <div className="rounded-xl border border-primary bg-primary/10 p-4">
                 <p className="text-xs tracking-wide text-muted-foreground">Träning</p>
-                {eventTitleLine(selected) && <p className="font-semibold">{eventTitleLine(selected)}</p>}
+                {eventTitleLine(selected) && (
+                  <p className="font-semibold">{eventTitleLine(selected)}</p>
+                )}
                 <p className="text-sm text-primary">{formatDateTime(selected.starts_at)}</p>
                 <p className="text-xs text-muted-foreground">
                   {selected.team_name ?? "Lag"}
@@ -439,7 +490,9 @@ function PlanTrainingPage() {
                     className="rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
                   >
                     <Plus className="size-6 text-primary" aria-hidden />
-                    <span className="mt-3 block font-display text-lg font-semibold">Skapa egen övning</span>
+                    <span className="mt-3 block font-display text-lg font-semibold">
+                      Skapa egen övning
+                    </span>
                     <span className="mt-1 block text-sm text-muted-foreground">
                       Skriv en egen övning direkt i den här träningen.
                     </span>
@@ -450,7 +503,9 @@ function PlanTrainingPage() {
                     className="rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
                   >
                     <BookOpen className="size-6 text-primary" aria-hidden />
-                    <span className="mt-3 block font-display text-lg font-semibold">Hämta från Träningsbanken</span>
+                    <span className="mt-3 block font-display text-lg font-semibold">
+                      Hämta från Träningsbanken
+                    </span>
                     <span className="mt-1 block text-sm text-muted-foreground">
                       Plocka färdiga övningar. Du kommer tillbaka hit efteråt.
                     </span>
@@ -463,10 +518,14 @@ function PlanTrainingPage() {
                   </summary>
                   <ul className="mt-3 space-y-2">
                     {(sessions.data ?? []).length === 0 && (
-                      <li className="text-sm text-muted-foreground">Du har inga egna träningspass ännu.</li>
+                      <li className="text-sm text-muted-foreground">
+                        Du har inga egna träningspass ännu.
+                      </li>
                     )}
                     {(sessions.data ?? []).map((session) => {
-                      const own = (items.data ?? []).filter((item) => item.session_id === session.id);
+                      const own = (items.data ?? []).filter(
+                        (item) => item.session_id === session.id,
+                      );
                       return (
                         <li
                           key={session.id}
@@ -481,7 +540,13 @@ function PlanTrainingPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => addSessionToDraft(session.id, session.title, totalMinutes(own) || null)}
+                            onClick={() =>
+                              addSessionToDraft(
+                                session.id,
+                                session.title,
+                                totalMinutes(own) || null,
+                              )
+                            }
                           >
                             Lägg till i träningen
                           </Button>
@@ -489,7 +554,10 @@ function PlanTrainingPage() {
                       );
                     })}
                     <li>
-                      <Link to="/traningspass" className="text-sm text-primary underline-offset-4 hover:underline">
+                      <Link
+                        to="/traningspass"
+                        className="text-sm text-primary underline-offset-4 hover:underline"
+                      >
                         Bygg ett nytt återanvändbart träningspass
                       </Link>
                     </li>
@@ -502,17 +570,24 @@ function PlanTrainingPage() {
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <ul className="space-y-2">
                     {(draft?.items.length ?? 0) === 0 && (
-                      <li className="text-sm text-muted-foreground">Inga övningar tillagda ännu.</li>
+                      <li className="text-sm text-muted-foreground">
+                        Inga övningar tillagda ännu.
+                      </li>
                     )}
                     {(draft?.items ?? []).map((item, index) => (
-                      <li key={item.key} className="rounded-lg border border-border px-3 py-2 text-sm">
+                      <li
+                        key={item.key}
+                        className="rounded-lg border border-border px-3 py-2 text-sm"
+                      >
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="font-semibold">
                               {index + 1}. {item.title}
                               {item.minutes ? ` – ${item.minutes} min` : ""}
                             </p>
-                            {item.note && <p className="text-xs text-muted-foreground">{item.note}</p>}
+                            {item.note && (
+                              <p className="text-xs text-muted-foreground">{item.note}</p>
+                            )}
                           </div>
                           <span className="flex shrink-0 gap-1">
                             <Button
@@ -554,7 +629,8 @@ function PlanTrainingPage() {
                               draft &&
                               update(
                                 updateDraftItem(draft, item.key, {
-                                  minutes: event.target.value === "" ? null : Number(event.target.value),
+                                  minutes:
+                                    event.target.value === "" ? null : Number(event.target.value),
                                 }),
                               )
                             }
@@ -564,7 +640,12 @@ function PlanTrainingPage() {
                             placeholder="Anteckning, t.ex. Fokus: lyfta blicken"
                             value={item.note ?? ""}
                             onChange={(event) =>
-                              draft && update(updateDraftItem(draft, item.key, { note: event.target.value || null }))
+                              draft &&
+                              update(
+                                updateDraftItem(draft, item.key, {
+                                  note: event.target.value || null,
+                                }),
+                              )
                             }
                           />
                         </div>
@@ -587,11 +668,16 @@ function PlanTrainingPage() {
                     />
                   </div>
 
-                  <Button className="mt-4" onClick={() => savePlan.mutate()} disabled={savePlan.isPending}>
+                  <Button
+                    className="mt-4"
+                    onClick={() => savePlan.mutate()}
+                    disabled={savePlan.isPending}
+                  >
                     {plan.data ? "Spara ändringar" : "Spara träningsplaneringen"}
                   </Button>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Ändringarna sparas först när du trycker här. Träningen blir grön Klar när minst en övning finns.
+                    Ändringarna sparas först när du trycker här. Träningen blir grön Klar när minst
+                    en övning finns.
                   </p>
                 </div>
               </div>
@@ -622,7 +708,9 @@ function PlanTrainingPage() {
                 min={1}
                 max={180}
                 value={form.minutes}
-                onChange={(event) => setForm((state) => ({ ...state, minutes: event.target.value }))}
+                onChange={(event) =>
+                  setForm((state) => ({ ...state, minutes: event.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -631,7 +719,9 @@ function PlanTrainingPage() {
                 id="own-instruction"
                 rows={2}
                 value={form.instruction}
-                onChange={(event) => setForm((state) => ({ ...state, instruction: event.target.value }))}
+                onChange={(event) =>
+                  setForm((state) => ({ ...state, instruction: event.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -639,7 +729,9 @@ function PlanTrainingPage() {
               <Input
                 id="own-purpose"
                 value={form.purpose}
-                onChange={(event) => setForm((state) => ({ ...state, purpose: event.target.value }))}
+                onChange={(event) =>
+                  setForm((state) => ({ ...state, purpose: event.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -647,7 +739,9 @@ function PlanTrainingPage() {
               <Input
                 id="own-equipment"
                 value={form.equipment}
-                onChange={(event) => setForm((state) => ({ ...state, equipment: event.target.value }))}
+                onChange={(event) =>
+                  setForm((state) => ({ ...state, equipment: event.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -663,7 +757,9 @@ function PlanTrainingPage() {
                 type="checkbox"
                 className="size-4"
                 checked={form.library}
-                onChange={(event) => setForm((state) => ({ ...state, library: event.target.checked }))}
+                onChange={(event) =>
+                  setForm((state) => ({ ...state, library: event.target.checked }))
+                }
               />
               Spara även i Träningsbanken
             </label>
@@ -683,7 +779,9 @@ function PlanTrainingPage() {
       <Dialog open={!!duplicate} onOpenChange={(open) => !open && setDuplicate(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Övningen finns redan i träningen. Vill du lägga till den en gång till?</DialogTitle>
+            <DialogTitle>
+              Övningen finns redan i träningen. Vill du lägga till den en gång till?
+            </DialogTitle>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDuplicate(null)}>

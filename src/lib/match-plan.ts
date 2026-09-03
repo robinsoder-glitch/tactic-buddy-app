@@ -43,7 +43,13 @@ export const FORMAT_IDS = Object.keys(FORMAT_PLAYERS);
 export function defaultSlots(format: string): LineupSlot[] {
   const formation = FORMATIONS.find((f) => f.id.startsWith(`${format}-`));
   const base = formation?.slots ?? [];
-  return base.map((s, i) => ({ slot: i + 1, player_id: null, x: s.x, y: s.y, ...(s.gk ? { gk: true } : {}) }));
+  return base.map((s, i) => ({
+    slot: i + 1,
+    player_id: null,
+    x: s.x,
+    y: s.y,
+    ...(s.gk ? { gk: true } : {}),
+  }));
 }
 
 /** Startspelare = positioner med spelare, i slotordning. */
@@ -152,13 +158,16 @@ export function validateMatchPlan(input: {
   }
   if (input.coachIds.length === 0) return "Välj minst en ledare.";
   const starters = lineupStarters(input.slots);
-  if (new Set(starters).size !== starters.length) return "Samma spelare kan bara stå på en planposition.";
+  if (new Set(starters).size !== starters.length)
+    return "Samma spelare kan bara stå på en planposition.";
   if (!input.allowFewPlayers && starters.length !== input.required)
     return `Det måste vara exakt ${input.required} startspelare för vald spelform (nu ${starters.length}).`;
   const all = [...starters, ...input.bench];
   if (new Set(all).size !== all.length) return "En avbytare kan inte samtidigt stå på planen.";
-  if (all.some((id) => !input.playerIds.includes(id))) return "Alla spelare på planen och bänken måste ingå i uttagningen.";
-  if (input.slots.some((s) => s.x < 0 || s.x > 1 || s.y < 0 || s.y > 1)) return "Alla planpositioner måste ligga innanför planen.";
+  if (all.some((id) => !input.playerIds.includes(id)))
+    return "Alla spelare på planen och bänken måste ingå i uttagningen.";
+  if (input.slots.some((s) => s.x < 0 || s.x > 1 || s.y < 0 || s.y > 1))
+    return "Alla planpositioner måste ligga innanför planen.";
   return null;
 }
 
@@ -244,7 +253,12 @@ export async function createMatchShare(input: {
   const { data: auth } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("match_shares")
-    .insert({ event_id: input.eventId, team_id: input.teamId, expires_at: input.expiresAt, created_by: auth.user?.id ?? "" })
+    .insert({
+      event_id: input.eventId,
+      team_id: input.teamId,
+      expires_at: input.expiresAt,
+      created_by: auth.user?.id ?? "",
+    })
     .select("id, event_id, token, expires_at, revoked_at")
     .single();
   if (error) throw error;
@@ -268,7 +282,14 @@ export type SharedMatch = {
   match_kind: string | null;
   team_name: string;
   formation: string;
-  players: { name: string; number: number | null; slot: string; x: number; y: number; gk: boolean }[];
+  players: {
+    name: string;
+    number: number | null;
+    slot: string;
+    x: number;
+    y: number;
+    gk: boolean;
+  }[];
   bench: { name: string; number: number | null }[];
 };
 

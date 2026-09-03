@@ -78,7 +78,10 @@ describe("canReadPlayerPhoto", () => {
     const orphan = { path: `${COACH_A}/gammal.jpg`, teamId: null, linkedToPlayer: false };
     expect(canReadPlayerPhoto(coachA, orphan).allowed).toBe(true); // ägare
     expect(canReadPlayerPhoto(admin, orphan).allowed).toBe(true);
-    expect(canReadPlayerPhoto(playerA, orphan)).toEqual({ allowed: false, reason: "orphan-object" });
+    expect(canReadPlayerPhoto(playerA, orphan)).toEqual({
+      allowed: false,
+      reason: "orphan-object",
+    });
     expect(canReadPlayerPhoto(coachB, orphan).allowed).toBe(false);
   });
 
@@ -119,7 +122,12 @@ describe("direkta bild-URL:er", () => {
 
   it("signerad länk fungerar tills den går ut", () => {
     expect(
-      canOpenDirectUrl({ bucket: PLAYER_PHOTOS_BUCKET, signed: true, expiresAt: now + 60_000, now }),
+      canOpenDirectUrl({
+        bucket: PLAYER_PHOTOS_BUCKET,
+        signed: true,
+        expiresAt: now + 60_000,
+        now,
+      }),
     ).toBe(true);
   });
 

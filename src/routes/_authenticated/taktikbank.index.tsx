@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 
-
 export const Route = createFileRoute("/_authenticated/taktikbank/")({
   head: () => ({
     meta: [
@@ -59,9 +58,16 @@ function TaktikbankPage() {
 
   const allowed = isCoach || isAdmin;
 
-  const tactics = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
-  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
-
+  const tactics = useQuery({
+    queryKey: ["tb-tactics"],
+    queryFn: fetchTacticCards,
+    enabled: allowed,
+  });
+  const favorites = useQuery({
+    queryKey: ["tb-favorites"],
+    queryFn: fetchFavorites,
+    enabled: allowed,
+  });
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
@@ -82,17 +88,27 @@ function TaktikbankPage() {
     [tactics.data],
   );
   const moments = useMemo(
-    () => Array.from(new Set((tactics.data ?? []).map((card) => card.game_moment).filter(Boolean) as string[])),
+    () =>
+      Array.from(
+        new Set((tactics.data ?? []).map((card) => card.game_moment).filter(Boolean) as string[]),
+      ),
     [tactics.data],
   );
   const phases = useMemo(
-    () => Array.from(new Set((tactics.data ?? []).map((card) => card.phase).filter(Boolean) as string[])),
+    () =>
+      Array.from(
+        new Set((tactics.data ?? []).map((card) => card.phase).filter(Boolean) as string[]),
+      ),
     [tactics.data],
   );
   const roles = useMemo(
     () =>
       Array.from(
-        new Set((tactics.data ?? []).flatMap((card) => card.data.actors?.map((actor) => actor.roleId) ?? [])),
+        new Set(
+          (tactics.data ?? []).flatMap(
+            (card) => card.data.actors?.map((actor) => actor.roleId) ?? [],
+          ),
+        ),
       ),
     [tactics.data],
   );
@@ -103,7 +119,8 @@ function TaktikbankPage() {
     if (moment !== "all" && card.game_moment !== moment) return false;
     if (phase !== "all" && card.phase !== phase) return false;
     if (difficulty !== "all" && String(card.difficulty) !== difficulty) return false;
-    if (role !== "all" && !(card.data.actors ?? []).some((actor) => actor.roleId === role)) return false;
+    if (role !== "all" && !(card.data.actors ?? []).some((actor) => actor.roleId === role))
+      return false;
     if (age !== "all") {
       const wanted = Number(age);
       const fit = card.data.ageFit;
@@ -130,9 +147,10 @@ function TaktikbankPage() {
     return true;
   });
 
-
   if (loading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   if (!allowed) {
@@ -143,7 +161,10 @@ function TaktikbankPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Taktikbanken är till för tränare och lagledare.
         </p>
-        <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
           Till startsidan
         </Link>
       </main>
@@ -168,116 +189,120 @@ function TaktikbankPage() {
         Taktikbanken förklarar hur laget och spelarna ska agera i olika situationer.
       </p>
 
-
       <section className="mt-4 space-y-3">
-
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Sök på titel, syfte, tränarfråga eller barnfras"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </div>
-          <FilterPanel
-            activeCount={
-              (onlyFavorites ? 1 : 0) +
-              [format, moment, phase, difficulty, age, role].filter((value) => value !== "all").length
-            }
-            onClear={() => {
-              setOnlyFavorites(false);
-              setFormat("all");
-              setMoment("all");
-              setPhase("all");
-              setDifficulty("all");
-              setAge("all");
-              setRole("all");
-            }}
-            primary={
-              <button
-                type="button"
-                onClick={() => setOnlyFavorites((value) => !value)}
-                aria-pressed={onlyFavorites}
-                className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-                  onlyFavorites
-                    ? "border-primary bg-primary/15 text-foreground"
-                    : "border-border text-muted-foreground"
-                }`}
-              >
-                <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-              </button>
-            }
-          >
-            <FilterRow title="Spelform">
-              <FilterGroup
-                value={format}
-                onChange={setFormat}
-                options={[["all", "Alla spelformer"], ...formats.map((item) => [item, formatLabelFor(item)] as [string, string])]}
-              />
-            </FilterRow>
-            <FilterRow title="Moment">
-              <FilterGroup
-                value={moment}
-                onChange={setMoment}
-                options={[
-                  ["all", "Alla moment"],
-                  ...moments.map((item) => [item, label(GAME_MOMENT_LABELS, item)] as [string, string]),
-                ]}
-              />
-            </FilterRow>
-            <FilterRow title="Fas">
-              <FilterGroup
-                value={phase}
-                onChange={setPhase}
-                options={[
-                  ["all", "Alla faser"],
-                  ...phases.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
-                ]}
-              />
-            </FilterRow>
-            <FilterRow title="Nivå">
-              <FilterGroup
-                value={difficulty}
-                onChange={setDifficulty}
-                options={[
-                  ["all", "Alla nivåer"],
-                  ["1", "Nivå 1"],
-                  ["2", "Nivå 2"],
-                  ["3", "Nivå 3"],
-                ]}
-              />
-            </FilterRow>
-            <FilterRow title="Ålder">
-              <FilterGroup
-                value={age}
-                onChange={setAge}
-                options={[
-                  ["all", "Alla åldrar"],
-                  ...[7, 8, 9, 10, 11, 12].map((year) => [String(year), `${year} år`] as [string, string]),
-                ]}
-              />
-            </FilterRow>
-            <FilterRow title="Spelartyp">
-              <FilterGroup
-                value={role}
-                onChange={setRole}
-                options={[
-                  ["all", "Alla spelartyper"],
-                  ...roles.map((item) => [item, label(ROLE_LABELS, item)] as [string, string]),
-                ]}
-              />
-            </FilterRow>
-          </FilterPanel>
-
-
-          {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktikkort…</p>}
-          {filtered.map((card) => (
-            <div
-              key={card.id}
-              className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Sök på titel, syfte, tränarfråga eller barnfras"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+        <FilterPanel
+          activeCount={
+            (onlyFavorites ? 1 : 0) +
+            [format, moment, phase, difficulty, age, role].filter((value) => value !== "all").length
+          }
+          onClear={() => {
+            setOnlyFavorites(false);
+            setFormat("all");
+            setMoment("all");
+            setPhase("all");
+            setDifficulty("all");
+            setAge("all");
+            setRole("all");
+          }}
+          primary={
+            <button
+              type="button"
+              onClick={() => setOnlyFavorites((value) => !value)}
+              aria-pressed={onlyFavorites}
+              className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                onlyFavorites
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border text-muted-foreground"
+              }`}
             >
-              <div className="flex items-center gap-2">
+              <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+            </button>
+          }
+        >
+          <FilterRow title="Spelform">
+            <FilterGroup
+              value={format}
+              onChange={setFormat}
+              options={[
+                ["all", "Alla spelformer"],
+                ...formats.map((item) => [item, formatLabelFor(item)] as [string, string]),
+              ]}
+            />
+          </FilterRow>
+          <FilterRow title="Moment">
+            <FilterGroup
+              value={moment}
+              onChange={setMoment}
+              options={[
+                ["all", "Alla moment"],
+                ...moments.map(
+                  (item) => [item, label(GAME_MOMENT_LABELS, item)] as [string, string],
+                ),
+              ]}
+            />
+          </FilterRow>
+          <FilterRow title="Fas">
+            <FilterGroup
+              value={phase}
+              onChange={setPhase}
+              options={[
+                ["all", "Alla faser"],
+                ...phases.map((item) => [item, label(PHASE_LABELS, item)] as [string, string]),
+              ]}
+            />
+          </FilterRow>
+          <FilterRow title="Nivå">
+            <FilterGroup
+              value={difficulty}
+              onChange={setDifficulty}
+              options={[
+                ["all", "Alla nivåer"],
+                ["1", "Nivå 1"],
+                ["2", "Nivå 2"],
+                ["3", "Nivå 3"],
+              ]}
+            />
+          </FilterRow>
+          <FilterRow title="Ålder">
+            <FilterGroup
+              value={age}
+              onChange={setAge}
+              options={[
+                ["all", "Alla åldrar"],
+                ...[7, 8, 9, 10, 11, 12].map(
+                  (year) => [String(year), `${year} år`] as [string, string],
+                ),
+              ]}
+            />
+          </FilterRow>
+          <FilterRow title="Spelartyp">
+            <FilterGroup
+              value={role}
+              onChange={setRole}
+              options={[
+                ["all", "Alla spelartyper"],
+                ...roles.map((item) => [item, label(ROLE_LABELS, item)] as [string, string]),
+              ]}
+            />
+          </FilterRow>
+        </FilterPanel>
+
+        {tactics.isLoading && <p className="text-sm text-muted-foreground">Laddar taktikkort…</p>}
+        {filtered.map((card) => (
+          <div
+            key={card.id}
+            className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary"
+          >
+            <div className="flex items-center gap-2">
               <Link
                 to="/taktikbank/$cardId"
                 params={{ cardId: card.id }}
@@ -295,7 +320,9 @@ function TaktikbankPage() {
               </Link>
               <button
                 type="button"
-                aria-label={favoriteSet.has(`tactic:${card.id}`) ? "Ta bort favorit" : "Spara som favorit"}
+                aria-label={
+                  favoriteSet.has(`tactic:${card.id}`) ? "Ta bort favorit" : "Spara som favorit"
+                }
                 aria-pressed={favoriteSet.has(`tactic:${card.id}`)}
                 onClick={() => toggleFavorite.mutate({ kind: "tactic", id: card.id })}
                 className="shrink-0 rounded-full p-2 text-muted-foreground hover:text-primary"
@@ -304,36 +331,50 @@ function TaktikbankPage() {
                   className={`size-5 ${favoriteSet.has(`tactic:${card.id}`) ? "fill-primary text-primary" : ""}`}
                 />
               </button>
-              </div>
-              <div className="mt-3" onClick={(event) => event.stopPropagation()}>
-<AddToTrainingButton kind="tactic" resourceId={card.id} title={card.title} size="sm" />
-              </div>
             </div>
-          ))}
+            <div className="mt-3" onClick={(event) => event.stopPropagation()}>
+              <AddToTrainingButton
+                kind="tactic"
+                resourceId={card.id}
+                title={card.title}
+                size="sm"
+              />
+            </div>
+          </div>
+        ))}
 
-          {!tactics.isLoading && filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
-          )}
+        {!tactics.isLoading && filtered.length === 0 && (
+          <p className="text-sm text-muted-foreground">Inga kort matchar filtret.</p>
+        )}
       </section>
 
-
       <section className="mt-8 rounded-xl border border-border/60 bg-card/50 p-4">
-        <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Mer innehåll</h2>
+        <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+          Mer innehåll
+        </h2>
         <div className="mt-2 flex flex-wrap gap-2 text-sm">
-          <Link to="/ovningsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+          <Link
+            to="/ovningsbank"
+            className="rounded-full border border-border px-3 py-1 text-primary"
+          >
             Träningsbank
           </Link>
-          <Link to="/kunskapsbank" className="rounded-full border border-border px-3 py-1 text-primary">
+          <Link
+            to="/kunskapsbank"
+            className="rounded-full border border-border px-3 py-1 text-primary"
+          >
             Kunskapsbank
           </Link>
           {isAdmin && (
-            <Link to="/taktikbank/regler" className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+            <Link
+              to="/taktikbank/regler"
+              className="rounded-full border border-border px-3 py-1 text-muted-foreground"
+            >
               Regler
             </Link>
           )}
         </div>
       </section>
-
     </main>
   );
 }
@@ -355,7 +396,9 @@ function FilterGroup({
           type="button"
           onClick={() => onChange(key)}
           className={`rounded-full border px-3 py-1 text-xs ${
-            value === key ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            value === key
+              ? "border-primary bg-primary/15 text-foreground"
+              : "border-border text-muted-foreground"
           }`}
         >
           {text}

@@ -13,7 +13,12 @@ import {
   type LinkType,
 } from "@/lib/content-links";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
-import { fetchDrills, fetchGoalkeeperCards, fetchTacticCards, fetchTrainingSessions } from "@/lib/taktikbank";
+import {
+  fetchDrills,
+  fetchGoalkeeperCards,
+  fetchTacticCards,
+  fetchTrainingSessions,
+} from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,11 +40,31 @@ export function ContentLinkAdmin() {
 
   const entries = useMemo<CatalogEntry[]>(
     () => [
-      ...(articles.data ?? []).map((item) => ({ type: "article" as const, id: item.slug, title: item.title_sv })),
-      ...(tactics.data ?? []).map((item) => ({ type: "tactic" as const, id: item.id, title: item.title })),
-      ...(drills.data ?? []).map((item) => ({ type: "drill" as const, id: item.id, title: item.title })),
-      ...(keepers.data ?? []).map((item) => ({ type: "goalkeeper" as const, id: item.id, title: item.title })),
-      ...(sessions.data ?? []).map((item) => ({ type: "session" as const, id: item.id, title: item.title })),
+      ...(articles.data ?? []).map((item) => ({
+        type: "article" as const,
+        id: item.slug,
+        title: item.title_sv,
+      })),
+      ...(tactics.data ?? []).map((item) => ({
+        type: "tactic" as const,
+        id: item.id,
+        title: item.title,
+      })),
+      ...(drills.data ?? []).map((item) => ({
+        type: "drill" as const,
+        id: item.id,
+        title: item.title,
+      })),
+      ...(keepers.data ?? []).map((item) => ({
+        type: "goalkeeper" as const,
+        id: item.id,
+        title: item.title,
+      })),
+      ...(sessions.data ?? []).map((item) => ({
+        type: "session" as const,
+        id: item.id,
+        title: item.title,
+      })),
     ],
     [articles.data, tactics.data, drills.data, keepers.data, sessions.data],
   );
@@ -56,8 +81,15 @@ export function ContentLinkAdmin() {
     mutationFn: async () => {
       if (!user) throw new Error("Inte inloggad");
       if (!sourceId || !targetId) throw new Error("Välj både källa och mål.");
-      if (sourceType === targetType && sourceId === targetId) throw new Error("Kan inte koppla till sig själv.");
-      const candidate = { source_type: sourceType, source_id: sourceId, target_type: targetType, target_id: targetId, note };
+      if (sourceType === targetType && sourceId === targetId)
+        throw new Error("Kan inte koppla till sig själv.");
+      const candidate = {
+        source_type: sourceType,
+        source_id: sourceId,
+        target_type: targetType,
+        target_id: targetId,
+        note,
+      };
       if (isDuplicateLink(links.data ?? [], candidate)) throw new Error("Relationen finns redan.");
       await createContentLink(candidate, user.id);
     },
@@ -81,10 +113,16 @@ export function ContentLinkAdmin() {
   const options = (type: LinkType) => entries.filter((entry) => entry.type === type);
 
   return (
-    <section className="mt-6 rounded-xl border border-border bg-card p-4" aria-label="Kopplat innehåll">
-      <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Kopplat innehåll</h2>
+    <section
+      className="mt-6 rounded-xl border border-border bg-card p-4"
+      aria-label="Kopplat innehåll"
+    >
+      <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+        Kopplat innehåll
+      </h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        Koppla en artikel, ett taktikkort eller en övning till annat innehåll. Kopplingen visas åt båda hållen.
+        Koppla en artikel, ett taktikkort eller en övning till annat innehåll. Kopplingen visas åt
+        båda hållen.
       </p>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -169,10 +207,14 @@ export function ContentLinkAdmin() {
 
       <ul className="mt-4 space-y-2">
         {(links.data ?? []).map((link) => (
-          <li key={link.id} className="flex items-start gap-2 rounded-lg border border-border p-2 text-sm">
+          <li
+            key={link.id}
+            className="flex items-start gap-2 rounded-lg border border-border p-2 text-sm"
+          >
             <div className="min-w-0 flex-1">
               <p className="truncate">
-                {titleOf(link.source_type, link.source_id)} → {titleOf(link.target_type, link.target_id)}
+                {titleOf(link.source_type, link.source_id)} →{" "}
+                {titleOf(link.target_type, link.target_id)}
               </p>
               <p className="text-xs text-muted-foreground">
                 {LINK_TYPE_LABELS[link.source_type]} → {LINK_TYPE_LABELS[link.target_type]}

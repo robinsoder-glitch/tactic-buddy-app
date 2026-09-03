@@ -38,7 +38,12 @@ export const PROGRESSION_STEPS = [
   { step: 4, label: "Följ upp", help: "Se tillbaka: vad sitter och vad behöver mer tid?" },
 ] as const;
 
-export type PeriodProgression = { id: string; period_id: string; step: number; notes: string | null };
+export type PeriodProgression = {
+  id: string;
+  period_id: string;
+  step: number;
+  notes: string | null;
+};
 
 export const FOCUS_STATUSES = ["active", "achieved", "paused"] as const;
 export type FocusStatus = (typeof FOCUS_STATUSES)[number];
@@ -89,10 +94,12 @@ export function validatePeriod(input: {
   if (!input.name.trim()) return "Ge perioden ett namn.";
   if (!input.main_theme.trim()) return "Välj ett huvudtema för perioden.";
   if (!input.start_date || !input.end_date) return "Ange både start- och slutdatum.";
-  if (Date.parse(input.end_date) <= Date.parse(input.start_date)) return "Slutdatumet måste vara efter startdatumet.";
+  if (Date.parse(input.end_date) <= Date.parse(input.start_date))
+    return "Slutdatumet måste vara efter startdatumet.";
   const weeks = periodWeeks({ start_date: input.start_date, end_date: input.end_date });
   if (weeks < 4 || weeks > 6) return "En period ska vara mellan fyra och sex veckor.";
-  if (input.sub_themes.filter((theme) => theme.trim()).length > 2) return "Välj högst två delteman.";
+  if (input.sub_themes.filter((theme) => theme.trim()).length > 2)
+    return "Välj högst två delteman.";
   return null;
 }
 
@@ -162,10 +169,17 @@ export async function addPeriodLink(input: {
   resourceId: string;
   label?: string | null;
 }) {
-  const { error } = await supabase.from("period_links").upsert(
-    { period_id: input.periodId, kind: input.kind, resource_id: input.resourceId, label: input.label ?? null },
-    { onConflict: "period_id,kind,resource_id" },
-  );
+  const { error } = await supabase
+    .from("period_links")
+    .upsert(
+      {
+        period_id: input.periodId,
+        kind: input.kind,
+        resource_id: input.resourceId,
+        label: input.label ?? null,
+      },
+      { onConflict: "period_id,kind,resource_id" },
+    );
   if (error) throw error;
 }
 
@@ -212,7 +226,9 @@ export async function createFocusArea(input: {
   if (!input.title.trim()) throw new Error("Skriv vad spelaren ska träna på.");
   const existing = await fetchFocusAreas(input.teamId, input.playerId);
   if (!canAddFocusArea(existing.filter((area) => area.status === "active").length)) {
-    throw new Error("Spelaren har redan tre aktiva fokusområden. Markera ett som uppnått eller pausat först.");
+    throw new Error(
+      "Spelaren har redan tre aktiva fokusområden. Markera ett som uppnått eller pausat först.",
+    );
   }
   const { error } = await supabase.from("player_focus_areas").insert({
     team_id: input.teamId,
@@ -274,10 +290,13 @@ export function teamOverview(input: {
   focus: FocusArea[];
   observations: Observation[];
 }) {
-  const withFocus = new Set(input.focus.filter((area) => area.status === "active").map((area) => area.player_id));
+  const withFocus = new Set(
+    input.focus.filter((area) => area.status === "active").map((area) => area.player_id),
+  );
   const latest = new Map<string, string>();
   for (const observation of input.observations) {
-    if (!latest.has(observation.player_id)) latest.set(observation.player_id, observation.created_at);
+    if (!latest.has(observation.player_id))
+      latest.set(observation.player_id, observation.created_at);
   }
   return {
     withFocus: input.players.filter((player) => withFocus.has(player.id)).length,

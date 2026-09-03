@@ -2,7 +2,17 @@ import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, GraduationCap, Pencil, Plus, Search, Star, Trash2, Upload } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  GraduationCap,
+  Pencil,
+  Plus,
+  Search,
+  Star,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   KB_CATEGORIES,
@@ -96,7 +106,11 @@ function KunskapsbankPage() {
   const [formErrors, setFormErrors] = useState<string[]>([]);
 
   const articles = useQuery({ queryKey: ["kb-articles"], queryFn: fetchArticles, enabled: !!user });
-  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: !!user });
+  const favorites = useQuery({
+    queryKey: ["tb-favorites"],
+    queryFn: fetchFavorites,
+    enabled: !!user,
+  });
 
   const favoriteSet = useMemo(
     () => new Set((favorites.data ?? []).map((item) => `${item.kind}:${item.resource_id}`)),
@@ -126,7 +140,8 @@ function KunskapsbankPage() {
       queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
       toast.success("Artikeln sparades");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Kunde inte spara artikeln"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Kunde inte spara artikeln"),
   });
 
   const importFile = useMutation({
@@ -143,7 +158,8 @@ function KunskapsbankPage() {
       if (result.invalid.length) parts.push(`${result.invalid.length} hade fel och lästes inte in`);
       toast.success(parts.join(" · "));
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Kunde inte importera filen"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Kunde inte importera filen"),
   });
 
   const remove = useMutation({
@@ -151,7 +167,6 @@ function KunskapsbankPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["kb-articles"] }),
     onError: () => toast.error("Kunde inte radera artikeln"),
   });
-
 
   const list = filterArticles(visibleArticles(articles.data ?? [], isAdmin), {
     query,
@@ -164,7 +179,9 @@ function KunskapsbankPage() {
   });
 
   if (loading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   return (
@@ -197,7 +214,12 @@ function KunskapsbankPage() {
                 />
               </label>
             </Button>
-            <Button onClick={() => { setFormErrors([]); setEditing({ ...emptyArticle }); }}>
+            <Button
+              onClick={() => {
+                setFormErrors([]);
+                setEditing({ ...emptyArticle });
+              }}
+            >
               <Plus className="size-4" /> Ny artikel
             </Button>
           </div>
@@ -207,114 +229,125 @@ function KunskapsbankPage() {
       <KnowledgeTabs active="articles" />
 
       <p className="mt-4 text-sm text-muted-foreground">
-        Fördjupning för dig som tränar barn, särskilt 5–10 år. Här förklaras varför vi tränar som vi gör – med
-        källa och granskning.
+        Fördjupning för dig som tränar barn, särskilt 5–10 år. Här förklaras varför vi tränar som vi
+        gör – med källa och granskning.
       </p>
 
       <KnowledgeLibrary />
 
-
       {isAdmin && (
-      <>
-      <div className="relative mt-4">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          className="pl-9"
-          placeholder="Sök på titel, innehåll eller tagg"
-          aria-label="Sök i kunskapsbanken"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </div>
-
-      <FilterPanel
-        activeCount={
-          (onlyFavorites ? 1 : 0) +
-          [category, level].filter((value) => value !== "all").length
-        }
-        onClear={() => {
-          setOnlyFavorites(false);
-          setCategory("all");
-          setLevel("all");
-        }}
-        primary={
-          <button
-            type="button"
-            onClick={() => setOnlyFavorites((value) => !value)}
-            aria-pressed={onlyFavorites}
-            className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
-              onlyFavorites ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
-            }`}
-          >
-            <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
-          </button>
-        }
-      >
-        <FilterRow title="Kategori">
-          <FilterGroup
-            value={category}
-            onChange={setCategory}
-            options={[
-              ["all", "Alla kategorier"],
-              ...KB_CATEGORIES.map((item) => [item, KB_CATEGORY_LABELS[item]] as [string, string]),
-            ]}
-          />
-        </FilterRow>
-        <FilterRow title="Kunskapsnivå">
-          <FilterGroup
-            value={level}
-            onChange={setLevel}
-            options={[
-              ["all", "Alla kunskapsnivåer"],
-              ...KB_LEVELS.map((item) => [item, KB_LEVEL_LABELS[item]] as [string, string]),
-            ]}
-          />
-        </FilterRow>
-      </FilterPanel>
-
-
-      <section className="mt-4 space-y-3" aria-label="Artiklar">
-        {articles.isLoading && <p className="text-sm text-muted-foreground">Laddar artiklar…</p>}
-        {!articles.isLoading && list.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border p-8 text-center">
-            <GraduationCap className="mx-auto size-8 text-primary" />
-            <p className="mt-3 font-display text-lg font-semibold">Inga artiklar ännu</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Kunskapsbanken är förberedd med kategorier och filter. Artiklarna läggs in i nästa steg.
-            </p>
+        <>
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9"
+              placeholder="Sök på titel, innehåll eller tagg"
+              aria-label="Sök i kunskapsbanken"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
           </div>
-        )}
-        {list.map((article) => (
-          <ArticleCard
-            key={article.id}
-            article={article}
-            isAdmin={isAdmin}
-            favorite={favoriteSet.has(`article:${article.id}`)}
-            onFavorite={() => toggleFavorite.mutate(article.id)}
-  onEdit={() => { setFormErrors([]); setEditing({ ...article }); }}
-            onDelete={() => {
-              void confirm({
-                title: "Radera artikel",
-                description: `${article.title} tas bort permanent.`,
-              }).then((ok) => ok && remove.mutate(article.id));
+
+          <FilterPanel
+            activeCount={
+              (onlyFavorites ? 1 : 0) + [category, level].filter((value) => value !== "all").length
+            }
+            onClear={() => {
+              setOnlyFavorites(false);
+              setCategory("all");
+              setLevel("all");
             }}
-          />
-        ))}
-      </section>
+            primary={
+              <button
+                type="button"
+                onClick={() => setOnlyFavorites((value) => !value)}
+                aria-pressed={onlyFavorites}
+                className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                  onlyFavorites
+                    ? "border-primary bg-primary/15 text-foreground"
+                    : "border-border text-muted-foreground"
+                }`}
+              >
+                <Star className={`size-3.5 ${onlyFavorites ? "fill-current" : ""}`} /> Favoriter
+              </button>
+            }
+          >
+            <FilterRow title="Kategori">
+              <FilterGroup
+                value={category}
+                onChange={setCategory}
+                options={[
+                  ["all", "Alla kategorier"],
+                  ...KB_CATEGORIES.map(
+                    (item) => [item, KB_CATEGORY_LABELS[item]] as [string, string],
+                  ),
+                ]}
+              />
+            </FilterRow>
+            <FilterRow title="Kunskapsnivå">
+              <FilterGroup
+                value={level}
+                onChange={setLevel}
+                options={[
+                  ["all", "Alla kunskapsnivåer"],
+                  ...KB_LEVELS.map((item) => [item, KB_LEVEL_LABELS[item]] as [string, string]),
+                ]}
+              />
+            </FilterRow>
+          </FilterPanel>
 
-      <section className="mt-8">
-        <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Kategorier</h2>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {KB_CATEGORIES.map((item) => (
-            <span key={item} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-              {KB_CATEGORY_LABELS[item]}
-            </span>
-          ))}
-        </div>
-      </section>
-      </>
+          <section className="mt-4 space-y-3" aria-label="Artiklar">
+            {articles.isLoading && (
+              <p className="text-sm text-muted-foreground">Laddar artiklar…</p>
+            )}
+            {!articles.isLoading && list.length === 0 && (
+              <div className="rounded-xl border border-dashed border-border p-8 text-center">
+                <GraduationCap className="mx-auto size-8 text-primary" />
+                <p className="mt-3 font-display text-lg font-semibold">Inga artiklar ännu</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Kunskapsbanken är förberedd med kategorier och filter. Artiklarna läggs in i nästa
+                  steg.
+                </p>
+              </div>
+            )}
+            {list.map((article) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                isAdmin={isAdmin}
+                favorite={favoriteSet.has(`article:${article.id}`)}
+                onFavorite={() => toggleFavorite.mutate(article.id)}
+                onEdit={() => {
+                  setFormErrors([]);
+                  setEditing({ ...article });
+                }}
+                onDelete={() => {
+                  void confirm({
+                    title: "Radera artikel",
+                    description: `${article.title} tas bort permanent.`,
+                  }).then((ok) => ok && remove.mutate(article.id));
+                }}
+              />
+            ))}
+          </section>
+
+          <section className="mt-8">
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+              Kategorier
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {KB_CATEGORIES.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
+                >
+                  {KB_CATEGORY_LABELS[item]}
+                </span>
+              ))}
+            </div>
+          </section>
+        </>
       )}
-
 
       {isAdmin && <ContentLinkAdmin />}
 
@@ -352,10 +385,13 @@ function ArticleCard({
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <p className="text-xs tracking-wide text-muted-foreground">
-            {KB_CATEGORY_LABELS[article.category] ?? article.category} · {KB_LEVEL_LABELS[article.level] ?? article.level}
+            {KB_CATEGORY_LABELS[article.category] ?? article.category} ·{" "}
+            {KB_LEVEL_LABELS[article.level] ?? article.level}
           </p>
           <h3 className="font-display text-lg font-semibold">{article.title}</h3>
-          {article.summary && <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>}
+          {article.summary && (
+            <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>
+          )}
           {article.coach_value && (
             <p className="mt-2 text-sm">
               <span className="text-muted-foreground">Nytta för dig som tränare: </span>
@@ -376,7 +412,10 @@ function ArticleCard({
           {article.tags?.length ? (
             <div className="mt-2 flex flex-wrap gap-1">
               {article.tags.map((tag) => (
-                <span key={tag} className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                <span
+                  key={tag}
+                  className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground"
+                >
                   {tag}
                 </span>
               ))}
@@ -449,7 +488,10 @@ function ArticleDialog({
           <DialogTitle>{value?.id ? "Redigera artikel" : "Ny artikel"}</DialogTitle>
         </DialogHeader>
         {errors.length > 0 && (
-          <ul className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          <ul
+            className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
+            role="alert"
+          >
             {errors.map((error) => (
               <li key={error}>{error}</li>
             ))}
@@ -459,7 +501,11 @@ function ArticleDialog({
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="kb-title">Titel</Label>
-              <Input id="kb-title" value={value.title} onChange={(e) => onChange({ ...value, title: e.target.value })} />
+              <Input
+                id="kb-title"
+                value={value.title}
+                onChange={(e) => onChange({ ...value, title: e.target.value })}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="kb-summary">Kort sammanfattning</Label>
@@ -500,7 +546,10 @@ function ArticleDialog({
                   inputMode="numeric"
                   value={value.age_min ?? ""}
                   onChange={(e) =>
-                    onChange({ ...value, age_min: e.target.value === "" ? null : Number(e.target.value) })
+                    onChange({
+                      ...value,
+                      age_min: e.target.value === "" ? null : Number(e.target.value),
+                    })
                   }
                 />
               </div>
@@ -511,7 +560,10 @@ function ArticleDialog({
                   inputMode="numeric"
                   value={value.age_max ?? ""}
                   onChange={(e) =>
-                    onChange({ ...value, age_max: e.target.value === "" ? null : Number(e.target.value) })
+                    onChange({
+                      ...value,
+                      age_max: e.target.value === "" ? null : Number(e.target.value),
+                    })
                   }
                 />
               </div>
@@ -638,7 +690,9 @@ function FilterGroup({
           type="button"
           onClick={() => onChange(key)}
           className={`rounded-full border px-3 py-1 text-xs ${
-            value === key ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+            value === key
+              ? "border-primary bg-primary/15 text-foreground"
+              : "border-border text-muted-foreground"
           }`}
         >
           {text}

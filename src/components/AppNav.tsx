@@ -59,7 +59,8 @@ export function AppNav() {
   }, [menuOpen]);
 
   if (!user) return null;
-  if (HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix))) return null;
+  if (HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix)))
+    return null;
 
   const primary = MAIN_TABS.filter((tab) => MOBILE_PRIMARY.includes(tab.to));
 

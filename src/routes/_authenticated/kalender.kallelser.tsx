@@ -87,13 +87,23 @@ function MyInvitesPage() {
 
   return (
     <section className="pt-4">
-      <p className="text-sm text-muted-foreground">Svara på kallelser till dina träningar och matcher.</p>
+      <p className="text-sm text-muted-foreground">
+        Svara på kallelser till dina träningar och matcher.
+      </p>
 
       <div className="mt-4 flex gap-2">
-        <Button size="sm" variant={showPast ? "ghost" : "default"} onClick={() => setShowPast(false)}>
+        <Button
+          size="sm"
+          variant={showPast ? "ghost" : "default"}
+          onClick={() => setShowPast(false)}
+        >
           Kommande ({upcoming.length})
         </Button>
-        <Button size="sm" variant={showPast ? "default" : "ghost"} onClick={() => setShowPast(true)}>
+        <Button
+          size="sm"
+          variant={showPast ? "default" : "ghost"}
+          onClick={() => setShowPast(true)}
+        >
           Tidigare ({past.length})
         </Button>
       </div>
@@ -134,7 +144,9 @@ function MyInvitesPage() {
                 {eventTypeLabel(group.event)}
                 {group.teamName ? ` · ${group.teamName}` : ""}
               </p>
-              <h2 className="font-display text-xl font-semibold">{eventDisplayTitle(group.event)}</h2>
+              <h2 className="font-display text-xl font-semibold">
+                {eventDisplayTitle(group.event)}
+              </h2>
               <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <CalendarDays className="size-4" />
@@ -153,7 +165,10 @@ function MyInvitesPage() {
                 const guardianOf = canRespondAsGuardian(invitation, guardedIds);
                 const mayAnswer = mine || guardianOf;
                 return (
-                  <div key={invitation.id} className="mt-3 border-t border-border/60 pt-3 first:border-0">
+                  <div
+                    key={invitation.id}
+                    className="mt-3 border-t border-border/60 pt-3 first:border-0"
+                  >
                     {showNames && (
                       <p className="text-sm font-semibold">{invitation.playerName ?? "Spelare"}</p>
                     )}

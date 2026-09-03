@@ -15,7 +15,6 @@ export type FieldObject = {
   y: number; // 0..1
 };
 
-
 export type DrawingType = "run" | "pass" | "zone" | "circle";
 
 export type Drawing = {
@@ -29,7 +28,6 @@ export type Drawing = {
   x2: number;
   y2: number;
 };
-
 
 export type Frame = {
   id: string;
@@ -47,7 +45,6 @@ export type PlayerRow = {
   photo_path: string | null;
   is_goalkeeper?: boolean;
 };
-
 
 export type PlayerWithPhoto = PlayerRow & { photoUrl: string | null };
 
@@ -211,7 +208,12 @@ export function staticDrawings(frame: Frame | undefined): Drawing[] {
 }
 
 /** Pilar och markeringar som ska visas vid en viss tidpunkt under uppspelning. */
-export function displayDrawingsAt(frames: Frame[], progress: number, animating: boolean, index: number): Drawing[] {
+export function displayDrawingsAt(
+  frames: Frame[],
+  progress: number,
+  animating: boolean,
+  index: number,
+): Drawing[] {
   if (!animating) return [...staticDrawings(frames[index]), ...movementDrawings(frames, index)];
   const segment = Math.min(Math.max(Math.floor(progress), 0), Math.max(frames.length - 2, 0));
   const target = segment + 1;

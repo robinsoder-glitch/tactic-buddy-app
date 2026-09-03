@@ -12,10 +12,14 @@ export const Route = createFileRoute("/_authenticated/taktikbank/regler")({
       { title: "Regler och spelformer – Taktikbank" },
       {
         name: "description",
-        content: "Regelverk för 5 mot 5 och 7 mot 7 presenterat på vanlig svenska, med källor och granskning.",
+        content:
+          "Regelverk för 5 mot 5 och 7 mot 7 presenterat på vanlig svenska, med källor och granskning.",
       },
       { property: "og:title", content: "Regler och spelformer" },
-      { property: "og:description", content: "Regelverk för barnfotboll med källor och granskningsstatus." },
+      {
+        property: "og:description",
+        content: "Regelverk för barnfotboll med källor och granskningsstatus.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -28,17 +32,25 @@ function ReglerPage() {
   const allowed = isCoach || isAdmin;
 
   const rulesets = useQuery({ queryKey: ["tb-rules"], queryFn: fetchRulesets, enabled: allowed });
-  const districts = useQuery({ queryKey: ["tb-districts"], queryFn: fetchDistrictProfiles, enabled: allowed });
+  const districts = useQuery({
+    queryKey: ["tb-districts"],
+    queryFn: fetchDistrictProfiles,
+    enabled: allowed,
+  });
 
   if (loading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <h1 className="font-display text-2xl font-bold">Regler</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sidan är till för tränare och lagledare.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sidan är till för tränare och lagledare.
+        </p>
       </main>
     );
   }
@@ -58,7 +70,11 @@ function ReglerPage() {
           <p className="text-sm text-muted-foreground">Laddar…</p>
         )}
         {!rulesets.isLoading && !districts.isLoading && (
-          <RulesView rulesets={rulesets.data ?? []} districts={districts.data ?? []} isAdmin={isAdmin} />
+          <RulesView
+            rulesets={rulesets.data ?? []}
+            districts={districts.data ?? []}
+            isAdmin={isAdmin}
+          />
         )}
       </section>
     </main>

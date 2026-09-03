@@ -35,8 +35,8 @@ describe("mina träningspass – rutter och presentationsläge", () => {
   });
 
   it("har svenska statusetiketter", () => {
-    expect(SESSION_STATUS_LABELS['draft']).toBe("Utkast");
-    expect(SESSION_STATUS_LABELS['done']).toBe("Genomfört");
+    expect(SESSION_STATUS_LABELS["draft"]).toBe("Utkast");
+    expect(SESSION_STATUS_LABELS["done"]).toBe("Genomfört");
   });
 
   it("kan lägga till innehåll i träningspass direkt från listvyerna", () => {
@@ -46,11 +46,15 @@ describe("mina träningspass – rutter och presentationsläge", () => {
 
   it("har inga tilläggsknappar i Kunskapsbanken", () => {
     expect(read("src/components/KnowledgeLibrary.tsx")).not.toContain("AddToTrainingButton");
-    expect(read("src/routes/_authenticated/kunskapsbank.$slug.tsx")).not.toContain("AddToTrainingButton");
+    expect(read("src/routes/_authenticated/kunskapsbank.$slug.tsx")).not.toContain(
+      "AddToTrainingButton",
+    );
   });
 
   it("kan koppla en träning till kalendern", () => {
-    expect(read("src/routes/_authenticated/traningspass.$id.index.tsx")).toContain("SessionSharing");
+    expect(read("src/routes/_authenticated/traningspass.$id.index.tsx")).toContain(
+      "SessionSharing",
+    );
     expect(read("src/components/SessionSharing.tsx")).toContain("Koppla till kalendern");
   });
 });

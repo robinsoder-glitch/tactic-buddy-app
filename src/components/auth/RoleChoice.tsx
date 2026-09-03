@@ -14,7 +14,9 @@ export function RoleChoice({ value, onChange }: Props) {
         onClick={() => onChange("coach")}
         aria-pressed={value === "coach"}
         className={`rounded-xl border p-4 text-left transition-colors ${
-          value === "coach" ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-secondary/50"
+          value === "coach"
+            ? "border-primary bg-primary/10"
+            : "border-border bg-card hover:bg-secondary/50"
         }`}
       >
         <ClipboardList className="mb-2 size-5 text-primary" aria-hidden />
@@ -29,7 +31,9 @@ export function RoleChoice({ value, onChange }: Props) {
         onClick={() => onChange("player")}
         aria-pressed={value === "player"}
         className={`rounded-xl border p-4 text-left transition-colors ${
-          value === "player" ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-secondary/50"
+          value === "player"
+            ? "border-primary bg-primary/10"
+            : "border-border bg-card hover:bg-secondary/50"
         }`}
       >
         <Users className="mb-2 size-5 text-primary" aria-hidden />

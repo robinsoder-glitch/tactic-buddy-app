@@ -50,19 +50,24 @@ export function notCovered(article: KnowledgeArticle): string[] {
   if (!article.age_5_7) ages.push("5–7 år");
   if (!article.age_8_9) ages.push("8–9 år");
   if (!article.age_10) ages.push("10 år och äldre");
-  if (ages.length && ages.length < 3) items.push(`Den är inte skriven för ${ages.join(" eller ")}.`);
+  if (ages.length && ages.length < 3)
+    items.push(`Den är inte skriven för ${ages.join(" eller ")}.`);
 
   const formats: string[] = [];
   if (!article.format_3v3) formats.push("3 mot 3");
   if (!article.format_5v5) formats.push("5 mot 5");
   if (!article.format_7v7) formats.push("7 mot 7");
-  if (formats.length && formats.length < 3) items.push(`Den tar inte upp ${formats.join(" eller ")}.`);
+  if (formats.length && formats.length < 3)
+    items.push(`Den tar inte upp ${formats.join(" eller ")}.`);
 
-  if (!article.try_next_sv) items.push("Den innehåller inga färdiga övningar – välj övningar i Träningsbanken.");
+  if (!article.try_next_sv)
+    items.push("Den innehåller inga färdiga övningar – välj övningar i Träningsbanken.");
   if (article.evidence_level && /erfarenhet|praktik|åsikt/i.test(article.evidence_level)) {
     items.push("Den bygger på erfarenhet snarare än forskning – pröva råden i ditt eget lag.");
   }
-  items.push("Den ersätter inte era egna riktlinjer i föreningen eller distriktets tävlingsregler.");
+  items.push(
+    "Den ersätter inte era egna riktlinjer i föreningen eller distriktets tävlingsregler.",
+  );
   return items;
 }
 

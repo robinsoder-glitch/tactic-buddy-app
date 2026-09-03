@@ -15,8 +15,12 @@ export function drillMeta(drill: Drill, cards: TacticCard[]): DrillMeta {
   const formats = Array.from(new Set(related.map((card) => card.format)));
   const areas = Array.from(new Set(related.map((card) => card.phase).filter(Boolean) as string[]));
   const difficulties = Array.from(new Set(related.map((card) => card.difficulty))).sort();
-  const mins = related.map((card) => card.data.ageFit?.min).filter((n): n is number => typeof n === "number");
-  const maxs = related.map((card) => card.data.ageFit?.max).filter((n): n is number => typeof n === "number");
+  const mins = related
+    .map((card) => card.data.ageFit?.min)
+    .filter((n): n is number => typeof n === "number");
+  const maxs = related
+    .map((card) => card.data.ageFit?.max)
+    .filter((n): n is number => typeof n === "number");
   return {
     formats,
     areas,
@@ -40,9 +44,14 @@ export function filterDrills(drills: Drill[], cards: TacticCard[], filter: Drill
   return drills.filter((drill) => {
     const meta = drillMeta(drill, cards);
     if (filter.onlyFavorites && !filter.favorites?.has(`drill:${drill.id}`)) return false;
-    if (filter.format && filter.format !== "all" && !meta.formats.includes(filter.format)) return false;
+    if (filter.format && filter.format !== "all" && !meta.formats.includes(filter.format))
+      return false;
     if (filter.area && filter.area !== "all" && !meta.areas.includes(filter.area)) return false;
-    if (filter.difficulty && filter.difficulty !== "all" && !meta.difficulties.includes(Number(filter.difficulty)))
+    if (
+      filter.difficulty &&
+      filter.difficulty !== "all" &&
+      !meta.difficulties.includes(Number(filter.difficulty))
+    )
       return false;
     if (filter.age && filter.age !== "all") {
       const wanted = Number(filter.age);
@@ -66,7 +75,11 @@ export function filterSessions(
     if (filter.onlyFavorites && !filter.favorites?.has(`session:${session.id}`)) return false;
     const needle = (filter.query ?? "").trim().toLowerCase();
     if (!needle) return true;
-    const haystack = [session.title, session.theme ?? "", ...session.data.blocks.map((b) => b.activity)]
+    const haystack = [
+      session.title,
+      session.theme ?? "",
+      ...session.data.blocks.map((b) => b.activity),
+    ]
       .join(" ")
       .toLowerCase();
     return needle.split(/\s+/).every((word) => haystack.includes(word));

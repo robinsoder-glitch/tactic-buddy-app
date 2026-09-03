@@ -31,8 +31,8 @@ type Search = { handelse?: string | undefined; visa?: "alla" | "traning" | "matc
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/narvaro")({
   validateSearch: (search: Record<string, unknown>): Search => {
-    const visa = search['visa'];
-    const handelse = search['handelse'];
+    const visa = search["visa"];
+    const handelse = search["handelse"];
     return {
       visa: visa === "traning" || visa === "match" || visa === "alla" ? visa : undefined,
       handelse: typeof handelse === "string" && handelse ? handelse : undefined,
@@ -64,7 +64,10 @@ function AttendancePage() {
   const queryClient = useQueryClient();
 
   const events = useQuery({ queryKey: ["events", teamId], queryFn: () => fetchEvents(teamId) });
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
   const attendance = useQuery({
     queryKey: ["attendance", teamId],
     queryFn: () => fetchTeamAttendance(teamId),
@@ -74,7 +77,13 @@ function AttendancePage() {
   const list = useMemo(() => {
     const all = events.data ?? [];
     const done = pastEvents(all)
-      .filter((event) => (filter === "alla" ? true : filter === "traning" ? event.type === "training" : event.type === "match"))
+      .filter((event) =>
+        filter === "alla"
+          ? true
+          : filter === "traning"
+            ? event.type === "training"
+            : event.type === "match",
+      )
       .sort((a, b) => b.starts_at.localeCompare(a.starts_at));
     return done;
   }, [events.data, filter]);
@@ -84,28 +93,32 @@ function AttendancePage() {
   if (selected) {
     return (
       <>
-      <Link
-        to="/team/$teamId/event/$eventId"
-        params={{ teamId, eventId: selected.id }}
-        className="mt-4 inline-block text-sm text-primary underline"
-      >
-        Visa kallelsen och deltagarsvaren
-      </Link>
-      <EventAttendance
-        teamId={teamId}
-        userId={userId}
-        isCoach={isCoach}
-        eventId={selected.id}
-        eventType={selected.type}
-        durationMinutes={selected.match_duration_minutes ?? null}
-        heading={eventLabel(selected)}
-        subheading={`${formatDateTime(selected.starts_at)}${selected.location ? ` · ${selected.location}` : ""}`}
-        players={(players.data ?? []).map((player) => ({ id: player.id, name: player.name, number: player.number }))}
-        onBack={() => navigate({ search: (prev) => ({ ...prev, handelse: undefined }) })}
-        onChanged={() => {
-          queryClient.invalidateQueries({ queryKey: ["attendance", teamId] });
-        }}
-      />
+        <Link
+          to="/team/$teamId/event/$eventId"
+          params={{ teamId, eventId: selected.id }}
+          className="mt-4 inline-block text-sm text-primary underline"
+        >
+          Visa kallelsen och deltagarsvaren
+        </Link>
+        <EventAttendance
+          teamId={teamId}
+          userId={userId}
+          isCoach={isCoach}
+          eventId={selected.id}
+          eventType={selected.type}
+          durationMinutes={selected.match_duration_minutes ?? null}
+          heading={eventLabel(selected)}
+          subheading={`${formatDateTime(selected.starts_at)}${selected.location ? ` · ${selected.location}` : ""}`}
+          players={(players.data ?? []).map((player) => ({
+            id: player.id,
+            name: player.name,
+            number: player.number,
+          }))}
+          onBack={() => navigate({ search: (prev) => ({ ...prev, handelse: undefined }) })}
+          onChanged={() => {
+            queryClient.invalidateQueries({ queryKey: ["attendance", teamId] });
+          }}
+        />
       </>
     );
   }
@@ -118,7 +131,8 @@ function AttendancePage() {
         <div>
           <h2 className="font-display text-xl font-bold">Närvaro</h2>
           <p className="text-sm text-muted-foreground">
-            Välj en träning eller match och pricka av truppen. Kommande händelser visas när de har startat.
+            Välj en träning eller match och pricka av truppen. Kommande händelser visas när de har
+            startat.
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
@@ -142,7 +156,9 @@ function AttendancePage() {
             aria-pressed={filter === value}
             onClick={() => navigate({ search: (prev) => ({ ...prev, visa: value }) })}
             className={`rounded-full border px-3 py-1 text-sm ${
-              filter === value ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+              filter === value
+                ? "border-primary bg-primary/15 text-foreground"
+                : "border-border text-muted-foreground"
             }`}
           >
             {label}
@@ -175,7 +191,8 @@ function AttendancePage() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs tracking-wide text-muted-foreground">
-                    {event.type === "training" ? "Träning" : "Match"} · {formatDateTime(event.starts_at)}
+                    {event.type === "training" ? "Träning" : "Match"} ·{" "}
+                    {formatDateTime(event.starts_at)}
                   </p>
                   <p className="font-display text-base font-semibold">{eventLabel(event)}</p>
                   <p className="text-xs text-muted-foreground">
@@ -221,7 +238,9 @@ function EventAttendance({
 }) {
   const queryClient = useQueryClient();
   const [pending, setPending] = useState<string | null>(null);
-  const [durationDraft, setDurationDraft] = useState(durationMinutes ? String(durationMinutes) : "");
+  const [durationDraft, setDurationDraft] = useState(
+    durationMinutes ? String(durationMinutes) : "",
+  );
 
   const rows = useQuery({
     queryKey: ["attendance-event", eventId],
@@ -243,7 +262,11 @@ function EventAttendance({
   });
 
   const saveMinutes = useMutation({
-    mutationFn: async (input: { playerId: string; minutes: number | null; status: AttendanceStatus | null }) => {
+    mutationFn: async (input: {
+      playerId: string;
+      minutes: number | null;
+      status: AttendanceStatus | null;
+    }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
       const error = validateMinutes(input.minutes, durationMinutes);
       if (error) throw new Error(error);
@@ -262,13 +285,23 @@ function EventAttendance({
   });
 
   const save = useMutation({
-    mutationFn: async (input: { playerId: string; status: AttendanceStatus; current: AttendanceStatus | null }) => {
+    mutationFn: async (input: {
+      playerId: string;
+      status: AttendanceStatus;
+      current: AttendanceStatus | null;
+    }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
       if (input.current === input.status) {
         await clearAttendance(eventId, input.playerId);
         return;
       }
-      await setAttendance({ eventId, teamId, playerId: input.playerId, userId, status: input.status });
+      await setAttendance({
+        eventId,
+        teamId,
+        playerId: input.playerId,
+        userId,
+        status: input.status,
+      });
     },
     onSuccess: refresh,
     onError: () => toast.error("Det gick inte att spara närvaron."),
@@ -293,15 +326,23 @@ function EventAttendance({
     onError: () => toast.error("Det gick inte att markera alla spelare."),
   });
 
-  const rowFor = (playerId: string) => (rows.data ?? []).find((row) => row.player_id === playerId) ?? null;
+  const rowFor = (playerId: string) =>
+    (rows.data ?? []).find((row) => row.player_id === playerId) ?? null;
   const statusFor = (playerId: string): AttendanceStatus | null => rowFor(playerId)?.status ?? null;
 
-  const present = (rows.data ?? []).filter((row) => row.status === "present" || row.status === "partial").length;
+  const present = (rows.data ?? []).filter(
+    (row) => row.status === "present" || row.status === "partial",
+  ).length;
 
   return (
     <section className="mt-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" aria-label="Tillbaka till närvarolistan" onClick={onBack}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Tillbaka till närvarolistan"
+          onClick={onBack}
+        >
           <ArrowLeft className="size-5" />
         </Button>
         <div className="min-w-0 flex-1">
@@ -445,7 +486,10 @@ function EventAttendance({
                     />
                     <span className="text-xs text-muted-foreground">
                       {(() => {
-                        const share = playingTimeShare(rowFor(player.id)?.minutes_played ?? null, durationMinutes);
+                        const share = playingTimeShare(
+                          rowFor(player.id)?.minutes_played ?? null,
+                          durationMinutes,
+                        );
                         return share === null ? "min" : `min · ${share} % av matchen`;
                       })()}
                     </span>

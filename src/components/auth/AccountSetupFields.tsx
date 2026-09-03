@@ -135,7 +135,9 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
 
       {showCode && (
         <div className="space-y-1.5">
-          <Label htmlFor="setup-code">{setup.role === "coach" ? "Tränarkod (om du har en)" : "Lagkod"}</Label>
+          <Label htmlFor="setup-code">
+            {setup.role === "coach" ? "Tränarkod (om du har en)" : "Lagkod"}
+          </Label>
           <Input
             id="setup-code"
             value={setup.code ?? ""}

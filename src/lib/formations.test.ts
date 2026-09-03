@@ -6,7 +6,9 @@ describe("formationer", () => {
     for (const formation of FORMATIONS) {
       expect(formation.slots).toHaveLength(formation.players);
       // 3 mot 3 spelas utan målvakt, övriga spelformer har exakt en.
-      expect(formation.slots.filter((slot) => slot.gk)).toHaveLength(formation.players >= 5 ? 1 : 0);
+      expect(formation.slots.filter((slot) => slot.gk)).toHaveLength(
+        formation.players >= 5 ? 1 : 0,
+      );
 
       for (const slot of formation.slots) {
         expect(slot.x).toBeGreaterThan(0);

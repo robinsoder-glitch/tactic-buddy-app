@@ -22,7 +22,9 @@ export function PickModeBanner() {
       <div className="min-w-0">
         <p className="text-xs tracking-wide text-muted-foreground">Du plockar övningar till</p>
         <p className="font-semibold">{event?.title ?? "Träning"}</p>
-        <p className="text-sm text-primary">{event ? formatDateTime(event.starts_at) : "Träningsplanering"}</p>
+        <p className="text-sm text-primary">
+          {event ? formatDateTime(event.starts_at) : "Träningsplanering"}
+        </p>
       </div>
       <Link
         to="/planera-traning"

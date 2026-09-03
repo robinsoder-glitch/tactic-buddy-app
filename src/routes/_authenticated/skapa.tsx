@@ -64,7 +64,9 @@ function CreatePage() {
     const needle = query.trim().toLowerCase();
     if (!needle) return cards.data ?? [];
     return (cards.data ?? []).filter((card) =>
-      `${card.title} ${card.purpose ?? ""} ${card.game_moment ?? ""}`.toLowerCase().includes(needle),
+      `${card.title} ${card.purpose ?? ""} ${card.game_moment ?? ""}`
+        .toLowerCase()
+        .includes(needle),
     );
   }, [cards.data, query]);
 
@@ -273,8 +275,6 @@ function CreatePage() {
   );
 }
 
-
-
 function Chip({
   active,
   onClick,
@@ -291,7 +291,9 @@ function Chip({
       type="button"
       onClick={onClick}
       className={`rounded-lg border px-3 py-2 text-sm ${block ? "w-full" : ""} ${
-        active ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground"
+        active
+          ? "border-primary bg-primary/15 text-foreground"
+          : "border-border text-muted-foreground"
       }`}
     >
       {children}

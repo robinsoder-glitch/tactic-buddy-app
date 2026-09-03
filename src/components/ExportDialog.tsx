@@ -76,15 +76,25 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport, onPreviewPdf 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState(false);
 
-  useEffect(() => () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
+  useEffect(
+    () => () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl],
+  );
 
   const seconds = (Math.max(frameCount - 1, 1) * stepMs) / 1000;
   const preset = QUALITY_PRESETS[settings.quality];
   const estimateMb =
     settings.format === "gif"
-      ? (seconds * settings.fps * preset.width * preset.width * 0.6 * 0.12 * (preset.colors / 256)) / 1_000_000
+      ? (seconds *
+          settings.fps *
+          preset.width *
+          preset.width *
+          0.6 *
+          0.12 *
+          (preset.colors / 256)) /
+        1_000_000
       : (seconds * preset.bitrate) / 8 / 1_000_000;
 
   function clearPreview() {
@@ -267,8 +277,15 @@ export function ExportDialog({ frameCount, stepMs, busy, onExport, onPreviewPdf 
 
               {onPreviewPdf && (
                 <div className="space-y-2">
-                  <Button type="button" size="sm" variant="secondary" onClick={showPreview} disabled={previewing}>
-                    <Eye className="size-4" /> {previewing ? "Skapar förhandsvisning…" : "Förhandsgranska"}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={showPreview}
+                    disabled={previewing}
+                  >
+                    <Eye className="size-4" />{" "}
+                    {previewing ? "Skapar förhandsvisning…" : "Förhandsgranska"}
                   </Button>
                   {previewUrl && (
                     <iframe

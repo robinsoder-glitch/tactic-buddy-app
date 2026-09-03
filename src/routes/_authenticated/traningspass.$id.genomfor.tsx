@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronLeft, ChevronRight, Pause, Play, Plus, SkipForward, Square } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  Plus,
+  SkipForward,
+  Square,
+} from "lucide-react";
 import { toast } from "sonner";
 import { fetchCoachSession, ITEM_KIND_LABELS, type ItemKind } from "@/lib/coach-sessions";
 import { fetchSessionLinks } from "@/lib/event-planning";
@@ -30,7 +39,13 @@ import {
 } from "@/lib/session-runs";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/genomfor")({
@@ -39,10 +54,14 @@ export const Route = createFileRoute("/_authenticated/traningspass/$id/genomfor"
       { title: "Genomför träning – steg för steg" },
       {
         name: "description",
-        content: "Kör träningen live med timer, aktuell övning, närvaro och anteckningar direkt på plan.",
+        content:
+          "Kör träningen live med timer, aktuell övning, närvaro och anteckningar direkt på plan.",
       },
       { property: "og:title", content: "Genomför träning" },
-      { property: "og:description", content: "Timer, moment, närvaro och anteckningar under träningen." },
+      {
+        property: "og:description",
+        content: "Timer, moment, närvaro och anteckningar under träningen.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -62,8 +81,14 @@ function RunSession() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const session = useQuery({ queryKey: ["coach-session", id], queryFn: () => fetchCoachSession(id) });
-  const links = useQuery({ queryKey: ["session-links", id], queryFn: () => fetchSessionLinks([id]) });
+  const session = useQuery({
+    queryKey: ["coach-session", id],
+    queryFn: () => fetchCoachSession(id),
+  });
+  const links = useQuery({
+    queryKey: ["session-links", id],
+    queryFn: () => fetchSessionLinks([id]),
+  });
   const run = useQuery({ queryKey: ["session-run", id], queryFn: () => fetchActiveRun(id) });
   const runId = run.data?.id ?? null;
 
@@ -140,7 +165,12 @@ function RunSession() {
         return;
       }
       if (action === "prev") {
-        return goToItem({ run: current, items: list, nextIndex: current.current_index - 1, leaveStatus: "pending" });
+        return goToItem({
+          run: current,
+          items: list,
+          nextIndex: current.current_index - 1,
+          leaveStatus: "pending",
+        });
       }
       return goToItem({
         run: current,
@@ -174,7 +204,8 @@ function RunSession() {
   const end = useMutation({
     mutationFn: async () => {
       if (!run.data || !user) return;
-      if (generalNote !== (run.data.general_note ?? "")) await patchRun(run.data.id, { general_note: generalNote });
+      if (generalNote !== (run.data.general_note ?? ""))
+        await patchRun(run.data.id, { general_note: generalNote });
       await finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
     },
     onSuccess: () => {
@@ -218,7 +249,9 @@ function RunSession() {
           <li>Faktisk tid: {Math.round((finishedSummary ?? summary).actualSeconds / 60)} min</li>
           <li>Genomförda moment: {(finishedSummary ?? summary).done}</li>
           <li>Överhoppade moment: {(finishedSummary ?? summary).skipped}</li>
-          <li>Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}</li>
+          <li>
+            Närvaroregistreringar: {finishedSummary?.attendance ?? attendance.data?.length ?? 0}
+          </li>
         </ul>
         <DialogFooter>
           <Button
@@ -235,7 +268,11 @@ function RunSession() {
   );
 
   if (session.isLoading || run.isLoading) {
-    return <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Laddar träningen…</main>;
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">
+        Laddar träningen…
+      </main>
+    );
   }
 
   if (!session.data) {
@@ -255,7 +292,8 @@ function RunSession() {
         <p className="font-display text-xs tracking-[0.3em] text-primary">Genomför träning</p>
         <h1 className="mt-1 font-display text-2xl font-bold">{session.data.title}</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Inget genomförande pågår. När du startar körs passet steg för steg med timer, närvaro och anteckningar.
+          Inget genomförande pågår. När du startar körs passet steg för steg med timer, närvaro och
+          anteckningar.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Button size="lg" onClick={() => begin.mutate()} disabled={begin.isPending}>
@@ -286,17 +324,23 @@ function RunSession() {
       </header>
 
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 text-center">
-        <p className="text-sm text-muted-foreground">{current ? ITEM_KIND_LABELS[current.kind as ItemKind] : "Klart"}</p>
-        <h2 className="mt-1 font-display text-2xl font-bold">{current?.title ?? "Alla moment är genomförda"}</h2>
+        <p className="text-sm text-muted-foreground">
+          {current ? ITEM_KIND_LABELS[current.kind as ItemKind] : "Klart"}
+        </p>
+        <h2 className="mt-1 font-display text-2xl font-bold">
+          {current?.title ?? "Alla moment är genomförda"}
+        </h2>
         <p className="mt-4 font-display text-6xl font-bold tabular-nums" aria-live="polite">
           {formatClock(left)}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {left < 0 ? "Övertid" : "Kvar av momentet"} · planerat {current?.planned_minutes ?? 0} min · totalt{" "}
-          {formatClock(elapsed)} på detta moment
+          {left < 0 ? "Övertid" : "Kvar av momentet"} · planerat {current?.planned_minutes ?? 0} min
+          · totalt {formatClock(elapsed)} på detta moment
         </p>
         {current?.note && (
-          <p className="mt-4 whitespace-pre-line rounded-xl bg-muted/60 p-3 text-left text-sm">{current.note}</p>
+          <p className="mt-4 whitespace-pre-line rounded-xl bg-muted/60 p-3 text-left text-sm">
+            {current.note}
+          </p>
         )}
         {current?.resource_id && current.kind === "drill" && (
           <Link
@@ -317,7 +361,10 @@ function RunSession() {
           </Link>
         )}
         <p className="mt-4 text-sm text-muted-foreground">
-          Nästa: <span className="font-medium text-foreground">{next ? next.title : "Avsluta träningen"}</span>
+          Nästa:{" "}
+          <span className="font-medium text-foreground">
+            {next ? next.title : "Avsluta träningen"}
+          </span>
         </p>
       </section>
 
@@ -410,7 +457,8 @@ function RunSession() {
         <section className="mt-6 rounded-xl border border-border bg-card p-4">
           <h2 className="font-display text-lg font-semibold">Närvaro</h2>
           <p className="text-sm text-muted-foreground">
-            Registrera vilka som är med. Närvaron sparas direkt och förs över till lagets aktivitet när du avslutar.
+            Registrera vilka som är med. Närvaron sparas direkt och förs över till lagets aktivitet
+            när du avslutar.
           </p>
           <ul className="mt-3 space-y-2">
             {(players.data ?? [])
@@ -425,7 +473,9 @@ function RunSession() {
                           key={choice.value}
                           size="sm"
                           className="h-10 min-w-16"
-                          variant={attendanceMap.get(player.id) === choice.value ? "default" : "outline"}
+                          variant={
+                            attendanceMap.get(player.id) === choice.value ? "default" : "outline"
+                          }
                           onClick={() => mark.mutate({ playerId: player.id, status: choice.value })}
                         >
                           {choice.label}
@@ -438,12 +488,16 @@ function RunSession() {
                     rows={2}
                     placeholder="Privat observation (syns bara för lagets ledare)"
                     defaultValue={noteMap.get(player.id) ?? ""}
-                    onBlur={(event) => savePlayerNote.mutate({ playerId: player.id, note: event.target.value })}
+                    onBlur={(event) =>
+                      savePlayerNote.mutate({ playerId: player.id, note: event.target.value })
+                    }
                   />
                 </li>
               ))}
             {(players.data ?? []).length === 0 && (
-              <li className="text-sm text-muted-foreground">Laget har inga spelare i truppen ännu.</li>
+              <li className="text-sm text-muted-foreground">
+                Laget har inga spelare i truppen ännu.
+              </li>
             )}
           </ul>
         </section>

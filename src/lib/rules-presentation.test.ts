@@ -14,7 +14,11 @@ const ruleset = {
     season: "2025/26",
     ageRange: { min: 8, max: 9 },
     players: { outfield: 4, goalkeepers: 1, substitutions: "Fria byten" },
-    pitch: { lengthM: { min: 30, max: 30 }, widthM: { min: 15, max: 20 }, penaltyAreaMarked: false },
+    pitch: {
+      lengthM: { min: 30, max: 30 },
+      widthM: { min: 15, max: 20 },
+      penaltyAreaMarked: false,
+    },
     goal: { widthM: 3, heightM: 1.5 },
     matchDurations: [{ context: "sammandrag", periods: 3, minutesPerPeriod: 10 }],
     goalkeeperPuntAllowed: false,
@@ -43,7 +47,9 @@ const verifiedDistrict = {
     season: "2026",
     overrides: { pitch: { lengthM: 30, widthM: 20 }, generalOverageDispensation: 2 },
     competitionNotes: ["Mittlinjen fungerar som retreatlinje."],
-    sources: [{ title: "Upplands FF", url: "https://example.org/uppland.pdf", reviewedAt: "2026-08-30" }],
+    sources: [
+      { title: "Upplands FF", url: "https://example.org/uppland.pdf", reviewedAt: "2026-08-30" },
+    ],
   },
 };
 
@@ -131,7 +137,10 @@ describe("RulesView", () => {
 
   it("visar rätt svensk statustext", () => {
     expect(html).toContain("Verifierad");
-    const partial = render({ rulesets: [{ ...ruleset, data: { sources: ruleset.data.sources } }], districts: [] });
+    const partial = render({
+      rulesets: [{ ...ruleset, data: { sources: ruleset.data.sources } }],
+      districts: [],
+    });
     expect(partial).toContain("Behöver kontrolleras");
   });
 
@@ -141,7 +150,10 @@ describe("RulesView", () => {
   });
 
   it("fungerar när regelvärden saknas", () => {
-    const partial = render({ rulesets: [{ id: "x", format: "7v7", season: null, data: {} }], districts: [] });
+    const partial = render({
+      rulesets: [{ id: "x", format: "7v7", season: null, data: {} }],
+      districts: [],
+    });
     expect(partial).toContain("Uppgiften saknas och behöver kontrolleras.");
     expect(partial).not.toContain("undefined");
   });

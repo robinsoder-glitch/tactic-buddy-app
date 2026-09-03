@@ -41,7 +41,6 @@ import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { TACTIC_SECTIONS } from "@/lib/related-sections";
 
-
 export const Route = createFileRoute("/_authenticated/taktikbank/$cardId")({
   head: () => ({
     meta: [
@@ -73,7 +72,11 @@ function TaktikbankCard() {
     queryFn: () => fetchTacticCard(cardId),
     enabled: allowed,
   });
-  const favorites = useQuery({ queryKey: ["tb-favorites"], queryFn: fetchFavorites, enabled: allowed });
+  const favorites = useQuery({
+    queryKey: ["tb-favorites"],
+    queryFn: fetchFavorites,
+    enabled: allowed,
+  });
   const teams = useQuery({ queryKey: ["my-teams"], queryFn: fetchMyTeams, enabled: allowed });
 
   const [mirrored, setMirrored] = useState(false);
@@ -144,9 +147,10 @@ function TaktikbankCard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, loop, loopPause, speed, frames.length]);
 
-
   if (loading || card.isLoading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   if (!allowed) {
@@ -182,7 +186,8 @@ function TaktikbankCard() {
         </Button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-xs tracking-[0.25em] text-primary">
-            {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} · {label(PHASE_LABELS, data.phase)}
+            {formatLabelFor(data.format)} · {label(GAME_MOMENT_LABELS, data.gameMoment)} ·{" "}
+            {label(PHASE_LABELS, data.phase)}
           </p>
           <h1 className="truncate font-display text-2xl font-bold">{data.title}</h1>
         </div>
@@ -196,7 +201,6 @@ function TaktikbankCard() {
           <Star className={isFavorite ? "size-5 fill-primary text-primary" : "size-5"} />
         </Button>
       </header>
-
 
       <p className="mt-3 text-sm text-muted-foreground">{data.purpose}</p>
 
@@ -221,7 +225,11 @@ function TaktikbankCard() {
           >
             <ChevronLeft className="size-5" />
           </Button>
-          <Button size="icon" aria-label={playing ? "Pausa" : "Spela"} onClick={() => setPlaying((v) => !v)}>
+          <Button
+            size="icon"
+            aria-label={playing ? "Pausa" : "Spela"}
+            onClick={() => setPlaying((v) => !v)}
+          >
             {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
           </Button>
           <Button
@@ -297,12 +305,12 @@ function TaktikbankCard() {
         </div>
 
         <p className="mt-2 min-h-10 rounded-lg bg-muted/40 px-3 py-2 text-sm">
-          <span className="text-muted-foreground">Steg {index + 1}/{frames.length}: </span>
+          <span className="text-muted-foreground">
+            Steg {index + 1}/{frames.length}:{" "}
+          </span>
           {note ?? "—"}
         </p>
       </div>
-
-
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
         <Info title="Startsignal" body={data.trigger} />
@@ -321,7 +329,8 @@ function TaktikbankCard() {
           <ul className="mt-2 space-y-1 text-sm">
             {data.roleActions.map((role) => (
               <li key={role.roleId}>
-                <span className="font-medium">{label(ROLE_LABELS, role.roleId)}:</span> {role.action}
+                <span className="font-medium">{label(ROLE_LABELS, role.roleId)}:</span>{" "}
+                {role.action}
               </li>
             ))}
           </ul>
@@ -335,13 +344,21 @@ function TaktikbankCard() {
             {data.sources.map((source) => (
               <li key={source.title}>
                 {source.url ? (
-                  <a href={source.url} target="_blank" rel="noreferrer" className="text-primary underline">
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary underline"
+                  >
                     {source.title}
                   </a>
                 ) : (
                   source.title
                 )}
-                <span className="text-muted-foreground"> · {label(SOURCE_TYPE_LABELS, source.sourceType)}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {label(SOURCE_TYPE_LABELS, source.sourceType)}
+                </span>
               </li>
             ))}
           </ul>
@@ -349,7 +366,13 @@ function TaktikbankCard() {
       ) : null}
 
       <div className="mt-4">
-<AddToTrainingButton kind="tactic" resourceId={cardId} title={data.title} defaultMinutes={15} size="sm" />
+        <AddToTrainingButton
+          kind="tactic"
+          resourceId={cardId}
+          title={data.title}
+          defaultMinutes={15}
+          size="sm"
+        />
       </div>
 
       <RelatedContent sections={relatedSectionList} />
@@ -366,4 +389,3 @@ function Info({ title, body }: { title: string; body?: string | null | undefined
     </article>
   );
 }
-

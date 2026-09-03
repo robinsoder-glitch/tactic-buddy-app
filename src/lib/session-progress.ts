@@ -22,9 +22,15 @@ export function loadProgress(): SessionProgress {
   return read();
 }
 
-export function toggleBlock(progress: SessionProgress, sessionId: string, order: number): SessionProgress {
+export function toggleBlock(
+  progress: SessionProgress,
+  sessionId: string,
+  order: number,
+): SessionProgress {
   const current = progress[sessionId] ?? [];
-  const next = current.includes(order) ? current.filter((item) => item !== order) : [...current, order].sort((a, b) => a - b);
+  const next = current.includes(order)
+    ? current.filter((item) => item !== order)
+    : [...current, order].sort((a, b) => a - b);
   const updated = { ...progress, [sessionId]: next };
   if (next.length === 0) delete updated[sessionId];
   write(updated);

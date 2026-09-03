@@ -19,10 +19,14 @@ export const Route = createFileRoute("/_authenticated/traningspass/$id/visa")({
       { title: "Visa träningspass – körschema" },
       {
         name: "description",
-        content: "Kör träningspasset steg för steg med tider, anteckningar och möjlighet att skriva ut som PDF.",
+        content:
+          "Kör träningspasset steg för steg med tider, anteckningar och möjlighet att skriva ut som PDF.",
       },
       { property: "og:title", content: "Visa träningspass" },
-      { property: "og:description", content: "Körschema för träningen med tider och coachpunkter." },
+      {
+        property: "og:description",
+        content: "Körschema för träningen med tider och coachpunkter.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -34,7 +38,8 @@ export const Route = createFileRoute("/_authenticated/traningspass/$id/visa")({
 function SourceLink({ item }: { item: CoachSessionItem }) {
   if (!item.resource_id) return null;
   const label = "Öppna i banken";
-  const className = "mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline print:hidden";
+  const className =
+    "mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline print:hidden";
 
   if (item.kind === "tactic") {
     return (
@@ -66,11 +71,21 @@ function SourceLink({ item }: { item: CoachSessionItem }) {
 
 function SessionView() {
   const { id } = Route.useParams();
-  const session = useQuery({ queryKey: ["coach-session", id], queryFn: () => fetchCoachSession(id) });
-  const items = useQuery({ queryKey: ["coach-session-items", id], queryFn: () => fetchSessionItems(id) });
+  const session = useQuery({
+    queryKey: ["coach-session", id],
+    queryFn: () => fetchCoachSession(id),
+  });
+  const items = useQuery({
+    queryKey: ["coach-session-items", id],
+    queryFn: () => fetchSessionItems(id),
+  });
 
   if (session.isLoading) {
-    return <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Laddar träningspasset…</main>;
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">
+        Laddar träningspasset…
+      </main>
+    );
   }
 
   if (!session.data) {
@@ -163,7 +178,9 @@ function SessionView() {
         })}
       </ol>
 
-      <p className="mt-5 font-display text-base font-semibold">{minutesLabel(totalMinutes(list))}</p>
+      <p className="mt-5 font-display text-base font-semibold">
+        {minutesLabel(totalMinutes(list))}
+      </p>
 
       {session.data.notes && (
         <section className="print-block mt-6 rounded-xl border border-border bg-card p-4">

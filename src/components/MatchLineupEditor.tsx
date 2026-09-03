@@ -74,12 +74,61 @@ export function MatchLineupEditor({
 
   return (
     <div ref={rootRef} className="space-y-3">
-      <svg viewBox="0 0 100 68" className="w-full touch-none rounded-lg border border-border bg-primary/10" role="application" aria-label="Redigera laguppställning">
-        <rect x="1" y="1" width="98" height="66" rx="2" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-        <line x1="50" y1="1" x2="50" y2="67" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-        <circle cx="50" cy="34" r="8" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-        <rect x="1" y="20" width="10" height="28" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
-        <rect x="89" y="20" width="10" height="28" fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="0.6" />
+      <svg
+        viewBox="0 0 100 68"
+        className="w-full touch-none rounded-lg border border-border bg-primary/10"
+        role="application"
+        aria-label="Redigera laguppställning"
+      >
+        <rect
+          x="1"
+          y="1"
+          width="98"
+          height="66"
+          rx="2"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+        />
+        <line
+          x1="50"
+          y1="1"
+          x2="50"
+          y2="67"
+          stroke="currentColor"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+        />
+        <circle
+          cx="50"
+          cy="34"
+          r="8"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+        />
+        <rect
+          x="1"
+          y="20"
+          width="10"
+          height="28"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+        />
+        <rect
+          x="89"
+          y="20"
+          width="10"
+          height="28"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+        />
         {slots.map((slot, i) => {
           const cx = slot.x * 100;
           const cy = slot.y * 68;
@@ -115,7 +164,15 @@ export function MatchLineupEditor({
               >
                 {player ? (player.number ?? "") : "+"}
               </text>
-              <text x={cx} y={cy + 7.4} textAnchor="middle" fontSize="2.7" fill="currentColor" fillOpacity="0.85" pointerEvents="none">
+              <text
+                x={cx}
+                y={cy + 7.4}
+                textAnchor="middle"
+                fontSize="2.7"
+                fill="currentColor"
+                fillOpacity="0.85"
+                pointerEvents="none"
+              >
                 {player ? player.name.split(" ")[0] : "Tom plats"}
                 {slot.gk ? " (MV)" : ""}
               </text>
@@ -126,7 +183,8 @@ export function MatchLineupEditor({
 
       <div>
         <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-          Bänken ({benchPlayers.length}) – tryck på en spelare och sedan på en plats, eller dra spelaren dit.
+          Bänken ({benchPlayers.length}) – tryck på en spelare och sedan på en plats, eller dra
+          spelaren dit.
         </p>
         <div className="flex flex-wrap gap-2" data-bench>
           {benchPlayers.map(({ id, info }) => (
@@ -148,11 +206,17 @@ export function MatchLineupEditor({
                   : "border-border bg-card hover:bg-accent",
               )}
             >
-              {info!.number != null && <span className="mr-1 text-muted-foreground">{info!.number}</span>}
+              {info!.number != null && (
+                <span className="mr-1 text-muted-foreground">{info!.number}</span>
+              )}
               {info!.name}
             </button>
           ))}
-          {benchPlayers.length === 0 && <span className="text-sm text-muted-foreground">Alla uttagna spelare är placerade.</span>}
+          {benchPlayers.length === 0 && (
+            <span className="text-sm text-muted-foreground">
+              Alla uttagna spelare är placerade.
+            </span>
+          )}
         </div>
       </div>
 

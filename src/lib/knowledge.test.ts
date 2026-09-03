@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { filterKnowledge, knowledgeAgeLabel, knowledgeCategories, type KnowledgeArticle } from "./knowledge";
+import {
+  filterKnowledge,
+  knowledgeAgeLabel,
+  knowledgeCategories,
+  type KnowledgeArticle,
+} from "./knowledge";
 
 const base: KnowledgeArticle = {
   id: "1",
@@ -34,7 +39,18 @@ const base: KnowledgeArticle = {
   copyright_note: null,
 };
 
-const other: KnowledgeArticle = { ...base, id: "2", slug: "malvakt", title_sv: "Målvaktsspel", category: "Målvakt", age_5_7: false, age_8_9: true, format_3v3: false, format_5v5: true, featured: true };
+const other: KnowledgeArticle = {
+  ...base,
+  id: "2",
+  slug: "malvakt",
+  title_sv: "Målvaktsspel",
+  category: "Målvakt",
+  age_5_7: false,
+  age_8_9: true,
+  format_3v3: false,
+  format_5v5: true,
+  featured: true,
+};
 
 describe("kunskapsbanken", () => {
   it("filtrerar på kategori", () => {

@@ -12,7 +12,13 @@ import {
 import { useTeamRole } from "@/hooks/useTeamRole";
 
 /** Tränarsnack: intern chatt för lagets ledare. */
-export function TeamChatPanel({ teamId, showHeading = true }: { teamId: string; showHeading?: boolean }) {
+export function TeamChatPanel({
+  teamId,
+  showHeading = true,
+}: {
+  teamId: string;
+  showHeading?: boolean;
+}) {
   const { isCoach, userId, loading } = useTeamRole(teamId);
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
@@ -56,7 +62,9 @@ export function TeamChatPanel({ teamId, showHeading = true }: { teamId: string; 
       <section className="rounded-xl border border-border bg-card p-6 text-center">
         <MessagesSquare className="mx-auto size-6 text-muted-foreground" aria-hidden />
         <h2 className="mt-2 font-display text-lg font-bold">Tränarsnack</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Bara lagets ledare kommer åt den här chatten.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Bara lagets ledare kommer åt den här chatten.
+        </p>
       </section>
     );
   }
@@ -75,7 +83,9 @@ export function TeamChatPanel({ teamId, showHeading = true }: { teamId: string; 
       )}
 
       <div className="max-h-[55vh] space-y-3 overflow-y-auto rounded-xl border border-border bg-card p-3">
-        {messages.isLoading && <p className="text-sm text-muted-foreground">Hämtar meddelanden …</p>}
+        {messages.isLoading && (
+          <p className="text-sm text-muted-foreground">Hämtar meddelanden …</p>
+        )}
         {!messages.isLoading && !list.length && (
           <p className="py-6 text-center text-sm text-muted-foreground">
             Inga meddelanden ännu. Skriv det första!
@@ -90,9 +100,11 @@ export function TeamChatPanel({ teamId, showHeading = true }: { teamId: string; 
             >
               <div className="flex items-baseline gap-2">
                 <span className="text-xs font-semibold text-foreground">
-                  {mine ? "Du" : message.displayName ?? "Ledare"}
+                  {mine ? "Du" : (message.displayName ?? "Ledare")}
                 </span>
-                <span className="text-[11px] text-muted-foreground">{chatTime(message.created_at)}</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {chatTime(message.created_at)}
+                </span>
                 {mine && (
                   <button
                     type="button"
@@ -104,7 +116,9 @@ export function TeamChatPanel({ teamId, showHeading = true }: { teamId: string; 
                   </button>
                 )}
               </div>
-              <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">{message.body}</p>
+              <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
+                {message.body}
+              </p>
             </article>
           );
         })}

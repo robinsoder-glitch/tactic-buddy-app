@@ -50,8 +50,6 @@ const SUB_LINKS = [
   { to: "/team/$teamId/periodplan", label: "Periodplan", icon: CalendarRange },
 ] as const;
 
-
-
 function TeamLayout() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId" });
   const { status, isApproved, loading, isCoach: isCoachRole } = useTeamRole(teamId);
@@ -65,7 +63,10 @@ function TeamLayout() {
         <p className="mt-2 text-sm text-muted-foreground">
           Din tränare behöver godkänna dig innan du kommer åt laget.
         </p>
-        <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
           Till startsidan
         </Link>
       </main>
@@ -100,7 +101,11 @@ function TeamLayout() {
         <div className="min-w-0">
           <h1 className="truncate font-display text-3xl font-bold">{team.data?.name ?? "Laget"}</h1>
           <p className="text-xs text-muted-foreground">
-            {[team.data?.club?.name, team.data?.age_group, team.data && TEAM_GENDER_LABELS[team.data.gender]]
+            {[
+              team.data?.club?.name,
+              team.data?.age_group,
+              team.data && TEAM_GENDER_LABELS[team.data.gender],
+            ]
               .filter(Boolean)
               .join(" · ")}
           </p>
@@ -135,7 +140,6 @@ function TeamLayout() {
           </Link>
         ))}
       </nav>
-
 
       <div className="mt-5">
         <Outlet />

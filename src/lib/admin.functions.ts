@@ -51,7 +51,13 @@ export const listAccounts = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const db = await admin();
 
-    const users: { id: string; email?: string | null; created_at: string; last_sign_in_at?: string | null; email_confirmed_at?: string | null }[] = [];
+    const users: {
+      id: string;
+      email?: string | null;
+      created_at: string;
+      last_sign_in_at?: string | null;
+      email_confirmed_at?: string | null;
+    }[] = [];
     for (let page = 1; page <= 20; page += 1) {
       const { data, error } = await db.auth.admin.listUsers({ page, perPage: 200 });
       if (error) throw new Error(error.message);
@@ -152,7 +158,11 @@ export const deleteTeam = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const db = await admin();
 
-    const { data: team } = await db.from("teams").select("name").eq("id", data.teamId).maybeSingle();
+    const { data: team } = await db
+      .from("teams")
+      .select("name")
+      .eq("id", data.teamId)
+      .maybeSingle();
     const { data: events } = await db.from("events").select("id").eq("team_id", data.teamId);
     const eventIds = (events ?? []).map((e) => e.id);
 

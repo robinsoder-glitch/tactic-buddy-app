@@ -36,17 +36,17 @@ export function parseTacticFile(raw: string): TacticFile {
   } catch {
     throw new Error("Filen kunde inte läsas – den är inte en giltig taktikfil.");
   }
-  if (!isRecord(parsed) || parsed['format'] !== "taktiktavlan") {
+  if (!isRecord(parsed) || parsed["format"] !== "taktiktavlan") {
     throw new Error("Fel filformat. Välj en fil som exporterats från Fotbollsrummet.");
   }
-  const pitchType = parsed['pitchType'] === "full" ? "full" : "small";
-  const framesRaw = Array.isArray(parsed['frames']) ? parsed['frames'] : [];
+  const pitchType = parsed["pitchType"] === "full" ? "full" : "small";
+  const framesRaw = Array.isArray(parsed["frames"]) ? parsed["frames"] : [];
   const frames: Frame[] = framesRaw.filter(isRecord).map((frame, index) => ({
-    id: typeof frame['id'] === "string" ? frame['id'] : crypto.randomUUID(),
-    name: typeof frame['name'] === "string" ? frame['name'] : `Steg ${index + 1}`,
-    note: typeof frame['note'] === "string" ? frame['note'] : null,
-    objects: (Array.isArray(frame['objects']) ? frame['objects'] : []) as FieldObject[],
-    drawings: (Array.isArray(frame['drawings']) ? frame['drawings'] : []) as Drawing[],
+    id: typeof frame["id"] === "string" ? frame["id"] : crypto.randomUUID(),
+    name: typeof frame["name"] === "string" ? frame["name"] : `Steg ${index + 1}`,
+    note: typeof frame["note"] === "string" ? frame["note"] : null,
+    objects: (Array.isArray(frame["objects"]) ? frame["objects"] : []) as FieldObject[],
+    drawings: (Array.isArray(frame["drawings"]) ? frame["drawings"] : []) as Drawing[],
   }));
   if (frames.length === 0) {
     throw new Error("Taktikfilen innehåller inga steg.");
@@ -54,7 +54,10 @@ export function parseTacticFile(raw: string): TacticFile {
   return {
     format: "taktiktavlan",
     version: 1,
-    name: typeof parsed['name'] === "string" && parsed['name'].trim() ? parsed['name'].trim() : "Importerad taktik",
+    name:
+      typeof parsed["name"] === "string" && parsed["name"].trim()
+        ? parsed["name"].trim()
+        : "Importerad taktik",
     pitchType,
     frames,
   };

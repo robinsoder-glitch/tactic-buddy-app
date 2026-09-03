@@ -136,12 +136,16 @@ describe("validateMatchPlan", () => {
   it("tillåter för få spelare när allowFewPlayers är satt", () => {
     const slots = base.slots.map((s, i) => (i < 2 ? { ...s, player_id: null } : s));
     expect(validateMatchPlan({ ...base, slots, allowFewPlayers: true })).toBeNull();
-    expect(validateMatchPlan({ ...base, playerIds: [], slots: [], allowFewPlayers: true })).toBeNull();
+    expect(
+      validateMatchPlan({ ...base, playerIds: [], slots: [], allowFewPlayers: true }),
+    ).toBeNull();
   });
 
   it("blockerar fortfarande andra fel trots allowFewPlayers", () => {
     const slots = base.slots.map((s) => ({ ...s, player_id: "a" }));
-    expect(validateMatchPlan({ ...base, slots, allowFewPlayers: true })).toContain("en planposition");
+    expect(validateMatchPlan({ ...base, slots, allowFewPlayers: true })).toContain(
+      "en planposition",
+    );
     expect(validateMatchPlan({ ...base, coachIds: [], allowFewPlayers: true })).toContain("ledare");
   });
 });

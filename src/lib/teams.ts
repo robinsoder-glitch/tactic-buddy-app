@@ -54,7 +54,6 @@ export type TeamPlayer = {
   photoUrl: string | null;
 };
 
-
 export type TeamPhoto = {
   id: string;
   team_id: string;
@@ -91,10 +90,16 @@ export async function signTeamMedia(path: string | null): Promise<string | null>
   return data?.signedUrl ?? null;
 }
 
-export async function uploadTeamMedia(teamId: string, file: File, folder = "misc"): Promise<string> {
+export async function uploadTeamMedia(
+  teamId: string,
+  file: File,
+  folder = "misc",
+): Promise<string> {
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const path = `${teamId}/${folder}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(TEAM_MEDIA_BUCKET).upload(path, file, { upsert: true });
+  const { error } = await supabase.storage
+    .from(TEAM_MEDIA_BUCKET)
+    .upload(path, file, { upsert: true });
   if (error) throw error;
   return path;
 }
@@ -109,7 +114,6 @@ async function signTeamOrLegacy(path: string | null, teamId: string): Promise<st
   if (path.startsWith(`${teamId}/`)) return signTeamMedia(path);
   return signPhoto(path);
 }
-
 
 export const GENDER_LABELS: Record<string, string> = {
   boy: "Pojke",
@@ -167,7 +171,9 @@ export async function fetchProfile(userId: string) {
 export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)")
+    .select(
+      "id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+    )
     .order("created_at", { ascending: false });
   if (error) throw error;
 
@@ -176,7 +182,6 @@ export async function fetchMyTeams(): Promise<Team[]> {
       ...(row as unknown as Team),
       club: (row as unknown as { clubs: { id: string; name: string } | null }).clubs,
       photoUrl: await signTeamOrLegacy(row.photo_path, row.id as string),
-
     })),
   );
 }
@@ -184,7 +189,9 @@ export async function fetchMyTeams(): Promise<Team[]> {
 export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)")
+    .select(
+      "id, name, age_group, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+    )
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -246,7 +253,12 @@ export async function createTeam(input: {
   return data.id as string;
 }
 
-export async function updateTeam(id: string, patch: Partial<Pick<Team, "name" | "age_group" | "gender" | "about" | "home_ground" | "photo_path">>) {
+export async function updateTeam(
+  id: string,
+  patch: Partial<
+    Pick<Team, "name" | "age_group" | "gender" | "about" | "home_ground" | "photo_path">
+  >,
+) {
   const { error } = await supabase.from("teams").update(patch).eq("id", id);
   if (error) throw error;
 }
@@ -264,8 +276,14 @@ export async function fetchMyMemberships() {
     team_id: row.team_id as string,
     role: row.role as "coach" | "player",
     status: row.status as "pending" | "approved",
-    can_manage_attendance: Boolean((row as unknown as { can_manage_attendance?: boolean }).can_manage_attendance),
-    team: (row as unknown as { teams: { id: string; name: string; age_group: string | null; gender: string } | null }).teams,
+    can_manage_attendance: Boolean(
+      (row as unknown as { can_manage_attendance?: boolean }).can_manage_attendance,
+    ),
+    team: (
+      row as unknown as {
+        teams: { id: string; name: string; age_group: string | null; gender: string } | null;
+      }
+    ).teams,
   }));
 }
 
@@ -281,8 +299,13 @@ export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   const ids = rows.map((row) => row.user_id);
   if (!ids.length) return rows;
 
-  const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
-  const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  const names = new Map(
+    (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+  );
   return rows.map((row) => ({ ...row, displayName: names.get(row.user_id) ?? null }));
 }
 
@@ -296,7 +319,9 @@ export type TeamCodeMatch = {
 };
 
 export async function findTeamByCode(code: string): Promise<TeamCodeMatch | null> {
-  const { data, error } = await supabase.rpc("find_team_by_code", { _code: code.trim().toUpperCase() });
+  const { data, error } = await supabase.rpc("find_team_by_code", {
+    _code: code.trim().toUpperCase(),
+  });
   if (error) throw error;
   const rows = (data ?? []) as TeamCodeMatch[];
   return rows[0] ?? null;
@@ -309,16 +334,25 @@ export async function joinTeamWithCode(code: string): Promise<{
   role: "coach" | "player";
   status: "pending" | "approved";
 }> {
-  const { data, error } = await supabase.rpc("join_team_with_code", { _code: code.trim().toUpperCase() });
+  const { data, error } = await supabase.rpc("join_team_with_code", {
+    _code: code.trim().toUpperCase(),
+  });
   if (error) throw error;
-  const row = ((data ?? []) as {
-    team_id: string;
-    team_name: string;
-    member_role: "coach" | "player";
-    member_status: "pending" | "approved";
-  }[])[0];
+  const row = (
+    (data ?? []) as {
+      team_id: string;
+      team_name: string;
+      member_role: "coach" | "player";
+      member_status: "pending" | "approved";
+    }[]
+  )[0];
   if (!row) throw new Error("Ingen lag hittades med den koden.");
-  return { teamId: row.team_id, teamName: row.team_name, role: row.member_role, status: row.member_status };
+  return {
+    teamId: row.team_id,
+    teamName: row.team_name,
+    role: row.member_role,
+    status: row.member_status,
+  };
 }
 
 /** Skapar en ny spelar- eller tränarkod. Endast lagets tränare. */
@@ -348,7 +382,6 @@ export async function requestJoin(teamId: string, userId: string) {
   if (error) throw error;
   return "pending" as const;
 }
-
 
 export async function setMemberStatus(id: string, status: "approved" | "pending") {
   const { error } = await supabase.from("team_members").update({ status }).eq("id", id);
@@ -473,7 +506,6 @@ export async function deleteTeamPhoto(photo: { id: string; path: string }) {
   await removeTeamMedia(photo.path);
 }
 
-
 /* ---------------- events ---------------- */
 
 const EVENT_COLUMNS =
@@ -485,7 +517,10 @@ export async function fetchEvent(id: string): Promise<TeamEvent> {
   return data as TeamEvent;
 }
 
-export async function fetchEvents(teamId: string, type?: "training" | "match"): Promise<TeamEvent[]> {
+export async function fetchEvents(
+  teamId: string,
+  type?: "training" | "match",
+): Promise<TeamEvent[]> {
   let query = supabase
     .from("events")
     .select(EVENT_COLUMNS)
@@ -663,7 +698,8 @@ export async function addTeamInvite(input: {
     .select("id, team_id, email, role, created_at, token, expires_at, accepted_at, revoked_at")
     .single();
   if (error) {
-    if (error.code === "23505") throw new Error("Det finns redan en öppen inbjudan till den adressen.");
+    if (error.code === "23505")
+      throw new Error("Det finns redan en öppen inbjudan till den adressen.");
     throw error;
   }
   return data as TeamInvite;
@@ -671,7 +707,10 @@ export async function addTeamInvite(input: {
 
 /** Revoke an invite so its one-time link stops working. */
 export async function revokeTeamInvite(id: string) {
-  const { error } = await supabase.from("team_invites").update({ revoked_at: new Date().toISOString() }).eq("id", id);
+  const { error } = await supabase
+    .from("team_invites")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", id);
   if (error) throw error;
 }
 
@@ -746,7 +785,10 @@ export async function ensureOwnerMembership(teamId: string, userId: string) {
 /** Överlåt lagägarskapet till en annan godkänd ledare. */
 export async function transferTeamOwnership(teamId: string, newOwnerUserId: string) {
   await ensureOwnerMembership(teamId, newOwnerUserId);
-  const { error } = await supabase.from("teams").update({ created_by: newOwnerUserId }).eq("id", teamId);
+  const { error } = await supabase
+    .from("teams")
+    .update({ created_by: newOwnerUserId })
+    .eq("id", teamId);
   if (error) throw error;
 }
 
@@ -761,7 +803,10 @@ export type TeamImpact = {
 
 /** Räknar vad som försvinner om laget raderas permanent. */
 export async function fetchTeamImpact(teamId: string): Promise<TeamImpact> {
-  const count = async (table: "players" | "events" | "team_photos" | "event_attendance" | "player_stats" | "team_members") => {
+  const count = async (
+    table:
+      "players" | "events" | "team_photos" | "event_attendance" | "player_stats" | "team_members",
+  ) => {
     const { count: rows } = await supabase
       .from(table)
       .select("id", { count: "exact", head: true })
@@ -800,5 +845,7 @@ export function findSimilarPlayers<T extends { id: string; name: string }>(
 ): T[] {
   const needle = normalizePlayerName(name);
   if (!needle) return [];
-  return players.filter((player) => player.id !== excludeId && normalizePlayerName(player.name) === needle);
+  return players.filter(
+    (player) => player.id !== excludeId && normalizePlayerName(player.name) === needle,
+  );
 }

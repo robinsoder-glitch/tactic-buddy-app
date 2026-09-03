@@ -61,7 +61,13 @@ describe("kallelser – sammanräkning", () => {
   });
 
   it("räknar tom kallelse till noll", () => {
-    expect(countInvitations([])).toEqual({ attending: 0, declined: 0, maybe: 0, pending: 0, total: 0 });
+    expect(countInvitations([])).toEqual({
+      attending: 0,
+      declined: 0,
+      maybe: 0,
+      pending: 0,
+      total: 0,
+    });
   });
 });
 
@@ -89,7 +95,15 @@ describe("kallelser – inga externa utskick i etapp 1", () => {
   it("kallelsemodulen anropar inga externa tjänster för mejl, SMS eller push", async () => {
     const fs = await import("node:fs/promises");
     const source = await fs.readFile(new URL("./invitations.ts", import.meta.url), "utf8");
-    for (const forbidden of ["resend", "twilio", "sendgrid", "firebase", "sendMail", "pushNotification", "fetch("]) {
+    for (const forbidden of [
+      "resend",
+      "twilio",
+      "sendgrid",
+      "firebase",
+      "sendMail",
+      "pushNotification",
+      "fetch(",
+    ]) {
       expect(source.toLowerCase()).not.toContain(forbidden.toLowerCase());
     }
   });

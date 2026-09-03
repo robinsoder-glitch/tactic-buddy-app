@@ -47,8 +47,14 @@ function PlayerPage() {
   const { confirm, confirmDialog } = useConfirm();
   const [editing, setEditing] = useState<PlayerStatInput | null>(null);
 
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
-  const stats = useQuery({ queryKey: ["player-stats", playerId], queryFn: () => fetchPlayerStats(playerId) });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
+  const stats = useQuery({
+    queryKey: ["player-stats", playerId],
+    queryFn: () => fetchPlayerStats(playerId),
+  });
 
   const player = players.data?.find((item) => item.id === playerId) ?? null;
   const rows = stats.data ?? [];
@@ -120,7 +126,9 @@ function PlayerPage() {
           )}
           <dt className="text-muted-foreground">Allergi</dt>
           <dd>
-            {player?.has_allergy ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}` : "Nej"}
+            {player?.has_allergy
+              ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
+              : "Nej"}
           </dd>
         </dl>
       </div>
@@ -161,13 +169,19 @@ function PlayerPage() {
                     <p className="font-medium">{guardian.name || `Vårdnadshavare ${index + 1}`}</p>
                     <p className="text-muted-foreground">
                       {guardian.phone && (
-                        <a href={`tel:${guardian.phone}`} className="underline-offset-4 hover:underline">
+                        <a
+                          href={`tel:${guardian.phone}`}
+                          className="underline-offset-4 hover:underline"
+                        >
                           {guardian.phone}
                         </a>
                       )}
                       {guardian.phone && guardian.email ? " · " : null}
                       {guardian.email && (
-                        <a href={`mailto:${guardian.email}`} className="underline-offset-4 hover:underline">
+                        <a
+                          href={`mailto:${guardian.email}`}
+                          className="underline-offset-4 hover:underline"
+                        >
                           {guardian.email}
                         </a>
                       )}
@@ -178,7 +192,6 @@ function PlayerPage() {
           )}
         </div>
       )}
-
 
       <GuardianLinks playerId={playerId} teamId={teamId} userId={userId} canEdit={isCoach} />
       <PlayerDevelopment teamId={teamId} playerId={playerId} canEdit={isCoach} />
@@ -219,7 +232,9 @@ function PlayerPage() {
             {!stats.isLoading && rows.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
-                  {isCoach ? "Ingen statistik ifylld än." : "Tränaren har inte fyllt i någon statistik än."}
+                  {isCoach
+                    ? "Ingen statistik ifylld än."
+                    : "Tränaren har inte fyllt i någon statistik än."}
                 </td>
               </tr>
             )}
@@ -233,7 +248,12 @@ function PlayerPage() {
                 ))}
                 {isCoach && (
                   <td className="whitespace-nowrap px-2 py-2 text-right">
-                    <Button size="icon" variant="ghost" aria-label="Redigera rad" onClick={() => setEditing({ ...row })}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Redigera rad"
+                      onClick={() => setEditing({ ...row })}
+                    >
                       <Pencil className="size-4" />
                     </Button>
                     <Button
@@ -286,7 +306,9 @@ function PlayerPage() {
                     maxLength={60}
                     placeholder="T.ex. P2018 vår"
                     value={editing.competition}
-                    onChange={(event) => setEditing({ ...editing, competition: event.target.value })}
+                    onChange={(event) =>
+                      setEditing({ ...editing, competition: event.target.value })
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -300,7 +322,10 @@ function PlayerPage() {
                         onChange={(event) =>
                           setEditing({
                             ...editing,
-                            [key]: Math.min(999, Math.max(0, Number(event.target.value.replace(/\D/g, "")) || 0)),
+                            [key]: Math.min(
+                              999,
+                              Math.max(0, Number(event.target.value.replace(/\D/g, "")) || 0),
+                            ),
                           })
                         }
                       />

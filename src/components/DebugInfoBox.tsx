@@ -24,7 +24,10 @@ export function DebugInfoBox() {
       try {
         const { data } = await supabase.auth.getUser();
         if (!data.user) return;
-        const { data: roles } = await supabase.from("user_roles").select("role").eq("role", "admin");
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("role", "admin");
         if (active) setVisible((roles ?? []).length > 0);
       } catch {
         if (active) setVisible(false);
@@ -34,9 +37,6 @@ export function DebugInfoBox() {
       active = false;
     };
   }, []);
-
-
-
 
   useEffect(() => {
     if (!open) return;

@@ -37,10 +37,14 @@ export const Route = createFileRoute("/_authenticated/traningspass/$id/")({
       { title: "Bygg träningspass – Mina träningar" },
       {
         name: "description",
-        content: "Sätt ihop ditt träningspass: lägg till delar, ändra ordning, sätt tid och skriv anteckningar.",
+        content:
+          "Sätt ihop ditt träningspass: lägg till delar, ändra ordning, sätt tid och skriv anteckningar.",
       },
       { property: "og:title", content: "Bygg träningspass" },
-      { property: "og:description", content: "Planera innehåll, ordning och tid för ditt träningspass." },
+      {
+        property: "og:description",
+        content: "Planera innehåll, ordning och tid för ditt träningspass.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -56,8 +60,14 @@ function SessionBuilder() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
 
-  const session = useQuery({ queryKey: ["coach-session", id], queryFn: () => fetchCoachSession(id) });
-  const itemsQuery = useQuery({ queryKey: ["coach-session-items", id], queryFn: () => fetchSessionItems(id) });
+  const session = useQuery({
+    queryKey: ["coach-session", id],
+    queryFn: () => fetchCoachSession(id),
+  });
+  const itemsQuery = useQuery({
+    queryKey: ["coach-session-items", id],
+    queryFn: () => fetchSessionItems(id),
+  });
 
   const [items, setItems] = useState<CoachSessionItem[]>([]);
   const [draft, setDraft] = useState<SessionDraft | null>(null);
@@ -91,7 +101,8 @@ function SessionBuilder() {
       queryClient.invalidateQueries({ queryKey: ["coach-sessions"] });
       toast.success("Träningspasset sparades");
     },
-    onError: (error: Error) => toast.error(error.message || "Det gick inte att spara träningspasset."),
+    onError: (error: Error) =>
+      toast.error(error.message || "Det gick inte att spara träningspasset."),
   });
 
   const setStatus = useMutation({
@@ -100,7 +111,9 @@ function SessionBuilder() {
       queryClient.invalidateQueries({ queryKey: ["coach-session", id] });
       queryClient.invalidateQueries({ queryKey: ["coach-sessions"] });
       toast.success(
-        status === "done" ? "Träningspasset är markerat som genomfört" : "Träningspasset är markerat som utkast",
+        status === "done"
+          ? "Träningspasset är markerat som genomfört"
+          : "Träningspasset är markerat som utkast",
       );
     },
     onError: () => toast.error("Det gick inte att ändra status."),
@@ -109,7 +122,8 @@ function SessionBuilder() {
   const readinessProblems = (() => {
     const problems: string[] = [];
     if (items.length === 0) problems.push("Passet saknar innehåll.");
-    if (items.length > 0 && totalMinutes(items) === 0) problems.push("Ingen tid är satt på delarna.");
+    if (items.length > 0 && totalMinutes(items) === 0)
+      problems.push("Ingen tid är satt på delarna.");
     if (!session.data?.session_date) problems.push("Datum saknas.");
     if (!session.data?.goal?.trim()) problems.push("Målsättningen är tom.");
     return problems;
@@ -138,7 +152,11 @@ function SessionBuilder() {
   });
 
   if (session.isLoading) {
-    return <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Laddar träningspasset…</main>;
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">
+        Laddar träningspasset…
+      </main>
+    );
   }
 
   if (!session.data) {
@@ -152,7 +170,8 @@ function SessionBuilder() {
     );
   }
 
-  const set = (patch: Partial<SessionDraft>) => setDraft((prev) => (prev ? { ...prev, ...patch } : prev));
+  const set = (patch: Partial<SessionDraft>) =>
+    setDraft((prev) => (prev ? { ...prev, ...patch } : prev));
 
   function reorder(index: number, direction: -1 | 1) {
     const next = moveItem(items, index, direction);
@@ -182,7 +201,6 @@ function SessionBuilder() {
             Genomför träning
           </Link>
         </Button>
-
       </header>
 
       <section className="mt-5 space-y-3 rounded-xl border border-border bg-card p-4">
@@ -191,7 +209,11 @@ function SessionBuilder() {
           <>
             <div className="space-y-1">
               <Label htmlFor="edit-title">Titel</Label>
-              <Input id="edit-title" value={draft.title} onChange={(event) => set({ title: event.target.value })} />
+              <Input
+                id="edit-title"
+                value={draft.title}
+                onChange={(event) => set({ title: event.target.value })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
@@ -283,7 +305,6 @@ function SessionBuilder() {
                 {session.data.status === "done" ? "Markera som utkast" : "Markera som genomfört"}
               </Button>
             </div>
-
           </>
         )}
       </section>
@@ -293,7 +314,10 @@ function SessionBuilder() {
       <section className="mt-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">
-            Innehåll <span className="text-sm font-normal text-muted-foreground">({minutesLabel(totalMinutes(items))})</span>
+            Innehåll{" "}
+            <span className="text-sm font-normal text-muted-foreground">
+              ({minutesLabel(totalMinutes(items))})
+            </span>
           </h2>
           <Button size="sm" onClick={() => setAddOpen(true)} aria-label="Lägg till del">
             <Plus className="size-4" /> Lägg till del
@@ -302,8 +326,8 @@ function SessionBuilder() {
 
         {items.length === 0 && (
           <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Träningen är tom. Lägg till samling, övningar och avslutning – eller lägg till innehåll direkt från
-            Taktikbanken, Träningsbanken och Kunskapsbanken.
+            Träningen är tom. Lägg till samling, övningar och avslutning – eller lägg till innehåll
+            direkt från Taktikbanken, Träningsbanken och Kunskapsbanken.
           </p>
         )}
 
@@ -365,9 +389,13 @@ function SessionBuilder() {
                     value={item.minutes}
                     onChange={(event) => {
                       const minutes = Number(event.target.value) || 0;
-                      setItems((prev) => prev.map((row) => (row.id === item.id ? { ...row, minutes } : row)));
+                      setItems((prev) =>
+                        prev.map((row) => (row.id === item.id ? { ...row, minutes } : row)),
+                      );
                     }}
-                    onBlur={() => patchItem.mutate({ itemId: item.id, patch: { minutes: item.minutes } })}
+                    onBlur={() =>
+                      patchItem.mutate({ itemId: item.id, patch: { minutes: item.minutes } })
+                    }
                   />
                 </div>
                 <div className="space-y-1">
@@ -378,7 +406,9 @@ function SessionBuilder() {
                     placeholder="Coachpunkter, material eller organisation"
                     onChange={(event) => {
                       const note = event.target.value;
-                      setItems((prev) => prev.map((row) => (row.id === item.id ? { ...row, note } : row)));
+                      setItems((prev) =>
+                        prev.map((row) => (row.id === item.id ? { ...row, note } : row)),
+                      );
                     }}
                     onBlur={() => patchItem.mutate({ itemId: item.id, patch: { note: item.note } })}
                   />
@@ -412,7 +442,12 @@ function AddItemDialog({
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  onAdd: (item: { kind: ItemKind; title: string; minutes: number; note: string | null }) => Promise<void>;
+  onAdd: (item: {
+    kind: ItemKind;
+    title: string;
+    minutes: number;
+    note: string | null;
+  }) => Promise<void>;
 }) {
   const [kind, setKind] = useState<ItemKind>("gathering");
   const [title, setTitle] = useState("");
@@ -469,8 +504,8 @@ function AddItemDialog({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Innehåll från Taktikbanken, Träningsbanken och Kunskapsbanken lägger du till med knappen &quot;Lägg till i
-            träningspass&quot; på respektive kort.
+            Innehåll från Taktikbanken, Träningsbanken och Kunskapsbanken lägger du till med knappen
+            &quot;Lägg till i träningspass&quot; på respektive kort.
           </p>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

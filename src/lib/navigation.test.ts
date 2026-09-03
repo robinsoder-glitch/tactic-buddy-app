@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { MAIN_TABS, MOBILE_PRIMARY, LEGACY_REDIRECTS, isTabActive } from "./navigation";
-import { selectionLabel, plannedLabel, sumMinutes, toggleSelection, upcomingOfType } from "./planning";
+import {
+  selectionLabel,
+  plannedLabel,
+  sumMinutes,
+  toggleSelection,
+  upcomingOfType,
+} from "./planning";
 
 describe("huvudmenyn", () => {
   it("visar alla flikar i rätt ordning", () => {
@@ -44,8 +50,24 @@ describe("huvudmenyn", () => {
 
 describe("planering", () => {
   const events = [
-    { id: "1", team_id: "t", type: "training" as const, title: null, starts_at: "", location: null, team_name: null },
-    { id: "2", team_id: "t", type: "match" as const, title: null, starts_at: "", location: null, team_name: null },
+    {
+      id: "1",
+      team_id: "t",
+      type: "training" as const,
+      title: null,
+      starts_at: "",
+      location: null,
+      team_name: null,
+    },
+    {
+      id: "2",
+      team_id: "t",
+      type: "match" as const,
+      title: null,
+      starts_at: "",
+      location: null,
+      team_name: null,
+    },
   ];
 
   it("delar upp kalendern i träningar och matcher", () => {

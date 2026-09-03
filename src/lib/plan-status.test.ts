@@ -18,15 +18,21 @@ describe("planStatus", () => {
   });
 
   it("match utan ledare är Ej klar", () => {
-    expect(planStatus({ type: "match", planSaved: true, playerCount: 2, coachCount: 0 })).toBe("todo");
+    expect(planStatus({ type: "match", planSaved: true, playerCount: 2, coachCount: 0 })).toBe(
+      "todo",
+    );
   });
 
   it("match utan spelare är Ej klar", () => {
-    expect(planStatus({ type: "match", planSaved: true, playerCount: 0, coachCount: 2 })).toBe("todo");
+    expect(planStatus({ type: "match", planSaved: true, playerCount: 0, coachCount: 2 })).toBe(
+      "todo",
+    );
   });
 
   it("match med sparad plan, spelare och ledare är Klar", () => {
-    expect(planStatus({ type: "match", planSaved: true, playerCount: 2, coachCount: 2 })).toBe("done");
+    expect(planStatus({ type: "match", planSaved: true, playerCount: 2, coachCount: 2 })).toBe(
+      "done",
+    );
   });
 
   it("träning utan övningar är Ej klar", () => {
@@ -93,7 +99,10 @@ describe("träningsutkast", () => {
 
   it("uppdaterar tid och anteckning", () => {
     const draft = base();
-    const next = updateDraftItem(draft, draft.items[0]!.key, { minutes: 20, note: "Fokus: lyfta blicken" });
+    const next = updateDraftItem(draft, draft.items[0]!.key, {
+      minutes: 20,
+      note: "Fokus: lyfta blicken",
+    });
     expect(next.items[0]!.minutes).toBe(20);
     expect(next.items[0]!.note).toBe("Fokus: lyfta blicken");
   });

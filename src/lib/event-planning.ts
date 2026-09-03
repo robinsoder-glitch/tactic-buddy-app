@@ -22,7 +22,9 @@ export type PlannableEvent = {
 };
 
 /** Kommande träningar och matcher i de lag användaren är med i. */
-export async function fetchUpcomingEvents(fromIso = new Date(Date.now() - 3 * 3600_000).toISOString()) {
+export async function fetchUpcomingEvents(
+  fromIso = new Date(Date.now() - 3 * 3600_000).toISOString(),
+) {
   const { data, error } = await supabase
     .from("events")
     .select("id, team_id, type, title, starts_at, location, cancelled_at, teams(name)")
@@ -101,8 +103,9 @@ export async function fetchSessionLinks(sessionIds: string[]): Promise<SessionEv
     .in("resource_id", sessionIds);
   if (error) throw error;
   return (data ?? []).map((row) => {
-    const event = (row as unknown as { events: { starts_at: string; type: string; title: string | null } | null })
-      .events;
+    const event = (
+      row as unknown as { events: { starts_at: string; type: string; title: string | null } | null }
+    ).events;
     return {
       id: row.id as string,
       event_id: row.event_id as string,

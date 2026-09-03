@@ -68,8 +68,10 @@ function SquadPage() {
     setGuardians((prev) => prev.map((item, i) => (i === index ? { ...item, [key]: value } : item)));
   }
 
-
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
   const members = useQuery({
     queryKey: ["team-members", teamId],
     queryFn: () => fetchTeamMembers(teamId),
@@ -139,7 +141,9 @@ function SquadPage() {
     }
     setBusy(true);
     try {
-      const photo_path = file ? await uploadTeamMedia(teamId, file, "players") : (editing?.photo_path ?? null);
+      const photo_path = file
+        ? await uploadTeamMedia(teamId, file, "players")
+        : (editing?.photo_path ?? null);
       const clean = (value: string) => (value.trim() ? value.trim() : null);
       await saveTeamPlayer({
         id: editing?.id,
@@ -222,7 +226,9 @@ function SquadPage() {
 
       <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {players.data?.length === 0 && (
-          <li className="p-6 text-center text-sm text-muted-foreground">Inga spelare i truppen än.</li>
+          <li className="p-6 text-center text-sm text-muted-foreground">
+            Inga spelare i truppen än.
+          </li>
         )}
         {players.data?.map((player) => (
           <li key={player.id} className="flex items-center gap-3 p-3">
@@ -239,7 +245,9 @@ function SquadPage() {
               className="min-w-0 flex-1 text-left"
             >
               <p className="truncate font-medium">
-                {player.number != null && <span className="mr-2 text-primary">#{player.number}</span>}
+                {player.number != null && (
+                  <span className="mr-2 text-primary">#{player.number}</span>
+                )}
                 {player.name}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -253,21 +261,30 @@ function SquadPage() {
               </p>
             </Link>
             {isCoach && (
-              <Button size="icon" variant="ghost" aria-label="Redigera spelare" onClick={() => openEdit(player)}>
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label="Redigera spelare"
+                onClick={() => openEdit(player)}
+              >
                 <Pencil className="size-4" />
               </Button>
             )}
             {isCoach && (
-              <Button size="icon" variant="ghost" aria-label="Radera spelare" onClick={() => {
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label="Radera spelare"
+                onClick={() => {
                   void confirm({
                     title: "Radera spelare",
                     description: `${player.name} tas bort från lagets trupp permanent.`,
                   }).then((ok) => ok && remove.mutate(player.id));
-                }}>
+                }}
+              >
                 <Trash2 className="size-4" />
               </Button>
             )}
-
           </li>
         ))}
       </ul>
@@ -278,8 +295,8 @@ function SquadPage() {
             <DialogTitle>Det finns redan en spelare med samma namn</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {duplicates.map((player) => player.name).join(", ")} finns redan i truppen. Två spelare får heta
-            likadant – välj hur du vill gå vidare.
+            {duplicates.map((player) => player.name).join(", ")} finns redan i truppen. Två spelare
+            får heta likadant – välj hur du vill gå vidare.
           </p>
           <DialogFooter className="flex-col gap-2 sm:flex-row">
             {duplicates[0] && (
@@ -324,7 +341,12 @@ function SquadPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="p-number">Nummer (frivilligt)</Label>
-                <Input id="p-number" type="number" value={number} onChange={(event) => setNumber(event.target.value)} />
+                <Input
+                  id="p-number"
+                  type="number"
+                  value={number}
+                  onChange={(event) => setNumber(event.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="p-year">Födelseår (frivilligt)</Label>
@@ -350,7 +372,12 @@ function SquadPage() {
             {useExactDate && (
               <div className="space-y-1.5">
                 <Label htmlFor="p-birth">Födelsedatum</Label>
-                <Input id="p-birth" type="date" value={birth} onChange={(event) => setBirth(event.target.value)} />
+                <Input
+                  id="p-birth"
+                  type="date"
+                  value={birth}
+                  onChange={(event) => setBirth(event.target.value)}
+                />
               </div>
             )}
             <div className="space-y-1.5">
@@ -362,7 +389,9 @@ function SquadPage() {
                     type="button"
                     onClick={() => setGender(option.value)}
                     className={`rounded-lg border px-2 py-2 text-xs ${
-                      gender === option.value ? "border-primary bg-primary/15" : "border-border text-muted-foreground"
+                      gender === option.value
+                        ? "border-primary bg-primary/15"
+                        : "border-border text-muted-foreground"
                     }`}
                   >
                     {option.label}
@@ -450,7 +479,7 @@ function SquadPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-  {confirmDialog}
+      {confirmDialog}
     </section>
   );
 }

@@ -9,7 +9,11 @@ import {
 } from "./invitations";
 
 /** Enkel modell av kallelseflödet, speglar reglerna i databasen. */
-function createInvitations(eventId: string, playerIds: string[], existing: Array<{ event_id: string; player_id: string }> = []) {
+function createInvitations(
+  eventId: string,
+  playerIds: string[],
+  existing: Array<{ event_id: string; player_id: string }> = [],
+) {
   const rows = [...existing];
   for (const playerId of playerIds) {
     const duplicate = rows.some((row) => row.event_id === eventId && row.player_id === playerId);
@@ -23,9 +27,17 @@ describe("kallelseflödet för två testspelare", () => {
   const players = ["TEST Kallelse A", "TEST Kallelse B"];
 
   it("skapar en kallelse per spelare med statusen Ej svarat", () => {
-    const rows = createInvitations("event-1", players).map((row) => ({ ...row, status: "pending" }));
+    const rows = createInvitations("event-1", players).map((row) => ({
+      ...row,
+      status: "pending",
+    }));
     expect(rows).toHaveLength(2);
-    expect(countInvitations(rows)).toMatchObject({ pending: 2, attending: 0, declined: 0, maybe: 0 });
+    expect(countInvitations(rows)).toMatchObject({
+      pending: 2,
+      attending: 0,
+      declined: 0,
+      maybe: 0,
+    });
   });
 
   it("uppdaterar räknarna när svaren ändras", () => {
@@ -33,12 +45,19 @@ describe("kallelseflödet för två testspelare", () => {
       { player_id: players[0]!, status: "pending" },
       { player_id: players[1]!, status: "pending" },
     ];
-    rows = rows.map((row) => (row.player_id === players[0] ? { ...row, status: "attending" } : row));
+    rows = rows.map((row) =>
+      row.player_id === players[0] ? { ...row, status: "attending" } : row,
+    );
     rows = rows.map((row) => (row.player_id === players[1] ? { ...row, status: "maybe" } : row));
     expect(countInvitations(rows)).toMatchObject({ attending: 1, maybe: 1, pending: 0 });
 
     rows = rows.map((row) => (row.player_id === players[1] ? { ...row, status: "declined" } : row));
-    expect(countInvitations(rows)).toMatchObject({ attending: 1, declined: 1, maybe: 0, pending: 0 });
+    expect(countInvitations(rows)).toMatchObject({
+      attending: 1,
+      declined: 1,
+      maybe: 0,
+      pending: 0,
+    });
   });
 
   it("blockerar dubbletter av samma kallelse", () => {
@@ -72,7 +91,9 @@ describe("tomläget i Mina kallelser", () => {
   });
 
   it("visar inga tekniska identifierare i hjälptexterna", () => {
-    const texts = emptyInviteMessage({ hasPlayerLink: false, isCoach: true, showPast: false }).join(" ");
+    const texts = emptyInviteMessage({ hasPlayerLink: false, isCoach: true, showPast: false }).join(
+      " ",
+    );
     expect(texts).not.toMatch(/uuid|user_id|player_id|member_user_id|table|select/i);
   });
 

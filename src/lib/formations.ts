@@ -26,7 +26,6 @@ export const FORMATIONS: Formation[] = [
     ],
   },
   {
-
     id: "5v5-1-2-1",
     label: "5 mot 5 – 1-2-1",
     players: 5,
@@ -198,7 +197,6 @@ export function buildLineup(slots: FormationSlot[], bank: LineupPlayer[]): Lineu
     };
   });
 }
-
 
 /** Planlayout som hör ihop med formationens spelarantal. 9-manna spelas på 11-mannaplan. */
 export function pitchForFormation(players: number): PitchType {

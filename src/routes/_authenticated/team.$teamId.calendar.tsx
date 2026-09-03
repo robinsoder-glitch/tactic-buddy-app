@@ -12,11 +12,16 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/calendar")({
 
 function CalendarPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/calendar" });
-  const events = useQuery({ queryKey: ["events", teamId, "all"], queryFn: () => fetchEvents(teamId) });
+  const events = useQuery({
+    queryKey: ["events", teamId, "all"],
+    queryFn: () => fetchEvents(teamId),
+  });
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
 
   const upcoming = (events.data ?? []).filter((event) => new Date(event.starts_at) >= new Date());
-  const past = (events.data ?? []).filter((event) => new Date(event.starts_at) < new Date()).reverse();
+  const past = (events.data ?? [])
+    .filter((event) => new Date(event.starts_at) < new Date())
+    .reverse();
 
   return (
     <section className="space-y-6">
@@ -32,7 +37,6 @@ function CalendarPage() {
         </Button>
       </div>
       <div>
-
         <ul className="mt-3 space-y-2">
           {upcoming.length === 0 && (
             <li className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -65,7 +69,9 @@ function CalendarPage() {
                       <MapPin className="size-3" /> {event.location}
                     </p>
                   )}
-                  {event.notes && <p className="mt-1 text-sm text-muted-foreground">{event.notes}</p>}
+                  {event.notes && (
+                    <p className="mt-1 text-sm text-muted-foreground">{event.notes}</p>
+                  )}
                   <p className="mt-1 text-xs text-muted-foreground">Kallelse och deltagare →</p>
                 </div>
               </Link>
@@ -79,7 +85,10 @@ function CalendarPage() {
           <h2 className="font-display text-lg font-semibold text-muted-foreground">Tidigare</h2>
           <ul className="mt-3 space-y-2">
             {past.map((event) => (
-              <li key={event.id} className="rounded-xl border border-border/60 p-3 text-sm text-muted-foreground">
+              <li
+                key={event.id}
+                className="rounded-xl border border-border/60 p-3 text-sm text-muted-foreground"
+              >
                 {eventDisplayTitle(event)} · {formatDateTime(event.starts_at)}
               </li>
             ))}

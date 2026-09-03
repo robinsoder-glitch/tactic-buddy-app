@@ -28,7 +28,8 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/teknik")({
       { property: "og:title", content: "Fem grundläggande finter och vändningar för barn 5–8 år" },
       {
         property: "og:description",
-        content: "Lär ut finter i rätt ordning: långsamt, mot kon, mot passiv försvarare och sedan 1 mot 1.",
+        content:
+          "Lär ut finter i rätt ordning: långsamt, mot kon, mot passiv försvarare och sedan 1 mot 1.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -59,12 +60,12 @@ function TechniquePage() {
       <KnowledgeTabs active="technique" />
 
       <p className="mt-4 max-w-[70ch] text-sm text-muted-foreground">
-        Finter handlar inte bara om vad spelaren gör med bollen. För att lura en motståndare behöver spelaren
-        använda hela kroppen, byta riktning och öka farten efter rörelsen.
+        Finter handlar inte bara om vad spelaren gör med bollen. För att lura en motståndare behöver
+        spelaren använda hela kroppen, byta riktning och öka farten efter rörelsen.
       </p>
       <p className="mt-3 max-w-[70ch] rounded-xl border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        Barnet bör först lära sig rörelsen långsamt. Därefter tränas den mot en kon, sedan mot en passiv
-        försvarare och till sist i en riktig 1 mot 1-situation.
+        Barnet bör först lära sig rörelsen långsamt. Därefter tränas den mot en kon, sedan mot en
+        passiv försvarare och till sist i en riktig 1 mot 1-situation.
       </p>
 
       <Accordion type="single" collapsible className="mt-6 space-y-3">
@@ -209,7 +210,6 @@ function MoveContent({ move }: { move: SkillMove }) {
             ))}
         </ul>
       </div>
-
     </div>
   );
 }

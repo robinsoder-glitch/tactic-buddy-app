@@ -19,7 +19,10 @@ function AdminAccounts() {
   const remove = useServerFn(deleteAccount);
   const [query, setQuery] = useState("");
 
-  const accounts = useQuery({ queryKey: ["admin-accounts"], queryFn: () => load({ data: undefined }) });
+  const accounts = useQuery({
+    queryKey: ["admin-accounts"],
+    queryFn: () => load({ data: undefined }),
+  });
 
   const roleMutation = useMutation({
     mutationFn: (input: { userId: string; makeAdmin: boolean }) => grant({ data: input }),
@@ -71,7 +74,9 @@ function AdminAccounts() {
             <li key={account.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-display text-lg font-semibold">{account.displayName ?? "Utan namn"}</p>
+                  <p className="font-display text-lg font-semibold">
+                    {account.displayName ?? "Utan namn"}
+                  </p>
                   <p className="break-all text-sm text-muted-foreground">{account.email}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Skapat {new Date(account.createdAt).toLocaleDateString("sv-SE")} ·{" "}
@@ -119,7 +124,8 @@ function AdminAccounts() {
                       const answer = window.prompt(
                         `Skriv RADERA för att permanent ta bort ${account.email ?? "kontot"}.`,
                       );
-                      if (answer?.trim().toUpperCase() === "RADERA") deleteMutation.mutate({ userId: account.id });
+                      if (answer?.trim().toUpperCase() === "RADERA")
+                        deleteMutation.mutate({ userId: account.id });
                     }}
                   >
                     Radera konto

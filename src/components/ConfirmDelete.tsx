@@ -66,9 +66,14 @@ export function useConfirm() {
         {state.requireText && (
           <div className="space-y-1.5">
             <label htmlFor="confirm-text" className="text-sm text-muted-foreground">
-              Skriv <span className="font-semibold text-foreground">{state.requireText}</span> för att bekräfta
+              Skriv <span className="font-semibold text-foreground">{state.requireText}</span> för
+              att bekräfta
             </label>
-            <Input id="confirm-text" value={typed} onChange={(event) => setTyped(event.target.value)} />
+            <Input
+              id="confirm-text"
+              value={typed}
+              onChange={(event) => setTyped(event.target.value)}
+            />
           </div>
         )}
         <AlertDialogFooter>

@@ -5,7 +5,13 @@ import { knowledgeLevels } from "./knowledge";
 import type { KnowledgeArticle } from "./knowledge";
 
 function drill(data: Record<string, unknown>): Drill {
-  return { id: "d", title: "T", default_minutes: 8, purpose: null, data: { id: "d", title: "T", ...data } } as Drill;
+  return {
+    id: "d",
+    title: "T",
+    default_minutes: 8,
+    purpose: null,
+    data: { id: "d", title: "T", ...data },
+  } as Drill;
 }
 
 describe("övningens längd", () => {

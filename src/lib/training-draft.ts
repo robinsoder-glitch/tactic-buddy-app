@@ -41,12 +41,23 @@ export function removeDraftItem(draft: TrainingDraft, key: string): TrainingDraf
   return { ...draft, items: draft.items.filter((item) => item.key !== key) };
 }
 
-export function updateDraftItem(draft: TrainingDraft, key: string, patch: Partial<DraftItem>): TrainingDraft {
-  return { ...draft, items: draft.items.map((item) => (item.key === key ? { ...item, ...patch } : item)) };
+export function updateDraftItem(
+  draft: TrainingDraft,
+  key: string,
+  patch: Partial<DraftItem>,
+): TrainingDraft {
+  return {
+    ...draft,
+    items: draft.items.map((item) => (item.key === key ? { ...item, ...patch } : item)),
+  };
 }
 
 /** Flyttar en rad ett steg upp (-1) eller ner (1). */
-export function moveDraftItem(draft: TrainingDraft, index: number, direction: -1 | 1): TrainingDraft {
+export function moveDraftItem(
+  draft: TrainingDraft,
+  index: number,
+  direction: -1 | 1,
+): TrainingDraft {
   const target = index + direction;
   if (index < 0 || target < 0 || target >= draft.items.length) return draft;
   const items = [...draft.items];

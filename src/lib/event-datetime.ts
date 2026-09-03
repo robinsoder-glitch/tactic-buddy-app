@@ -71,26 +71,31 @@ export function splitDateTimeLocal(value: string): { date: string; time: string 
 export function validateEventTimes(form: EventTimeForm): EventTimeErrors {
   const errors: EventTimeErrors = {};
   if (!form.date) errors.date = "Välj ett datum.";
-  else if (!isValidDate(form.date)) errors.date = "Datumet ser inte rätt ut. Använd formatet ÅÅÅÅ-MM-DD.";
+  else if (!isValidDate(form.date))
+    errors.date = "Datumet ser inte rätt ut. Använd formatet ÅÅÅÅ-MM-DD.";
 
   if (!form.start) errors.start = "Ange en starttid.";
-  else if (!isValidTime(form.start)) errors.start = "Starttiden ser inte rätt ut. Använd formatet TT:MM.";
+  else if (!isValidTime(form.start))
+    errors.start = "Starttiden ser inte rätt ut. Använd formatet TT:MM.";
 
   if (form.end) {
     if (!isValidTime(form.end)) errors.end = "Sluttiden ser inte rätt ut. Använd formatet TT:MM.";
     else if (!errors.date && !errors.start) {
       const start = combineLocal(form.date, form.start);
       const end = combineLocal(form.date, form.end);
-      if (start && end && end.getTime() <= start.getTime()) errors.end = "Sluttiden måste vara efter starttiden.";
+      if (start && end && end.getTime() <= start.getTime())
+        errors.end = "Sluttiden måste vara efter starttiden.";
     }
   }
 
   if (form.meet) {
-    if (!isValidTime(form.meet)) errors.meet = "Samlingstiden ser inte rätt ut. Använd formatet TT:MM.";
+    if (!isValidTime(form.meet))
+      errors.meet = "Samlingstiden ser inte rätt ut. Använd formatet TT:MM.";
     else if (!errors.date && !errors.start) {
       const start = combineLocal(form.date, form.start);
       const meet = combineLocal(form.date, form.meet);
-      if (start && meet && meet.getTime() > start.getTime()) errors.meet = "Samlingen bör vara före starttiden.";
+      if (start && meet && meet.getTime() > start.getTime())
+        errors.meet = "Samlingen bör vara före starttiden.";
     }
   }
 

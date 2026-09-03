@@ -55,9 +55,21 @@ export function AddToTrainingButton({
   const [minutes, setMinutes] = useState(String(defaultMinutes));
   const [note, setNote] = useState("");
 
-  const sessions = useQuery({ queryKey: ["coach-sessions"], queryFn: fetchCoachSessions, enabled: open });
-  const events = useQuery({ queryKey: ["upcoming-events"], queryFn: () => fetchUpcomingEvents(), enabled: open });
-  const memberships = useQuery({ queryKey: ["my-memberships"], queryFn: fetchMyMemberships, enabled: open });
+  const sessions = useQuery({
+    queryKey: ["coach-sessions"],
+    queryFn: fetchCoachSessions,
+    enabled: open,
+  });
+  const events = useQuery({
+    queryKey: ["upcoming-events"],
+    queryFn: () => fetchUpcomingEvents(),
+    enabled: open,
+  });
+  const memberships = useQuery({
+    queryKey: ["my-memberships"],
+    queryFn: fetchMyMemberships,
+    enabled: open,
+  });
 
   const myList = useMemo(
     () => ownSessions(sessions.data ?? [], user?.id ?? null),
@@ -121,9 +133,14 @@ export function AddToTrainingButton({
       setOpen(false);
       setNote("");
       setNewTitle("");
-      toast.success(target === "event" ? "Innehållet lades till i aktivitetens plan." : "Innehållet lades till i träningen.");
+      toast.success(
+        target === "event"
+          ? "Innehållet lades till i aktivitetens plan."
+          : "Innehållet lades till i träningen.",
+      );
     },
-    onError: (error: Error) => toast.error(error.message || "Det gick inte att lägga till innehållet."),
+    onError: (error: Error) =>
+      toast.error(error.message || "Det gick inte att lägga till innehållet."),
   });
 
   return (
@@ -155,7 +172,9 @@ export function AddToTrainingButton({
                 }`}
               >
                 <span className="block font-semibold">Ett av mina träningspass</span>
-                <span className="block text-xs text-muted-foreground">Bygg ihop hela träningen</span>
+                <span className="block text-xs text-muted-foreground">
+                  Bygg ihop hela träningen
+                </span>
               </button>
               <button
                 type="button"
@@ -166,7 +185,9 @@ export function AddToTrainingButton({
                 }`}
               >
                 <span className="block font-semibold">Direkt på en aktivitet</span>
-                <span className="block text-xs text-muted-foreground">Träning eller match i kalendern</span>
+                <span className="block text-xs text-muted-foreground">
+                  Träning eller match i kalendern
+                </span>
               </button>
             </div>
 
@@ -211,8 +232,8 @@ export function AddToTrainingButton({
                 <p className="text-sm text-muted-foreground">Hämtar kommande aktiviteter…</p>
               ) : eventOptions.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Det finns inga kommande träningar eller matcher i dina lag. Lägg först in en aktivitet i lagets
-                  kalender.
+                  Det finns inga kommande träningar eller matcher i dina lag. Lägg först in en
+                  aktivitet i lagets kalender.
                 </p>
               ) : (
                 <div className="space-y-1">

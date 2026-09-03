@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
   head: () => ({
     meta: [
       { title: "Övning – Träningsbanken" },
-      { name: "description", content: "Hela övningen: syfte, organisation, genomförande, coachpunkter och variation." },
+      {
+        name: "description",
+        content: "Hela övningen: syfte, organisation, genomförande, coachpunkter och variation.",
+      },
       { property: "og:title", content: "Övning – Träningsbanken" },
       { property: "og:description", content: "Så genomför du övningen steg för steg." },
       { property: "og:type", content: "article" },
@@ -32,18 +35,29 @@ function DrillPage() {
   const pick = Route.useSearch();
   const { isCoach, isAdmin, loading } = useAccount();
   const allowed = isCoach || isAdmin;
-  const drill = useQuery({ queryKey: ["tb-drill", drillId], queryFn: () => fetchDrill(drillId), enabled: allowed });
+  const drill = useQuery({
+    queryKey: ["tb-drill", drillId],
+    queryFn: () => fetchDrill(drillId),
+    enabled: allowed,
+  });
   const cards = useQuery({ queryKey: ["tb-tactics"], queryFn: fetchTacticCards, enabled: allowed });
 
   if (loading || drill.isLoading) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>;
+    return (
+      <main className="grid min-h-screen place-items-center text-muted-foreground">Laddar…</main>
+    );
   }
 
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-sm text-muted-foreground">Träningsbanken är till för tränare och lagledare.</p>
-        <Link to="/" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        <p className="text-sm text-muted-foreground">
+          Träningsbanken är till för tränare och lagledare.
+        </p>
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
           Till startsidan
         </Link>
       </main>
@@ -54,7 +68,10 @@ function DrillPage() {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-sm text-muted-foreground">Övningen hittades inte.</p>
-        <Link to="/ovningsbank" className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/ovningsbank"
+          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
           Till träningsbanken
         </Link>
       </main>
@@ -84,18 +101,22 @@ function DrillPage() {
         <div className="min-w-0">
           <p className="text-xs tracking-wide text-muted-foreground">
             {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
-            {meta.areas.length ? ` · ${meta.areas.map((area) => label(PHASE_LABELS, area)).join(" · ")}` : ""}
+            {meta.areas.length
+              ? ` · ${meta.areas.map((area) => label(PHASE_LABELS, area)).join(" · ")}`
+              : ""}
           </p>
           <h1 className="font-display text-2xl font-bold">{drill.data.title}</h1>
         </div>
       </header>
 
-      {drill.data.purpose && <p className="mt-3 text-sm text-muted-foreground">{drill.data.purpose}</p>}
+      {drill.data.purpose && (
+        <p className="mt-3 text-sm text-muted-foreground">{drill.data.purpose}</p>
+      )}
 
       <DrillDetails drill={drill.data} showGaps={isAdmin} />
 
       <div className="mt-6">
-<PickDrillButton
+        <PickDrillButton
           kind="drill"
           resourceId={drill.data.id}
           title={drill.data.title}

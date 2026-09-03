@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 export async function fetchAllTeams() {
   const { data, error } = await supabase
     .from("teams")
-    .select("id, name, age_group, gender, club_id, join_code, coach_join_code, home_ground, archived_at, created_at")
+    .select(
+      "id, name, age_group, gender, club_id, join_code, coach_join_code, home_ground, archived_at, created_at",
+    )
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -30,8 +32,15 @@ export async function fetchPlatformStats() {
 export async function fetchTeamAdminDetail(teamId: string) {
   const [team, members, players, profiles] = await Promise.all([
     supabase.from("teams").select("*").eq("id", teamId).maybeSingle(),
-    supabase.from("team_members").select("id, user_id, role, status, created_at").eq("team_id", teamId),
-    supabase.from("players").select("id, name, number, is_active, member_user_id").eq("team_id", teamId).order("name"),
+    supabase
+      .from("team_members")
+      .select("id, user_id, role, status, created_at")
+      .eq("team_id", teamId),
+    supabase
+      .from("players")
+      .select("id, name, number, is_active, member_user_id")
+      .eq("team_id", teamId)
+      .order("name"),
     supabase.from("profiles").select("id, display_name"),
   ]);
   if (team.error) throw team.error;

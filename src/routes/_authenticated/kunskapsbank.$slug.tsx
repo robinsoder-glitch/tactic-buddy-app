@@ -2,11 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
 import { toast } from "sonner";
-import {
-  fetchKnowledgeArticle,
-  knowledgeAgeLabel,
-  knowledgeFormatLabel,
-} from "@/lib/knowledge";
+import { fetchKnowledgeArticle, knowledgeAgeLabel, knowledgeFormatLabel } from "@/lib/knowledge";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
@@ -19,10 +15,14 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
       { title: "Artikel – Kunskapsbank för barnfotbollstränare" },
       {
         name: "description",
-        content: "Granskad artikel med sammanfattning, vad du lär dig och vad du kan testa på nästa träning.",
+        content:
+          "Granskad artikel med sammanfattning, vad du lär dig och vad du kan testa på nästa träning.",
       },
       { property: "og:title", content: "Artikel i Kunskapsbanken" },
-      { property: "og:description", content: "Granskad kunskap för dig som tränar barn i fotboll." },
+      {
+        property: "og:description",
+        content: "Granskad kunskap för dig som tränar barn i fotboll.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -41,7 +41,11 @@ function fitsYouText(data: Parameters<typeof knowledgeAgeLabel>[0]): string {
 }
 
 /** En sammanhängande text i stället för flera korta stycken. */
-function summaryText(data: { summary_sv: string; learn_sv?: string | null; coach_value?: string | null }): string {
+function summaryText(data: {
+  summary_sv: string;
+  learn_sv?: string | null;
+  coach_value?: string | null;
+}): string {
   return [data.summary_sv, data.learn_sv, data.coach_value]
     .map((part) => (part ?? "").trim())
     .filter(Boolean)
@@ -70,12 +74,19 @@ function KnowledgeArticlePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tb-favorites"] });
-      toast.success(isFavorite ? "Artikeln togs bort från Mina favoriter" : "Artikeln sparades i Mina favoriter");
+      toast.success(
+        isFavorite
+          ? "Artikeln togs bort från Mina favoriter"
+          : "Artikeln sparades i Mina favoriter",
+      );
     },
     onError: () => toast.error("Det gick inte att spara favoriten."),
   });
 
-  const sections = useRelatedContent(data ? { type: "article", id: data.slug } : null, ARTICLE_SECTIONS);
+  const sections = useRelatedContent(
+    data ? { type: "article", id: data.slug } : null,
+    ARTICLE_SECTIONS,
+  );
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6">
@@ -91,7 +102,9 @@ function KnowledgeArticlePage() {
       {!article.isLoading && !data && (
         <div className="mt-6 rounded-xl border border-dashed border-border p-8 text-center">
           <p className="font-display text-lg font-semibold">Artikeln hittades inte</p>
-          <p className="mt-1 text-sm text-muted-foreground">Den kan ha tagits bort eller avpublicerats.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Den kan ha tagits bort eller avpublicerats.
+          </p>
         </div>
       )}
 
@@ -103,7 +116,11 @@ function KnowledgeArticlePage() {
             <button
               type="button"
               aria-pressed={isFavorite}
-              aria-label={isFavorite ? "Ta bort artikeln från Mina favoriter" : "Spara artikeln i Mina favoriter"}
+              aria-label={
+                isFavorite
+                  ? "Ta bort artikeln från Mina favoriter"
+                  : "Spara artikeln i Mina favoriter"
+              }
               onClick={() => toggleFavorite.mutate()}
               className="shrink-0 rounded-full p-2 text-muted-foreground hover:text-primary"
             >
@@ -112,8 +129,14 @@ function KnowledgeArticlePage() {
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            {data.source_name && <span className="rounded-full border border-border px-2 py-0.5">{data.source_name}</span>}
-            {data.level && <span className="rounded-full border border-border px-2 py-0.5">{data.level}</span>}
+            {data.source_name && (
+              <span className="rounded-full border border-border px-2 py-0.5">
+                {data.source_name}
+              </span>
+            )}
+            {data.level && (
+              <span className="rounded-full border border-border px-2 py-0.5">{data.level}</span>
+            )}
             {data.reading_minutes ? (
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-3.5" /> {data.reading_minutes} min
@@ -124,7 +147,9 @@ function KnowledgeArticlePage() {
           <p className="mt-4 text-sm font-semibold">{fitsYouText(data)}</p>
 
           <section className="mt-4 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">Sammanfattning</h2>
+            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
+              Sammanfattning
+            </h2>
             <p className="mt-2 whitespace-pre-line text-sm">{summaryText(data)}</p>
           </section>
 
@@ -136,7 +161,6 @@ function KnowledgeArticlePage() {
           >
             Läs vidare hos källan <ExternalLink className="size-4" />
           </a>
-
 
           <RelatedContent sections={sections} />
         </article>

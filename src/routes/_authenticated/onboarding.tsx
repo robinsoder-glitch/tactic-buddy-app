@@ -21,9 +21,15 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
       { title: "Välj kontotyp – Fotbollsrummet" },
-      { name: "description", content: "Skapa ett tränarkonto eller gå med i ett lag som spelare med lagkoden." },
+      {
+        name: "description",
+        content: "Skapa ett tränarkonto eller gå med i ett lag som spelare med lagkoden.",
+      },
       { property: "og:title", content: "Välj kontotyp – Fotbollsrummet" },
-      { property: "og:description", content: "Tränare eller spelare – välj hur du vill använda Fotbollsrummet." },
+      {
+        property: "og:description",
+        content: "Tränare eller spelare – välj hur du vill använda Fotbollsrummet.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -95,7 +101,10 @@ function OnboardingPage() {
 
       {role && (
         <section className="mt-6 space-y-4 rounded-xl border border-border bg-card p-4">
-          <AccountSetupFields setup={setup} onChange={(patch) => setSetup((c) => ({ ...c, ...patch }))} />
+          <AccountSetupFields
+            setup={setup}
+            onChange={(patch) => setSetup((c) => ({ ...c, ...patch }))}
+          />
           {role === "coach" && (
             <p className="text-xs text-muted-foreground">
               Har du ingen tränarkod? Lämna fältet tomt – då skapar du ditt eget lag i nästa steg.

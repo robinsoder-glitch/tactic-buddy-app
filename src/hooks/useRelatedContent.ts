@@ -30,11 +30,31 @@ export function useRelatedContent(
   const catalog = useMemo(
     () =>
       buildCatalog([
-        ...(articles.data ?? []).map((item) => ({ type: "article" as const, id: item.slug, title: item.title_sv })),
-        ...(tactics.data ?? []).map((item) => ({ type: "tactic" as const, id: item.id, title: item.title })),
-        ...(drills.data ?? []).map((item) => ({ type: "drill" as const, id: item.id, title: item.title })),
-        ...(keepers.data ?? []).map((item) => ({ type: "goalkeeper" as const, id: item.id, title: item.title })),
-        ...(sessions.data ?? []).map((item) => ({ type: "session" as const, id: item.id, title: item.title })),
+        ...(articles.data ?? []).map((item) => ({
+          type: "article" as const,
+          id: item.slug,
+          title: item.title_sv,
+        })),
+        ...(tactics.data ?? []).map((item) => ({
+          type: "tactic" as const,
+          id: item.id,
+          title: item.title,
+        })),
+        ...(drills.data ?? []).map((item) => ({
+          type: "drill" as const,
+          id: item.id,
+          title: item.title,
+        })),
+        ...(keepers.data ?? []).map((item) => ({
+          type: "goalkeeper" as const,
+          id: item.id,
+          title: item.title,
+        })),
+        ...(sessions.data ?? []).map((item) => ({
+          type: "session" as const,
+          id: item.id,
+          title: item.title,
+        })),
       ]),
     [articles.data, tactics.data, drills.data, keepers.data, sessions.data],
   );

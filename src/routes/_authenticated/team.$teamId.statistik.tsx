@@ -18,7 +18,8 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/statistik")({
       { title: "Statistik – närvaro på träning och match" },
       {
         name: "description",
-        content: "Se hur många träningar och matcher varje spelare deltagit i, med närvaro i procent och export.",
+        content:
+          "Se hur många träningar och matcher varje spelare deltagit i, med närvaro i procent och export.",
       },
       { property: "og:title", content: "Statistik" },
       { property: "og:description", content: "Träningar, matcher och närvaro per spelare." },
@@ -33,8 +34,14 @@ function StatsPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/statistik" });
 
   const events = useQuery({ queryKey: ["events", teamId], queryFn: () => fetchEvents(teamId) });
-  const players = useQuery({ queryKey: ["team-players", teamId], queryFn: () => fetchTeamPlayers(teamId) });
-  const attendance = useQuery({ queryKey: ["attendance", teamId], queryFn: () => fetchTeamAttendance(teamId) });
+  const players = useQuery({
+    queryKey: ["team-players", teamId],
+    queryFn: () => fetchTeamPlayers(teamId),
+  });
+  const attendance = useQuery({
+    queryKey: ["attendance", teamId],
+    queryFn: () => fetchTeamAttendance(teamId),
+  });
 
   const done = useMemo(() => pastEvents(events.data ?? []), [events.data]);
   const summaries = useMemo(
@@ -45,7 +52,9 @@ function StatsPage() {
   const loading = events.isLoading || players.isLoading || attendance.isLoading;
 
   function download() {
-    const blob = new Blob([`\uFEFF${attendanceCsv(summaries)}`], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([`\uFEFF${attendanceCsv(summaries)}`], {
+      type: "text/csv;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -87,7 +96,9 @@ function StatsPage() {
       {!loading && summaries.length === 0 && (
         <div className="mt-6 rounded-xl border border-dashed border-border p-8 text-center">
           <BarChart3 className="mx-auto size-8 text-primary" />
-          <p className="mt-3 text-sm text-muted-foreground">Lägg till spelare i truppen för att se statistik.</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Lägg till spelare i truppen för att se statistik.
+          </p>
         </div>
       )}
 
@@ -124,11 +135,15 @@ function StatsPage() {
                   <td className="px-3 py-2 text-right">
                     {row.trainings} / {row.trainingsTotal}
                   </td>
-                  <td className="px-3 py-2 text-right">{percent(row.trainings, row.trainingsTotal)} %</td>
+                  <td className="px-3 py-2 text-right">
+                    {percent(row.trainings, row.trainingsTotal)} %
+                  </td>
                   <td className="px-3 py-2 text-right">
                     {row.matches} / {row.matchesTotal}
                   </td>
-                  <td className="px-3 py-2 text-right">{percent(row.matches, row.matchesTotal)} %</td>
+                  <td className="px-3 py-2 text-right">
+                    {percent(row.matches, row.matchesTotal)} %
+                  </td>
                   <td className="px-3 py-2 text-right">{row.absent}</td>
                 </tr>
               ))}

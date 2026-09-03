@@ -118,12 +118,16 @@ function BankPage() {
       </header>
 
       <p className="mt-2 text-sm text-muted-foreground">
-        Spelarbanken är dina egna figurer för taktiktavlan – den är skild från lagets trupp. Trupplistan med
-        registrerade spelare, närvaro och statistik finns under Mina lag.
+        Spelarbanken är dina egna figurer för taktiktavlan – den är skild från lagets trupp.
+        Trupplistan med registrerade spelare, närvaro och statistik finns under Mina lag.
       </p>
 
       <div className="mt-4 flex gap-2">
-        <Input placeholder="Sök spelare" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <Input
+          placeholder="Sök spelare"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
         <Button onClick={() => setEditing({ ...emptyPlayer })}>
           <Plus className="size-4" /> Ny
         </Button>
@@ -173,7 +177,11 @@ function BankPage() {
                   className="grid size-20 place-items-center overflow-hidden rounded-full border border-border bg-secondary"
                 >
                   {editing.photoUrl ? (
-                    <img src={editing.photoUrl} alt={editing.name} className="size-full object-cover" />
+                    <img
+                      src={editing.photoUrl}
+                      alt={editing.name}
+                      className="size-full object-cover"
+                    />
                   ) : (
                     <Camera className="size-6 text-muted-foreground" />
                   )}
@@ -235,9 +243,10 @@ function BankPage() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">Styr bara färgen på symbolen på taktiktavlan.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Styr bara färgen på symbolen på taktiktavlan.
+                  </p>
                 </div>
-
               </div>
             </div>
           )}

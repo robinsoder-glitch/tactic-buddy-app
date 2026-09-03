@@ -24,8 +24,13 @@ export async function fetchEventCoaches(eventIds: string[]): Promise<EventCoach[
   const ids = Array.from(new Set(rows.map((row) => row.user_id)));
   if (ids.length === 0) return rows;
 
-  const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
-  const names = new Map((profiles ?? []).map((row) => [row.id as string, row.display_name as string | null]));
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  const names = new Map(
+    (profiles ?? []).map((row) => [row.id as string, row.display_name as string | null]),
+  );
   return rows.map((row) => ({ ...row, displayName: names.get(row.user_id) ?? null }));
 }
 

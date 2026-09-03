@@ -11,7 +11,10 @@ export const Route = createFileRoute("/_authenticated/narvaro")({
         content: "Pricka av truppen efter varje träning och match och se hur många som deltog.",
       },
       { property: "og:title", content: "Närvaro" },
-      { property: "og:description", content: "Registrera närvaro för lagets träningar och matcher." },
+      {
+        property: "og:description",
+        content: "Registrera närvaro för lagets träningar och matcher.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -2,7 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PlannableEvent } from "@/lib/event-planning";
 
 /** Kommande aktiviteter av en viss typ, hämtade ur lagets befintliga kalender. */
-export function upcomingOfType(events: PlannableEvent[], type: "training" | "match"): PlannableEvent[] {
+export function upcomingOfType(
+  events: PlannableEvent[],
+  type: "training" | "match",
+): PlannableEvent[] {
   return events.filter((event) => event.type === type);
 }
 
@@ -78,7 +81,10 @@ export async function saveEventPlan(input: {
 
 /** Uttagna spelare för en match. Påverkar aldrig kallelser eller närvaro. */
 export async function fetchSquad(eventId: string): Promise<string[]> {
-  const { data, error } = await supabase.from("event_squad").select("player_id").eq("event_id", eventId);
+  const { data, error } = await supabase
+    .from("event_squad")
+    .select("player_id")
+    .eq("event_id", eventId);
   if (error) throw error;
   return (data ?? []).map((row) => row.player_id as string);
 }
@@ -89,7 +95,10 @@ export async function saveSquad(input: {
   userId: string;
   playerIds: string[];
 }) {
-  const { error: removeError } = await supabase.from("event_squad").delete().eq("event_id", input.eventId);
+  const { error: removeError } = await supabase
+    .from("event_squad")
+    .delete()
+    .eq("event_id", input.eventId);
   if (removeError) throw removeError;
   if (input.playerIds.length === 0) return;
   const { error } = await supabase.from("event_squad").insert(
@@ -131,7 +140,11 @@ export async function removeEventResource(id: string) {
 }
 
 /** Flyttar en del upp eller ner i planeringen. */
-export async function moveEventResource(rows: EventResourceRow[], index: number, direction: -1 | 1) {
+export async function moveEventResource(
+  rows: EventResourceRow[],
+  index: number,
+  direction: -1 | 1,
+) {
   const target = index + direction;
   if (target < 0 || target >= rows.length) return;
   const a = rows[index]!;
@@ -141,9 +154,14 @@ export async function moveEventResource(rows: EventResourceRow[], index: number,
 }
 
 /** Uttagna spelare för flera aktiviteter, används i listorna. */
-export async function fetchSquads(eventIds: string[]): Promise<{ event_id: string; player_id: string }[]> {
+export async function fetchSquads(
+  eventIds: string[],
+): Promise<{ event_id: string; player_id: string }[]> {
   if (eventIds.length === 0) return [];
-  const { data, error } = await supabase.from("event_squad").select("event_id, player_id").in("event_id", eventIds);
+  const { data, error } = await supabase
+    .from("event_squad")
+    .select("event_id, player_id")
+    .in("event_id", eventIds);
   if (error) throw error;
   return (data ?? []) as { event_id: string; player_id: string }[];
 }

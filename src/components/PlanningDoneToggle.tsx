@@ -13,7 +13,10 @@ type Props = {
 /** Tränaren markerar när planeringen av träningen är klar. */
 export function PlanningDoneToggle({ eventId, teamId, userId, isCoach }: Props) {
   const queryClient = useQueryClient();
-  const plan = useQuery({ queryKey: ["event-plan", eventId], queryFn: () => fetchEventPlan(eventId) });
+  const plan = useQuery({
+    queryKey: ["event-plan", eventId],
+    queryFn: () => fetchEventPlan(eventId),
+  });
   const done = Boolean(plan.data?.planning_done);
 
   const toggle = useMutation({

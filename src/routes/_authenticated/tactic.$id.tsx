@@ -7,10 +7,14 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
       { title: "Taktiktavla – bygg och animera spelmoment" },
       {
         name: "description",
-        content: "Placera spelare på planen, rita löpningar och passningar och animera taktiken steg för steg.",
+        content:
+          "Placera spelare på planen, rita löpningar och passningar och animera taktiken steg för steg.",
       },
       { property: "og:title", content: "Taktiktavla – bygg och animera spelmoment" },
-      { property: "og:description", content: "Placera spelare, rita löpningar och animera taktiken." },
+      {
+        property: "og:description",
+        content: "Placera spelare, rita löpningar och animera taktiken.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

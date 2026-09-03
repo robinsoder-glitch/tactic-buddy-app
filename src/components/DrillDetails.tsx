@@ -57,13 +57,15 @@ export function DrillDetails({ drill, showGaps = false }: { drill: Drill; showGa
         <List title="Förenkla" items={data.simplify} />
         <List title="Utmana" items={data.challenge} />
         <List title="Det här vill du se" items={data.successSigns} />
-        {data.safety && <p className="mt-3 text-xs text-muted-foreground">Säkerhet: {data.safety}</p>}
+        {data.safety && (
+          <p className="mt-3 text-xs text-muted-foreground">Säkerhet: {data.safety}</p>
+        )}
       </section>
-
 
       {showGaps && missing.length > 0 && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Ofullständig övning – saknar: {missing.map((field) => DRILL_FIELD_LABELS[field]).join(", ")}.
+          Ofullständig övning – saknar:{" "}
+          {missing.map((field) => DRILL_FIELD_LABELS[field]).join(", ")}.
         </p>
       )}
     </div>

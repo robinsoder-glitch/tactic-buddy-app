@@ -47,7 +47,13 @@ export type InviteCounts = {
 
 /** Räknar ihop svaren i en kallelse. */
 export function countInvitations(list: Array<{ status: string }>): InviteCounts {
-  const counts: InviteCounts = { attending: 0, declined: 0, maybe: 0, pending: 0, total: list.length };
+  const counts: InviteCounts = {
+    attending: 0,
+    declined: 0,
+    maybe: 0,
+    pending: 0,
+    total: list.length,
+  };
   for (const item of list) {
     if (item.status === "attending") counts.attending += 1;
     else if (item.status === "declined") counts.declined += 1;
@@ -124,7 +130,11 @@ export async function hasLinkedPlayer(userId: string | null | undefined): Promis
 
 /* ------------------------------ data ------------------------------ */
 
-type PlayerRow = { name: string | null; member_user_id: string | null; is_active?: boolean | null } | null;
+type PlayerRow = {
+  name: string | null;
+  member_user_id: string | null;
+  is_active?: boolean | null;
+} | null;
 
 function mapRow(row: Record<string, unknown> & { players?: PlayerRow }): Invitation {
   const player = row.players ?? null;
@@ -145,10 +155,15 @@ export async function fetchEventInvitations(eventId: string): Promise<Invitation
   const rows = (data ?? []).map((row) => mapRow(row as never));
   const ids = [...new Set(rows.map((row) => row.responded_by).filter(Boolean))] as string[];
   if (ids.length > 0) {
-    const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
-    const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, display_name")
+      .in("id", ids);
+    const names = new Map(
+      (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+    );
     for (const row of rows) {
-      row.respondedByName = row.responded_by ? names.get(row.responded_by) ?? null : null;
+      row.respondedByName = row.responded_by ? (names.get(row.responded_by) ?? null) : null;
     }
   }
   return rows.sort((a, b) => (a.playerName ?? "").localeCompare(b.playerName ?? "", "sv"));
@@ -243,8 +258,6 @@ export async function saveInvitationPlan(input: {
   return { added, updated };
 }
 
-
-
 export async function removeInvitation(id: string) {
   const { error } = await supabase.from("event_invitations").delete().eq("id", id);
   if (error) throw error;
@@ -299,9 +312,17 @@ export async function fetchInvitationLog(invitationId: string): Promise<Invitati
   const rows = (data ?? []) as InvitationLogRow[];
   const ids = [...new Set(rows.map((row) => row.changed_by).filter(Boolean))] as string[];
   if (ids.length === 0) return rows;
-  const { data: profiles } = await supabase.from("profiles").select("id, display_name").in("id", ids);
-  const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
-  return rows.map((row) => ({ ...row, changedByName: row.changed_by ? names.get(row.changed_by) ?? null : null }));
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  const names = new Map(
+    (profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]),
+  );
+  return rows.map((row) => ({
+    ...row,
+    changedByName: row.changed_by ? (names.get(row.changed_by) ?? null) : null,
+  }));
 }
 
 /**
@@ -323,8 +344,7 @@ export async function createReminders(input: {
   });
   if (error) throw error;
   const row = (Array.isArray(data) ? data[0] : data) as
-    | { sent: number; skipped_recent: number; missing_account: number }
-    | undefined;
+    { sent: number; skipped_recent: number; missing_account: number } | undefined;
   return {
     sent: row?.sent ?? 0,
     skippedRecent: row?.skipped_recent ?? 0,

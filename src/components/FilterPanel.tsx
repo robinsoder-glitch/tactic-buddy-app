@@ -12,7 +12,13 @@ type FilterPanelProps = {
   label?: string;
 };
 
-export function FilterPanel({ activeCount, onClear, primary, children, label = "Fler filter" }: FilterPanelProps) {
+export function FilterPanel({
+  activeCount,
+  onClear,
+  primary,
+  children,
+  label = "Fler filter",
+}: FilterPanelProps) {
   const [open, setOpen] = useState(false);
 
   return (

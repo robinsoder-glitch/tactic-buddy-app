@@ -11,7 +11,13 @@ describe("vanliga tränarmisstag", () => {
 
   it("saknar tomma textfält", () => {
     for (const item of COACH_MISTAKES) {
-      for (const field of [item.title, item.whatItIs, item.whyItMatters, item.doInstead, item.coachPhrase]) {
+      for (const field of [
+        item.title,
+        item.whatItIs,
+        item.whyItMatters,
+        item.doInstead,
+        item.coachPhrase,
+      ]) {
         expect(field.trim().length).toBeGreaterThan(0);
       }
       expect(item.sourceKeys.length).toBeGreaterThan(0);

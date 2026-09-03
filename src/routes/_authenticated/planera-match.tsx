@@ -16,8 +16,23 @@ import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlans, fetchSquad, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { useAccount } from "@/hooks/useAccount";
-import { fetchTeam, fetchTeamMembers, fetchTeamPlayers, formatDateTime, type Team, type TeamMember, type TeamPlayer } from "@/lib/teams";
-import { fetchEventInvitations, inviteStatusLabel, summaryText, countInvitations, type Invitation, type InviteStatus } from "@/lib/invitations";
+import {
+  fetchTeam,
+  fetchTeamMembers,
+  fetchTeamPlayers,
+  formatDateTime,
+  type Team,
+  type TeamMember,
+  type TeamPlayer,
+} from "@/lib/teams";
+import {
+  fetchEventInvitations,
+  inviteStatusLabel,
+  summaryText,
+  countInvitations,
+  type Invitation,
+  type InviteStatus,
+} from "@/lib/invitations";
 import { fetchTactics, type TacticSummary } from "@/lib/db";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -37,10 +52,23 @@ import {
   type LineupSlot,
   type MatchShare,
 } from "@/lib/match-plan";
-import { ArrowLeft, ArrowRight, Check, ClipboardList, Pencil, Share2, Trash2, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ClipboardList,
+  Pencil,
+  Share2,
+  Trash2,
+  Users,
+} from "lucide-react";
 
 function dateLabel(value: string): string {
-  return new Date(value).toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
+  return new Date(value).toLocaleDateString("sv-SE", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 }
 function timeOnly(value: string): string {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
@@ -51,7 +79,10 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
   head: () => ({
     meta: [
       { title: "Planera match – Fotbollsrummet" },
-      { name: "description", content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar." },
+      {
+        name: "description",
+        content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar.",
+      },
     ],
   }),
   component: MatchPlanningPage,
@@ -122,7 +153,9 @@ function MatchPlanningPage() {
             <NewMatchCreator />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
-              <p className="text-sm text-muted-foreground">Inga kommande matcher. Skapa en match ovan.</p>
+              <p className="text-sm text-muted-foreground">
+                Inga kommande matcher. Skapa en match ovan.
+              </p>
             )}
             <ul className="space-y-3">
               {(events ?? []).map((event) => {
@@ -168,7 +201,9 @@ function MatchPlanningPage() {
               setCoachCounts((m) => new Map(m).set(id, counts.coaches));
               if (counts.event) {
                 setEvents((list) =>
-                  (list ?? []).map((item) => (item.id === id ? { ...item, ...counts.event } : item)),
+                  (list ?? []).map((item) =>
+                    item.id === id ? { ...item, ...counts.event } : item,
+                  ),
                 );
               }
             }}
@@ -240,7 +275,9 @@ function MatchPlanner({
   const displayCounts = useMemo(
     () =>
       countInvitations(
-        playerIds.map((id) => ({ status: invitations.find((i) => i.player_id === id)?.status ?? "pending" })),
+        playerIds.map((id) => ({
+          status: invitations.find((i) => i.player_id === id)?.status ?? "pending",
+        })),
       ),
     [playerIds, invitations],
   );
@@ -248,29 +285,40 @@ function MatchPlanner({
   useEffect(() => {
     void (async () => {
       try {
-        const [{ data: ev }, t, members, pls, invs, squad, evCoaches, lineup, tacts, shr] = await Promise.all([
-          supabase.from("events").select("*").eq("id", eventId).single(),
-          fetchTeam(teamId),
-          fetchTeamMembers(teamId),
-          fetchTeamPlayers(teamId),
-          fetchEventInvitations(eventId),
-          (await import("@/lib/planning")).fetchSquad(eventId),
-          fetchEventCoaches([eventId]),
-          fetchLineup(eventId),
-          fetchTactics(),
-          fetchMatchShare(eventId),
-        ]);
+        const [{ data: ev }, t, members, pls, invs, squad, evCoaches, lineup, tacts, shr] =
+          await Promise.all([
+            supabase.from("events").select("*").eq("id", eventId).single(),
+            fetchTeam(teamId),
+            fetchTeamMembers(teamId),
+            fetchTeamPlayers(teamId),
+            fetchEventInvitations(eventId),
+            (await import("@/lib/planning")).fetchSquad(eventId),
+            fetchEventCoaches([eventId]),
+            fetchLineup(eventId),
+            fetchTactics(),
+            fetchMatchShare(eventId),
+          ]);
         if (!ev) throw new Error("Matchen hittades inte.");
         setEvent(ev as unknown as MatchEvent);
         setTeam(t);
-        setCoaches(members.filter((m) => m.status === "approved" && m.role !== "guardian" && m.role !== "player"));
+        setCoaches(
+          members.filter(
+            (m) => m.status === "approved" && m.role !== "guardian" && m.role !== "player",
+          ),
+        );
         setPlayers(pls.filter((p) => (p as { is_active?: boolean }).is_active !== false));
         setInvitations(invs);
         setTactics(tacts);
         setShare(shr && !shr.revoked_at ? shr : null);
 
         // Förifyll redigeringsläget
-        setOpponent((ev.away_team && ev.home_team === t.name ? ev.away_team : ev.home_team && ev.home_team !== t.name ? ev.home_team : ev.away_team) ?? "");
+        setOpponent(
+          (ev.away_team && ev.home_team === t.name
+            ? ev.away_team
+            : ev.home_team && ev.home_team !== t.name
+              ? ev.home_team
+              : ev.away_team) ?? "",
+        );
         setHomeAway(ev.home_team === t.name ? "hemma" : "borta");
         setLocation(ev.location ?? "");
         const start = new Date(ev.starts_at);
@@ -292,7 +340,11 @@ function MatchPlanner({
           setSlots(def);
           setBench(squad);
         }
-        const { data: plan } = await supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle();
+        const { data: plan } = await supabase
+          .from("event_plans")
+          .select("notes")
+          .eq("event_id", eventId)
+          .maybeSingle();
         setMeetInfo(plan?.notes ?? "");
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Kunde inte hämta matchen");
@@ -317,19 +369,27 @@ function MatchPlanner({
 
   function togglePlayer(id: string) {
     if (playerIds.includes(id)) {
-      const { slots: ns, bench: nb, removedFromPitch } = syncLineupWithSquad(
+      const {
+        slots: ns,
+        bench: nb,
+        removedFromPitch,
+      } = syncLineupWithSquad(
         slots,
         playerIds.filter((p) => p !== id),
       );
       if (removedFromPitch.length > 0) {
-        toast.warning(`${playersById.get(id)?.name ?? "Spelaren"} låg på planen – platsen blir Tom plats.`);
+        toast.warning(
+          `${playersById.get(id)?.name ?? "Spelaren"} låg på planen – platsen blir Tom plats.`,
+        );
       }
       setPlayerIds(playerIds.filter((p) => p !== id));
       setSlots(ns);
       setBench(nb);
     } else {
       if (statusByPlayer.get(id) === "declined") {
-        const ok = window.confirm("Spelaren har svarat att den inte kan delta. Vill du ändå ta ut spelaren?");
+        const ok = window.confirm(
+          "Spelaren har svarat att den inte kan delta. Vill du ändå ta ut spelaren?",
+        );
         if (!ok) return;
       }
       setPlayerIds([...playerIds, id]);
@@ -348,10 +408,18 @@ function MatchPlanner({
       return;
     }
     const requiredCount = FORMAT_PLAYERS[format] ?? 0;
-    const planError = validateMatchPlan({ playerIds, coachIds, slots, bench, required: requiredCount });
+    const planError = validateMatchPlan({
+      playerIds,
+      coachIds,
+      slots,
+      bench,
+      required: requiredCount,
+    });
     let effectiveRequired = requiredCount;
     if (planError) {
-      const isFewPlayers = planError.startsWith("Välj minst en spelare") || planError.startsWith("Det måste vara exakt");
+      const isFewPlayers =
+        planError.startsWith("Välj minst en spelare") ||
+        planError.startsWith("Det måste vara exakt");
       if (!isFewPlayers) {
         toast.error(planError);
         return;
@@ -403,13 +471,15 @@ function MatchPlanner({
       });
       toast.success("Matchplanen är sparad");
       // Läsläget ska visa de nyss sparade uppgifterna utan omladdning.
-      const [{ data: freshEvent }, lineup, freshCoaches, freshSquad, freshPlan] = await Promise.all([
-        supabase.from("events").select("*").eq("id", eventId).single(),
-        fetchLineup(eventId),
-        fetchEventCoaches([eventId]),
-        (await import("@/lib/planning")).fetchSquad(eventId),
-        supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle(),
-      ]);
+      const [{ data: freshEvent }, lineup, freshCoaches, freshSquad, freshPlan] = await Promise.all(
+        [
+          supabase.from("events").select("*").eq("id", eventId).single(),
+          fetchLineup(eventId),
+          fetchEventCoaches([eventId]),
+          (await import("@/lib/planning")).fetchSquad(eventId),
+          supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle(),
+        ],
+      );
       if (freshEvent) setEvent(freshEvent as unknown as MatchEvent);
       if (lineup) {
         setSlots(lineup.slots);
@@ -462,7 +532,12 @@ function MatchPlanner({
             </Button>
           </div>
         ) : (
-          <Button variant="outline" size="sm" onClick={() => setMode(startInEdit ? "edit" : "read")} disabled={startInEdit}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMode(startInEdit ? "edit" : "read")}
+            disabled={startInEdit}
+          >
             Avbryt
           </Button>
         )}
@@ -473,7 +548,9 @@ function MatchPlanner({
           <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-3">
               <h1 className="text-lg font-semibold">
-                {event.home_team && event.away_team ? `${event.home_team} – ${event.away_team}` : event.title ?? "Match"}
+                {event.home_team && event.away_team
+                  ? `${event.home_team} – ${event.away_team}`
+                  : (event.title ?? "Match")}
               </h1>
               <PlanStatusBadge
                 status={planStatus({
@@ -485,18 +562,42 @@ function MatchPlanner({
               />
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-              <div><dt className="text-muted-foreground">Hemma/borta</dt><dd>{event.home_team === team.name ? "Hemma" : "Borta"}</dd></div>
-              <div><dt className="text-muted-foreground">Plats</dt><dd>{event.location ?? "–"}</dd></div>
-              <div><dt className="text-muted-foreground">Datum</dt><dd>{dateLabel(event.starts_at)}</dd></div>
-              <div><dt className="text-muted-foreground">Matchstart</dt><dd>{timeOnly(event.starts_at)}</dd></div>
-              {event.meet_at && <div><dt className="text-muted-foreground">Samling</dt><dd>{timeOnly(event.meet_at)}</dd></div>}
-              {event.match_kind && <div><dt className="text-muted-foreground">Matchtyp</dt><dd>{event.match_kind}</dd></div>}
+              <div>
+                <dt className="text-muted-foreground">Hemma/borta</dt>
+                <dd>{event.home_team === team.name ? "Hemma" : "Borta"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Plats</dt>
+                <dd>{event.location ?? "–"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Datum</dt>
+                <dd>{dateLabel(event.starts_at)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Matchstart</dt>
+                <dd>{timeOnly(event.starts_at)}</dd>
+              </div>
+              {event.meet_at && (
+                <div>
+                  <dt className="text-muted-foreground">Samling</dt>
+                  <dd>{timeOnly(event.meet_at)}</dd>
+                </div>
+              )}
+              {event.match_kind && (
+                <div>
+                  <dt className="text-muted-foreground">Matchtyp</dt>
+                  <dd>{event.match_kind}</dd>
+                </div>
+              )}
             </dl>
             {meetInfo && <p className="mt-3 rounded-lg bg-muted p-3 text-sm">{meetInfo}</p>}
           </div>
 
           <section className="rounded-xl border bg-card p-4">
-            <h2 className="mb-2 flex items-center gap-2 font-medium"><Users className="size-4" /> Ledare</h2>
+            <h2 className="mb-2 flex items-center gap-2 font-medium">
+              <Users className="size-4" /> Ledare
+            </h2>
             <EventCoaches eventId={eventId} teamId={teamId} userId={null} canEdit={false} />
           </section>
 
@@ -504,12 +605,21 @@ function MatchPlanner({
             <h2 className="mb-2 font-medium">Spelarnas svar</h2>
             <p className="text-sm text-muted-foreground">{summaryText(displayCounts)}</p>
             <ul className="mt-2 space-y-1 text-sm">
-              {sortedPlayers.filter((p) => playerIds.includes(p.id)).map((p) => (
-                <li key={p.id} className="flex items-center justify-between">
-                  <span>{p.number != null && <span className="mr-1 text-muted-foreground">{p.number}</span>}{p.name}</span>
-                  <span className="text-muted-foreground">{inviteStatusLabel(statusByPlayer.get(p.id) ?? "pending")}</span>
-                </li>
-              ))}
+              {sortedPlayers
+                .filter((p) => playerIds.includes(p.id))
+                .map((p) => (
+                  <li key={p.id} className="flex items-center justify-between">
+                    <span>
+                      {p.number != null && (
+                        <span className="mr-1 text-muted-foreground">{p.number}</span>
+                      )}
+                      {p.name}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {inviteStatusLabel(statusByPlayer.get(p.id) ?? "pending")}
+                    </span>
+                  </li>
+                ))}
             </ul>
           </section>
 
@@ -537,7 +647,11 @@ function MatchPlanner({
               <li
                 key={label}
                 className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  i === step ? "bg-primary text-primary-foreground" : i < step ? "bg-primary/15" : "bg-muted text-muted-foreground"
+                  i === step
+                    ? "bg-primary text-primary-foreground"
+                    : i < step
+                      ? "bg-primary/15"
+                      : "bg-muted text-muted-foreground"
                 }`}
               >
                 {i + 1}. {label}
@@ -549,41 +663,96 @@ function MatchPlanner({
             <section className="space-y-4 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Matchuppgifter</h2>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium" htmlFor="mp-opponent">Motståndare</label>
-                <Input id="mp-opponent" value={opponent} onChange={(e) => setOpponent(e.target.value)} placeholder="T.ex. IK Exempel" />
+                <label className="text-sm font-medium" htmlFor="mp-opponent">
+                  Motståndare
+                </label>
+                <Input
+                  id="mp-opponent"
+                  value={opponent}
+                  onChange={(e) => setOpponent(e.target.value)}
+                  placeholder="T.ex. IK Exempel"
+                />
               </div>
               <div className="flex gap-2" role="radiogroup" aria-label="Hemma eller borta">
                 {(["hemma", "borta"] as const).map((v) => (
-                  <Button key={v} type="button" variant={homeAway === v ? "default" : "outline"} size="sm" onClick={() => setHomeAway(v)}>
+                  <Button
+                    key={v}
+                    type="button"
+                    variant={homeAway === v ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setHomeAway(v)}
+                  >
                     {v === "hemma" ? "Hemma" : "Borta"}
                   </Button>
                 ))}
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium" htmlFor="mp-location">Arena/plats</label>
-                <Input id="mp-location" value={location} onChange={(e) => setLocation(e.target.value)} />
+                <label className="text-sm font-medium" htmlFor="mp-location">
+                  Arena/plats
+                </label>
+                <Input
+                  id="mp-location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium" htmlFor="mp-date">Datum</label>
-                  <Input id="mp-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                  <label className="text-sm font-medium" htmlFor="mp-date">
+                    Datum
+                  </label>
+                  <Input
+                    id="mp-date"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium" htmlFor="mp-start">Matchstart</label>
-                  <Input id="mp-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                  <label className="text-sm font-medium" htmlFor="mp-start">
+                    Matchstart
+                  </label>
+                  <Input
+                    id="mp-start"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium" htmlFor="mp-meet">Samlingstid</label>
-                  <Input id="mp-meet" type="time" value={meetTime} onChange={(e) => setMeetTime(e.target.value)} />
+                  <label className="text-sm font-medium" htmlFor="mp-meet">
+                    Samlingstid
+                  </label>
+                  <Input
+                    id="mp-meet"
+                    type="time"
+                    value={meetTime}
+                    onChange={(e) => setMeetTime(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium" htmlFor="mp-end">Beräknad sluttid</label>
-                  <Input id="mp-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                  <label className="text-sm font-medium" htmlFor="mp-end">
+                    Beräknad sluttid
+                  </label>
+                  <Input
+                    id="mp-end"
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium" htmlFor="mp-meetinfo">Samlingsinformation (frivilligt)</label>
-                <Textarea id="mp-meetinfo" value={meetInfo} onChange={(e) => setMeetInfo(e.target.value)} rows={2} placeholder="T.ex. samling vid omklädningsrummen" />
+                <label className="text-sm font-medium" htmlFor="mp-meetinfo">
+                  Samlingsinformation (frivilligt)
+                </label>
+                <Textarea
+                  id="mp-meetinfo"
+                  value={meetInfo}
+                  onChange={(e) => setMeetInfo(e.target.value)}
+                  rows={2}
+                  placeholder="T.ex. samling vid omklädningsrummen"
+                />
               </div>
             </section>
           )}
@@ -591,12 +760,18 @@ function MatchPlanner({
           {step === 1 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Ansvariga ledare</h2>
-              <p className="text-sm text-muted-foreground">Minst en ledare krävs för status Klar.</p>
+              <p className="text-sm text-muted-foreground">
+                Minst en ledare krävs för status Klar.
+              </p>
               <ul className="space-y-2">
                 {coaches.map((m) => {
                   const checked = coachIds.includes(m.user_id);
                   const toggle = () =>
-                    setCoachIds((ids) => (ids.includes(m.user_id) ? ids.filter((x) => x !== m.user_id) : [...ids, m.user_id]));
+                    setCoachIds((ids) =>
+                      ids.includes(m.user_id)
+                        ? ids.filter((x) => x !== m.user_id)
+                        : [...ids, m.user_id],
+                    );
                   return (
                     <li key={m.user_id}>
                       <div
@@ -613,10 +788,21 @@ function MatchPlanner({
                         className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40"
                       >
                         <span onClick={(e) => e.stopPropagation()} className="inline-flex">
-                          <Checkbox checked={checked} onCheckedChange={toggle} tabIndex={-1} aria-hidden />
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={toggle}
+                            tabIndex={-1}
+                            aria-hidden
+                          />
                         </span>
                         <span className="flex-1 font-medium">{m.displayName ?? "Ledare"}</span>
-                        <span className="text-xs text-muted-foreground">{m.role === "head_coach" ? "Huvudtränare" : m.role === "club_admin" ? "Klubbadmin" : "Tränare"}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {m.role === "head_coach"
+                            ? "Huvudtränare"
+                            : m.role === "club_admin"
+                              ? "Klubbadmin"
+                              : "Tränare"}
+                        </span>
                       </div>
                     </li>
                   );
@@ -629,7 +815,8 @@ function MatchPlanner({
             <section className="space-y-3 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Uttagna spelare</h2>
               <p className="text-sm text-muted-foreground">
-                {playerIds.length} valda · {required} startspelare krävs för {FORMAT_LABELS[format]}.
+                {playerIds.length} valda · {required} startspelare krävs för {FORMAT_LABELS[format]}
+                .
               </p>
               <ul className="space-y-2">
                 {sortedPlayers.map((p) => {
@@ -651,13 +838,22 @@ function MatchPlanner({
                         className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-accent/40"
                       >
                         <span onClick={(e) => e.stopPropagation()} className="inline-flex">
-                          <Checkbox checked={checked} onCheckedChange={() => togglePlayer(p.id)} tabIndex={-1} aria-hidden />
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={() => togglePlayer(p.id)}
+                            tabIndex={-1}
+                            aria-hidden
+                          />
                         </span>
                         <span className="flex-1 font-medium">
-                          {p.number != null && <span className="mr-1 text-muted-foreground">{p.number}</span>}
+                          {p.number != null && (
+                            <span className="mr-1 text-muted-foreground">{p.number}</span>
+                          )}
                           {p.name}
                         </span>
-                        <span className={`text-xs ${st === "declined" ? "text-destructive" : "text-muted-foreground"}`}>
+                        <span
+                          className={`text-xs ${st === "declined" ? "text-destructive" : "text-muted-foreground"}`}
+                        >
                           {inviteStatusLabel(st)}
                         </span>
                       </div>
@@ -673,7 +869,13 @@ function MatchPlanner({
               <h2 className="font-medium">Formation och avbytare</h2>
               <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
                 {Object.keys(FORMAT_PLAYERS).map((f) => (
-                  <Button key={f} type="button" variant={format === f ? "default" : "outline"} size="sm" onClick={() => changeFormat(f)}>
+                  <Button
+                    key={f}
+                    type="button"
+                    variant={format === f ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => changeFormat(f)}
+                  >
                     {FORMAT_LABELS[f]}
                   </Button>
                 ))}
@@ -691,7 +893,9 @@ function MatchPlanner({
                 }}
               />
               <div className="space-y-1.5">
-                <label className="text-sm font-medium" htmlFor="mp-tactic">Kopplad taktik (frivilligt)</label>
+                <label className="text-sm font-medium" htmlFor="mp-tactic">
+                  Kopplad taktik (frivilligt)
+                </label>
                 <select
                   id="mp-tactic"
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -700,7 +904,9 @@ function MatchPlanner({
                 >
                   <option value="">Ingen taktik</option>
                   {tactics.map((t) => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -711,43 +917,100 @@ function MatchPlanner({
             <section className="space-y-3 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Granska och spara</h2>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><dt className="text-muted-foreground">Motståndare</dt><dd>{opponent || "–"}</dd></div>
-                <div><dt className="text-muted-foreground">Hemma/borta</dt><dd>{homeAway === "hemma" ? "Hemma" : "Borta"}</dd></div>
-                <div><dt className="text-muted-foreground">Plats</dt><dd>{location || "–"}</dd></div>
-                <div><dt className="text-muted-foreground">Datum</dt><dd>{date}</dd></div>
-                <div><dt className="text-muted-foreground">Matchstart</dt><dd>{startTime}</dd></div>
-                <div><dt className="text-muted-foreground">Samling</dt><dd>{meetTime || "–"}</dd></div>
-                <div><dt className="text-muted-foreground">Ledare</dt><dd>{coachIds.length} valda</dd></div>
-                <div><dt className="text-muted-foreground">Spelare</dt><dd>{playerIds.length} uttagna</dd></div>
-                <div><dt className="text-muted-foreground">Spelform</dt><dd>{FORMAT_LABELS[format]}</dd></div>
-                <div><dt className="text-muted-foreground">Startspelare</dt><dd>{starters.length}/{required}</dd></div>
-                <div><dt className="text-muted-foreground">Avbytare</dt><dd>{bench.length}</dd></div>
-                <div><dt className="text-muted-foreground">Taktik</dt><dd>{tactics.find((t) => t.id === tacticId)?.name ?? "Ingen"}</dd></div>
+                <div>
+                  <dt className="text-muted-foreground">Motståndare</dt>
+                  <dd>{opponent || "–"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Hemma/borta</dt>
+                  <dd>{homeAway === "hemma" ? "Hemma" : "Borta"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Plats</dt>
+                  <dd>{location || "–"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Datum</dt>
+                  <dd>{date}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Matchstart</dt>
+                  <dd>{startTime}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Samling</dt>
+                  <dd>{meetTime || "–"}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Ledare</dt>
+                  <dd>{coachIds.length} valda</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Spelare</dt>
+                  <dd>{playerIds.length} uttagna</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Spelform</dt>
+                  <dd>{FORMAT_LABELS[format]}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Startspelare</dt>
+                  <dd>
+                    {starters.length}/{required}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Avbytare</dt>
+                  <dd>{bench.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Taktik</dt>
+                  <dd>{tactics.find((t) => t.id === tacticId)?.name ?? "Ingen"}</dd>
+                </div>
               </dl>
               <LineupPitch slots={slots} players={playersById} />
             </section>
           )}
 
           <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+            <Button
+              variant="outline"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              disabled={step === 0}
+            >
               <ArrowLeft className="size-4" /> Föregående
             </Button>
             {step < STEPS.length - 1 ? (
               <Button
                 onClick={() => {
                   if (step === 0) {
-                    if (!opponent.trim()) { toast.error("Ange motståndare."); return; }
-                    if (!date || !startTime) { toast.error("Ange datum och matchstart."); return; }
+                    if (!opponent.trim()) {
+                      toast.error("Ange motståndare.");
+                      return;
+                    }
+                    if (!date || !startTime) {
+                      toast.error("Ange datum och matchstart.");
+                      return;
+                    }
                     if (meetTime) {
                       const err = validateMeetBeforeStart(
                         new Date(`${date}T${meetTime}`).toISOString(),
                         new Date(`${date}T${startTime}`).toISOString(),
                       );
-                      if (err) { toast.error(err); return; }
+                      if (err) {
+                        toast.error(err);
+                        return;
+                      }
                     }
                   }
-                  if (step === 1 && coachIds.length === 0) { toast.error("Välj minst en ledare."); return; }
-                  if (step === 2 && playerIds.length === 0) { toast.error("Välj minst en spelare."); return; }
+                  if (step === 1 && coachIds.length === 0) {
+                    toast.error("Välj minst en ledare.");
+                    return;
+                  }
+                  if (step === 2 && playerIds.length === 0) {
+                    toast.error("Välj minst en spelare.");
+                    return;
+                  }
                   setStep((s) => s + 1);
                 }}
               >
@@ -800,13 +1063,16 @@ function ShareDialog({
           <DialogTitle>Dela laguppställning</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          Länken är skrivskyddad och visar bara matchinfo, formation, tröjnummer och namn – aldrig kontaktuppgifter eller anteckningar.
+          Länken är skrivskyddad och visar bara matchinfo, formation, tröjnummer och namn – aldrig
+          kontaktuppgifter eller anteckningar.
         </p>
         {share ? (
           <div className="space-y-3">
             <Input readOnly value={url ?? ""} onFocus={(e) => e.target.select()} />
             {share.expires_at && (
-              <p className="text-xs text-muted-foreground">Slutar gälla: {dateLabel(share.expires_at)}</p>
+              <p className="text-xs text-muted-foreground">
+                Slutar gälla: {dateLabel(share.expires_at)}
+              </p>
             )}
             <div className="flex gap-2">
               <Button
@@ -843,8 +1109,15 @@ function ShareDialog({
         ) : (
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium" htmlFor="share-expires">Slutdatum (frivilligt)</label>
-              <Input id="share-expires" type="date" value={expires} onChange={(e) => setExpires(e.target.value)} />
+              <label className="text-sm font-medium" htmlFor="share-expires">
+                Slutdatum (frivilligt)
+              </label>
+              <Input
+                id="share-expires"
+                type="date"
+                value={expires}
+                onChange={(e) => setExpires(e.target.value)}
+              />
             </div>
             <Button
               disabled={busy}
@@ -879,7 +1152,8 @@ function ShareDialog({
 function NewMatchCreator() {
   const { user, memberships, loading } = useAccount();
   const coachTeams = memberships.filter(
-    (m) => m.status === "approved" && ["coach", "head_coach", "club_admin"].includes(m.role as string),
+    (m) =>
+      m.status === "approved" && ["coach", "head_coach", "club_admin"].includes(m.role as string),
   );
   const [teamId, setTeamId] = useState("");
   const activeTeam = teamId || coachTeams[0]?.team_id || "";

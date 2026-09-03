@@ -29,7 +29,9 @@ function AdminLog() {
           )}
         </li>
       ))}
-      {(log.data ?? []).length === 0 && <li className="text-muted-foreground">Inga händelser loggade ännu.</li>}
+      {(log.data ?? []).length === 0 && (
+        <li className="text-muted-foreground">Inga händelser loggade ännu.</li>
+      )}
     </ul>
   );
 }
