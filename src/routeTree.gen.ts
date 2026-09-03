@@ -28,6 +28,7 @@ import { Route as AuthenticatedTranarsnackRouteImport } from './routes/_authenti
 import { Route as DeladMatchTokenRouteImport } from './routes/delad-match.$token'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminInnehallRouteImport } from './routes/_authenticated/admin.innehall'
 import { Route as AuthenticatedAdminKontonRouteImport } from './routes/_authenticated/admin.konton'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
@@ -163,6 +164,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminInnehallRoute =
+  AuthenticatedAdminInnehallRouteImport.update({
+    id: '/innehall',
+    path: '/innehall',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminKontonRoute =
   AuthenticatedAdminKontonRouteImport.update({
     id: '/konton',
@@ -390,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -443,6 +451,7 @@ export interface FileRoutesByTo {
   '/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -498,6 +507,7 @@ export interface FileRoutesById {
   '/_authenticated/tranarsnack': typeof AuthenticatedTranarsnackRoute
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/_authenticated/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/_authenticated/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
@@ -555,6 +565,7 @@ export interface FileRouteTypes {
     | '/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/admin/innehall'
     | '/admin/konton'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -608,6 +619,7 @@ export interface FileRouteTypes {
     | '/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/admin/innehall'
     | '/admin/konton'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
@@ -662,6 +674,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tranarsnack'
     | '/delad-match/$token'
     | '/t/$shareId'
+    | '/_authenticated/admin/innehall'
     | '/_authenticated/admin/konton'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
@@ -841,6 +854,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/innehall': {
+      id: '/_authenticated/admin/innehall'
+      path: '/innehall'
+      fullPath: '/admin/innehall'
+      preLoaderRoute: typeof AuthenticatedAdminInnehallRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/konton': {
@@ -1092,6 +1112,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminInnehallRoute: typeof AuthenticatedAdminInnehallRoute
   AuthenticatedAdminKontonRoute: typeof AuthenticatedAdminKontonRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminLagTeamIdRoute: typeof AuthenticatedAdminLagTeamIdRoute
@@ -1099,6 +1120,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminInnehallRoute: AuthenticatedAdminInnehallRoute,
   AuthenticatedAdminKontonRoute: AuthenticatedAdminKontonRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminLagTeamIdRoute: AuthenticatedAdminLagTeamIdRoute,
