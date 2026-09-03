@@ -175,3 +175,10 @@
   - [x] Giltig delningslänk utloggad: visar match, formation, nummer och namn – inga e-post/telefon/anteckningar; återkallad länk ger tomt
   - [x] RLS mellan två lag: läsning av annat lags spelare/aktiviteter/kallelser ger 0 rader, sparning nekas ("Endast lagets tränare..."), insert nekas av RLS; anonym direktläsning ger 0 rader
   - [x] Påminnelse-debounce: tre parallella tryck skapar nu exakt en notis (fixat med lås per aktivitet i send_invite_reminders)
+
+## Akutlista 2026-09-03
+- [ ] Tränare ska aldrig se "Väntar på godkännande" i sitt eget lag (Närvaro/Uppföljning)
+- [ ] Notisprick (röd siffra) för nya medlemsansökningar i menyn och på Mina lag
+- [ ] "Radera alla taktiker" – tömmer listan och "Fortsätt där du var"
+- [ ] Spara matchplan → tillbaka till matchlistan i Planera match
+- [ ] Rätta registrering och lagkodsflöde (spelarkod/tränarkod, 6 tecken, metadata, guardian-namn, tester)
