@@ -168,11 +168,20 @@ export function KnowledgeLibrary() {
             <Link
               to="/kunskapsbank/$slug"
               params={{ slug: article.slug }}
-              className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary"
+              className="block rounded-xl border border-border bg-card p-4 pr-12 transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <p className="text-xs tracking-wide text-muted-foreground">
-                {article.category} · {knowledgeAgeLabel(article)}
-                {article.level ? ` · ${article.level}` : ""}
+              <p className="flex flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground">
+                <span
+                  className={`rounded-full px-2 py-0.5 ${
+                    knowledgeKind(article) === "Artikel"
+                      ? "bg-secondary"
+                      : "border border-primary/40 bg-primary/10 text-foreground"
+                  }`}
+                >
+                  {knowledgeKind(article)}
+                </span>
+                <span>{article.category}</span>
+                {article.level ? <span>· {article.level}</span> : null}
               </p>
               <h3 className="mt-1 font-display text-lg font-semibold">{article.title_sv}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{article.summary_sv}</p>
@@ -184,6 +193,7 @@ export function KnowledgeLibrary() {
                 ) : null}
               </div>
             </Link>
+
             <div className="mt-2"></div>
           </div>
         ))}
