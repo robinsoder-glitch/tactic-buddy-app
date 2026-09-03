@@ -201,6 +201,7 @@ export function EventManager({
         repeatCount,
       });
       await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      onChanged?.();
       toast.success(
         savedMessage ??
           (type === "training"
@@ -217,8 +218,12 @@ export function EventManager({
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteEvent(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["events", teamId] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      onChanged?.();
+    },
   });
+
 
   return (
     <section>
