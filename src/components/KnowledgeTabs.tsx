@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 const base =
   "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-colors";
 
-export function KnowledgeTabs({ active }: { active: "articles" | "mistakes" | "technique" }) {
+export function KnowledgeTabs({ active }: { active: "articles" | "mistakes" | "technique" | "favorites" }) {
   const cls = (isActive: boolean) =>
     `${base} ${
       isActive
@@ -33,6 +33,13 @@ export function KnowledgeTabs({ active }: { active: "articles" | "mistakes" | "t
         className={cls(active === "technique")}
       >
         Teknik
+      </Link>
+      <Link
+        to="/kunskapsbank/favoriter"
+        aria-current={active === "favorites" ? "page" : undefined}
+        className={cls(active === "favorites")}
+      >
+        Mina favoriter
       </Link>
     </nav>
   );

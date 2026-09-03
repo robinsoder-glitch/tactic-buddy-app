@@ -279,7 +279,13 @@ export type FavoriteKind = "tactic" | "goalkeeper" | "drill" | "session" | "arti
 export type Favorite = { kind: FavoriteKind; resource_id: string };
 
 export async function fetchFavorites(): Promise<Favorite[]> {
-  const { data, error } = await supabase.from("tb_favorites").select("kind, resource_id");
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from("tb_favorites")
+    .select("kind, resource_id")
+    .eq("user_id", userId);
   if (error) throw error;
   return (data ?? []) as Favorite[];
 }
