@@ -337,6 +337,7 @@ export function Pitch({
       ? []
       : drawings
           .filter((drawing) => drawing.type === "pass")
+          .slice(0, 1)
           .map((drawing) => ({
             id: drawing.id,
             x: (drawing.x1 + (drawing.x2 - drawing.x1) * passT) * w,

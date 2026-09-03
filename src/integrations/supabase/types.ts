@@ -2367,7 +2367,37 @@ export type Database = {
         }[]
       }
       gen_team_code: { Args: never; Returns: string }
+      get_player_private: {
+        Args: { _player_id: string }
+        Returns: {
+          allergy_note: string
+          birth_date: string
+          guardian1_email: string
+          guardian1_name: string
+          guardian1_phone: string
+          guardian2_email: string
+          guardian2_name: string
+          guardian2_phone: string
+          has_allergy: boolean
+          player_id: string
+        }[]
+      }
       get_shared_match: { Args: { _token: string }; Returns: Json }
+      get_team_players_private: {
+        Args: { _team_id: string }
+        Returns: {
+          allergy_note: string
+          birth_date: string
+          guardian1_email: string
+          guardian1_name: string
+          guardian1_phone: string
+          guardian2_email: string
+          guardian2_name: string
+          guardian2_phone: string
+          has_allergy: boolean
+          player_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

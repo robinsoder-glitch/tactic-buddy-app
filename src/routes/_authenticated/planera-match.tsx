@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { AppNav } from "@/components/AppNav";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
 import { EventCoaches } from "@/components/EventCoaches";
@@ -140,7 +139,6 @@ function MatchPlanningPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppNav />
       <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
         {!selected && (
           <>
@@ -231,6 +229,7 @@ function MatchPlanner({
   ) => void;
 }) {
   const [mode, setMode] = useState<"read" | "edit">(startInEdit ? "edit" : "read");
+  const [planSaved, setPlanSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<MatchEvent | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
@@ -342,10 +341,11 @@ function MatchPlanner({
         }
         const { data: plan } = await supabase
           .from("event_plans")
-          .select("notes")
+          .select("notes, planning_done")
           .eq("event_id", eventId)
           .maybeSingle();
         setMeetInfo(plan?.notes ?? "");
+        setPlanSaved(Boolean(plan?.planning_done));
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Kunde inte hämta matchen");
       } finally {
@@ -477,7 +477,11 @@ function MatchPlanner({
           fetchLineup(eventId),
           fetchEventCoaches([eventId]),
           (await import("@/lib/planning")).fetchSquad(eventId),
-          supabase.from("event_plans").select("notes").eq("event_id", eventId).maybeSingle(),
+          supabase
+            .from("event_plans")
+            .select("notes, planning_done")
+            .eq("event_id", eventId)
+            .maybeSingle(),
         ],
       );
       if (freshEvent) setEvent(freshEvent as unknown as MatchEvent);
@@ -489,6 +493,7 @@ function MatchPlanner({
       setCoachIds(freshCoaches.map((c) => c.user_id));
       setPlayerIds(freshSquad);
       setMeetInfo(freshPlan.data?.notes ?? "");
+      setPlanSaved(Boolean(freshPlan.data?.planning_done));
       onSaved(eventId, {
         players: freshSquad.length,
         coaches: freshCoaches.length,
@@ -528,7 +533,7 @@ function MatchPlanner({
               <Share2 className="size-4" /> Dela laguppställning
             </Button>
             <Button size="sm" onClick={() => setMode("edit")}>
-              <Pencil className="size-4" /> Ändra
+              <Pencil className="size-4" /> Ändra planering
             </Button>
           </div>
         ) : (
@@ -555,7 +560,7 @@ function MatchPlanner({
               <PlanStatusBadge
                 status={planStatus({
                   type: "match",
-                  planSaved: true,
+                  planSaved,
                   playerCount: playerIds.length,
                   coachCount: coachIds.length,
                 })}

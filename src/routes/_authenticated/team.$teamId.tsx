@@ -5,14 +5,12 @@ import {
   BarChart3,
   CalendarCheck,
   CalendarDays,
-  Dumbbell,
   Images,
   CalendarRange,
   Info,
   MessagesSquare,
   Shield,
   ShieldCheck,
-  Trophy,
   Users,
 } from "lucide-react";
 import { fetchTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
@@ -32,22 +30,20 @@ export const Route = createFileRoute("/_authenticated/team/$teamId")({
   component: TeamLayout,
 });
 
-/** Fem huvudflikar. Övriga sidor ligger som underlänkar. */
+/** Exakt fem flikar i laget. */
 const TABS = [
   { to: "/team/$teamId/about", label: "Översikt", icon: Info, exact: false },
-  { to: "/team/$teamId/calendar", label: "Aktiviteter", icon: CalendarDays, exact: false },
   { to: "/team/$teamId", label: "Trupp", icon: Users, exact: true },
-  { to: "/team/$teamId/narvaro", label: "Närvaro", icon: CalendarCheck, exact: false },
-  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3, exact: false },
+  { to: "/team/$teamId/calendar", label: "Aktiviteter", icon: CalendarDays, exact: false },
+  { to: "/team/$teamId/narvaro", label: "Uppföljning", icon: CalendarCheck, exact: false },
   { to: "/team/$teamId/leaders", label: "Laginställningar", icon: ShieldCheck, exact: false },
 ] as const;
 
+/** Fördjupningar som hör till en flik – visas som diskreta genvägar. */
 const SUB_LINKS = [
-  { to: "/team/$teamId/training", label: "Träning", icon: Dumbbell },
-  { to: "/team/$teamId/matches", label: "Matcher", icon: Trophy },
-  { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
-  { to: "/team/$teamId/tranarsnack", label: "Tränarsnack", icon: MessagesSquare },
+  { to: "/team/$teamId/statistik", label: "Statistik", icon: BarChart3 },
   { to: "/team/$teamId/periodplan", label: "Periodplan", icon: CalendarRange },
+  { to: "/team/$teamId/photos", label: "Bilder", icon: Images },
 ] as const;
 
 function TeamLayout() {
@@ -110,6 +106,14 @@ function TeamLayout() {
               .join(" · ")}
           </p>
         </div>
+        <Link
+          to="/team/$teamId/tranarsnack"
+          params={{ teamId }}
+          className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground hover:bg-accent"
+        >
+          <MessagesSquare className="size-4 text-primary" aria-hidden />
+          Tränarsnack
+        </Link>
       </header>
 
       <nav className="mt-5 -mx-4 flex gap-1 overflow-x-auto px-4 pb-2">

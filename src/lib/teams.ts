@@ -34,6 +34,11 @@ export type TeamMember = {
   displayName?: string | null;
 };
 
+/**
+ * Känsliga fält (födelsedatum, vårdnadshavare, allergi) finns bara med när
+ * databasen tillåter det: lagets ledare, plattformsadmin, spelaren själv eller
+ * kopplad vårdnadshavare. Övriga lagmedlemmar får dem som null/undefined.
+ */
 export type TeamPlayer = {
   id: string;
   name: string;
@@ -395,22 +400,70 @@ export async function removeMember(id: string) {
 
 /* ---------------- team players ---------------- */
 
+type PlayerPrivateRow = {
+  player_id: string;
+  birth_date: string | null;
+  guardian1_name: string | null;
+  guardian1_phone: string | null;
+  guardian1_email: string | null;
+  guardian2_name: string | null;
+  guardian2_phone: string | null;
+  guardian2_email: string | null;
+  has_allergy: boolean | null;
+  allergy_note: string | null;
+};
+
+const EMPTY_PRIVATE = {
+  birth_date: null,
+  guardian1_name: null,
+  guardian1_phone: null,
+  guardian1_email: null,
+  guardian2_name: null,
+  guardian2_phone: null,
+  guardian2_email: null,
+  has_allergy: false,
+  allergy_note: null,
+} as const;
+
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
-    .select(
-      "id, name, number, birth_date, gender, photo_path, is_goalkeeper, is_active, guardian1_name, guardian1_phone, guardian1_email, guardian2_name, guardian2_phone, guardian2_email, has_allergy, allergy_note",
-    )
-
+    .select("id, name, number, gender, photo_path, is_goalkeeper, is_active")
     .eq("team_id", teamId)
     .order("name");
   if (error) throw error;
 
+  // Känsliga uppgifter hämtas separat – databasen avgör vem som får se dem.
+  const privateById = new Map<string, PlayerPrivateRow>();
+  const priv = await supabase.rpc("get_team_players_private", { _team_id: teamId });
+  if (!priv.error) {
+    for (const row of (priv.data ?? []) as PlayerPrivateRow[]) {
+      privateById.set(row.player_id, row);
+    }
+  }
+
   return Promise.all(
-    (data ?? []).map(async (row) => ({
-      ...(row as unknown as TeamPlayer),
-      photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
-    })),
+    (data ?? []).map(async (row) => {
+      const secret = privateById.get(row.id);
+      return {
+        ...EMPTY_PRIVATE,
+        ...(secret
+          ? {
+              birth_date: secret.birth_date,
+              guardian1_name: secret.guardian1_name,
+              guardian1_phone: secret.guardian1_phone,
+              guardian1_email: secret.guardian1_email,
+              guardian2_name: secret.guardian2_name,
+              guardian2_phone: secret.guardian2_phone,
+              guardian2_email: secret.guardian2_email,
+              has_allergy: secret.has_allergy ?? false,
+              allergy_note: secret.allergy_note,
+            }
+          : {}),
+        ...(row as unknown as Omit<TeamPlayer, keyof typeof EMPTY_PRIVATE | "photoUrl">),
+        photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
+      } as TeamPlayer;
+    }),
   );
 }
 

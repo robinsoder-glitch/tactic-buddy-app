@@ -6,12 +6,17 @@ export type MainTab = {
   exact: boolean;
 };
 
+/** Fem primära arbetsområden – samma ordning på mobil och dator. */
 export const MAIN_TABS: MainTab[] = [
   { to: "/planera-traning", label: "Planera träning", exact: false },
   { to: "/planera-match", label: "Planera match", exact: false },
   { to: "/taktik", label: "Taktik", exact: false },
-  { to: "/kunskapsbank", label: "Kunskap", exact: false },
   { to: "/ovningsbank", label: "Träningsbank", exact: false },
+  { to: "/kunskapsbank", label: "Kunskap", exact: false },
+];
+
+/** Sekundär meny: Lag och verktyg. */
+export const SECONDARY_TABS: MainTab[] = [
   { to: "/kalender", label: "Kalender", exact: false },
   { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/tranarsnack", label: "Tränarsnack", exact: false },
@@ -19,8 +24,7 @@ export const MAIN_TABS: MainTab[] = [
   { to: "/installningar", label: "Inställningar", exact: false },
 ];
 
-/** De fyra viktigaste valen visas direkt i mobilens nedre rad. */
-export const MOBILE_PRIMARY = ["/planera-traning", "/planera-match", "/taktik", "/kunskapsbank"];
+export const SECONDARY_LABEL = "Lag och verktyg";
 
 /** Gamla adresser som ska leda vidare till rätt ny sida. */
 export const LEGACY_REDIRECTS: Record<string, string> = {
@@ -30,4 +34,17 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
 
 export function isTabActive(pathname: string, tab: MainTab): boolean {
   return tab.exact ? pathname === tab.to : pathname === tab.to || pathname.startsWith(`${tab.to}/`);
+}
+
+/**
+ * Föräldervyn för en detaljsida. Returnerar null när sidan redan är en
+ * huvud- eller verktygsflik, eller när ingen tydlig förälder finns.
+ */
+export function parentPathFor(pathname: string): string | null {
+  const all = [...MAIN_TABS, ...SECONDARY_TABS];
+  if (all.some((tab) => tab.to === pathname)) return null;
+  const owner = all.find((tab) => pathname.startsWith(`${tab.to}/`));
+  if (owner) return owner.to;
+  if (pathname.startsWith("/team/")) return "/teams";
+  return null;
 }
