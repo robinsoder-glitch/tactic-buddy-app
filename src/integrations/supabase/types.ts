@@ -291,8 +291,10 @@ export type Database = {
           game_format: string | null
           goal: string | null
           id: string
+          is_template: boolean
           notes: string | null
           session_date: string | null
+          source_session_id: string | null
           status: string
           team_id: string | null
           template_id: string | null
@@ -300,6 +302,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          visibility: string
         }
         Insert: {
           age_group?: string | null
@@ -307,8 +310,10 @@ export type Database = {
           game_format?: string | null
           goal?: string | null
           id?: string
+          is_template?: boolean
           notes?: string | null
           session_date?: string | null
+          source_session_id?: string | null
           status?: string
           team_id?: string | null
           template_id?: string | null
@@ -316,6 +321,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id?: string
+          visibility?: string
         }
         Update: {
           age_group?: string | null
@@ -323,8 +329,10 @@ export type Database = {
           game_format?: string | null
           goal?: string | null
           id?: string
+          is_template?: boolean
           notes?: string | null
           session_date?: string | null
+          source_session_id?: string | null
           status?: string
           team_id?: string | null
           template_id?: string | null
@@ -332,8 +340,16 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          visibility?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "coach_sessions_source_session_id_fkey"
+            columns: ["source_session_id"]
+            isOneToOne: false
+            referencedRelation: "coach_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "coach_sessions_team_id_fkey"
             columns: ["team_id"]
@@ -2647,6 +2663,15 @@ export type Database = {
       can_see_member_profile: {
         Args: { _profile_id: string }
         Returns: boolean
+      }
+      copy_coach_session: {
+        Args: {
+          _as_template?: boolean
+          _source: string
+          _team_id?: string
+          _title?: string
+        }
+        Returns: string
       }
       find_team_by_code: {
         Args: { _code: string }
