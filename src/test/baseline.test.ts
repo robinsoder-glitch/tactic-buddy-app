@@ -95,12 +95,10 @@ describe("baslinje: namn och lagseparation", () => {
 describe("regressionsmarkering: punkt 7 får inte byggas", () => {
   const matchPlan = readFileSync("src/lib/match-plan.ts", "utf8");
 
-
   it("matchens laguppställning har bara den befintliga taktikkopplingen", () => {
     const tacticFields = [...matchPlan.matchAll(/\btactic[A-Za-z_]*\b/g)].map((m) => m[0]);
     for (const field of tacticFields) expect(["tactic_id", "tacticId"]).toContain(field);
   });
-
 
   it("matchplanen skapar inga taktikversioner eller frames", () => {
     expect(matchPlan).not.toMatch(/tactic_frames|tactic_versions|saveTacticVersion|createTactic/);

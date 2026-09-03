@@ -135,9 +135,27 @@ export const FIXTURE_ACCOUNTS: FixtureAccount[] = [
 
 export const FIXTURE_PLAYERS: FixturePlayer[] = [
   { key: "playerNoel", team: "teamA", name: "Noel", account: "playerAccount", guardians: [] },
-  { key: "playerElias", team: "teamA", name: "Elias", account: null, guardians: ["guardianOneChild"] },
-  { key: "playerWilma", team: "teamA", name: "Wilma", account: null, guardians: ["guardianTwoChildren"] },
-  { key: "playerAlva", team: "teamB", name: "Alva", account: null, guardians: ["guardianTwoChildren"] },
+  {
+    key: "playerElias",
+    team: "teamA",
+    name: "Elias",
+    account: null,
+    guardians: ["guardianOneChild"],
+  },
+  {
+    key: "playerWilma",
+    team: "teamA",
+    name: "Wilma",
+    account: null,
+    guardians: ["guardianTwoChildren"],
+  },
+  {
+    key: "playerAlva",
+    team: "teamB",
+    name: "Alva",
+    account: null,
+    guardians: ["guardianTwoChildren"],
+  },
   { key: "playerLiv", team: "teamB", name: "Liv", account: null, guardians: ["coachAndGuardian"] },
 ];
 
