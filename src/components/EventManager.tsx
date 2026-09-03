@@ -78,7 +78,9 @@ export function EventManager({
   newLabel,
   savedMessage,
   hideList,
+  onChanged,
 }: Props) {
+
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
