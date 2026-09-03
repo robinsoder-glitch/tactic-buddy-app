@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
 import { toast } from "sonner";
-import { fetchKnowledgeArticle, knowledgeAgeLabel, knowledgeFormatLabel } from "@/lib/knowledge";
+import { fetchKnowledgeArticle, knowledgeFormatLabel, knowledgeKind } from "@/lib/knowledge";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
