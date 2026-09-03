@@ -26,9 +26,10 @@ describe("baslinje: testdata täcker alla roller och lägen", () => {
   });
 
   it("har tränare, väntande tränare, spelarkonto och vårdnadshavare", () => {
-    expect(account("coachPending").memberships[0].status).toBe("pending");
-    expect(account("playerAccount").memberships[0].role).toBe("player");
-    expect(account("guardianOneChild").memberships[0].role).toBe("guardian");
+    expect(account("coachPending").memberships[0]?.status).toBe("pending");
+    expect(account("playerAccount").memberships[0]?.role).toBe("player");
+    expect(account("guardianOneChild").memberships[0]?.role).toBe("guardian");
+
     expect(account("guardianTwoChildren").guardianForNames).toHaveLength(2);
     const roles = account("coachAndGuardian").memberships.map((m) => m.role);
     expect(roles).toContain("coach");
