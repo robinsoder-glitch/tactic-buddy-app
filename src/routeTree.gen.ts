@@ -30,6 +30,7 @@ import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInnehallRouteImport } from './routes/_authenticated/admin.innehall'
 import { Route as AuthenticatedAdminKontonRouteImport } from './routes/_authenticated/admin.konton'
+import { Route as AuthenticatedAdminLoggRouteImport } from './routes/_authenticated/admin.logg'
 import { Route as AuthenticatedInbjudanTokenRouteImport } from './routes/_authenticated/inbjudan.$token'
 import { Route as AuthenticatedKalenderIndexRouteImport } from './routes/_authenticated/kalender.index'
 import { Route as AuthenticatedKalenderKallelserRouteImport } from './routes/_authenticated/kalender.kallelser'
@@ -176,6 +177,11 @@ const AuthenticatedAdminKontonRoute =
     path: '/konton',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminLoggRoute = AuthenticatedAdminLoggRouteImport.update({
+  id: '/logg',
+  path: '/logg',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedInbjudanTokenRoute =
   AuthenticatedInbjudanTokenRouteImport.update({
     id: '/inbjudan/$token',
@@ -399,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/t/$shareId': typeof TShareIdRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -453,6 +460,7 @@ export interface FileRoutesByTo {
   '/t/$shareId': typeof TShareIdRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -509,6 +517,7 @@ export interface FileRoutesById {
   '/t/$shareId': typeof TShareIdRoute
   '/_authenticated/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/_authenticated/admin/konton': typeof AuthenticatedAdminKontonRoute
+  '/_authenticated/admin/logg': typeof AuthenticatedAdminLoggRoute
   '/_authenticated/inbjudan/$token': typeof AuthenticatedInbjudanTokenRoute
   '/_authenticated/kalender/kallelser': typeof AuthenticatedKalenderKallelserRoute
   '/_authenticated/kunskapsbank/$slug': typeof AuthenticatedKunskapsbankSlugRoute
@@ -567,6 +576,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/admin/innehall'
     | '/admin/konton'
+    | '/admin/logg'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
@@ -621,6 +631,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/admin/innehall'
     | '/admin/konton'
+    | '/admin/logg'
     | '/inbjudan/$token'
     | '/kalender/kallelser'
     | '/kunskapsbank/$slug'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/t/$shareId'
     | '/_authenticated/admin/innehall'
     | '/_authenticated/admin/konton'
+    | '/_authenticated/admin/logg'
     | '/_authenticated/inbjudan/$token'
     | '/_authenticated/kalender/kallelser'
     | '/_authenticated/kunskapsbank/$slug'
@@ -868,6 +880,13 @@ declare module '@tanstack/react-router' {
       path: '/konton'
       fullPath: '/admin/konton'
       preLoaderRoute: typeof AuthenticatedAdminKontonRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/logg': {
+      id: '/_authenticated/admin/logg'
+      path: '/logg'
+      fullPath: '/admin/logg'
+      preLoaderRoute: typeof AuthenticatedAdminLoggRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/inbjudan/$token': {
@@ -1114,6 +1133,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminInnehallRoute: typeof AuthenticatedAdminInnehallRoute
   AuthenticatedAdminKontonRoute: typeof AuthenticatedAdminKontonRoute
+  AuthenticatedAdminLoggRoute: typeof AuthenticatedAdminLoggRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminLagTeamIdRoute: typeof AuthenticatedAdminLagTeamIdRoute
   AuthenticatedAdminLagIndexRoute: typeof AuthenticatedAdminLagIndexRoute
@@ -1122,6 +1142,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminInnehallRoute: AuthenticatedAdminInnehallRoute,
   AuthenticatedAdminKontonRoute: AuthenticatedAdminKontonRoute,
+  AuthenticatedAdminLoggRoute: AuthenticatedAdminLoggRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminLagTeamIdRoute: AuthenticatedAdminLagTeamIdRoute,
   AuthenticatedAdminLagIndexRoute: AuthenticatedAdminLagIndexRoute,
