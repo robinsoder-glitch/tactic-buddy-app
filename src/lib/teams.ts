@@ -279,7 +279,7 @@ export async function fetchMyMemberships() {
   return (data ?? []).map((row) => ({
     id: row.id as string,
     team_id: row.team_id as string,
-    role: row.role as "coach" | "player",
+    role: row.role as "coach" | "head_coach" | "club_admin" | "player" | "guardian",
     status: row.status as "pending" | "approved",
     can_manage_attendance: Boolean(
       (row as unknown as { can_manage_attendance?: boolean }).can_manage_attendance,
@@ -922,4 +922,40 @@ export function findSimilarPlayers<T extends { id: string; name: string }>(
   return players.filter(
     (player) => player.id !== excludeId && normalizePlayerName(player.name) === needle,
   );
+}
+
+/* ---------------- koppla spelarkonto till spelarkort ---------------- */
+
+/** Vilket konto som är kopplat till spelarkortet, om något. */
+export async function fetchPlayerAccount(playerId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("players")
+    .select("member_user_id")
+    .eq("id", playerId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.member_user_id as string | null) ?? null;
+}
+
+/** Vilka konton i laget som redan är kopplade till ett spelarkort. */
+export async function fetchLinkedPlayerAccounts(teamId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from("players")
+    .select("member_user_id")
+    .eq("team_id", teamId);
+  if (error) throw error;
+  return new Set(
+    (data ?? [])
+      .map((row) => row.member_user_id as string | null)
+      .filter((value): value is string => Boolean(value)),
+  );
+}
+
+/** Kopplar (eller kopplar loss) spelarens eget konto. Kallelser går sedan till kontot. */
+export async function setPlayerAccount(playerId: string, userId: string | null) {
+  const { error } = await supabase
+    .from("players")
+    .update({ member_user_id: userId })
+    .eq("id", playerId);
+  if (error) throw error;
 }

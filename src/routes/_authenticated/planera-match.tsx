@@ -73,6 +73,7 @@ function timeOnly(value: string): string {
   return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 import { toast } from "sonner";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/planera-match")({
   head: () => ({
@@ -84,7 +85,11 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
       },
     ],
   }),
-  component: MatchPlanningPage,
+  component: () => (
+    <CoachOnly>
+      <MatchPlanningPage />
+    </CoachOnly>
+  ),
 });
 
 type MatchEvent = PlannableEvent & {
@@ -106,6 +111,7 @@ function MatchPlanningPage() {
   const [coachCounts, setCoachCounts] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     void (async () => {
@@ -133,7 +139,8 @@ function MatchPlanningPage() {
         setLoading(false);
       }
     })();
-  }, [search.eventId]);
+  }, [search.eventId, reloadKey]);
+
 
   const selected = events?.find((e) => e.id === eventId) ?? null;
 
@@ -148,7 +155,7 @@ function MatchPlanningPage() {
                 Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning.
               </p>
             </div>
-            <NewMatchCreator />
+            <NewMatchCreator onChanged={() => setReloadKey((n) => n + 1)} />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
               <p className="text-sm text-muted-foreground">
@@ -1156,8 +1163,9 @@ function ShareDialog({
   );
 }
 
-function NewMatchCreator() {
+function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
   const { user, memberships, loading } = useAccount();
+
   const coachTeams = memberships.filter(
     (m) =>
       m.status === "approved" && ["coach", "head_coach", "club_admin"].includes(m.role as string),
@@ -1198,8 +1206,10 @@ function NewMatchCreator() {
           title="Matchtillfällen"
           newLabel="Boka match"
           hideList
+          onChanged={onChanged}
           savedMessage="Matchen har lagts till i kalendern."
         />
+
       )}
     </section>
   );

@@ -47,6 +47,7 @@ import {
 import { fetchDrills, fetchGoalkeeperCards } from "@/lib/taktikbank";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine } from "@/lib/event-labels";
+import { CoachOnly } from "@/components/CoachOnly";
 
 type Search = {
   eventId?: string | undefined;
@@ -80,7 +81,11 @@ export const Route = createFileRoute("/_authenticated/planera-traning")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PlanTrainingPage,
+  component: () => (
+    <CoachOnly>
+      <PlanTrainingPage />
+    </CoachOnly>
+  ),
 });
 
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";

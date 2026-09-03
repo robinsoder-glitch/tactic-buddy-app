@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/bank")({
   head: () => ({
@@ -33,7 +34,11 @@ export const Route = createFileRoute("/_authenticated/bank")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: BankPage,
+  component: () => (
+    <CoachOnly>
+      <BankPage />
+    </CoachOnly>
+  ),
 });
 
 type EditState = {

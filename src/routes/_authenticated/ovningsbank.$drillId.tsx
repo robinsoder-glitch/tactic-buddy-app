@@ -11,6 +11,7 @@ import { PickModeBanner } from "@/components/PickModeBanner";
 import { parsePickSearch } from "@/lib/training-pick";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
   validateSearch: (search: Record<string, unknown>) => parsePickSearch(search),
@@ -27,7 +28,11 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: DrillPage,
+  component: () => (
+    <CoachOnly>
+      <DrillPage />
+    </CoachOnly>
+  ),
 });
 
 function DrillPage() {

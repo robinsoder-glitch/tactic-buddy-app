@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { deleteAllTactics, deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/taktik")({
   head: () => ({
@@ -29,7 +30,11 @@ export const Route = createFileRoute("/_authenticated/taktik")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: TacticPage,
+  component: () => (
+    <CoachOnly>
+      <TacticPage />
+    </CoachOnly>
+  ),
 });
 
 function TacticPage() {

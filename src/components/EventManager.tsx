@@ -37,6 +37,9 @@ type Props = {
   savedMessage?: string;
   /** Dölj listan (när sidan visar aktiviteterna i en egen lista). */
   hideList?: boolean;
+  /** Anropas när en aktivitet skapats, ändrats eller tagits bort. */
+  onChanged?: () => void;
+
 };
 
 type ScheduleForm = {
@@ -75,7 +78,9 @@ export function EventManager({
   newLabel,
   savedMessage,
   hideList,
+  onChanged,
 }: Props) {
+
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -196,6 +201,7 @@ export function EventManager({
         repeatCount,
       });
       await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      onChanged?.();
       toast.success(
         savedMessage ??
           (type === "training"
@@ -212,8 +218,12 @@ export function EventManager({
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteEvent(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["events", teamId] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      onChanged?.();
+    },
   });
+
 
   return (
     <section>

@@ -212,10 +212,15 @@ function SquadPage() {
                         : " · vill bli spelare"}
                   </span>
                 </span>
-                <Button size="sm" onClick={() => approve.mutate(member.id)}>
+                <Button size="sm" aria-label="Godkänn" onClick={() => approve.mutate(member.id)}>
                   <Check className="size-4" />
                 </Button>
-                <Button size="sm" variant="secondary" onClick={() => reject.mutate(member.id)}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  aria-label="Neka"
+                  onClick={() => reject.mutate(member.id)}
+                >
                   <X className="size-4" />
                 </Button>
               </li>

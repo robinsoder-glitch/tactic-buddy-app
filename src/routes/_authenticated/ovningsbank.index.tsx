@@ -37,6 +37,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
+import { CoachOnly } from "@/components/CoachOnly";
 
 type OvningsbankSearch = {
   flik?: "ovningar" | "malvakt" | "pass" | undefined;
@@ -79,7 +80,11 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: OvningsbankPage,
+  component: () => (
+    <CoachOnly>
+      <OvningsbankPage />
+    </CoachOnly>
+  ),
 });
 
 const TABS = ["Övningar", "Målvaktsövningar"] as const;

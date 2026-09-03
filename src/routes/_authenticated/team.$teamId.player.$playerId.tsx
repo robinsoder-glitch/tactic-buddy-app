@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { GuardianLinks } from "@/components/GuardianLinks";
+import { PlayerAccountLink } from "@/components/PlayerAccountLink";
 import { PlayerDevelopment } from "@/components/PlayerDevelopment";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playerId")({
@@ -193,6 +194,7 @@ function PlayerPage() {
         </div>
       )}
 
+      <PlayerAccountLink playerId={playerId} teamId={teamId} canEdit={isCoach} />
       <GuardianLinks playerId={playerId} teamId={teamId} userId={userId} canEdit={isCoach} />
       <PlayerDevelopment teamId={teamId} playerId={playerId} canEdit={isCoach} />
 
