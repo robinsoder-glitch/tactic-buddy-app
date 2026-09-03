@@ -177,3 +177,21 @@ export function knowledgeFormatLabel(article: KnowledgeArticle): string | null {
   if (article.format_7v7) parts.push("7 mot 7");
   return parts.length ? parts.join(", ") : null;
 }
+
+export type KnowledgeKind = "Artikel" | "Forskning" | "Resursbank" | "Verktyg";
+
+/** Skiljer en vanlig artikel från forskning, portalsidor och verktyg. */
+export function knowledgeKind(article: KnowledgeArticle): KnowledgeKind {
+  const text = `${article.content_type ?? ""} ${article.source_type ?? ""}`.toLowerCase();
+  if (text.includes("verktyg") || text.includes("app")) return "Verktyg";
+  if (text.includes("resursbank") || text.includes("resursarkiv") || text.includes("dokumentarkiv"))
+    return "Resursbank";
+  if (
+    text.includes("vetenskap") ||
+    text.includes("systematisk") ||
+    text.includes("forskning") ||
+    text.includes("medicinsk")
+  )
+    return "Forskning";
+  return "Artikel";
+}

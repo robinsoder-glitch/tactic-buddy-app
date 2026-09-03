@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
 import { toast } from "sonner";
-import { fetchKnowledgeArticle, knowledgeAgeLabel, knowledgeFormatLabel } from "@/lib/knowledge";
+import { fetchKnowledgeArticle, knowledgeFormatLabel, knowledgeKind } from "@/lib/knowledge";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
@@ -30,13 +30,10 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   component: KnowledgeArticlePage,
 });
 
-/** "Passar dig som tränar 8–9 år och spelar 5 mot 5." */
-function fitsYouText(data: Parameters<typeof knowledgeAgeLabel>[0]): string {
-  const age = knowledgeAgeLabel(data);
+/** "Passar dig som tränar barn och spelar 5 mot 5." */
+function fitsYouText(data: Parameters<typeof knowledgeFormatLabel>[0]): string {
   const format = knowledgeFormatLabel(data);
-  if (age && format) return `Passar dig som tränar ${age} och spelar ${format}.`;
-  if (age) return `Passar dig som tränar ${age}.`;
-  if (format) return `Passar dig som spelar ${format}.`;
+  if (format) return `Passar dig som tränar barn och spelar ${format}.`;
   return "Passar dig som tränar barn i fotboll.";
 }
 
@@ -110,7 +107,19 @@ function KnowledgeArticlePage() {
 
       {data && (
         <article className="mt-4">
-          <p className="text-xs tracking-wide text-muted-foreground">{data.category}</p>
+          <p className="flex flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground">
+            <span
+              className={`rounded-full px-2 py-0.5 ${
+                knowledgeKind(data) === "Artikel"
+                  ? "bg-secondary"
+                  : "border border-primary/40 bg-primary/10 text-foreground"
+              }`}
+            >
+              {knowledgeKind(data)}
+            </span>
+            <span>{data.category}</span>
+          </p>
+
           <div className="mt-1 flex items-start gap-2">
             <h1 className="min-w-0 flex-1 font-display text-2xl font-semibold">{data.title_sv}</h1>
             <button
@@ -159,8 +168,14 @@ function KnowledgeArticlePage() {
             rel="noreferrer"
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 sm:w-auto"
           >
-            Läs vidare hos källan <ExternalLink className="size-4" />
+            Läs originalkällan <ExternalLink className="size-4" />
           </a>
+          {data.source_name && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Källa: {data.source_name}
+              {data.checked_date ? ` · källgranskad ${data.checked_date}` : ""}
+            </p>
+          )}
 
           <RelatedContent sections={sections} />
         </article>
