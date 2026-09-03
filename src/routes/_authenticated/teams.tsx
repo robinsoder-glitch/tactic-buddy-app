@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAccount } from "@/hooks/useAccount";
+import { usePendingJoins } from "@/hooks/usePendingJoins";
 import { createTeam, fetchClubs, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ function TeamsPage() {
   const [homeGround, setHomeGround] = useState("");
 
   const [showArchived, setShowArchived] = useState(false);
+  const { byTeam: pendingByTeam } = usePendingJoins();
   const teams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
   const allTeams = teams.data ?? [];
   const archivedCount = allTeams.filter((team) => team.archived_at).length;
@@ -209,6 +211,11 @@ function TeamsPage() {
             <div className="min-w-0 flex-1">
               <h2 className="truncate font-display text-xl font-semibold">
                 {team.name}
+                {(pendingByTeam[team.id] ?? 0) > 0 && (
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 align-middle text-[10px] font-bold text-destructive-foreground">
+                    {pendingByTeam[team.id]} vill gå med
+                  </span>
+                )}
                 {team.archived_at && (
                   <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 align-middle text-[10px] text-muted-foreground">
                     Arkiverat

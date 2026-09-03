@@ -412,6 +412,14 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <h1 className="truncate font-display text-4xl font-bold">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
+          {!profile?.display_name?.trim() && (
+            <p className="mt-1 text-sm">
+              <Link to="/installningar" className="text-primary underline underline-offset-4">
+                Fyll i ditt namn i profilen
+              </Link>{" "}
+              så hälsar vi rätt.
+            </p>
+          )}
 
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date().toLocaleDateString("sv-SE", {

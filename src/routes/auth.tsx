@@ -11,14 +11,17 @@ import { Label } from "@/components/ui/label";
 import { RoleChoice } from "@/components/auth/RoleChoice";
 import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
 import {
+  SETUP_ERRORS,
   applyAccountSetup,
   clearSetup,
-  readSetup,
+  completePendingSetup,
+  setupToMetadata,
   storeSetup,
   validateSetup,
   type AccountRole,
   type AccountSetup,
 } from "@/lib/account-setup";
+import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 import { friendlyError } from "@/lib/user-errors";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
@@ -58,6 +61,11 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [setup, setSetup] = useState<AccountSetup>({ role: "coach", name: "" });
+  const [codeStatus, setCodeStatus] = useState<CodeStatus>({
+    required: false,
+    ready: true,
+    error: null,
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -78,11 +86,20 @@ function AuthPage() {
     event.preventDefault();
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       // Har kontot skapats med lagkod men inte hunnit kopplas – gör klart det nu.
+      let result = null;
+      try {
+        result = data.user ? await completePendingSetup(data.user) : null;
+      } catch (setupError) {
+        toast.error(friendlyError(setupError, "Kunde inte koppla dig till laget"));
+      }
       await queryClient.invalidateQueries();
-      navigate({ to: readSetup() ? "/onboarding" : "/" });
+      if (result?.teamName && result.status === "pending") {
+        toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
+      }
+      navigate({ to: "/" });
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte logga in"));
     } finally {
@@ -92,9 +109,17 @@ function AuthPage() {
 
   async function handleSignUp(event: React.FormEvent) {
     event.preventDefault();
-    const problem = validateSetup(setup, { requireCode: setup.role === "player" });
+    const problem = validateSetup(setup, { requireCode: codeStatus.required });
     if (problem) {
       toast.error(problem);
+      return;
+    }
+    if (codeStatus.required && !codeStatus.ready) {
+      toast.error(codeStatus.error ?? SETUP_ERRORS.codeInvalid);
+      return;
+    }
+    if (password.length < 6) {
+      toast.error(SETUP_ERRORS.weakPassword);
       return;
     }
     setBusy(true);
@@ -106,14 +131,16 @@ function AuthPage() {
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { display_name: setup.name.trim() },
+          // Hela registreringsunderlaget följer med kontot – fungerar även om
+          // bekräftelselänken öppnas på en annan telefon eller dator.
+          data: setupToMetadata(setup),
         },
       });
       if (error) throw error;
 
       // Supabase svarar 200 även när e-posten redan finns – då är identities tom.
       if (data.user && (data.user.identities?.length ?? 0) === 0) {
-        toast.error("Det finns redan ett konto med den e-postadressen. Logga in i stället.");
+        toast.error(SETUP_ERRORS.emailTaken);
         setMode("signin");
         setPassword("");
         return;
@@ -130,6 +157,7 @@ function AuthPage() {
 
       const result = await applyAccountSetup(data.session.user.id, setup);
       clearSetup();
+      await supabase.auth.updateUser({ data: { display_name: setup.name.trim() } });
       // Roller och medlemskap hämtades innan kontot fanns – hämta om dem.
       await queryClient.invalidateQueries();
       if (result.teamName && result.status === "pending") {
@@ -262,7 +290,13 @@ function AuthPage() {
             </div>
 
             <form className="space-y-4" onSubmit={mode === "signin" ? handleSignIn : handleSignUp}>
-              {mode === "signup" && <AccountSetupFields setup={setup} onChange={patchSetup} />}
+              {mode === "signup" && (
+                <AccountSetupFields
+                  setup={setup}
+                  onChange={patchSetup}
+                  onCodeStatus={setCodeStatus}
+                />
+              )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="email">E-post</Label>
@@ -287,7 +321,11 @@ function AuthPage() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={busy || (mode === "signup" && codeStatus.required && !codeStatus.ready)}
+              >
                 {mode === "signin" ? "Logga in" : "Skapa konto"}
               </Button>
             </form>

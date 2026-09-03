@@ -4,7 +4,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { findTeamByCode, type TeamCodeMatch } from "@/lib/teams";
-import type { AccountSetup } from "@/lib/account-setup";
+import {
+  SETUP_ERRORS,
+  TEAM_CODE_LENGTH,
+  codeKindError,
+  normalizeTeamCode,
+  type AccountSetup,
+} from "@/lib/account-setup";
+
+/** Status för lagkoden – används för att stänga av registreringsknappen. */
+export type CodeStatus = {
+  /** Krävs en kod för det här valet? */
+  required: boolean;
+  /** Är koden kontrollerad och giltig för kontotypen? */
+  ready: boolean;
+  error: string | null;
+};
 
 type Props = {
   setup: AccountSetup;
@@ -13,23 +28,34 @@ type Props = {
   showCode?: boolean;
   /** Dölj namnfältet när namnet redan är ifyllt någon annanstans. */
   hideName?: boolean;
+  /** Rapporterar om koden är kontrollerad och giltig. */
+  onCodeStatus?: (status: CodeStatus) => void;
 };
 
-export function AccountSetupFields({ setup, onChange, showCode = true, hideName = false }: Props) {
+export function AccountSetupFields({
+  setup,
+  onChange,
+  showCode = true,
+  hideName = false,
+  onCodeStatus,
+}: Props) {
   const [match, setMatch] = useState<TeamCodeMatch | null>(null);
   const [checking, setChecking] = useState(false);
   // Sant när kontrollen misslyckades tekniskt – då är det inte samma sak som fel kod.
   const [lookupFailed, setLookupFailed] = useState(false);
   // Tränare: startar man ett nytt lag eller går man med i ett befintligt via tränarkod?
   const [coachJoins, setCoachJoins] = useState(() => !!setup.code?.trim());
-  const code = setup.code?.trim() ?? "";
+  const code = normalizeTeamCode(setup.code);
   const isCoach = setup.role === "coach";
   const showCodeField = showCode && (!isCoach || coachJoins);
+  const complete = code.length === TEAM_CODE_LENGTH;
 
   useEffect(() => {
-    if (!showCodeField || code.length < 4) {
+    // Kontrollera aldrig innan sex tecken är ifyllda – annars visas fel i onödan.
+    if (!showCodeField || !complete) {
       setMatch(null);
       setLookupFailed(false);
+      setChecking(false);
       return;
     }
     let active = true;
@@ -55,7 +81,31 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
       clearTimeout(timer);
       setChecking(false);
     };
-  }, [code, showCodeField]);
+  }, [code, showCodeField, complete]);
+
+  const kindError = codeKindError(
+    setup,
+    match ? (match.join_role === "coach" ? "coach" : "player") : null,
+  );
+  const codeError = !showCodeField
+    ? null
+    : !complete
+      ? null
+      : checking
+        ? null
+        : lookupFailed
+          ? SETUP_ERRORS.codeLookupFailed
+          : !match
+            ? SETUP_ERRORS.codeInvalid
+            : kindError;
+
+  useEffect(() => {
+    onCodeStatus?.({
+      required: showCodeField,
+      ready: !showCodeField || (complete && !checking && !!match && !kindError && !lookupFailed),
+      error: codeError,
+    });
+  }, [showCodeField, complete, checking, match, kindError, lookupFailed, codeError, onCodeStatus]);
 
   return (
     <div className="space-y-4">
@@ -187,11 +237,16 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
 
       {showCodeField && (
         <div className="space-y-1.5">
-          <Label htmlFor="setup-code">{isCoach ? "Tränarkod" : "Lagkod"}</Label>
+          <Label htmlFor="setup-code">{isCoach ? "Tränarkod" : "Spelarkod"}</Label>
           <Input
             id="setup-code"
             value={setup.code ?? ""}
-            onChange={(event) => onChange({ code: event.target.value.toUpperCase() })}
+            onChange={(event) =>
+              onChange({ code: normalizeTeamCode(event.target.value).slice(0, TEAM_CODE_LENGTH) })
+            }
+            maxLength={TEAM_CODE_LENGTH}
+            inputMode="text"
+            autoCapitalize="characters"
             placeholder="T.ex. A1B2C3"
             className="font-mono tracking-widest"
           />
@@ -200,7 +255,7 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
               <Loader2 className="size-3 animate-spin" aria-hidden /> Letar efter laget…
             </p>
           )}
-          {!checking && match && (
+          {!checking && match && !kindError && (
             <p className="flex items-center gap-2 text-xs text-primary">
               <Check className="size-3" aria-hidden />
               {match.name}
@@ -209,14 +264,10 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
               {match.join_role === "coach" ? "tränarkod" : "spelarkod"}
             </p>
           )}
-          {!checking && code.length >= 4 && !match && !lookupFailed && (
-            <p className="text-xs text-destructive">Ingen lag hittades med den koden.</p>
+          {!complete && code.length > 0 && (
+            <p className="text-xs text-muted-foreground">Koden är sex tecken.</p>
           )}
-          {!checking && lookupFailed && (
-            <p className="text-xs text-destructive">
-              Koden kunde inte kontrolleras just nu. Kontrollera din uppkoppling och försök igen.
-            </p>
-          )}
+          {codeError && <p className="text-xs text-destructive">{codeError}</p>}
           <p className="text-xs text-muted-foreground">
             {setup.role === "coach"
               ? "Tränarkoden får du av en befintlig tränare i laget. En tränare i laget godkänner dig."

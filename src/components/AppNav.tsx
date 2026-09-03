@@ -17,6 +17,7 @@ import {
 import { SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
+import { usePendingJoins } from "@/hooks/usePendingJoins";
 import { BrandLogo } from "@/components/BrandLogo";
 
 /** Sidor där huvudmenyn ska vara dold. */
@@ -39,6 +40,7 @@ export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isAdmin, isCoach } = useAccount();
   const unread = useUnreadChat();
+  const { total: pendingJoins } = usePendingJoins();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
 
@@ -72,16 +74,18 @@ export function AppNav() {
 
   const renderIcon = (to: string, size: string) => {
     const Icon = ICONS[to] ?? Menu;
-    const badge = to === "/tranarsnack" && unread > 0;
+    const count = to === "/tranarsnack" ? unread : to === "/teams" && isCoach ? pendingJoins : 0;
+    const label =
+      to === "/tranarsnack" ? `${count} olästa meddelanden` : `${count} nya ansökningar till laget`;
     return (
       <span className="relative z-10 inline-flex">
         <Icon className={size} aria-hidden />
-        {badge && (
+        {count > 0 && (
           <span
-            aria-label={`${unread} olästa meddelanden`}
+            aria-label={label}
             className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold leading-none text-destructive-foreground"
           >
-            {unread > 9 ? "9+" : unread}
+            {count > 9 ? "9+" : count}
           </span>
         )}
       </span>

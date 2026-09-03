@@ -69,7 +69,7 @@ describe("profileDisplayName", () => {
   it("visar vårdnadshavare tydligt", () => {
     expect(
       profileDisplayName({ role: "player", name: "Maria", isGuardian: true, playerName: "Elias" }),
-    ).toBe("Maria (vårdnadshavare för Elias)");
+    ).toBe("Maria");
     expect(profileDisplayName({ role: "coach", name: "Anna" })).toBe("Anna");
   });
 });

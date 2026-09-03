@@ -292,6 +292,23 @@ export async function fetchMyMemberships() {
   }));
 }
 
+/** Antal obesvarade ansökningar per lag – används för notisprickar i menyn. */
+export async function fetchPendingJoinCounts(teamIds: string[]): Promise<Record<string, number>> {
+  if (!teamIds.length) return {};
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("status", "pending")
+    .in("team_id", teamIds);
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const id = row.team_id as string;
+    counts[id] = (counts[id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   const { data, error } = await supabase
     .from("team_members")
@@ -333,25 +350,29 @@ export async function findTeamByCode(code: string): Promise<TeamCodeMatch | null
 }
 
 /** Ansluter inloggad användare till laget som spelare eller tränare beroende på koden. */
-export async function joinTeamWithCode(code: string): Promise<{
+export async function joinTeamWithCode(
+  code: string,
+  accountKind: "coach" | "player" | "guardian",
+): Promise<{
   teamId: string;
   teamName: string;
-  role: "coach" | "player";
+  role: "coach" | "player" | "guardian";
   status: "pending" | "approved";
 }> {
   const { data, error } = await supabase.rpc("join_team_with_code", {
     _code: code.trim().toUpperCase(),
+    _account_kind: accountKind,
   });
   if (error) throw error;
   const row = (
     (data ?? []) as {
       team_id: string;
       team_name: string;
-      member_role: "coach" | "player";
+      member_role: "coach" | "player" | "guardian";
       member_status: "pending" | "approved";
     }[]
   )[0];
-  if (!row) throw new Error("Ingen lag hittades med den koden.");
+  if (!row) throw new Error("Koden stämmer inte. Kontrollera de sex tecknen med din tränare.");
   return {
     teamId: row.team_id,
     teamName: row.team_name,

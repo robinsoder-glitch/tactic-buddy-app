@@ -2417,7 +2417,7 @@ export type Database = {
         Returns: boolean
       }
       join_team_with_code: {
-        Args: { _code: string }
+        Args: { _account_kind: string; _code: string }
         Returns: {
           member_role: string
           member_status: string
