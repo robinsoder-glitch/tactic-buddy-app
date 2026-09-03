@@ -108,7 +108,19 @@ function KnowledgeArticlePage() {
 
       {data && (
         <article className="mt-4">
-          <p className="text-xs tracking-wide text-muted-foreground">{data.category}</p>
+          <p className="flex flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground">
+            <span
+              className={`rounded-full px-2 py-0.5 ${
+                knowledgeKind(data) === "Artikel"
+                  ? "bg-secondary"
+                  : "border border-primary/40 bg-primary/10 text-foreground"
+              }`}
+            >
+              {knowledgeKind(data)}
+            </span>
+            <span>{data.category}</span>
+          </p>
+
           <div className="mt-1 flex items-start gap-2">
             <h1 className="min-w-0 flex-1 font-display text-2xl font-semibold">{data.title_sv}</h1>
             <button
