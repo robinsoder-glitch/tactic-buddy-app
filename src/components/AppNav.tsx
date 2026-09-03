@@ -105,20 +105,20 @@ export function AppNav() {
       to === "/kallelser"
         ? openInvites
         : to === "/meddelanden"
-        ? unreadInbox
-        : to === "/tranarsnack"
-          ? unread
-          : to === "/teams" && isCoach
-            ? pendingJoins
-            : 0;
+          ? unreadInbox
+          : to === "/tranarsnack"
+            ? unread
+            : to === "/teams" && isCoach
+              ? pendingJoins
+              : 0;
     const label =
       to === "/kallelser"
         ? `${count} obesvarade kallelser`
         : to === "/meddelanden"
-        ? `${count} olästa viktiga meddelanden`
-        : to === "/tranarsnack"
-          ? `${count} olästa meddelanden`
-          : `${count} nya ansökningar till laget`;
+          ? `${count} olästa viktiga meddelanden`
+          : to === "/tranarsnack"
+            ? `${count} olästa meddelanden`
+            : `${count} nya ansökningar till laget`;
     return (
       <span className="relative z-10 inline-flex">
         <Icon className={size} aria-hidden />
