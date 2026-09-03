@@ -68,6 +68,8 @@ export function AppNav() {
     return null;
 
   const { main: primary, secondary } = tabsForRole(isCoach || isAdmin);
+  const mobilePrimary = primary.slice(0, MOBILE_MAIN_LIMIT);
+  const mobileSecondary = [...primary.slice(MOBILE_MAIN_LIMIT), ...secondary];
 
   const secondaryActive =
     secondary.some((tab) => isTabActive(pathname, tab)) || pathname.startsWith("/admin");
