@@ -8,10 +8,11 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   fetchKnowledgeArticles,
   filterKnowledge,
-  knowledgeAgeLabel,
   knowledgeCategories,
+  knowledgeKind,
   knowledgeLevels,
 } from "@/lib/knowledge";
+
 import { Input } from "@/components/ui/input";
 
 function Chips({
