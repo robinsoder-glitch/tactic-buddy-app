@@ -26,6 +26,27 @@ export const SECONDARY_TABS: MainTab[] = [
 
 export const SECONDARY_LABEL = "Lag och verktyg";
 
+/** Spelare och vårdnadshavare ser bara sina egna sidor – ingen planering. */
+export const PLAYER_MAIN_TABS: MainTab[] = [
+  { to: "/kalender", label: "Kalender", exact: false },
+  { to: "/teams", label: "Mitt lag", exact: false },
+  { to: "/kunskapsbank", label: "Kunskap", exact: false },
+];
+
+export const PLAYER_SECONDARY_TABS: MainTab[] = [
+  { to: "/installningar", label: "Inställningar", exact: false },
+];
+
+/** Vilka flikar som ska visas beroende på roll. */
+export function tabsForRole(isCoachOrAdmin: boolean): {
+  main: MainTab[];
+  secondary: MainTab[];
+} {
+  return isCoachOrAdmin
+    ? { main: MAIN_TABS, secondary: SECONDARY_TABS }
+    : { main: PLAYER_MAIN_TABS, secondary: PLAYER_SECONDARY_TABS };
+}
+
 /** Gamla adresser som ska leda vidare till rätt ny sida. */
 export const LEGACY_REDIRECTS: Record<string, string> = {
   "/bank": "/teams",

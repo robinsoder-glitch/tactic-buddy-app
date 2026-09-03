@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { MAIN_TABS, SECONDARY_TABS, SECONDARY_LABEL, isTabActive } from "@/lib/navigation";
+import { SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -37,7 +37,7 @@ const ICONS: Record<string, typeof Menu> = {
 
 export function AppNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const { user, isAdmin } = useAccount();
+  const { user, isAdmin, isCoach } = useAccount();
   const unread = useUnreadChat();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
@@ -62,7 +62,7 @@ export function AppNav() {
   if (HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix)))
     return null;
 
-  const primary = MAIN_TABS;
+  const { main: primary, secondary } = tabsForRole(isCoach || isAdmin);
 
   const topLink =
     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
@@ -101,7 +101,7 @@ export function AppNav() {
             <BrandLogo size={36} />
           </Link>
           <ul className="flex flex-1 flex-wrap items-center gap-1">
-            {MAIN_TABS.map((tab) => {
+            {primary.map((tab) => {
               const active = isTabActive(pathname, tab);
               return (
                 <li key={tab.to}>
@@ -118,7 +118,7 @@ export function AppNav() {
             })}
           </ul>
           <ul className="flex shrink-0 items-center gap-1 border-l border-border pl-2">
-            {SECONDARY_TABS.map((tab) => {
+            {secondary.map((tab) => {
               const active = isTabActive(pathname, tab);
               return (
                 <li key={tab.to}>
@@ -191,7 +191,7 @@ export function AppNav() {
                 <li role="none" className="border-b border-border px-4 py-3">
                   <span className="text-sm font-bold">{SECONDARY_LABEL}</span>
                 </li>
-                {SECONDARY_TABS.map((tab) => {
+                {secondary.map((tab) => {
                   const active = isTabActive(pathname, tab);
                   return (
                     <li key={tab.to} role="none">
