@@ -50,7 +50,7 @@ export function BackIconButton({
   fallback: string;
   label?: string;
 }) {
-  const goBack = useSmartBack(label ? fallback : fallback);
+  const goBack = useSmartBack(fallback);
   return (
     <Button type="button" variant="ghost" size="icon" aria-label={label} onClick={goBack}>
       <ArrowLeft className="size-5" />

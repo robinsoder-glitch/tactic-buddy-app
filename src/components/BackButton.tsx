@@ -33,8 +33,9 @@ export function BackButton() {
   const parent = parentPathFor(pathname);
 
   const goBack = () => {
-    if (parent) router.navigate({ to: parent });
-    else if (typeof window !== "undefined" && window.history.length > 1) router.history.back();
+    // Föregående sida i appen först – annars den definierade föräldervyn.
+    if (canGoBackInApp()) router.history.back();
+    else if (parent) router.navigate({ to: parent });
     else router.navigate({ to: "/" });
   };
 

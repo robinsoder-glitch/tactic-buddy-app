@@ -19,6 +19,7 @@ import { DebugInfoBox } from "@/components/DebugInfoBox";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { clearOfflineData, clearOtherUsers } from "@/lib/offline-cache";
+import { noteInternalNavigation } from "@/lib/back-navigation";
 
 import { supabase } from "@/integrations/supabase/client";
 import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
@@ -216,6 +217,15 @@ function RootComponent() {
     });
     return () => subscription.unsubscribe();
   }, [queryClient, router]);
+  // Räknar navigeringar inuti appen så tillbaka-pilarna vet om det finns
+  // en föregående sida att gå till.
+  useEffect(() => {
+    const unsubscribe = router.subscribe("onResolved", () => {
+      noteInternalNavigation();
+    });
+    return unsubscribe;
+  }, [router]);
+
 
   // Registrerar service workern så appen kan installeras och läsas offline.
   useEffect(() => {
