@@ -9,7 +9,7 @@ export type MainTab = {
 /** Primära arbetsområden – samma ordning på mobil och dator. */
 export const MAIN_TABS: MainTab[] = [
   { to: "/planera-traning", label: "Planera träning", exact: false },
-  { to: "/planera-match", label: "Planera match", exact: false },
+  { to: "/planera-match", label: "Matcher", exact: false },
   { to: "/kalender", label: "Kalender", exact: false },
   { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/taktik", label: "Taktik", exact: false },
@@ -34,6 +34,7 @@ export const SECONDARY_LABEL = "Lag och verktyg";
 /** Spelare och vårdnadshavare ser bara sina egna sidor – ingen planering. */
 export const PLAYER_MAIN_TABS: MainTab[] = [
   { to: "/kalender", label: "Kalender", exact: false },
+  { to: "/kallelser", label: "Mina kallelser", exact: false },
   { to: "/teams", label: "Mitt lag", exact: false },
   { to: "/kunskapsbank", label: "Kunskap", exact: false },
 ];
@@ -56,7 +57,8 @@ export function tabsForRole(isCoachOrAdmin: boolean): {
 /** Gamla adresser som ska leda vidare till rätt ny sida. */
 export const LEGACY_REDIRECTS: Record<string, string> = {
   "/bank": "/teams",
-  "/mina-kallelser": "/kalender/kallelser",
+  "/mina-kallelser": "/kallelser",
+  "/kalender/kallelser": "/kallelser",
 };
 
 export function isTabActive(pathname: string, tab: MainTab): boolean {

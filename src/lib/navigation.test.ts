@@ -18,7 +18,7 @@ describe("huvudmenyn", () => {
   it("visar de primära arbetsområdena i rätt ordning", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
-      "Planera match",
+      "Matcher",
       "Kalender",
       "Närvaro",
       "Taktik",
@@ -52,7 +52,7 @@ describe("huvudmenyn", () => {
   it("leder gamla adresser till rätt ny sida", () => {
     expect(LEGACY_REDIRECTS["/skapa"]).toBeUndefined();
     expect(LEGACY_REDIRECTS["/taktikbank"]).toBeUndefined();
-    expect(LEGACY_REDIRECTS["/mina-kallelser"]).toBe("/kalender/kallelser");
+    expect(LEGACY_REDIRECTS["/mina-kallelser"]).toBe("/kallelser");
   });
 
   it("har inga dubbla länkar till samma sida", () => {
