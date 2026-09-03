@@ -18,11 +18,14 @@ type Props = {
 export function AccountSetupFields({ setup, onChange, showCode = true, hideName = false }: Props) {
   const [match, setMatch] = useState<TeamCodeMatch | null>(null);
   const [checking, setChecking] = useState(false);
+  // Sant när kontrollen misslyckades tekniskt – då är det inte samma sak som fel kod.
+  const [lookupFailed, setLookupFailed] = useState(false);
   const code = setup.code?.trim() ?? "";
 
   useEffect(() => {
     if (!showCode || code.length < 4) {
       setMatch(null);
+      setLookupFailed(false);
       return;
     }
     let active = true;
@@ -30,10 +33,14 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
     const timer = setTimeout(() => {
       findTeamByCode(code)
         .then((row) => {
-          if (active) setMatch(row);
+          if (!active) return;
+          setMatch(row);
+          setLookupFailed(false);
         })
         .catch(() => {
-          if (active) setMatch(null);
+          if (!active) return;
+          setMatch(null);
+          setLookupFailed(true);
         })
         .finally(() => {
           if (active) setChecking(false);
@@ -159,8 +166,13 @@ export function AccountSetupFields({ setup, onChange, showCode = true, hideName 
               {match.join_role === "coach" ? "tränarkod" : "spelarkod"}
             </p>
           )}
-          {!checking && code.length >= 4 && !match && (
+          {!checking && code.length >= 4 && !match && !lookupFailed && (
             <p className="text-xs text-destructive">Ingen lag hittades med den koden.</p>
+          )}
+          {!checking && lookupFailed && (
+            <p className="text-xs text-destructive">
+              Koden kunde inte kontrolleras just nu. Kontrollera din uppkoppling och försök igen.
+            </p>
           )}
           <p className="text-xs text-muted-foreground">
             {setup.role === "coach"
