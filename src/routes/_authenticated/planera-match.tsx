@@ -854,6 +854,7 @@ function NewMatchCreator() {
           type="match"
           title="Matchtillfällen"
           newLabel="Boka match"
+          hideList
           savedMessage="Matchen har lagts till i kalendern."
         />
       )}
