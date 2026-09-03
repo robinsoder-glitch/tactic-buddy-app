@@ -116,7 +116,11 @@ function PlayersPage() {
   });
 
   const invite = useMutation({
-    mutationFn: async (input: { playerId: string; playerName: string; kind: "player" | "guardian" }) => {
+    mutationFn: async (input: {
+      playerId: string;
+      playerName: string;
+      kind: "player" | "guardian";
+    }) => {
       if (!userId) throw new Error("Du måste vara inloggad");
       const row = await addTeamInvite({
         teamId,
@@ -270,7 +274,10 @@ function PlayersPage() {
                       <Copy className="size-4" /> Länk till vårdnadshavare
                     </Button>
                     <Button size="sm" variant="ghost" asChild>
-                      <Link to="/team/$teamId/player/$playerId" params={{ teamId, playerId: player.id }}>
+                      <Link
+                        to="/team/$teamId/player/$playerId"
+                        params={{ teamId, playerId: player.id }}
+                      >
                         Öppna spelarkortet
                       </Link>
                     </Button>
