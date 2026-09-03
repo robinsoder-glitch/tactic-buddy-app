@@ -5,6 +5,18 @@
 
 const PATTERNS: { test: RegExp; message: string }[] = [
   {
+    test: /invalid login credentials|invalid_credentials/i,
+    message: "Fel e-post eller lösenord. Har du glömt lösenordet kan du återställa det.",
+  },
+  {
+    test: /email not confirmed/i,
+    message: "Bekräfta din e-postadress via länken i mejlet innan du loggar in.",
+  },
+  {
+    test: /password is known to be weak|weak password/i,
+    message: "Lösenordet är för lätt att gissa. Välj ett längre och mer unikt lösenord.",
+  },
+  {
     test: /row-level security|permission denied|not authorized|violates row/i,
     message: "Du har inte behörighet till det här.",
   },
