@@ -2674,6 +2674,7 @@ export type Database = {
           coach_join_code: string
           created_at: string
           created_by: string
+          game_format: string | null
           gender: string
           home_ground: string | null
           id: string
@@ -2690,6 +2691,7 @@ export type Database = {
           coach_join_code?: string
           created_at?: string
           created_by: string
+          game_format?: string | null
           gender?: string
           home_ground?: string | null
           id?: string
@@ -2706,6 +2708,7 @@ export type Database = {
           coach_join_code?: string
           created_at?: string
           created_by?: string
+          game_format?: string | null
           gender?: string
           home_ground?: string | null
           id?: string
