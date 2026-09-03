@@ -115,11 +115,16 @@ function EventPage() {
     mutationFn: async () => {
       if (!userId) throw new Error("Du måste vara inloggad.");
       const invited = new Set(list.map((item) => item.player_id));
+      const newPlayerIds = selected.filter((id) => !invited.has(id));
+      // Utan befintlig kallelse och utan valda spelare finns inget att spara.
+      if (list.length === 0 && newPlayerIds.length === 0) {
+        throw new Error("NO_PLAYERS_SELECTED");
+      }
       const result = await saveInvitationPlan({
         eventId,
         teamId,
         hasExisting: list.length > 0,
-        newPlayerIds: selected.filter((id) => !invited.has(id)),
+        newPlayerIds,
         message: message.trim() || null,
         respondBy: respondBy || null,
         createdBy: userId,
@@ -142,10 +147,15 @@ function EventPage() {
           : "Kallelsen är uppdaterad.",
       );
     },
-    onError: () => {
-      toast.error("Kunde inte spara kallelsen. Försök igen.");
+    onError: (error: Error) => {
+      toast.error(
+        error.message === "NO_PLAYERS_SELECTED"
+          ? "Välj minst en spelare innan du sparar kallelsen."
+          : "Kunde inte spara kallelsen. Försök igen.",
+      );
     },
   });
+
 
 
 
