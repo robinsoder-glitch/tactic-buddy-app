@@ -472,3 +472,34 @@ export function groupInvitationsByEvent(list: MyInvitation[]): InvitationGroup[]
 export function hasMultiplePlayers(list: MyInvitation[]): boolean {
   return new Set(list.map((item) => item.player_id ?? item.playerName ?? "")).size > 1;
 }
+
+export type TeamInviteCount = { total: number; answered: number };
+
+/** Kallelseläget per match i ett lag – används i tränarens kallelseöversikt. */
+export async function fetchTeamInviteCounts(
+  teamId: string,
+): Promise<Record<string, TeamInviteCount>> {
+  const { data, error } = await supabase
+    .from("event_invitations")
+    .select("event_id, status")
+    .eq("team_id", teamId);
+  if (error) throw error;
+  const map: Record<string, TeamInviteCount> = {};
+  for (const row of data ?? []) {
+    const key = row.event_id as string;
+    const current = map[key] ?? { total: 0, answered: 0 };
+    current.total += 1;
+    if (row.status !== "pending") current.answered += 1;
+    map[key] = current;
+  }
+  return map;
+}
+
+/** Kort text om kallelsens läge. */
+export function inviteStateText(count: TeamInviteCount | undefined): string {
+  if (!count || count.total === 0) return "Ingen kallelse skickad";
+  const missing = count.total - count.answered;
+  return missing === 0
+    ? `Alla ${count.total} har svarat`
+    : `${count.answered} av ${count.total} har svarat`;
+}

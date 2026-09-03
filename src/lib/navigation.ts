@@ -10,6 +10,7 @@ export type MainTab = {
 export const MAIN_TABS: MainTab[] = [
   { to: "/planera-traning", label: "Planera träning", exact: false },
   { to: "/planera-match", label: "Matcher", exact: false },
+  { to: "/kallelser", label: "Kallelser", exact: false },
   { to: "/kalender", label: "Kalender", exact: false },
   { to: "/narvaro", label: "Närvaro", exact: false },
   { to: "/taktik", label: "Taktik", exact: false },
@@ -18,7 +19,7 @@ export const MAIN_TABS: MainTab[] = [
 ];
 
 /** Hur många primära flikar mobilens bottenmeny visar; resten hamnar i menyn. */
-export const MOBILE_MAIN_LIMIT = 4;
+export const MOBILE_MAIN_LIMIT = 5;
 
 /** Sekundär meny: Lag och verktyg. */
 export const SECONDARY_TABS: MainTab[] = [
