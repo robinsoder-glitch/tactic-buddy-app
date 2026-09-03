@@ -115,6 +115,16 @@ export function AppNav() {
               );
             })}
           </ul>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+              className={`${topLink} shrink-0 ${pathname.startsWith("/admin") ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+            >
+              <ShieldCheck className="size-4" aria-hidden />
+              <span>Admin</span>
+            </Link>
+          )}
         </div>
       </nav>
 
