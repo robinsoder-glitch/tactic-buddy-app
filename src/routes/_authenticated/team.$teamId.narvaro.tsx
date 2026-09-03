@@ -266,10 +266,7 @@ function EventAttendance({
   });
 
   // Sparat läge är facit – utkastet återställs när servern svarar.
-  const saved = useMemo(
-    () => draftFromRows(playerIds, rows.data ?? []),
-    [playerIds, rows.data],
-  );
+  const saved = useMemo(() => draftFromRows(playerIds, rows.data ?? []), [playerIds, rows.data]);
   useEffect(() => {
     setDraft(saved);
   }, [saved]);
