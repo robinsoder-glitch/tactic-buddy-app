@@ -20,6 +20,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { eventDisplayTitle } from "@/lib/event-labels";
 import { fetchMyGuardedPlayerIds } from "@/lib/guardians";
 import { Button } from "@/components/ui/button";
+import { CoachInvites } from "@/components/CoachInvites";
 
 export const Route = createFileRoute("/_authenticated/kallelser")({
   head: () => ({
@@ -40,11 +41,15 @@ export const Route = createFileRoute("/_authenticated/kallelser")({
 });
 
 function MyInvitesPage() {
-  const { userId, isCoach } = useAccount();
+  const { userId, isCoach, isAdmin } = useAccount();
   const queryClient = useQueryClient();
   const [showPast, setShowPast] = useState(false);
 
-  const invites = useQuery({ queryKey: ["my-invitations"], queryFn: fetchMyInvitations });
+  const invites = useQuery({
+    queryKey: ["my-invitations"],
+    queryFn: fetchMyInvitations,
+    enabled: !isCoach && !isAdmin,
+  });
   const guarded = useQuery({
     queryKey: ["guarded-players", userId],
     queryFn: () => fetchMyGuardedPlayerIds(userId),
@@ -70,6 +75,7 @@ function MyInvitesPage() {
   });
 
   const now = Date.now();
+  // Ledare svarar aldrig på kallelser – de skickar dem i stället.
   const all = invites.data ?? [];
   // Endast kallelser som personen själv (eller som vårdnadshavare) får svara på.
   const mine = all.filter(
@@ -80,6 +86,8 @@ function MyInvitesPage() {
     .filter((item) => new Date(item.event.starts_at).getTime() < now)
     .sort((a, b) => b.event.starts_at.localeCompare(a.event.starts_at));
   const list = showPast ? past : upcoming;
+
+  if (isCoach || isAdmin) return <CoachInvites />;
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-8 md:pt-20">
