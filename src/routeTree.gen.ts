@@ -45,6 +45,7 @@ import { Route as AuthenticatedTaktikbankReglerRouteImport } from './routes/_aut
 import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_authenticated/traningspass.index'
 import { Route as AuthenticatedTraningspassIdRouteImport } from './routes/_authenticated/traningspass.$id'
+import { Route as AuthenticatedAdminLagIndexRouteImport } from './routes/_authenticated/admin.lag.index'
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
@@ -261,6 +262,12 @@ const AuthenticatedTraningspassIdRoute =
     path: '/traningspass/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminLagIndexRoute =
+  AuthenticatedAdminLagIndexRouteImport.update({
+    id: '/lag/',
+    path: '/lag/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedTeamTeamIdIndexRoute =
   AuthenticatedTeamTeamIdIndexRouteImport.update({
     id: '/',
@@ -406,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -455,6 +463,7 @@ export interface FileRoutesByTo {
   '/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/admin/lag': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -510,6 +519,7 @@ export interface FileRoutesById {
   '/_authenticated/team/$teamId/tranarsnack': typeof AuthenticatedTeamTeamIdTranarsnackRoute
   '/_authenticated/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/_authenticated/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/_authenticated/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/_authenticated/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/_authenticated/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
@@ -565,6 +575,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/tranarsnack'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/admin/lag/'
     | '/team/$teamId/'
     | '/traningspass/$id/'
     | '/team/$teamId/event/$eventId'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/tranarsnack'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/admin/lag'
     | '/team/$teamId'
     | '/traningspass/$id'
     | '/team/$teamId/event/$eventId'
@@ -668,6 +680,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team/$teamId/tranarsnack'
     | '/_authenticated/traningspass/$id/genomfor'
     | '/_authenticated/traningspass/$id/visa'
+    | '/_authenticated/admin/lag/'
     | '/_authenticated/team/$teamId/'
     | '/_authenticated/traningspass/$id/'
     | '/_authenticated/team/$teamId/event/$eventId'
@@ -936,6 +949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraningspassIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/lag/': {
+      id: '/_authenticated/admin/lag/'
+      path: '/lag'
+      fullPath: '/admin/lag/'
+      preLoaderRoute: typeof AuthenticatedAdminLagIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/team/$teamId/': {
       id: '/_authenticated/team/$teamId/'
       path: '/'
@@ -1054,11 +1074,13 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminKontonRoute: typeof AuthenticatedAdminKontonRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminLagIndexRoute: typeof AuthenticatedAdminLagIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminKontonRoute: AuthenticatedAdminKontonRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminLagIndexRoute: AuthenticatedAdminLagIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
