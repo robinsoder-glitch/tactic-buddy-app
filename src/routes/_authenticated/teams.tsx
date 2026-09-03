@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+import { BackLink } from "@/components/BackLink";
   Dialog,
   DialogContent,
   DialogFooter,
@@ -84,9 +85,7 @@ function TeamsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
-      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <ArrowLeft className="size-4" /> Tillbaka
-      </Link>
+      <BackLink fallback="/">Tillbaka</BackLink>
       <h1 className="mt-3 font-display text-4xl font-bold">Mina lag</h1>
 
       <Dialog open={open} onOpenChange={setOpen}>

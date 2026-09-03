@@ -62,6 +62,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+import { BackLink } from "@/components/BackLink";
   Dialog,
   DialogContent,
   DialogFooter,
@@ -344,13 +345,7 @@ function EventPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-6">
-      <Link
-        to="/team/$teamId/calendar"
-        params={{ teamId }}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground"
-      >
-        <ArrowLeft className="size-4" /> Tillbaka till aktiviteter
-      </Link>
+      <BackLink fallback={`/team/${teamId}/calendar`}>Tillbaka till aktiviteter</BackLink>
 
       <header className="mt-3">
         <p className="flex flex-wrap items-center gap-2 text-xs font-semibold">

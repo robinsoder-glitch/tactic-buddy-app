@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { fetchTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { useTeamRole } from "@/hooks/useTeamRole";
+import { BackLink } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId")({
   head: () => ({
@@ -81,12 +82,9 @@ function TeamLayout() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
-      <Link
-        to={isCoachRole ? "/teams" : "/"}
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden /> {isCoachRole ? "Mina lag" : "Tillbaka"}
-      </Link>
+      <BackLink fallback={isCoachRole ? "/teams" : "/"}>
+        {isCoachRole ? "Mina lag" : "Tillbaka"}
+      </BackLink>
 
       <header className="mt-3 flex items-center gap-3">
         <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
