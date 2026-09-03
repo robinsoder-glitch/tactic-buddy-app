@@ -419,11 +419,17 @@ function MatchPlanner({
       setCoachIds(freshCoaches.map((c) => c.user_id));
       setPlayerIds(freshSquad);
       setMeetInfo(freshPlan.data?.notes ?? "");
-      setPlanSaved(true);
       onSaved(eventId, {
         players: freshSquad.length,
         coaches: freshCoaches.length,
-        event: freshEvent ? ({ ...(freshEvent as unknown as PlannableEvent) } as Partial<PlannableEvent>) : undefined,
+        ...(freshEvent
+          ? {
+              event: {
+                starts_at: freshEvent.starts_at,
+                title: freshEvent.title,
+              } as Partial<PlannableEvent>,
+            }
+          : {}),
       });
       setMode("read");
     } catch (e) {
