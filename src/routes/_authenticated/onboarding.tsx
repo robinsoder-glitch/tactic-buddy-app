@@ -127,7 +127,11 @@ function OnboardingPage() {
               Har du ingen tränarkod? Lämna fältet tomt – då skapar du ditt eget lag i nästa steg.
             </p>
           )}
-          <Button className="w-full" onClick={save} disabled={busy}>
+          <Button
+            className="w-full"
+            onClick={save}
+            disabled={busy || (codeStatus.required && !codeStatus.ready)}
+          >
             <ShieldCheck className="size-4" aria-hidden />
             {role === "coach" ? "Skapa tränarkonto" : "Gå med i laget"}
           </Button>
