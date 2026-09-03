@@ -213,7 +213,6 @@ function AttendancePage() {
 
 function EventAttendance({
   teamId,
-  userId,
   isCoach,
   eventId,
   eventType,
@@ -237,20 +236,44 @@ function EventAttendance({
   onChanged: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [pending, setPending] = useState<string | null>(null);
+  const playerIds = useMemo(() => players.map((player) => player.id), [players]);
   const [durationDraft, setDurationDraft] = useState(
     durationMinutes ? String(durationMinutes) : "",
   );
+  const [onlyUnregistered, setOnlyUnregistered] = useState(false);
+  const [draft, setDraft] = useState<Draft>({});
 
   const rows = useQuery({
     queryKey: ["attendance-event", eventId],
     queryFn: () => fetchEventAttendance(eventId),
   });
+  const invitations = useQuery({
+    queryKey: ["invitations", eventId],
+    queryFn: () => fetchEventInvitations(eventId),
+  });
 
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["attendance-event", eventId] });
-    onChanged();
-  };
+  // Sparat läge är facit – utkastet återställs när servern svarar.
+  const saved = useMemo(
+    () => draftFromRows(playerIds, rows.data ?? []),
+    [playerIds, rows.data],
+  );
+  useEffect(() => {
+    setDraft(saved);
+  }, [saved]);
+
+  const dirty = isDirty(draft, saved);
+  const started = attendanceStarted(rows.data ?? []);
+
+  // Varna innan sidan lämnas med osparade ändringar.
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
 
   const saveDuration = useMutation({
     mutationFn: async (minutes: number) => setMatchDuration(eventId, minutes),
@@ -261,81 +284,48 @@ function EventAttendance({
     onError: () => toast.error("Det gick inte att spara matchens längd."),
   });
 
-  const saveMinutes = useMutation({
-    mutationFn: async (input: {
-      playerId: string;
-      minutes: number | null;
-      status: AttendanceStatus | null;
-    }) => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      const error = validateMinutes(input.minutes, durationMinutes);
-      if (error) throw new Error(error);
-      await setAttendance({
-        eventId,
-        teamId,
-        playerId: input.playerId,
-        userId,
-        status: input.status ?? "present",
-        minutesPlayed: input.minutes,
-      });
-    },
-    onSuccess: refresh,
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Det gick inte att spara speltiden."),
-  });
-
   const save = useMutation({
-    mutationFn: async (input: {
-      playerId: string;
-      status: AttendanceStatus;
-      current: AttendanceStatus | null;
-    }) => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      if (input.current === input.status) {
-        await clearAttendance(eventId, input.playerId);
-        return;
-      }
-      await setAttendance({
-        eventId,
-        teamId,
-        playerId: input.playerId,
-        userId,
-        status: input.status,
-      });
-    },
-    onSuccess: refresh,
-    onError: () => toast.error("Det gick inte att spara närvaron."),
-    onSettled: () => setPending(null),
-  });
-
-  const markAll = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      await setAttendanceForAll({
+      for (const entry of Object.values(draft)) {
+        if (eventType !== "match" || entry.status === "absent") continue;
+        const error = validateMinutes(entry.minutes, durationMinutes);
+        if (error) throw new Error(error);
+      }
+      return saveEventAttendance({
         eventId,
         teamId,
-        userId,
-        playerIds: players.map((player) => player.id),
-        status: "present",
+        rows: toPayload(draft, eventType),
       });
     },
-    onSuccess: () => {
-      refresh();
-      toast.success("Alla spelare är markerade som närvarande.");
+    onSuccess: async (count) => {
+      toast.success(`Närvaron sparades för ${count} spelare.`);
+      await queryClient.invalidateQueries({ queryKey: ["attendance-event", eventId] });
+      onChanged();
     },
-    onError: () => toast.error("Det gick inte att markera alla spelare."),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Det gick inte att spara närvaron."),
   });
 
-  const rowFor = (playerId: string) =>
-    (rows.data ?? []).find((row) => row.player_id === playerId) ?? null;
-  const statusFor = (playerId: string): AttendanceStatus | null => rowFor(playerId)?.status ?? null;
+  const prepare = () => {
+    setDraft(
+      draftFromInvitations(
+        playerIds,
+        (invitations.data ?? []).map((invite) => ({
+          player_id: invite.player_id,
+          status: invite.status,
+        })),
+        rows.data ?? [],
+      ),
+    );
+    toast.info("Förslaget bygger på kallelsesvaren. Kontrollera vilka som deltog innan du sparar.");
+  };
 
-  const present = (rows.data ?? []).filter(
-    (row) => row.status === "present" || row.status === "partial",
-  ).length;
+  const visible = onlyUnregistered
+    ? players.filter((player) => (draft[player.id]?.status ?? null) === null)
+    : players;
 
   return (
-    <section className="mt-4">
+    <section className="mt-4 pb-28">
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -351,9 +341,46 @@ function EventAttendance({
         </div>
       </div>
 
-      <p className="mt-3 text-sm text-muted-foreground">
-        {present} av {players.length} spelare deltog.
-      </p>
+      <p className="mt-3 text-sm font-medium">{counterLabel(draft, players.length)}</p>
+
+      {isCoach && (
+        <div className="mt-3 rounded-xl border border-border bg-card p-3">
+          {started ? (
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Närvaro är redan påbörjad.</span> Redan
+              sparade spelare behåller sin registrering.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Förslaget bygger på kallelsesvaren. Kontrollera vilka som faktiskt deltog innan du
+              sparar.
+            </p>
+          )}
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={prepare}>
+              <ListChecks className="size-4" /> Förbered från kallelsesvaren
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDraft((current) => markAll(current, "present"))}
+            >
+              <Users className="size-4" /> Markera alla närvarande
+            </Button>
+            <Button size="sm" variant="ghost" disabled={!dirty} onClick={() => setDraft(saved)}>
+              Rensa osparade ändringar
+            </Button>
+            <Button
+              size="sm"
+              variant={onlyUnregistered ? "default" : "ghost"}
+              aria-pressed={onlyUnregistered}
+              onClick={() => setOnlyUnregistered((value) => !value)}
+            >
+              Ej registrerade
+            </Button>
+          </div>
+        </div>
+      )}
 
       {eventType === "match" && (
         <div className="mt-3 rounded-xl border border-border bg-card p-3">
@@ -395,28 +422,22 @@ function EventAttendance({
         </div>
       )}
 
-      {isCoach && players.length > 0 && (
-        <Button
-          className="mt-3"
-          variant="outline"
-          size="sm"
-          disabled={markAll.isPending}
-          aria-label="Markera alla spelare som närvarande"
-          onClick={() => markAll.mutate()}
-        >
-          <Users className="size-4" /> Markera alla som närvarande
-        </Button>
-      )}
-
       {players.length === 0 && (
         <p className="mt-6 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           Laget har inga spelare i truppen ännu.
         </p>
       )}
 
+      {players.length > 0 && visible.length === 0 && (
+        <p className="mt-6 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+          Alla spelare är registrerade.
+        </p>
+      )}
+
       <ul className="mt-4 space-y-2">
-        {players.map((player) => {
-          const current = statusFor(player.id);
+        {visible.map((player) => {
+          const entry = draft[player.id] ?? EMPTY_ENTRY;
+          const current = entry.status;
           return (
             <li key={player.id} className="rounded-xl border border-border bg-card p-3">
               <p className="font-display text-base font-semibold">
@@ -424,20 +445,23 @@ function EventAttendance({
                 {player.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {current ? ATTENDANCE_LABELS[current] : "Ingen närvaro registrerad"}
+                {current ? ATTENDANCE_LABELS[current] : "Ej registrerad"}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {ATTENDANCE_STATUSES.map((status) => (
                   <button
                     key={status}
                     type="button"
-                    disabled={!isCoach || (save.isPending && pending === player.id)}
+                    disabled={!isCoach}
                     aria-pressed={current === status}
                     aria-label={`${ATTENDANCE_LABELS[status]} för ${player.name}`}
-                    onClick={() => {
-                      setPending(player.id);
-                      save.mutate({ playerId: player.id, status, current });
-                    }}
+                    onClick={() =>
+                      setDraft((value) =>
+                        setEntry(value, player.id, {
+                          status: current === status ? null : status,
+                        }),
+                      )
+                    }
                     className={`rounded-full border px-3 py-1 text-sm disabled:opacity-60 ${
                       current === status
                         ? "border-primary bg-primary/15 text-foreground"
@@ -448,6 +472,39 @@ function EventAttendance({
                   </button>
                 ))}
               </div>
+
+              {isCoach && current === "absent" && (
+                <div className="mt-3 border-t border-border pt-2">
+                  <p className="text-xs font-medium text-muted-foreground">Orsak (valfritt)</p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {ABSENCE_REASONS.map((reason) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        aria-pressed={entry.reason === reason}
+                        onClick={() =>
+                          setDraft((value) =>
+                            setEntry(value, player.id, {
+                              reason: entry.reason === reason ? null : reason,
+                            }),
+                          )
+                        }
+                        className={`rounded-full border px-3 py-1 text-xs ${
+                          entry.reason === reason
+                            ? "border-primary bg-primary/15 text-foreground"
+                            : "border-border text-muted-foreground"
+                        }`}
+                      >
+                        {ABSENCE_REASON_LABELS[reason]}
+                      </button>
+                    ))}
+                    <span className="self-center text-xs text-muted-foreground">
+                      {entry.reason ? "" : ABSENCE_REASON_UNSET}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {eventType === "match" && isCoach && current && current !== "absent" && (
                 <div className="mt-3 border-t border-border pt-2">
                   <p className="text-xs font-medium text-muted-foreground">Speltid</p>
@@ -464,7 +521,7 @@ function EventAttendance({
                             toast.error("Ange matchens längd först.");
                             return;
                           }
-                          saveMinutes.mutate({ playerId: player.id, minutes, status: current });
+                          setDraft((value) => setEntry(value, player.id, { minutes }));
                         }}
                       >
                         {preset.label}
@@ -476,30 +533,55 @@ function EventAttendance({
                       inputMode="numeric"
                       className="h-8 w-24"
                       aria-label={`Exakta minuter för ${player.name}`}
-                      defaultValue={rowFor(player.id)?.minutes_played ?? ""}
-                      onBlur={(event) => {
+                      value={entry.minutes ?? ""}
+                      onChange={(event) => {
                         const raw = event.target.value.trim();
-                        const minutes = raw === "" ? null : Number(raw);
-                        if (minutes === (rowFor(player.id)?.minutes_played ?? null)) return;
-                        saveMinutes.mutate({ playerId: player.id, minutes, status: current });
+                        setDraft((value) =>
+                          setEntry(value, player.id, {
+                            minutes: raw === "" ? null : Number(raw),
+                          }),
+                        );
                       }}
                     />
                     <span className="text-xs text-muted-foreground">
                       {(() => {
-                        const share = playingTimeShare(
-                          rowFor(player.id)?.minutes_played ?? null,
-                          durationMinutes,
-                        );
+                        const share = playingTimeShare(entry.minutes, durationMinutes);
                         return share === null ? "min" : `min · ${share} % av matchen`;
                       })()}
                     </span>
                   </div>
                 </div>
               )}
+
+              {isCoach && current && (
+                <Input
+                  className="mt-2 h-8 text-sm"
+                  maxLength={300}
+                  placeholder="Kort intern notering (valfritt)"
+                  aria-label={`Notering för ${player.name}`}
+                  value={entry.note}
+                  onChange={(event) =>
+                    setDraft((value) => setEntry(value, player.id, { note: event.target.value }))
+                  }
+                />
+              )}
             </li>
           );
         })}
       </ul>
+
+      {isCoach && (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:bottom-0">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              {dirty ? "Du har osparade ändringar." : "Allt är sparat."}
+            </p>
+            <Button disabled={!dirty || save.isPending} onClick={() => save.mutate()}>
+              {save.isPending ? "Sparar…" : "Spara närvaro"}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {!isCoach && (
         <p className="mt-4 text-xs text-muted-foreground">
