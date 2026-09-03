@@ -24,7 +24,8 @@ export function cacheKey(userId: string, scope: CacheScope): string {
 
 function storage(): Storage | null {
   try {
-    return typeof window === "undefined" ? null : window.localStorage;
+    const store = (globalThis as { localStorage?: Storage }).localStorage;
+    return store ?? null;
   } catch {
     return null;
   }

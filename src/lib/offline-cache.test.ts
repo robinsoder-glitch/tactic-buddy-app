@@ -9,8 +9,22 @@ import {
   writeCache,
 } from "./offline-cache";
 
+function memoryStorage(): Storage {
+  const map = new Map<string, string>();
+  return {
+    get length() {
+      return map.size;
+    },
+    key: (index: number) => [...map.keys()][index] ?? null,
+    getItem: (key: string) => map.get(key) ?? null,
+    setItem: (key: string, value: string) => void map.set(key, value),
+    removeItem: (key: string) => void map.delete(key),
+    clear: () => map.clear(),
+  } as Storage;
+}
+
 beforeEach(() => {
-  window.localStorage.clear();
+  (globalThis as { localStorage?: Storage }).localStorage = memoryStorage();
 });
 
 describe("offline-cache", () => {
@@ -26,7 +40,7 @@ describe("offline-cache", () => {
 
   it("ignorerar cache från en äldre appversion", () => {
     const key = cacheKey("user-1", "invitations");
-    window.localStorage.setItem(
+    globalThis.localStorage.setItem(
       key,
       JSON.stringify({ version: CACHE_VERSION - 1, userId: "user-1", scope: "invitations", data: [1] }),
     );
