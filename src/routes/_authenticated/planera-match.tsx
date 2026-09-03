@@ -1163,8 +1163,9 @@ function ShareDialog({
   );
 }
 
-function NewMatchCreator() {
+function NewMatchCreator({ onChanged }: { onChanged?: () => void }) {
   const { user, memberships, loading } = useAccount();
+
   const coachTeams = memberships.filter(
     (m) =>
       m.status === "approved" && ["coach", "head_coach", "club_admin"].includes(m.role as string),
