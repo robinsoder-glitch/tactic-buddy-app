@@ -11,6 +11,7 @@ import {
   MessagesSquare,
   Settings,
   Shield,
+  ShieldCheck,
   Trophy,
 } from "lucide-react";
 import { MAIN_TABS, MOBILE_PRIMARY, isTabActive } from "@/lib/navigation";
