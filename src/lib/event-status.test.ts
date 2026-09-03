@@ -155,9 +155,9 @@ describe("memberPrimaryAction", () => {
   };
 
   it("svara på kallelsen går först", () => {
-    expect(
-      memberPrimaryAction({ ...base, hasPendingResponse: true, hasUnreadMessage: true }),
-    ).toBe("respond_invitation");
+    expect(memberPrimaryAction({ ...base, hasPendingResponse: true, hasUnreadMessage: true })).toBe(
+      "respond_invitation",
+    );
   });
 
   it("läs meddelandet när svaret finns", () => {

@@ -9,12 +9,7 @@ export type EventState = "upcoming" | "ongoing" | "done" | "cancelled";
 export type StepStatus = "not_started" | "in_progress" | "done" | "needs_action" | "not_applicable";
 
 export type StepKey =
-  | "details"
-  | "invitation"
-  | "planning"
-  | "execution"
-  | "attendance"
-  | "followup";
+  "details" | "invitation" | "planning" | "execution" | "attendance" | "followup";
 
 export const STEP_ORDER: StepKey[] = [
   "details",
@@ -154,11 +149,7 @@ export type CoachActionKey =
   | "none";
 
 export type MemberActionKey =
-  | "respond_invitation"
-  | "read_message"
-  | "show_event"
-  | "cancelled"
-  | "none";
+  "respond_invitation" | "read_message" | "show_event" | "cancelled" | "none";
 
 export const COACH_ACTION_LABELS: Record<CoachActionKey, string> = {
   manage_members: "Hantera medlemmar",

@@ -197,7 +197,6 @@ function EventPage() {
     hasUnreadMessage: false,
   });
 
-
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
   };
@@ -474,7 +473,6 @@ function EventPage() {
           </Button>
         </section>
       )}
-
 
       <section className="mt-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -830,7 +828,6 @@ function CoachActionButton({
     </Button>
   );
 }
-
 
 function InvitationHistory({ invitationId }: { invitationId: string }) {
   const log = useQuery({
