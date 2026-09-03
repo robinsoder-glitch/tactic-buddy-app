@@ -2356,6 +2356,10 @@ export type Database = {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
       }
+      can_see_member_profile: {
+        Args: { _profile_id: string }
+        Returns: boolean
+      }
       find_team_by_code: {
         Args: { _code: string }
         Returns: {

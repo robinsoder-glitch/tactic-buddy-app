@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { RoleChoice } from "@/components/auth/RoleChoice";
 import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
 import {
+  CLEARED_SETUP_METADATA,
   SETUP_ERRORS,
   applyAccountSetup,
   clearSetup,
@@ -157,7 +158,10 @@ function AuthPage() {
 
       const result = await applyAccountSetup(data.session.user.id, setup);
       clearSetup();
-      await supabase.auth.updateUser({ data: { display_name: setup.name.trim() } });
+      // Registreringsunderlaget är förbrukat – rensa det så att nästa inloggning inte gör om det.
+      await supabase.auth.updateUser({
+        data: { ...CLEARED_SETUP_METADATA, display_name: setup.name.trim() },
+      });
       // Roller och medlemskap hämtades innan kontot fanns – hämta om dem.
       await queryClient.invalidateQueries();
       if (result.teamName && result.status === "pending") {
