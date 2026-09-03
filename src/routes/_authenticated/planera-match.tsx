@@ -111,6 +111,7 @@ function MatchPlanningPage() {
   const [coachCounts, setCoachCounts] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     void (async () => {
@@ -138,7 +139,8 @@ function MatchPlanningPage() {
         setLoading(false);
       }
     })();
-  }, [search.eventId]);
+  }, [search.eventId, reloadKey]);
+
 
   const selected = events?.find((e) => e.id === eventId) ?? null;
 
