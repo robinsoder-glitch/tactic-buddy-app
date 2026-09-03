@@ -78,14 +78,33 @@ export function ChunkErrorBanner() {
       return;
     }
 
-    const trigger = (message: string) => {
+    // Skilj på "ny version deployad" och "vanligt nätverksfel": fråga servern
+    // vilken version den levererar innan vi påstår att appen har uppdaterats.
+    const trigger = async (message: string) => {
       if (!isChunkLoadError(message)) return;
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        setNetwork(true);
+        return;
+      }
+      const current = await fetchDeployedSignature();
+      if (!current) {
+        // Servern gick inte att nå alls → nätverks-/blockeringsproblem.
+        setNetwork(true);
+        return;
+      }
+      if (signature.current && current === signature.current) {
+        // Samma version som vi bootade med → resursen föll bort av nätverksskäl.
+        setNetwork(true);
+        return;
+      }
+      signature.current = current;
       setDetail(message);
       if (canAutoReload()) {
         setReloading(true);
         void hardReload();
       }
     };
+
 
     const onError = (e: ErrorEvent) => trigger(e.message ?? "");
     const onRejection = (e: PromiseRejectionEvent) => {
