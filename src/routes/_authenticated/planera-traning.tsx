@@ -516,58 +516,6 @@ function PlanTrainingPage() {
                     </span>
                   </Link>
                 </div>
-
-                <details className="mt-4 rounded-xl border border-border bg-card p-4">
-                  <summary className="cursor-pointer text-sm font-semibold">
-                    Avancerat – lägg till ett helt träningspass
-                  </summary>
-                  <ul className="mt-3 space-y-2">
-                    {(sessions.data ?? []).length === 0 && (
-                      <li className="text-sm text-muted-foreground">
-                        Du har inga egna träningspass ännu.
-                      </li>
-                    )}
-                    {(sessions.data ?? []).map((session) => {
-                      const own = (items.data ?? []).filter(
-                        (item) => item.session_id === session.id,
-                      );
-                      return (
-                        <li
-                          key={session.id}
-                          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
-                        >
-                          <span className="min-w-0">
-                            <span className="block font-semibold">{session.title}</span>
-                            <span className="block text-xs text-muted-foreground">
-                              {totalMinutes(own)} min · {own.length} delar
-                            </span>
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              addSessionToDraft(
-                                session.id,
-                                session.title,
-                                totalMinutes(own) || null,
-                              )
-                            }
-                          >
-                            Lägg till i träningen
-                          </Button>
-                        </li>
-                      );
-                    })}
-                    <li>
-                      <Link
-                        to="/traningspass"
-                        className="text-sm text-primary underline-offset-4 hover:underline"
-                      >
-                        Bygg ett nytt återanvändbart träningspass
-                      </Link>
-                    </li>
-                  </ul>
-                </details>
               </div>
 
               <div>
