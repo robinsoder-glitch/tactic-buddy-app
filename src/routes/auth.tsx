@@ -26,10 +26,15 @@ import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 import { friendlyError } from "@/lib/user-errors";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
+import { safeNextPath } from "@/lib/invite-links";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" } =>
-    search["mode"] === "signup" ? { mode: "signup" } : {},
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => ({
+    ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}),
+    ...(typeof search["next"] === "string" && safeNextPath(search["next"] as string)
+      ? { next: search["next"] as string }
+      : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Logga in eller skapa konto – Fotbollsrummet" },
@@ -56,6 +61,8 @@ function AuthPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const search = Route.useSearch();
+  const nextPath = safeNextPath(search.next);
+  const goOn = () => navigate({ to: nextPath ?? "/" });
   const [mode, setMode] = useState<Mode>(search.mode === "signup" ? "signup" : "signin");
   const [role, setRole] = useState<AccountRole | null>(null);
   const [email, setEmail] = useState("");
@@ -70,9 +77,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+      if (data.session) navigate({ to: nextPath ?? "/" });
     });
-  }, [navigate]);
+  }, [navigate, nextPath]);
 
   function chooseRole(next: AccountRole) {
     setRole(next);
@@ -100,7 +107,7 @@ function AuthPage() {
       if (result?.teamName && result.status === "pending") {
         toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
       }
-      navigate({ to: "/" });
+      goOn();
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte logga in"));
     } finally {
@@ -171,7 +178,7 @@ function AuthPage() {
       } else {
         toast.success("Konto skapat! Du är inloggad.");
       }
-      navigate({ to: "/" });
+      goOn();
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte skapa kontot"));
     } finally {
@@ -208,7 +215,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/" });
+    goOn();
   }
 
   const showRoleStep = mode === "signup" && !role;

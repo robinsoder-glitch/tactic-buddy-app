@@ -62,7 +62,10 @@ function LeadersPage() {
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [days, setDays] = useState(14);
+  const [inviteRole, setInviteRole] = useState<"coach" | "player">("coach");
+  const [recipientLabel, setRecipientLabel] = useState("");
   const [lastLink, setLastLink] = useState<string | null>(null);
+  const [lastQr, setLastQr] = useState<string | null>(null);
 
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
   const members = useQuery({
@@ -81,11 +84,28 @@ function LeadersPage() {
   };
 
   const invite = useMutation({
-    mutationFn: () => addTeamInvite({ teamId, userId: userId!, email, days }),
-    onSuccess: (row: TeamInvite) => {
+    mutationFn: () =>
+      addTeamInvite({
+        teamId,
+        userId: userId!,
+        email: email.trim() || null,
+        days,
+        role: inviteRole,
+        kind: email.trim() ? "email" : "link",
+        recipientLabel: recipientLabel || null,
+      }),
+    onSuccess: async (row: TeamInvite) => {
       setEmail("");
-      setLastLink(inviteLink(row.token));
-      toast.success("Personlig inbjudan skapad. Skicka länken till ledaren.");
+      setRecipientLabel("");
+      const link = inviteLink(row.token);
+      setLastLink(link);
+      try {
+        const { toDataURL } = await import("qrcode");
+        setLastQr(await toDataURL(link, { margin: 1, width: 220 }));
+      } catch {
+        setLastQr(null);
+      }
+      toast.success("Personlig inbjudan skapad. Dela länken eller QR-koden.");
       refresh();
     },
     onError: (error: Error) => toast.error(friendlyError(error)),
@@ -238,7 +258,7 @@ function LeadersPage() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="ledare@klubb.se"
+                placeholder="ledare@klubb.se (valfritt)"
               />
             </div>
             <div>
@@ -255,17 +275,52 @@ function LeadersPage() {
                 <option value={30}>30 dagar</option>
               </select>
             </div>
-            <Button onClick={() => invite.mutate()} disabled={!email.trim() || invite.isPending}>
+            <div>
+              <Label htmlFor="leader-role">Roll</Label>
+              <select
+                id="leader-role"
+                value={inviteRole}
+                onChange={(event) => setInviteRole(event.target.value as "coach" | "player")}
+                className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+              >
+                <option value="coach">Tränare eller ledare</option>
+                <option value="player">Spelare eller vårdnadshavare</option>
+              </select>
+            </div>
+            <div className="min-w-[10rem] flex-1">
+              <Label htmlFor="leader-label">Namn (valfritt)</Label>
+              <Input
+                id="leader-label"
+                value={recipientLabel}
+                onChange={(event) => setRecipientLabel(event.target.value)}
+                placeholder="Till exempel Elias mamma"
+              />
+            </div>
+            <Button onClick={() => invite.mutate()} disabled={invite.isPending}>
               <Plus className="size-4" aria-hidden /> Skapa inbjudan
             </Button>
           </div>
 
           {lastLink && (
-            <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 p-3">
-              <span className="min-w-0 flex-1 truncate font-mono text-xs">{lastLink}</span>
-              <Button size="sm" variant="secondary" onClick={() => copyLink(lastLink)}>
-                <Copy className="size-4" aria-hidden /> Kopiera länk
-              </Button>
+            <div className="space-y-3 rounded-xl border border-primary/40 bg-primary/10 p-3">
+              <div className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate font-mono text-xs">{lastLink}</span>
+                <Button size="sm" variant="secondary" onClick={() => copyLink(lastLink)}>
+                  <Copy className="size-4" aria-hidden /> Kopiera länk
+                </Button>
+              </div>
+              {lastQr && (
+                <div className="flex flex-col items-center gap-2">
+                  <img
+                    src={lastQr}
+                    alt="QR-kod med inbjudningslänken"
+                    className="size-40 rounded-lg bg-white p-2"
+                  />
+                  <a className="text-xs underline" href={lastQr} download="inbjudan-qr.png">
+                    Ladda ner QR-koden
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
@@ -278,7 +333,12 @@ function LeadersPage() {
                   className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3"
                 >
                   <Mail className="size-4 shrink-0 text-primary" aria-hidden />
-                  <span className="min-w-0 flex-1 truncate text-sm">{row.email}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm">
+                    {row.email ?? row.recipient_label ?? "Kopierbar länk"}
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {row.role === "coach" ? "Ledare" : "Spelare"}
+                    </span>
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {INVITE_STATE_LABELS[state]}
                     {state === "active" && ` · går ut ${formatDate(row.expires_at)}`}
@@ -289,7 +349,7 @@ function LeadersPage() {
                         size="sm"
                         variant="secondary"
                         onClick={() => copyLink(inviteLink(row.token))}
-                        aria-label={`Kopiera inbjudningslänk till ${row.email}`}
+                        aria-label={`Kopiera inbjudningslänk till ${row.email ?? row.recipient_label ?? "laget"}`}
                       >
                         <Copy className="size-4" aria-hidden /> Länk
                       </Button>
@@ -299,7 +359,7 @@ function LeadersPage() {
                         onClick={() => {
                           void confirm({
                             title: "Återkalla inbjudan",
-                            description: `Länken till ${row.email} slutar fungera direkt.`,
+                            description: `Länken till ${row.email ?? row.recipient_label ?? "laget"} slutar fungera direkt.`,
                           }).then((ok) => ok && revoke.mutate(row.id));
                         }}
                       >
@@ -313,10 +373,10 @@ function LeadersPage() {
                     onClick={() => {
                       void confirm({
                         title: "Radera inbjudan",
-                        description: `Inbjudan till ${row.email} tas bort helt.`,
+                        description: `Inbjudan till ${row.email ?? row.recipient_label ?? "laget"} tas bort helt.`,
                       }).then((ok) => ok && drop.mutate(row.id));
                     }}
-                    aria-label={`Ta bort inbjudan till ${row.email}`}
+                    aria-label={`Ta bort inbjudan till ${row.email ?? row.recipient_label ?? "laget"}`}
                   >
                     <Trash2 className="size-4" aria-hidden />
                   </Button>

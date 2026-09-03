@@ -12,7 +12,7 @@ import {
   removeMember,
   findSimilarPlayers,
   saveTeamPlayer,
-  setMemberStatus,
+  approveTeamJoinRequest,
   uploadTeamMedia,
   type TeamPlayer,
 } from "@/lib/teams";
@@ -25,6 +25,7 @@ import {
   toStoredBirth,
 } from "@/lib/player-privacy";
 import { friendlyError } from "@/lib/user-errors";
+import { joinSourceLabel } from "@/lib/invite-links";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -177,8 +178,13 @@ function SquadPage() {
   const [duplicates, setDuplicates] = useState<{ id: string; name: string }[]>([]);
 
   const approve = useMutation({
-    mutationFn: (id: string) => setMemberStatus(id, "approved"),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["team-members", teamId] }),
+    mutationFn: (id: string) => approveTeamJoinRequest(id),
+    onSuccess: () => {
+      toast.success("Ansökan godkänd.");
+      queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
+      queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
+    },
+    onError: (error: Error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
   });
   const reject = useMutation({
     mutationFn: (id: string) => removeMember(id),
@@ -193,38 +199,68 @@ function SquadPage() {
     <section>
       {isCoach && pending.length > 0 && (
         <div className="mb-5 rounded-xl border border-primary/40 bg-primary/10 p-4">
-          <h2 className="font-display text-lg font-semibold">Ansökningar</h2>
+          <h2 className="font-display text-lg font-semibold">Ansökningar ({pending.length})</h2>
           <ul className="mt-3 space-y-2">
-            {pending.map((member) => (
-              <li key={member.id} className="flex items-center gap-2 text-sm">
-                <span className="flex-1 truncate">
-                  {member.displayName ??
-                    (member.role === "coach"
-                      ? "Ny ledare"
-                      : member.role === "guardian"
-                        ? "Ny vårdnadshavare"
-                        : "Ny spelare")}
-                  <span className="text-muted-foreground">
-                    {member.role === "coach"
-                      ? " · vill bli ledare"
-                      : member.role === "guardian"
-                        ? " · vårdnadshavare"
-                        : " · vill bli spelare"}
+            {pending.map((member) => {
+              const who =
+                member.displayName ??
+                (member.role === "coach"
+                  ? "Ny ledare"
+                  : member.role === "guardian"
+                    ? "Ny vårdnadshavare"
+                    : "Ny spelare");
+              const roleText =
+                member.role === "coach"
+                  ? "vill bli ledare"
+                  : member.role === "guardian"
+                    ? "vårdnadshavare"
+                    : "vill bli spelare";
+              return (
+                <li key={member.id} className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="min-w-0 flex-1">
+                    <span className="font-medium">{who}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {roleText}
+                      {member.role === "guardian" && member.guardianForName
+                        ? ` till ${member.guardianForName}`
+                        : ""}
+                      {" · via "}
+                      {joinSourceLabel(member.joined_via)}
+                      {" · "}
+                      {new Date(member.created_at).toLocaleDateString("sv-SE")}
+                    </span>
                   </span>
-                </span>
-                <Button size="sm" aria-label="Godkänn" onClick={() => approve.mutate(member.id)}>
-                  <Check className="size-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  aria-label="Neka"
-                  onClick={() => reject.mutate(member.id)}
-                >
-                  <X className="size-4" />
-                </Button>
-              </li>
-            ))}
+                  <Button
+                    size="sm"
+                    aria-label={`Godkänn ${who}`}
+                    disabled={approve.isPending}
+                    onClick={() => {
+                      void confirm({
+                        title: "Godkänn ansökan",
+                        description: `${who} blir medlem i laget och kopplas till rätt spelarkort.`,
+                        confirmLabel: "Godkänn",
+                      }).then((ok) => ok && approve.mutate(member.id));
+                    }}
+                  >
+                    <Check className="size-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    aria-label={`Neka ${who}`}
+                    onClick={() => {
+                      void confirm({
+                        title: "Neka ansökan",
+                        description: `${who} läggs inte till i laget.`,
+                        confirmLabel: "Neka",
+                      }).then((ok) => ok && reject.mutate(member.id));
+                    }}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
