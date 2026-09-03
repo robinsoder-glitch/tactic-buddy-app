@@ -208,11 +208,19 @@ function AttendancePage() {
                     {formatDateTime(event.starts_at)}
                   </p>
                   <p className="font-display text-base font-semibold">{eventLabel(event)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {registered > 0
-                      ? `${registered} av ${(players.data ?? []).length} spelare registrerade`
-                      : "Ingen närvaro registrerad ännu"}
-                  </p>
+                  {(() => {
+                    const total = (players.data ?? []).length;
+                    const done = total > 0 && registered >= total;
+                    return (
+                      <p
+                        className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          done ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
+                        }`}
+                      >
+                        {done ? "Klart" : `Ej klart – ${registered} av ${total} registrerade`}
+                      </p>
+                    );
+                  })()}
                 </div>
                 <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
               </Link>
@@ -272,6 +280,11 @@ function EventAttendance({
   }, [saved]);
 
   const dirty = isDirty(draft, saved);
+  const allRegistered =
+    players.length > 0 &&
+    players.every((player) =>
+      Boolean((rows.data ?? []).find((row) => row.player_id === player.id)),
+    );
   const started = attendanceStarted(rows.data ?? []);
 
   // Varna innan sidan lämnas med osparade ändringar.
@@ -352,6 +365,15 @@ function EventAttendance({
       </div>
 
       <p className="mt-3 text-sm font-medium">{counterLabel(draft, players.length)}</p>
+      {players.length > 0 && (
+        <p
+          className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+            allRegistered ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
+          }`}
+        >
+          {allRegistered ? "Klart" : "Ej klart"}
+        </p>
+      )}
 
       {isCoach && (
         <div className="mt-3 rounded-xl border border-border bg-card p-3">
@@ -586,9 +608,32 @@ function EventAttendance({
             <p className="text-xs text-muted-foreground">
               {dirty ? "Du har osparade ändringar." : "Allt är sparat."}
             </p>
-            <Button disabled={!dirty || save.isPending} onClick={() => save.mutate()}>
-              {save.isPending ? "Sparar…" : "Spara närvaro"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                disabled={!dirty || save.isPending}
+                onClick={() => save.mutate()}
+              >
+                {save.isPending ? "Sparar…" : "Spara"}
+              </Button>
+              <Button
+                disabled={save.isPending}
+                onClick={() => {
+                  // Färdigställ: alla utan status räknas som frånvarande.
+                  setDraft((current) => {
+                    let next = current;
+                    for (const player of players) {
+                      if (!(next[player.id]?.status ?? null))
+                        next = setEntry(next, player.id, { status: "absent" });
+                    }
+                    return next;
+                  });
+                  setTimeout(() => save.mutate(), 0);
+                }}
+              >
+                {save.isPending ? "Sparar…" : "Färdigställ närvaro"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

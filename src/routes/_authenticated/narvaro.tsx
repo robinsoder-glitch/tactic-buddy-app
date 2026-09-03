@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_authenticated/narvaro")({
       { title: "Närvaro – genomförda träningar och matcher" },
       {
         name: "description",
-        content: "Pricka av truppen efter varje genomförd träning och match och se vad som är klart.",
+        content:
+          "Pricka av truppen efter varje genomförd träning och match och se vad som är klart.",
       },
       { property: "og:title", content: "Närvaro" },
       {
@@ -115,9 +116,7 @@ function NarvaroPage() {
                   <p className="font-display text-base font-semibold">{eventLabel(item.event)}</p>
                   <p
                     className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      done
-                        ? "bg-primary/15 text-primary"
-                        : "bg-destructive/15 text-destructive"
+                      done ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
                     }`}
                   >
                     {done ? (

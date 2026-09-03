@@ -85,8 +85,8 @@ function MyInvitesPage() {
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-8 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Mina kallelser</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Kallelser gäller bara matcher. Träningar svarar du inte på – där registrerar ledaren
-        närvaro efteråt.
+        Kallelser gäller bara matcher. Träningar svarar du inte på – där registrerar ledaren närvaro
+        efteråt.
       </p>
 
       <div className="mt-4 flex gap-2">
@@ -97,7 +97,11 @@ function MyInvitesPage() {
         >
           Kommande ({upcoming.length})
         </Button>
-        <Button size="sm" variant={showPast ? "default" : "ghost"} onClick={() => setShowPast(true)}>
+        <Button
+          size="sm"
+          variant={showPast ? "default" : "ghost"}
+          onClick={() => setShowPast(true)}
+        >
           Tidigare ({past.length})
         </Button>
       </div>
