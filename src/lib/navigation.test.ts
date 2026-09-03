@@ -29,12 +29,14 @@ describe("huvudmenyn", () => {
 
   it("samlar lag och verktyg i en sekundär meny", () => {
     expect(SECONDARY_TABS.map((tab) => tab.label)).toEqual([
+      "Spelare",
       "Meddelanden",
       "Tränarsnack",
       "Mina lag",
       "Inställningar",
     ]);
   });
+
 
   it("markerar aktiv flik", () => {
     const taktik = MAIN_TABS.find((tab) => tab.to === "/taktik")!;
