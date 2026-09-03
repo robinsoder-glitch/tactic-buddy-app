@@ -111,13 +111,11 @@ export function CoachTour({
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 bg-foreground/40"
             style={{ height: Math.max(0, spotlight.top) }}
-            onClick={onClose}
           />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 bottom-0 bg-foreground/40"
             style={{ top: spotlight.top + spotlight.height }}
-            onClick={onClose}
           />
           <div
             aria-hidden="true"
@@ -127,7 +125,6 @@ export function CoachTour({
               height: spotlight.height,
               width: Math.max(0, spotlight.left),
             }}
-            onClick={onClose}
           />
           <div
             aria-hidden="true"
@@ -137,7 +134,6 @@ export function CoachTour({
               height: spotlight.height,
               left: spotlight.left + spotlight.width,
             }}
-            onClick={onClose}
           />
           <div
             aria-hidden="true"
