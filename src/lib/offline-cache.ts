@@ -3,11 +3,11 @@
  * rätt att se sparas, alltid separerat per inloggad användare och versionsmärkt
  * så att gammal struktur aldrig krockar med en ny appversion.
  */
-export const CACHE_VERSION = 2;
+export const CACHE_VERSION = 3;
 const PREFIX = "fr:offline";
 
 /** Enbart dessa datamängder får cachelagras. */
-export const ALLOWED_SCOPES = ["upcoming", "invitations", "session-plan", "my-day"] as const;
+export const ALLOWED_SCOPES = ["upcoming", "invitations", "session-plan"] as const;
 export type CacheScope = (typeof ALLOWED_SCOPES)[number];
 
 export type CacheEnvelope<T> = {
