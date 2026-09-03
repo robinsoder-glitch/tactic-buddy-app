@@ -99,36 +99,54 @@ export type Database = {
       }
       app_notifications: {
         Row: {
+          action_url: string | null
           body: string | null
           created_at: string
           created_by: string | null
+          dedupe_key: string | null
+          delivered_at: string | null
           event_id: string | null
+          expires_at: string | null
+          failed_at: string | null
           id: string
           kind: string
+          priority: string
           read_at: string | null
           team_id: string | null
           title: string
           user_id: string
         }
         Insert: {
+          action_url?: string | null
           body?: string | null
           created_at?: string
           created_by?: string | null
+          dedupe_key?: string | null
+          delivered_at?: string | null
           event_id?: string | null
+          expires_at?: string | null
+          failed_at?: string | null
           id?: string
           kind?: string
+          priority?: string
           read_at?: string | null
           team_id?: string | null
           title: string
           user_id: string
         }
         Update: {
+          action_url?: string | null
           body?: string | null
           created_at?: string
           created_by?: string | null
+          dedupe_key?: string | null
+          delivered_at?: string | null
           event_id?: string | null
+          expires_at?: string | null
+          failed_at?: string | null
           id?: string
           kind?: string
+          priority?: string
           read_at?: string | null
           team_id?: string | null
           title?: string
@@ -1232,6 +1250,78 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          digest: string
+          email: boolean
+          id: string
+          in_app: boolean
+          kind: string
+          push: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          digest?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          kind: string
+          push?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          digest?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          kind?: string
+          push?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_settings: {
+        Row: {
+          created_at: string
+          important_bypass_quiet: boolean
+          push_enabled: boolean
+          quiet_enabled: boolean
+          quiet_end: string
+          quiet_start: string
+          time_zone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          important_bypass_quiet?: boolean
+          push_enabled?: boolean
+          quiet_enabled?: boolean
+          quiet_end?: string
+          quiet_start?: string
+          time_zone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          important_bypass_quiet?: boolean
+          push_enabled?: boolean
+          quiet_enabled?: boolean
+          quiet_end?: string
+          quiet_start?: string
+          time_zone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       period_links: {
         Row: {
           created_at: string
@@ -1633,6 +1723,42 @@ export type Database = {
           guardian_for_name?: string | null
           id?: string
           is_adult_confirmed?: boolean
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string | null
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string | null
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key?: string | null
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string | null
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string | null
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string | null
+          revoked_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
