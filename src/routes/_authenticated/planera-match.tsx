@@ -389,7 +389,7 @@ function MatchPlanner({
         slots,
         bench,
         tacticId,
-        required: FORMAT_PLAYERS[format] ?? 0,
+        required: effectiveRequired,
       });
       toast.success("Matchplanen är sparad");
       onSaved(eventId);
