@@ -14,6 +14,7 @@ import {
 } from "@/lib/game-format";
 import type { GameFormatId } from "@/lib/game-format";
 
+import { fetchMyTeams } from "@/lib/teams";
 import { cardToFrames, fetchTacticCards, GAME_MOMENT_LABELS, label } from "@/lib/taktikbank";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,16 @@ function CreatePage() {
     (item) => item.role === "coach" && item.status === "approved",
   );
   const canUseBank = account.isCoach || account.isAdmin;
+
+  const myTeams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
+
+  /** Väljer lag och sätter spelformen till lagets, så planen blir rätt storlek. */
+  function chooseTeam(id: string) {
+    setTeamId(id);
+    const team = (myTeams.data ?? []).find((item) => item.id === id);
+    const teamFormat = parseGameFormat(team?.game_format);
+    if (teamFormat) setFormat(teamFormat);
+  }
 
   const cards = useQuery({
     queryKey: ["tb-tactics"],
@@ -198,7 +209,7 @@ function CreatePage() {
                   <Chip
                     key={item.team_id}
                     active={teamId === item.team_id}
-                    onClick={() => setTeamId(item.team_id)}
+                    onClick={() => chooseTeam(item.team_id)}
                   >
                     {item.team?.name ?? "Lag"}
                   </Chip>
