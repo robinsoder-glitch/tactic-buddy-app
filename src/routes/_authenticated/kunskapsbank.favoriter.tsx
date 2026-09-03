@@ -13,7 +13,8 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/favoriter")({
       { title: "Mina favoriter – Kunskapsbanken" },
       {
         name: "description",
-        content: "Alla artiklar du har sparat som favoriter i Kunskapsbanken, samlade på ett ställe.",
+        content:
+          "Alla artiklar du har sparat som favoriter i Kunskapsbanken, samlade på ett ställe.",
       },
       { property: "og:title", content: "Mina favoriter i Kunskapsbanken" },
       { property: "og:description", content: "Dina sparade artiklar samlade på ett ställe." },
