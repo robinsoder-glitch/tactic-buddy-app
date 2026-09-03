@@ -126,9 +126,20 @@ describe("coachPrimaryAction", () => {
   });
 
   it("föreslår att starta och fortsätta träningen", () => {
-    const ongoing = { startsAt: "2026-09-03T11:30:00Z", endsAt: "2026-09-03T13:00:00Z" };
+    const ongoing = {
+      type: "training",
+      startsAt: "2026-09-03T11:30:00Z",
+      endsAt: "2026-09-03T13:00:00Z",
+    };
     expect(coachPrimaryAction(snap(ongoing))).toBe("start_session");
     expect(coachPrimaryAction(snap({ ...ongoing, runActive: true }))).toBe("continue_session");
+  });
+
+  it("ger aldrig kallelse som nästa steg för en träning", () => {
+    expect(coachPrimaryAction(snap({ type: "training", invitationCount: 0 }))).not.toBe(
+      "create_invitation",
+    );
+    expect(stepStatuses(snap({ type: "training" })).invitation).toBe("not_applicable");
   });
 
   it("föreslår närvaro och därefter sammanfattning", () => {
