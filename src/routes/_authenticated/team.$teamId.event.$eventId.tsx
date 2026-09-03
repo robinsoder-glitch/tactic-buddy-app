@@ -735,9 +735,102 @@ function EventPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {event.data && (
+        <EventEditDialog open={editing} onOpenChange={setEditing} event={event.data} />
+      )}
     </main>
   );
 }
+
+/** Primär handling för tränaren, härledd ur aktivitetens läge. */
+function CoachActionButton({
+  action,
+  teamId,
+  eventId,
+  isMatch,
+  sessionId,
+  onCreateInvitation,
+  onRemind,
+  reminding,
+}: {
+  action: CoachActionKey;
+  teamId: string;
+  eventId: string;
+  isMatch: boolean;
+  sessionId: string | null;
+  onCreateInvitation: () => void;
+  onRemind: () => void;
+  reminding: boolean;
+}) {
+  const label = COACH_ACTION_LABELS[action];
+
+  if (action === "none") {
+    return <p className="mt-1 text-sm font-semibold">Inget behöver göras just nu.</p>;
+  }
+  if (action === "create_invitation") {
+    return (
+      <Button className="mt-2" onClick={onCreateInvitation}>
+        {label}
+      </Button>
+    );
+  }
+  if (action === "remind_pending") {
+    return (
+      <Button className="mt-2" disabled={reminding} onClick={onRemind}>
+        <Bell className="size-4" /> {label}
+      </Button>
+    );
+  }
+  if (action === "manage_members") {
+    return (
+      <Button className="mt-2" asChild>
+        <Link to="/team/$teamId" params={{ teamId }}>
+          {label}
+        </Link>
+      </Button>
+    );
+  }
+  if (action === "continue_planning") {
+    return (
+      <Button className="mt-2" asChild>
+        {isMatch ? (
+          <Link to="/planera-match" search={{ eventId }}>
+            {label}
+          </Link>
+        ) : (
+          <Link to="/planera-traning" search={{ eventId, mode: "edit" as const }}>
+            {label}
+          </Link>
+        )}
+      </Button>
+    );
+  }
+  if (action === "start_session" || action === "continue_session") {
+    if (!sessionId) {
+      return (
+        <Button className="mt-2" asChild>
+          <Link to="/traningspass">{label}</Link>
+        </Button>
+      );
+    }
+    return (
+      <Button className="mt-2" asChild>
+        <Link to="/traningspass/$id/genomfor" params={{ id: sessionId }}>
+          {label}
+        </Link>
+      </Button>
+    );
+  }
+  return (
+    <Button className="mt-2" asChild>
+      <Link to="/team/$teamId/narvaro" params={{ teamId }}>
+        {label}
+      </Link>
+    </Button>
+  );
+}
+
 
 function InvitationHistory({ invitationId }: { invitationId: string }) {
   const log = useQuery({
