@@ -83,7 +83,8 @@ export function scoreDrill(drill: Drill, input: RecommendationInput) {
     reasons.push(`ditt fokus är ${input.focus}`);
   }
 
-  if (input.step) {
+  // Progressionssteget finjusterar bara övningar som redan matchar laget.
+  if (input.step && score > 0) {
     const minutes = drill.default_minutes ?? 10;
     const shortDrill = minutes <= 12;
     if ((input.step === 1 || input.step === 2) && shortDrill) {
