@@ -475,7 +475,14 @@ function MatchPlanner({
               <h1 className="text-lg font-semibold">
                 {event.home_team && event.away_team ? `${event.home_team} – ${event.away_team}` : event.title ?? "Match"}
               </h1>
-              <PlanStatusBadge status="done" />
+              <PlanStatusBadge
+                status={planStatus({
+                  type: "match",
+                  planSaved: true,
+                  playerCount: playerIds.length,
+                  coachCount: coachIds.length,
+                })}
+              />
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div><dt className="text-muted-foreground">Hemma/borta</dt><dd>{event.home_team === team.name ? "Hemma" : "Borta"}</dd></div>
