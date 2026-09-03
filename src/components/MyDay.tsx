@@ -98,7 +98,10 @@ export function MyDay() {
             ) : (
               <ul className="space-y-2">
                 {visible.map((item, index) => (
-                  <TodoCard key={`${item.kind}-${item.event_id ?? item.team_id}-${index}`} item={item} />
+                  <TodoCard
+                    key={`${item.kind}-${item.event_id ?? item.team_id}-${index}`}
+                    item={item}
+                  />
                 ))}
               </ul>
             )}
@@ -174,9 +177,7 @@ function TodoCard({ item }: { item: TodoItem }) {
       </p>
       <p className="mt-1 font-semibold">{item.title}</p>
       {item.subtitle && <p className="text-sm text-muted-foreground">{item.subtitle}</p>}
-      {item.due_at && (
-        <p className="text-xs text-muted-foreground">{formatWhen(item.due_at)}</p>
-      )}
+      {item.due_at && <p className="text-xs text-muted-foreground">{formatWhen(item.due_at)}</p>}
       <Link to={item.action_url} className="mt-2 inline-block">
         <Button size="sm">{item.action_label}</Button>
       </Link>
