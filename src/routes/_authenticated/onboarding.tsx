@@ -8,14 +8,19 @@ import { Button } from "@/components/ui/button";
 import { RoleChoice } from "@/components/auth/RoleChoice";
 import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
 import {
+  CLEARED_SETUP_METADATA,
+  SETUP_ERRORS,
   applyAccountSetup,
   clearSetup,
   readSetup,
+  setupFromMetadata,
   validateSetup,
   type AccountRole,
   type AccountSetup,
 } from "@/lib/account-setup";
 import { friendlyError } from "@/lib/user-errors";
+import { supabase } from "@/integrations/supabase/client";
+import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -44,10 +49,16 @@ function OnboardingPage() {
   const [role, setRole] = useState<AccountRole | null>(null);
   const [setup, setSetup] = useState<AccountSetup>({ role: "coach", name: "" });
   const [busy, setBusy] = useState(false);
+  const [codeStatus, setCodeStatus] = useState<CodeStatus>({
+    required: false,
+    ready: true,
+    error: null,
+  });
 
   // Fyll i det användaren redan valde när kontot skapades.
   useEffect(() => {
-    const stored = readSetup();
+    // Auth-metadata först: då fungerar det även på en annan enhet.
+    const stored = setupFromMetadata(user?.user_metadata) ?? readSetup();
     if (stored) {
       setSetup(stored);
       setRole(stored.role);
@@ -63,15 +74,20 @@ function OnboardingPage() {
 
   async function save() {
     if (!user || !role) return;
-    const problem = validateSetup(setup, { requireCode: setup.role === "player" });
+    const problem = validateSetup(setup, { requireCode: codeStatus.required });
     if (problem) {
       toast.error(problem);
+      return;
+    }
+    if (codeStatus.required && !codeStatus.ready) {
+      toast.error(codeStatus.error ?? SETUP_ERRORS.codeInvalid);
       return;
     }
     setBusy(true);
     try {
       const result = await applyAccountSetup(user.id, setup);
       clearSetup();
+      await supabase.auth.updateUser({ data: CLEARED_SETUP_METADATA });
       await queryClient.invalidateQueries();
       if (result.teamName && result.status === "pending") {
         toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
