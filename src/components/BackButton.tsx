@@ -1,6 +1,7 @@
 import { useRouter, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { MAIN_TABS, SECONDARY_TABS, parentPathFor } from "@/lib/navigation";
+import { canGoBackInApp } from "@/lib/back-navigation";
 
 /**
  * Sidor som redan har en egen tillbaka-länk i sitt innehåll.
