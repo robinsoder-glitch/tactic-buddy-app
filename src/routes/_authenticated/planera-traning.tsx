@@ -119,11 +119,15 @@ function PlanTrainingPage() {
   const ownDrills = useQuery({ queryKey: ["coach-drills"], queryFn: fetchCoachDrills });
   const sessions = useQuery({ queryKey: ["coach-sessions"], queryFn: fetchCoachSessions });
   const items = useQuery({ queryKey: ["coach-session-items"], queryFn: fetchAllSessionItems });
+  const keeperDrills = useQuery({ queryKey: ["tb-goalkeeper"], queryFn: fetchGoalkeeperCards });
 
   /** Riktigt namn på en planrad, oavsett var innehållet kommer ifrån. */
   function titleFor(kind: string, resourceId: string): string {
     if (kind === "session") {
       return (sessions.data ?? []).find((row) => row.id === resourceId)?.title ?? "Träningspass";
+    }
+    if (kind === "goalkeeper") {
+      return (keeperDrills.data ?? []).find((row) => row.id === resourceId)?.title ?? "Målvaktsövning";
     }
     return (
       (drills.data ?? []).find((row) => row.id === resourceId)?.title ??
@@ -162,7 +166,7 @@ function PlanTrainingPage() {
       notes: plan.data?.notes ?? "",
       items: publishedRows.map((row) => ({
         key: row.id,
-        kind: row.kind === "session" ? "session" : "drill",
+        kind: row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
         resourceId: row.resource_id,
         title: titleFor(row.kind, row.resource_id),
         minutes: row.minutes,
