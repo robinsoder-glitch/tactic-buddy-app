@@ -106,10 +106,10 @@ export function ChunkErrorBanner() {
     };
 
 
-    const onError = (e: ErrorEvent) => trigger(e.message ?? "");
+    const onError = (e: ErrorEvent) => void trigger(e.message ?? "");
     const onRejection = (e: PromiseRejectionEvent) => {
       const r = e.reason;
-      trigger(typeof r === "string" ? r : (r?.message ?? ""));
+      void trigger(typeof r === "string" ? r : (r?.message ?? ""));
     };
 
     window.addEventListener("error", onError);
@@ -120,14 +120,14 @@ export function ChunkErrorBanner() {
     };
   }, []);
 
-  if (!detail && !newVersion) return null;
+  if (!detail && !newVersion && !network) return null;
 
   const isError = Boolean(detail);
 
   return (
     <div
       className={`fixed inset-x-0 top-0 z-[100] border-b px-3 py-2 shadow-lg ${
-        isError
+        isError || network
           ? "border-destructive/40 bg-destructive text-destructive-foreground"
           : "border-primary/40 bg-primary text-primary-foreground"
       }`}
@@ -136,16 +136,23 @@ export function ChunkErrorBanner() {
         <AlertTriangle className="size-5 shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">
-            {isError ? "Appen har uppdaterats" : "En ny version av appen finns"}
+            {network
+              ? "Anslutningsproblem"
+              : isError
+                ? "Appen har uppdaterats"
+                : "En ny version av appen finns"}
           </p>
           <p className="truncate text-xs opacity-90">
             {reloading
               ? "Laddar om automatiskt…"
-              : isError
-                ? "En del av appen kunde inte laddas (gammal version i cachen)."
-                : "Ladda om för att se den senaste versionen."}
+              : network
+                ? "En del av appen kunde inte hämtas just nu. Kontrollera nätverket och försök igen."
+                : isError
+                  ? "En del av appen kunde inte laddas (gammal version i cachen)."
+                  : "Ladda om för att se den senaste versionen."}
           </p>
         </div>
+
 
         <button
           onClick={() => {
