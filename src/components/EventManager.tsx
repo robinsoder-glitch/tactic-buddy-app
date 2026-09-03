@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EventResources } from "@/components/EventResources";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/DateField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -364,13 +365,10 @@ export function EventManager({
 
             <div className="space-y-1.5">
               <Label htmlFor="e-date">Datum</Label>
-              <Input
+              <DateField
                 id="e-date"
-                name="date"
-                type="date"
                 value={schedule.date}
-                aria-invalid={Boolean(visibleErrors.date)}
-                onChange={(event) => updateSchedule("date", event.target.value)}
+                onChange={(value) => updateSchedule("date", value)}
               />
               {visibleErrors.date && (
                 <p className="text-sm text-destructive">{visibleErrors.date}</p>
