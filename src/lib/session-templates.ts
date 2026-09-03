@@ -134,8 +134,8 @@ export async function copySession(input: {
 }): Promise<string> {
   const { data, error } = await supabase.rpc("copy_coach_session", {
     _source: input.sourceId,
-    _title: input.title ?? null,
-    _team_id: input.teamId ?? null,
+    ...(input.title ? { _title: input.title } : {}),
+    ...(input.teamId ? { _team_id: input.teamId } : {}),
     _as_template: input.asTemplate ?? false,
   });
   if (error) throw new Error(error.message);
@@ -149,11 +149,11 @@ export async function setTemplate(input: {
   visibility: Visibility;
   teamId?: string | null;
 }) {
-  const patch: Record<string, unknown> = {
+  const patch = {
     is_template: input.isTemplate,
     visibility: input.visibility,
+    ...(input.visibility === "team" ? { team_id: input.teamId ?? null } : {}),
   };
-  if (input.visibility === "team") patch["team_id"] = input.teamId ?? null;
   const { error } = await supabase
     .from("coach_sessions")
     .update(patch)
