@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   BookOpen,
   CalendarCheck,
@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Trophy,
   UserPlus,
+  LogOut,
 } from "lucide-react";
 import { MOBILE_MAIN_LIMIT, SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
@@ -22,6 +23,7 @@ import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { useUnreadInbox } from "@/hooks/useUnreadInbox";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
 import { BrandLogo } from "@/components/BrandLogo";
+import { supabase } from "@/integrations/supabase/client";
 
 /** Sidor där huvudmenyn ska vara dold. */
 const HIDDEN_PREFIXES = ["/auth", "/t/", "/onboarding"];
@@ -47,6 +49,7 @@ export function AppNav() {
   const unread = useUnreadChat();
   const unreadInbox = useUnreadInbox();
   const { total: pendingJoins } = usePendingJoins();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLLIElement>(null);
   const deskRef = useRef<HTMLDivElement>(null);
@@ -82,6 +85,12 @@ export function AppNav() {
     (secondary.some((tab) => tab.to === "/meddelanden") ? unreadInbox : 0) +
     (secondary.some((tab) => tab.to === "/tranarsnack") ? unread : 0) +
     (isCoach && secondary.some((tab) => tab.to === "/teams") ? pendingJoins : 0);
+
+  const signOut = async () => {
+    setMenuOpen(false);
+    await supabase.auth.signOut();
+    await router.navigate({ to: "/auth" });
+  };
 
   const barLink =
     "relative flex min-h-[4rem] w-full flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[11px] font-semibold leading-tight text-muted-foreground transition-colors";
@@ -208,6 +217,17 @@ export function AppNav() {
                     </Link>
                   </li>
                 )}
+                <li role="none" className="border-t border-border">
+                  <button
+                    role="menuitem"
+                    type="button"
+                    onClick={() => void signOut()}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-foreground hover:bg-accent"
+                  >
+                    <LogOut className="size-4" aria-hidden />
+                    Logga ut
+                  </button>
+                </li>
               </ul>
             )}
           </div>
@@ -284,6 +304,17 @@ export function AppNav() {
                     </Link>
                   </li>
                 )}
+                <li role="none" className="border-t border-border">
+                  <button
+                    role="menuitem"
+                    type="button"
+                    onClick={() => void signOut()}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-foreground hover:bg-accent"
+                  >
+                    <LogOut className="size-4" aria-hidden />
+                    Logga ut
+                  </button>
+                </li>
               </ul>
             )}
           </li>
