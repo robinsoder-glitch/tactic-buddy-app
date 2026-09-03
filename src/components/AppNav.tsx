@@ -14,7 +14,12 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
+import {
+  MOBILE_MAIN_LIMIT,
+  SECONDARY_LABEL,
+  isTabActive,
+  tabsForRole,
+} from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
@@ -68,6 +73,8 @@ export function AppNav() {
     return null;
 
   const { main: primary, secondary } = tabsForRole(isCoach || isAdmin);
+  const mobilePrimary = primary.slice(0, MOBILE_MAIN_LIMIT);
+  const mobileSecondary = [...primary.slice(MOBILE_MAIN_LIMIT), ...secondary];
 
   const secondaryActive =
     secondary.some((tab) => isTabActive(pathname, tab)) || pathname.startsWith("/admin");
@@ -202,7 +209,7 @@ export function AppNav() {
         className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-primary bg-background/95 backdrop-blur md:hidden supports-[backdrop-filter]:bg-background/85"
       >
         <ul className="mx-auto flex max-w-3xl items-stretch">
-          {primary.map((tab) => {
+          {mobilePrimary.map((tab) => {
             const active = isTabActive(pathname, tab);
             return (
               <li key={tab.to} className="min-w-0 flex-1">
@@ -237,7 +244,7 @@ export function AppNav() {
                 <li role="none" className="border-b border-border px-4 py-3">
                   <span className="text-sm font-bold">{SECONDARY_LABEL}</span>
                 </li>
-                {secondary.map((tab) => {
+                {mobileSecondary.map((tab) => {
                   const active = isTabActive(pathname, tab);
                   return (
                     <li key={tab.to} role="none">

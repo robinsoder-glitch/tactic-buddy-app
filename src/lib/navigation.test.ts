@@ -15,10 +15,12 @@ import {
 } from "./planning";
 
 describe("huvudmenyn", () => {
-  it("visar fem primära arbetsområden i rätt ordning", () => {
+  it("visar de primära arbetsområdena i rätt ordning", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
       "Planera match",
+      "Kalender",
+      "Närvaro",
       "Taktik",
       "Träningsbank",
       "Kunskap",
@@ -27,8 +29,6 @@ describe("huvudmenyn", () => {
 
   it("samlar lag och verktyg i en sekundär meny", () => {
     expect(SECONDARY_TABS.map((tab) => tab.label)).toEqual([
-      "Kalender",
-      "Närvaro",
       "Tränarsnack",
       "Mina lag",
       "Inställningar",
