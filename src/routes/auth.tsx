@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
 import {
   applyAccountSetup,
   clearSetup,
+  readSetup,
   storeSetup,
   validateSetup,
   type AccountRole,
@@ -48,6 +50,7 @@ type Mode = "signin" | "signup";
 
 function AuthPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const search = Route.useSearch();
   const [mode, setMode] = useState<Mode>(search.mode === "signup" ? "signup" : "signin");
   const [role, setRole] = useState<AccountRole | null>(null);
@@ -77,7 +80,9 @@ function AuthPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate({ to: "/" });
+      // Har kontot skapats med lagkod men inte hunnit kopplas – gör klart det nu.
+      await queryClient.invalidateQueries();
+      navigate({ to: readSetup() ? "/onboarding" : "/" });
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte logga in"));
     } finally {
@@ -125,6 +130,8 @@ function AuthPage() {
 
       const result = await applyAccountSetup(data.session.user.id, setup);
       clearSetup();
+      // Roller och medlemskap hämtades innan kontot fanns – hämta om dem.
+      await queryClient.invalidateQueries();
       if (result.teamName && result.status === "pending") {
         toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
       } else if (result.teamName) {
