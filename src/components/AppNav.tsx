@@ -187,6 +187,18 @@ export function AppNav() {
                     </li>
                   );
                 })}
+                {isAdmin && (
+                  <li role="none" className="border-t border-border">
+                    <Link
+                      role="menuitem"
+                      to="/admin"
+                      className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-foreground hover:bg-accent"
+                    >
+                      <ShieldCheck className="size-4" aria-hidden />
+                      Admin
+                    </Link>
+                  </li>
+                )}
               </ul>
             )}
           </li>
