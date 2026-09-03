@@ -45,6 +45,9 @@ export type CoachSession = {
   status: string;
   template_id: string | null;
   team_id: string | null;
+  is_template?: boolean;
+  visibility?: string;
+  source_session_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -83,7 +86,7 @@ export const emptyDraft: SessionDraft = {
 };
 
 const SESSION_COLUMNS =
-  "id, user_id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, created_at, updated_at";
+  "id, user_id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, is_template, visibility, source_session_id, created_at, updated_at";
 const ITEM_COLUMNS = "id, session_id, kind, title, resource_id, minutes, note, sort_order";
 
 export async function fetchCoachSessions(): Promise<CoachSession[]> {
