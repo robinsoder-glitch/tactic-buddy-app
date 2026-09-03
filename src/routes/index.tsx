@@ -42,7 +42,7 @@ import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
 import { BrandLogo } from "@/components/BrandLogo";
-import { MyDay } from "@/components/MyDay";
+
 import {
   BRAND_DESCRIPTION,
   BRAND_EYEBROW,
