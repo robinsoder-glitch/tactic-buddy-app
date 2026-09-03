@@ -44,7 +44,7 @@ import {
   updateDraftItem,
   type TrainingDraft,
 } from "@/lib/training-draft";
-import { fetchDrills } from "@/lib/taktikbank";
+import { fetchDrills, fetchGoalkeeperCards } from "@/lib/taktikbank";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine } from "@/lib/event-labels";
 
