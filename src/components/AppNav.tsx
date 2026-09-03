@@ -14,7 +14,12 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { SECONDARY_LABEL, isTabActive, tabsForRole } from "@/lib/navigation";
+import {
+  MOBILE_MAIN_LIMIT,
+  SECONDARY_LABEL,
+  isTabActive,
+  tabsForRole,
+} from "@/lib/navigation";
 import { useAccount } from "@/hooks/useAccount";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
