@@ -231,7 +231,6 @@ function EventAttendance({
   isCoach,
   eventId,
   eventType,
-  durationMinutes,
   heading,
   subheading,
   players,
@@ -243,7 +242,6 @@ function EventAttendance({
   isCoach: boolean;
   eventId: string;
   eventType: "training" | "match";
-  durationMinutes: number | null;
   heading: string;
   subheading: string;
   players: { id: string; name: string; number: number | null }[];
