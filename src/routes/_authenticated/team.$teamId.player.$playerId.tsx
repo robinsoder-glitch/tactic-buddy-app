@@ -99,7 +99,6 @@ function PlayerPage() {
         </p>
       )}
 
-
       <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
         <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
           {player?.photoUrl ? (

@@ -360,8 +360,7 @@ function MatchPlanner({
           setFormat(match?.[1] ?? "7v7");
         } else {
           // Utan sparad uppställning följer planeringen lagets spelform.
-          const teamFormat =
-            t.game_format && FORMAT_LABELS[t.game_format] ? t.game_format : "7v7";
+          const teamFormat = t.game_format && FORMAT_LABELS[t.game_format] ? t.game_format : "7v7";
           setFormat(teamFormat);
           const def = defaultSlots(teamFormat);
           setSlots(def);
