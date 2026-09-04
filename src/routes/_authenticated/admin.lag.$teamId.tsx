@@ -35,6 +35,10 @@ function AdminTeamDetail() {
     queryFn: () => fetchTeamAdminDetail(teamId),
   });
   const clubs = useQuery({ queryKey: ["admin-clubs"], queryFn: fetchAllClubs });
+  const codes = useQuery({
+    queryKey: ["team-codes", teamId],
+    queryFn: () => fetchTeamCodes(teamId),
+  });
 
   const [form, setForm] = useState({
     name: "",
