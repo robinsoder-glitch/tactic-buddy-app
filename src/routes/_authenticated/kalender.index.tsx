@@ -68,6 +68,12 @@ function CalendarOverview() {
     enabled: ids.length > 0,
   });
 
+  // Statusen får bara visas när allt underlag finns – annars hinner ett
+  // felaktigt "Ej klar" synas innan svaren kommer in.
+  const statusReady =
+    ids.length === 0 ||
+    [plans, resources, squads, coaches].every((query) => query.isSuccess || query.isError);
+
   /** Samma statusregel som i Planera match och Planera träning. */
   function statusFor(event: { id: string; type?: string | null }) {
     return planStatus({
