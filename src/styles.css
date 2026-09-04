@@ -11,12 +11,8 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
-  --font-display:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, ui-sans-serif,
-    system-ui, sans-serif;
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, ui-sans-serif,
-    system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -62,9 +58,56 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Ljust standardtema: mjuk grön bakgrund, vita kort, djupgrön primärfärg. */
+/* Standardtema: Djup gräsplan – mörkgrön bas, limeaccent, kritvit text. */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.875rem;
+  --background: #0b2a1e;
+  --foreground: #f4f7f2;
+  --card: #113b2c;
+  --card-foreground: #f4f7f2;
+  --popover: #123e2e;
+  --popover-foreground: #f4f7f2;
+  --primary: #c7f464;
+  --primary-foreground: #0b2a1e;
+  --secondary: #174a39;
+  --secondary-foreground: #f4f7f2;
+  --muted: #164333;
+  --muted-foreground: #9fc4ae;
+  --accent: #1d5a43;
+  --accent-foreground: #f4f7f2;
+  --destructive: #ff6b5e;
+  --destructive-foreground: #2a0b07;
+  --border: #1e4f3b;
+  --input: #245a44;
+  --ring: #c7f464;
+  --pitch: #1a6b49;
+  --pitch-line: rgb(244 247 242 / 72%);
+  --team-home: #c7f464;
+  --team-home-foreground: #0b2a1e;
+  --team-away: #ff6b5e;
+  --team-away-foreground: #2a0b07;
+  --team-gk: #d9a6ff;
+  --team-gk-foreground: #2a1238;
+  --team-gk-away: #7cc4ff;
+  --team-gk-away-foreground: #08263a;
+
+  --chart-1: #c7f464;
+  --chart-2: #ff6b5e;
+  --chart-3: #f5c94a;
+  --chart-4: #7cc4ff;
+  --chart-5: #d9a6ff;
+  --sidebar: #0f3527;
+  --sidebar-foreground: #f4f7f2;
+  --sidebar-primary: #c7f464;
+  --sidebar-primary-foreground: #0b2a1e;
+  --sidebar-accent: #174a39;
+  --sidebar-accent-foreground: #f4f7f2;
+  --sidebar-border: #1e4f3b;
+  --sidebar-ring: #c7f464;
+}
+
+/* Ljust tema: mjuk grön bakgrund, vita kort, djupgrön primärfärg. */
+.light {
   --background: #f5f8f2;
   --foreground: #1e2b23;
   --card: #ffffff;
@@ -93,6 +136,7 @@
   --team-gk: #8e44ad;
   --team-gk-foreground: #ffffff;
   --team-gk-away: #2b6cb0;
+  --team-gk-away-foreground: #ffffff;
 
   --chart-1: #2f6b4f;
   --chart-2: #c0392b;
@@ -109,52 +153,6 @@
   --sidebar-ring: #2f6b4f;
 }
 
-/* Mörkt tema behålls som valbart alternativ. */
-.dark {
-  --background: oklch(0.19 0.024 160);
-  --foreground: oklch(0.97 0.01 120);
-  --card: oklch(0.24 0.028 162);
-  --card-foreground: oklch(0.97 0.01 120);
-  --popover: oklch(0.23 0.028 162);
-  --popover-foreground: oklch(0.97 0.01 120);
-  --primary: oklch(0.86 0.21 128);
-  --primary-foreground: oklch(0.2 0.05 140);
-  --secondary: oklch(0.3 0.03 162);
-  --secondary-foreground: oklch(0.95 0.01 120);
-  --muted: oklch(0.28 0.026 162);
-  --muted-foreground: oklch(0.72 0.03 150);
-  --accent: oklch(0.33 0.05 165);
-  --accent-foreground: oklch(0.95 0.02 130);
-  --destructive: oklch(0.62 0.21 25);
-  --destructive-foreground: oklch(0.98 0.01 120);
-  --border: oklch(0.34 0.03 162);
-  --input: oklch(0.32 0.03 162);
-  --ring: oklch(0.86 0.21 128);
-  --pitch: oklch(0.46 0.11 152);
-  --pitch-line: oklch(0.96 0.02 140 / 70%);
-  --team-home: oklch(0.86 0.21 128);
-  --team-home-foreground: oklch(0.2 0.05 140);
-  --team-away: oklch(0.72 0.18 25);
-  --team-away-foreground: oklch(0.99 0.01 90);
-  --team-gk: oklch(0.78 0.17 310);
-  --team-gk-foreground: oklch(0.2 0.05 300);
-  --team-gk-away: oklch(0.72 0.13 235);
-
-  --chart-1: oklch(0.86 0.21 128);
-  --chart-2: oklch(0.72 0.18 25);
-  --chart-3: oklch(0.8 0.15 80);
-  --chart-4: oklch(0.7 0.13 220);
-  --chart-5: oklch(0.75 0.12 300);
-  --sidebar: oklch(0.22 0.026 162);
-  --sidebar-foreground: oklch(0.95 0.01 120);
-  --sidebar-primary: oklch(0.86 0.21 128);
-  --sidebar-primary-foreground: oklch(0.2 0.05 140);
-  --sidebar-accent: oklch(0.3 0.03 162);
-  --sidebar-accent-foreground: oklch(0.95 0.01 120);
-  --sidebar-border: oklch(0.34 0.03 162);
-  --sidebar-ring: oklch(0.86 0.21 128);
-}
-
 @layer base {
   * {
     border-color: var(--color-border);
@@ -169,6 +167,19 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* Planränder i bakgrunden – subtilt djup över hela appen. */
+    background-image:
+      radial-gradient(
+        ellipse 90% 55% at 50% -10%,
+        rgb(199 244 100 / 6%),
+        transparent 60%
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 90px,
+        rgb(255 255 255 / 1.6%) 90px 180px
+      );
+    background-attachment: fixed;
   }
 
   h1,
@@ -176,8 +187,21 @@
   h3,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
     text-transform: none;
+  }
+
+  /* Glasskort: mörk panel med mjuk kantlinje. */
+  .glass-card {
+    background-color: color-mix(in oklab, var(--color-card) 82%, transparent);
+    backdrop-filter: blur(12px) saturate(130%);
+    border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+    box-shadow: 0 14px 40px -18px rgb(0 0 0 / 55%);
+  }
+
+  /* Bakåtkompatibelt: mörkt tema använder samma palett som standard. */
+  .dark {
+    color-scheme: dark;
   }
 }
 

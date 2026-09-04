@@ -154,7 +154,7 @@ function PlayerHome() {
             key={item.id}
             to="/team/$teamId"
             params={{ teamId: item.team_id }}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4"
+            className="glass-card flex items-center gap-3 rounded-xl p-4 transition-all hover:border-primary/50"
           >
             <Shield className="size-5 text-primary" />
             <div>
@@ -277,7 +277,7 @@ function Landing() {
           {LANDING_FEATURES.map((feature) => (
             <li
               key={feature.title}
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              className="glass-card rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50"
             >
               <feature.icon className="size-6 text-primary" aria-hidden />
               <h3 className="mt-3 font-display text-lg font-semibold">{feature.title}</h3>
@@ -393,14 +393,14 @@ function TacticsDashboard({ userId }: { userId: string }) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
+    <main className="mx-auto max-w-4xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <BrandLogo
             size={32}
             nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary"
           />
-          <h1 className="truncate font-display text-4xl font-bold">
+          <h1 className="mt-2 truncate font-display text-4xl font-bold tracking-tight">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
           {!profile?.display_name?.trim() && (
@@ -459,12 +459,16 @@ function TacticsDashboard({ userId }: { userId: string }) {
         <Link
           to="/team/$teamId"
           params={{ teamId: activeTeam.team_id }}
-          className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-4"
+          className="glass-card mt-3 flex items-center gap-4 rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50"
         >
-          <Shield className="size-5 shrink-0 text-primary" />
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+            <Shield className="size-6" />
+          </span>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Aktivt lag</p>
-            <p className="truncate font-display text-lg font-semibold">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Aktivt lag
+            </p>
+            <p className="truncate font-display text-xl font-semibold">
               {activeTeam.team?.name ?? "Laget"}
             </p>
           </div>
@@ -496,7 +500,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
           <Link
             to="/tactic/$id"
             params={{ id: latest.id }}
-            className="mt-2 flex items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3"
+            className="glass-card mt-2 flex items-center gap-3 overflow-hidden rounded-2xl p-3 transition-all hover:border-primary/50"
           >
             <div className="w-28 shrink-0 overflow-hidden rounded-lg">
               <TacticThumb
@@ -607,7 +611,7 @@ function TacticsDashboard({ userId }: { userId: string }) {
           {shown.map((tactic) => (
             <article
               key={tactic.id}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
+              className="glass-card group relative overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:border-primary/50"
             >
               <Link
                 to="/tactic/$id"
@@ -729,10 +733,10 @@ function QuickCard({
   return (
     <Link
       to={to}
-      className={`relative flex flex-col gap-1 rounded-2xl border p-4 transition-colors ${
+      className={`group relative flex flex-col gap-1 rounded-2xl p-5 transition-all hover:-translate-y-0.5 ${
         primary
-          ? "border-primary bg-primary/15 hover:bg-primary/25"
-          : "border-border bg-card hover:border-primary/50"
+          ? "glass-card border-primary/40 bg-primary/10 hover:bg-primary/15"
+          : "glass-card hover:border-primary/50"
       }`}
     >
       {badge > 0 && (
@@ -743,8 +747,10 @@ function QuickCard({
           {badge > 9 ? "9+" : badge}
         </span>
       )}
-      <span className="text-primary">{icon}</span>
-      <span className="font-display text-lg font-semibold leading-tight">{title}</span>
+      <span className="flex size-11 items-center justify-center rounded-xl bg-primary/12 text-primary transition-transform group-hover:scale-110">
+        {icon}
+      </span>
+      <span className="mt-2 font-display text-lg font-semibold leading-tight">{title}</span>
       <span className="text-xs text-muted-foreground">{text}</span>
     </Link>
   );
