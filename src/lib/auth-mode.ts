@@ -1,6 +1,6 @@
 export type AuthMode = "signin" | "signup";
 
-export type AuthSearch = { mode?: "signup" | undefined; next?: string | undefined };
+export type AuthSearch = { mode?: "signup"; next?: string };
 
 /** Läget styrs av URL:en så att omladdning och bakåtknappen fungerar. */
 export function authModeFromSearch(mode: unknown): AuthMode {
