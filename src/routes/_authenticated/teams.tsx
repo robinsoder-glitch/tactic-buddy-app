@@ -38,7 +38,9 @@ export const Route = createFileRoute("/_authenticated/teams")({
 });
 
 function TeamsPage() {
-  const { userId, isCoach } = useAccount();
+  const { userId, isCoach, memberships } = useAccount();
+  // Väntande ansökningar visas separat – laget syns först när ledaren godkänt.
+  const pendingTeams = memberships.filter((item) => item.status === "pending");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -83,22 +85,29 @@ function TeamsPage() {
       toast.error(error instanceof Error ? error.message : "Kunde inte skapa laget"),
   });
 
-  if (!isCoach) {
-    return (
-      <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-muted-foreground">Endast tränare kan skapa lag.</p>
-        <Button asChild variant="secondary" className="mt-4">
-          <Link to="/">Till startsidan</Link>
-        </Button>
-      </main>
-    );
-  }
-
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
       <BackLink fallback="/">Tillbaka</BackLink>
-      <h1 className="mt-3 font-display text-4xl font-bold">Mina lag</h1>
+      <h1 className="mt-3 font-display text-4xl font-bold">{isCoach ? "Mina lag" : "Mitt lag"}</h1>
 
+      {pendingTeams.length > 0 && (
+        <section className="mt-4 space-y-2">
+          {pendingTeams.map((item) => (
+            <p
+              key={item.id}
+              className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground"
+            >
+              <span className="font-semibold text-foreground">
+                {item.team?.name ?? "Laget"}
+              </span>{" "}
+              – din ansökan väntar på att en ledare godkänner dig. Du ser lagets sidor så snart du
+              är godkänd.
+            </p>
+          ))}
+        </section>
+      )}
+
+      {isCoach && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className="mt-5 w-full">
@@ -211,6 +220,7 @@ function TeamsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
 
       <section className="mt-6 space-y-3">
         {teams.isLoading && <p className="text-sm text-muted-foreground">Laddar lag…</p>}
@@ -223,9 +233,18 @@ function TeamsPage() {
             {showArchived ? "Dölj arkiverade lag" : `Visa arkiverade lag (${archivedCount})`}
           </button>
         )}
-        {visibleTeams.length === 0 && !teams.isLoading && (
+        {teams.isError && (
+          <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            Lagen kunde inte hämtas just nu. Kontrollera uppkopplingen och försök igen.
+          </p>
+        )}
+        {visibleTeams.length === 0 && !teams.isLoading && !teams.isError && (
           <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Inga lag än. Skapa ditt första lag!
+            {isCoach
+              ? "Inga lag än. Skapa ditt första lag!"
+              : pendingTeams.length > 0
+                ? "Du ser lagets sidor så snart ledaren godkänt din ansökan."
+                : "Du är inte med i något lag än. Använd lagkoden du fått av tränaren."}
           </p>
         )}
         {visibleTeams.map((team) => (
@@ -266,10 +285,12 @@ function TeamsPage() {
         ))}
       </section>
 
-      <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du
-        godkänner dem i truppen.
-      </p>
+      {isCoach && (
+        <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du
+          godkänner dem i truppen.
+        </p>
+      )}
     </main>
   );
 }
