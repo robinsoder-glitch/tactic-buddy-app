@@ -446,7 +446,8 @@ function AddItemDialog({
     note: string | null;
   }) => Promise<void>;
 }) {
-  const [kind, setKind] = useState<ItemKind>("gathering");
+  // Tomt val från början så tränaren aktivt väljer aktivitet.
+  const [kind, setKind] = useState<ItemKind | "">("");
   const [title, setTitle] = useState("");
   const [minutes, setMinutes] = useState("10");
   const [note, setNote] = useState("");
@@ -466,8 +467,9 @@ function AddItemDialog({
               id="item-kind"
               className={selectClass}
               value={kind}
-              onChange={(event) => setKind(event.target.value as ItemKind)}
+              onChange={(event) => setKind(event.target.value as ItemKind | "")}
             >
+              <option value="">Välj aktivitet</option>
               {ITEM_KINDS.map((value) => (
                 <option key={value} value={value}>
                   {ITEM_KIND_LABELS[value]}
@@ -511,6 +513,10 @@ function AddItemDialog({
             className="w-full"
             disabled={saving}
             onClick={async () => {
+              if (!kind) {
+                setError("Välj aktivitet först.");
+                return;
+              }
               if (!title.trim()) {
                 setError("Ange en rubrik för delen.");
                 return;
@@ -526,6 +532,7 @@ function AddItemDialog({
                 });
                 setTitle("");
                 setNote("");
+                setKind("");
               } catch {
                 setError("Det gick inte att lägga till delen. Försök igen.");
               } finally {

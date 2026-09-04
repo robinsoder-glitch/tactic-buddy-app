@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
-import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { PlanStatusBadge, PlanStatusBadgePending } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
@@ -68,6 +68,12 @@ function CalendarOverview() {
     enabled: ids.length > 0,
   });
 
+  // Statusen får bara visas när allt underlag finns – annars hinner ett
+  // felaktigt "Ej klar" synas innan svaren kommer in.
+  const statusReady =
+    ids.length === 0 ||
+    [plans, resources, squads, coaches].every((query) => query.isSuccess || query.isError);
+
   /** Samma statusregel som i Planera match och Planera träning. */
   function statusFor(event: { id: string; type?: string | null }) {
     return planStatus({
@@ -121,7 +127,11 @@ function CalendarOverview() {
                       <p className="font-medium">{eventTitleLine(event)}</p>
                     )}
                     <p className="mt-1 flex flex-wrap items-center gap-2">
-                      <PlanStatusBadge status={statusFor(event)} />
+                      {statusReady ? (
+                        <PlanStatusBadge status={statusFor(event)} />
+                      ) : (
+                        <PlanStatusBadgePending />
+                      )}
                       {isCancelled(event) && (
                         <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
                           Inställd

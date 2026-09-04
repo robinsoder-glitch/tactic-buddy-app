@@ -19,7 +19,11 @@ import { useAccount } from "@/hooks/useAccount";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
 import { EventCoaches } from "@/components/EventCoaches";
 import { coachSummary, fetchEventCoaches } from "@/lib/event-coaches";
-import { PlanStatusBadge, planStatusBar } from "@/components/PlanStatusBadge";
+import {
+  PlanStatusBadge,
+  PlanStatusBadgePending,
+  planStatusBar,
+} from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { createCoachDrill, fetchCoachDrills, validateCoachDrill } from "@/lib/coach-drills";
 import { fetchAllSessionItems, fetchCoachSessions, totalMinutes } from "@/lib/coach-sessions";
@@ -155,6 +159,11 @@ function PlanTrainingPage() {
       "Övning"
     );
   }
+
+  // Statusen visas först när underlaget hämtats, annars hinner ett felaktigt
+  // "Ej klar" blinka förbi.
+  const statusReady =
+    ids.length === 0 || [plans, resources].every((query) => query.isSuccess || query.isError);
 
   /** Gemensam statusregel: klar när planen är sparad och innehåller minst en övning. */
   function statusFor(id: string) {
@@ -365,7 +374,9 @@ function PlanTrainingPage() {
                     }`}
                   >
                     <span
-                      className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`}
+                      className={`mt-1 h-10 w-1.5 shrink-0 rounded-full ${
+                        statusReady ? planStatusBar(status) : "bg-muted"
+                      }`}
                       aria-hidden
                     />
                     <span className="min-w-0 flex-1">
@@ -388,7 +399,7 @@ function PlanTrainingPage() {
                         )}
                       </span>
                     </span>
-                    <PlanStatusBadge status={status} />
+                    {statusReady ? <PlanStatusBadge status={status} /> : <PlanStatusBadgePending />}
                   </Link>
                 </li>
               );
@@ -470,7 +481,11 @@ function PlanTrainingPage() {
                   ) : null}
                 </p>
                 <div className="mt-2">
-                  <PlanStatusBadge status={statusFor(selected.id)} />
+                  {statusReady ? (
+                    <PlanStatusBadge status={statusFor(selected.id)} />
+                  ) : (
+                    <PlanStatusBadgePending />
+                  )}
                 </div>
               </div>
 
