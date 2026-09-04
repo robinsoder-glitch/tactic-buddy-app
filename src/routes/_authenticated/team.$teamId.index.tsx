@@ -547,6 +547,52 @@ function SquadPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog
+        open={approving !== null}
+        onOpenChange={(next) => {
+          if (!next) setApproving(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Godkänn {approving?.who}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {approvalHelpText(approving?.role, players.data ?? [])}
+          </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="approve-player">Spelarkort</Label>
+            <select
+              id="approve-player"
+              value={chosenPlayer}
+              onChange={(event) => setChosenPlayer(event.target.value)}
+              className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Välj spelare</option>
+              {(players.data ?? []).map((player) => (
+                <option key={player.id} value={player.id}>
+                  {playerOptionLabel(player)}
+                </option>
+              ))}
+            </select>
+            {(players.data ?? []).length === 0 && (
+              <p className="text-sm text-destructive">
+                Truppen är tom. Lägg till spelaren i truppen först, sedan kan du godkänna ansökan.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              disabled={!chosenPlayer || approve.isPending}
+              onClick={() =>
+                approving && approve.mutate({ id: approving.id, playerId: chosenPlayer })
+              }
+            >
+              Godkänn
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {confirmDialog}
     </section>
   );
