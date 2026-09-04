@@ -276,10 +276,12 @@ function TeamsPage() {
         ))}
       </section>
 
-      <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du
-        godkänner dem i truppen.
-      </p>
+      {isCoach && (
+        <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="size-4" /> Dela lagkoden med spelarna – de ansöker med koden och du
+          godkänner dem i truppen.
+        </p>
+      )}
     </main>
   );
 }
