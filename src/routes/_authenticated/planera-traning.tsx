@@ -156,6 +156,11 @@ function PlanTrainingPage() {
     );
   }
 
+  // Statusen visas först när underlaget hämtats, annars hinner ett felaktigt
+  // "Ej klar" blinka förbi.
+  const statusReady =
+    ids.length === 0 || [plans, resources].every((query) => query.isSuccess || query.isError);
+
   /** Gemensam statusregel: klar när planen är sparad och innehåller minst en övning. */
   function statusFor(id: string) {
     const saved = (plans.data ?? []).some((row) => row.event_id === id);
