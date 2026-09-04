@@ -10,12 +10,8 @@ import {
   eventLabel,
   fetchEventAttendance,
   fetchTeamAttendance,
-  minutesFromShare,
   pastEvents,
-  playingTimeShare,
-  PLAYING_TIME_PRESETS,
   registeredCount,
-  validateMinutes,
 } from "@/lib/attendance";
 import {
   ABSENCE_REASONS,
@@ -118,7 +114,6 @@ function AttendancePage() {
           isCoach={isCoach}
           eventId={selected.id}
           eventType={selected.type}
-          durationMinutes={selected.match_duration_minutes ?? null}
           heading={eventLabel(selected)}
           subheading={`${formatDateTime(selected.starts_at)}${selected.location ? ` · ${selected.location}` : ""}`}
           players={(players.data ?? []).map((player) => ({
@@ -236,7 +231,6 @@ function EventAttendance({
   isCoach,
   eventId,
   eventType,
-  durationMinutes,
   heading,
   subheading,
   players,
@@ -248,7 +242,6 @@ function EventAttendance({
   isCoach: boolean;
   eventId: string;
   eventType: "training" | "match";
-  durationMinutes: number | null;
   heading: string;
   subheading: string;
   players: { id: string; name: string; number: number | null }[];
@@ -296,11 +289,6 @@ function EventAttendance({
 
   const save = useMutation({
     mutationFn: async () => {
-      for (const entry of Object.values(draft)) {
-        if (eventType !== "match" || entry.status === "absent") continue;
-        const error = validateMinutes(entry.minutes, durationMinutes);
-        if (error) throw new Error(error);
-      }
       return saveEventAttendance({
         eventId,
         teamId,
@@ -482,54 +470,6 @@ function EventAttendance({
                     ))}
                     <span className="self-center text-xs text-muted-foreground">
                       {entry.reason ? "" : ABSENCE_REASON_UNSET}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {eventType === "match" && isCoach && current && current !== "absent" && (
-                <div className="mt-3 border-t border-border pt-2">
-                  <p className="text-xs font-medium text-muted-foreground">Speltid</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    {PLAYING_TIME_PRESETS.map((preset) => (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        aria-label={`${preset.label} för ${player.name}`}
-                        className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                        onClick={() => {
-                          const minutes = minutesFromShare(preset.share, durationMinutes);
-                          if (minutes === null) {
-                            toast.error("Ange matchens längd först.");
-                            return;
-                          }
-                          setDraft((value) => setEntry(value, player.id, { minutes }));
-                        }}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                    <Input
-                      type="number"
-                      min={0}
-                      inputMode="numeric"
-                      className="h-8 w-24"
-                      aria-label={`Exakta minuter för ${player.name}`}
-                      value={entry.minutes ?? ""}
-                      onChange={(event) => {
-                        const raw = event.target.value.trim();
-                        setDraft((value) =>
-                          setEntry(value, player.id, {
-                            minutes: raw === "" ? null : Number(raw),
-                          }),
-                        );
-                      }}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {(() => {
-                        const share = playingTimeShare(entry.minutes, durationMinutes);
-                        return share === null ? "min" : `min · ${share} % av matchen`;
-                      })()}
                     </span>
                   </div>
                 </div>
