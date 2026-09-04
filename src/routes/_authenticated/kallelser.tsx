@@ -51,7 +51,7 @@ function MyInvitesPage() {
   const [showPast, setShowPast] = useState(false);
 
   const invites = useQuery({
-    queryKey: ["my-invitations"],
+    queryKey: ["my-invitations", userId],
     queryFn: fetchMyInvitations,
     enabled: Boolean(userId),
   });

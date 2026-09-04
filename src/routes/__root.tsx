@@ -208,16 +208,30 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const lastUserId = useRef<string | null>(null);
 
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      const nextUser = session?.user?.id ?? null;
+      const changedUser = nextUser !== lastUserId.current;
+      lastUserId.current = nextUser;
       router.invalidate();
-      if (event === "SIGNED_OUT") clearOfflineData();
-      else {
-        if (session?.user?.id) clearOtherUsers(session.user.id);
+      if (event === "SIGNED_OUT") {
+        // Avbryt pågående hämtningar och töm cachen helt – annars kan
+        // föregående kontos uppgifter visas en kort stund efter bytet.
+        void queryClient.cancelQueries();
+        queryClient.clear();
+        clearOfflineData();
+        return;
+      }
+      if (nextUser) clearOtherUsers(nextUser);
+      if (changedUser) {
+        void queryClient.cancelQueries();
+        queryClient.clear();
+      } else {
         queryClient.invalidateQueries();
       }
     });
