@@ -11,13 +11,15 @@ import {
 } from "./invitations";
 
 describe("kallelser – status och texter", () => {
-  it("visar svenska texter för alla fyra statusar", () => {
-    expect(INVITE_STATUSES).toEqual(["attending", "declined", "maybe", "pending"]);
+  it("visar svenska texter för alla statusar", () => {
+    expect(INVITE_STATUSES).toEqual(["attending", "declined", "maybe", "pending", "revoked"]);
     expect(INVITE_STATUS_LABELS).toEqual({
       pending: "Ej svarat",
       attending: "Kommer",
       declined: "Kommer inte",
       maybe: "Kanske",
+      revoked: "Återkallad",
+      not_invited: "Ej kallad",
     });
   });
 
@@ -27,9 +29,10 @@ describe("kallelser – status och texter", () => {
   });
 
   it("faller tillbaka på Ej svarat vid okänt eller saknat värde", () => {
-    expect(inviteStatusLabel(null)).toBe("Ej svarat");
-    expect(inviteStatusLabel(undefined)).toBe("Ej svarat");
-    expect(inviteStatusLabel("nagot_annat")).toBe("Ej svarat");
+    expect(inviteStatusLabel(null)).toBe("Ej kallad");
+    expect(inviteStatusLabel(undefined)).toBe("Ej kallad");
+    expect(inviteStatusLabel("nagot_annat")).toBe("Ej kallad");
+    expect(inviteStatusLabel("pending")).toBe("Ej svarat");
   });
 });
 
@@ -48,6 +51,7 @@ describe("kallelser – sammanräkning", () => {
       declined: 1,
       maybe: 1,
       pending: 1,
+      revoked: 0,
       total: 5,
     });
   });
@@ -66,6 +70,7 @@ describe("kallelser – sammanräkning", () => {
       declined: 0,
       maybe: 0,
       pending: 0,
+      revoked: 0,
       total: 0,
     });
   });

@@ -9,6 +9,10 @@ import {
   canRespondSelf,
   hasMultiplePlayers,
   groupInvitationsByEvent,
+  LATE_RESPONSE_TEXT,
+  RESPOND_BY_STATE_LABELS,
+  isLateResponse,
+  respondByState,
   fetchMyInvitations,
   inviteStatusLabel,
   respondToInvitation,
@@ -58,20 +62,16 @@ function MyInvitesPage() {
   const guardedIds = guarded.data ?? [];
 
   const respond = useMutation({
-    mutationFn: ({
-      invitation,
-      status,
-      role,
-    }: {
-      invitation: MyInvitation;
-      status: InviteStatus;
-      role: "player" | "guardian";
-    }) => {
+    mutationFn: ({ invitation, status }: { invitation: MyInvitation; status: InviteStatus }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      return respondToInvitation({ invitation, status, userId, role });
+      return respondToInvitation({ invitation, status });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-invitations"] }),
-    onError: () => toast.error("Kunde inte spara svaret. Försök igen."),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      if (result.late) toast.info(`${LATE_RESPONSE_TEXT}. Ledaren ser när svaret kom in.`);
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "Kunde inte spara svaret. Försök igen."),
   });
 
   const now = Date.now();
@@ -177,7 +177,8 @@ function MyInvitesPage() {
               {group.invitations.map((invitation) => {
                 const self = canRespondSelf(invitation, userId);
                 const guardianOf = canRespondAsGuardian(invitation, guardedIds);
-                const mayAnswer = self || guardianOf;
+                const closed = Boolean(group.event.invites_closed_at);
+                const mayAnswer = (self || guardianOf) && !closed;
                 return (
                   <div
                     key={invitation.id}
@@ -190,6 +191,21 @@ function MyInvitesPage() {
                     <p className="mt-1 text-sm font-semibold">
                       Ditt svar: {inviteStatusLabel(invitation.status)}
                     </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {
+                        RESPOND_BY_STATE_LABELS[
+                          respondByState({
+                            respondBy: invitation.respond_by,
+                            closed: Boolean(
+                              group.event.invites_closed_at || group.event.cancelled_at,
+                            ),
+                          })
+                        ]
+                      }
+                      {isLateResponse(invitation.responded_at, invitation.respond_by)
+                        ? ` · ${LATE_RESPONSE_TEXT}`
+                        : ""}
+                    </p>
                     {mayAnswer && !cancelled ? (
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         {(["attending", "declined", "maybe"] as InviteStatus[]).map((status) => (
@@ -198,13 +214,7 @@ function MyInvitesPage() {
                             className="h-12"
                             variant={invitation.status === status ? "default" : "secondary"}
                             disabled={respond.isPending}
-                            onClick={() =>
-                              respond.mutate({
-                                invitation,
-                                status,
-                                role: self ? "player" : "guardian",
-                              })
-                            }
+                            onClick={() => respond.mutate({ invitation, status })}
                           >
                             {inviteStatusLabel(status)}
                           </Button>
@@ -212,7 +222,11 @@ function MyInvitesPage() {
                       </div>
                     ) : (
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {cancelled ? "Matchen är inställd. Nya svar är stängda." : NO_ACCOUNT_TEXT}
+                        {cancelled
+                          ? "Matchen är inställd. Nya svar är stängda."
+                          : closed
+                            ? "Kallelsen är stängd för nya svar."
+                            : NO_ACCOUNT_TEXT}
                       </p>
                     )}
                   </div>

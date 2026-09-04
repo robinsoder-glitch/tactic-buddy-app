@@ -640,6 +640,9 @@ export type Database = {
           respond_by: string | null
           responded_at: string | null
           responded_by: string | null
+          responded_role: string | null
+          revoked_at: string | null
+          revoked_by: string | null
           status: string
           team_id: string
           updated_at: string
@@ -656,6 +659,9 @@ export type Database = {
           respond_by?: string | null
           responded_at?: string | null
           responded_by?: string | null
+          responded_role?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           status?: string
           team_id: string
           updated_at?: string
@@ -672,6 +678,9 @@ export type Database = {
           respond_by?: string | null
           responded_at?: string | null
           responded_by?: string | null
+          responded_role?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           status?: string
           team_id?: string
           updated_at?: string
@@ -908,6 +917,7 @@ export type Database = {
           ends_at: string | null
           home_team: string | null
           id: string
+          invites_closed_at: string | null
           kit: string | null
           location: string | null
           match_duration_minutes: number | null
@@ -929,6 +939,7 @@ export type Database = {
           ends_at?: string | null
           home_team?: string | null
           id?: string
+          invites_closed_at?: string | null
           kit?: string | null
           location?: string | null
           match_duration_minutes?: number | null
@@ -950,6 +961,7 @@ export type Database = {
           ends_at?: string | null
           home_team?: string | null
           id?: string
+          invites_closed_at?: string | null
           kit?: string | null
           location?: string | null
           match_duration_minutes?: number | null
@@ -2860,6 +2872,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      invitation_actor_role: {
+        Args: { _invitation_id: string }
+        Returns: string
+      }
       is_announcement_recipient: {
         Args: { _announcement_id: string; _user_id: string }
         Returns: boolean
@@ -2892,6 +2908,10 @@ export type Database = {
         Args: { _announcement_id: string }
         Returns: undefined
       }
+      notify_invited_of_change: {
+        Args: { _body: string; _event_id: string; _title: string }
+        Returns: number
+      }
       player_team: { Args: { _player_id: string }; Returns: string }
       preview_announcement_audience: {
         Args: {
@@ -2914,6 +2934,15 @@ export type Database = {
           team_name: string
         }[]
       }
+      publish_event_invitations: {
+        Args: {
+          _event_id: string
+          _message: string
+          _player_ids: string[]
+          _respond_by: string
+        }
+        Returns: Json
+      }
       publish_scheduled_announcements: { Args: never; Returns: number }
       publish_team_announcement: {
         Args: { _announcement_id: string }
@@ -2923,6 +2952,11 @@ export type Database = {
         Args: { _announcement_id: string }
         Returns: Json
       }
+      respond_to_invitation: {
+        Args: { _comment?: string; _invitation_id: string; _status: string }
+        Returns: Json
+      }
+      revoke_invitation: { Args: { _invitation_id: string }; Returns: Json }
       rotate_team_code: {
         Args: { _kind: string; _team_id: string }
         Returns: string
@@ -2961,11 +2995,25 @@ export type Database = {
           missing_account: number
           sent: number
           skipped_recent: number
+          unreachable_players: string
         }[]
+      }
+      set_event_invites_closed: {
+        Args: { _closed: boolean; _event_id: string }
+        Returns: Json
       }
       team_role: {
         Args: { _team_id: string; _user_id: string }
         Returns: string
+      }
+      update_invitation_details: {
+        Args: {
+          _event_id: string
+          _message: string
+          _notify?: boolean
+          _respond_by: string
+        }
+        Returns: Json
       }
     }
     Enums: {
