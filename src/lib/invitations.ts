@@ -1,21 +1,51 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  activeInvitations,
+  countInvitations,
+  inviteStatusLabel,
+  suggestRespondBy,
+  type InviteCounts,
+  type InviteStatus,
+} from "./invite-status";
 
-/** Interna statusvärden – visas aldrig för användaren. */
-export type InviteStatus = "pending" | "attending" | "declined" | "maybe";
+export {
+  ANSWER_STATUSES,
+  EXTERNAL_CHANNELS_TEXT,
+  INVITE_STATUS_LABELS,
+  INVITE_STATUSES,
+  LATE_RESPONSE_TEXT,
+  PUBLISH_BUTTON_TEXT,
+  REACH_LABELS,
+  RESPOND_BY_STATE_LABELS,
+  activeInvitations,
+  canPublishInvitations,
+  canRecipientAnswer,
+  canRemind,
+  countInvitations,
+  formatRespondByDate,
+  inviteStatusLabel,
+  isCoachMembership,
+  isLateResponse,
+  playerInviteStatus,
+  playerReach,
+  publishButtonLabel,
+  publishResultText,
+  respondByState,
+  respondByText,
+  respondedByText,
+  revokedText,
+  suggestRespondBy,
+  summarizeReach,
+  type InviteCounts,
+  type InviteStatus,
+  type PlayerInviteStatus,
+  type Reach,
+  type ReachSummary,
+  type RespondByState,
+} from "./invite-status";
 
-export const INVITE_STATUSES: InviteStatus[] = ["attending", "declined", "maybe", "pending"];
-
-export const INVITE_STATUS_LABELS: Record<InviteStatus, string> = {
-  pending: "Ej svarat",
-  attending: "Kommer",
-  declined: "Kommer inte",
-  maybe: "Kanske",
-};
-
-/** Svensk text för ett svar. Okända värden faller tillbaka på "Ej svarat". */
-export function inviteStatusLabel(status: string | null | undefined): string {
-  return INVITE_STATUS_LABELS[(status ?? "pending") as InviteStatus] ?? "Ej svarat";
-}
+/** Sista svarsdag som förslag. Aldrig ett datum som redan passerat. */
+export const defaultRespondBy = suggestRespondBy;
 
 export type Invitation = {
   id: string;
@@ -28,40 +58,19 @@ export type Invitation = {
   message: string | null;
   responded_by: string | null;
   responded_at: string | null;
+  responded_role: string | null;
+  revoked_at: string | null;
+  revoked_by: string | null;
   last_reminder_at: string | null;
   created_at: string;
   updated_at: string;
   playerName?: string;
   memberUserId?: string | null;
   playerActive?: boolean;
+  hasActiveGuardian?: boolean;
   respondedByName?: string | null;
+  revokedByName?: string | null;
 };
-
-export type InviteCounts = {
-  attending: number;
-  declined: number;
-  maybe: number;
-  pending: number;
-  total: number;
-};
-
-/** Räknar ihop svaren i en kallelse. */
-export function countInvitations(list: Array<{ status: string }>): InviteCounts {
-  const counts: InviteCounts = {
-    attending: 0,
-    declined: 0,
-    maybe: 0,
-    pending: 0,
-    total: list.length,
-  };
-  for (const item of list) {
-    if (item.status === "attending") counts.attending += 1;
-    else if (item.status === "declined") counts.declined += 1;
-    else if (item.status === "maybe") counts.maybe += 1;
-    else counts.pending += 1;
-  }
-  return counts;
-}
 
 /** Beräknat antal deltagare: säkra ja-svar. */
 export function expectedAttendance(counts: InviteCounts): number {
@@ -70,12 +79,14 @@ export function expectedAttendance(counts: InviteCounts): number {
 
 /** "12 kommer · 2 kanske · 1 kan inte · 3 ej svarat" */
 export function summaryText(counts: InviteCounts): string {
-  return [
+  const parts = [
     `${counts.attending} kommer`,
     `${counts.maybe} kanske`,
     `${counts.declined} kan inte`,
     `${counts.pending} ej svarat`,
-  ].join(" · ");
+  ];
+  if (counts.revoked > 0) parts.push(`${counts.revoked} återkallade`);
+  return parts.join(" · ");
 }
 
 /** Kan den här användaren svara själv? Kräver en säker koppling till spelarkortet. */
@@ -146,6 +157,18 @@ function mapRow(row: Record<string, unknown> & { players?: PlayerRow }): Invitat
   };
 }
 
+/** Vilka spelare har minst en aktiv vårdnadshavare? Används för nåbarhet. */
+export async function fetchGuardedPlayerIds(playerIds: string[]): Promise<Set<string>> {
+  if (playerIds.length === 0) return new Set();
+  const { data, error } = await supabase
+    .from("player_guardians")
+    .select("player_id")
+    .in("player_id", playerIds)
+    .eq("is_active", true);
+  if (error) return new Set();
+  return new Set((data ?? []).map((row) => row.player_id as string));
+}
+
 export async function fetchEventInvitations(eventId: string): Promise<Invitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
@@ -153,7 +176,13 @@ export async function fetchEventInvitations(eventId: string): Promise<Invitation
     .eq("event_id", eventId);
   if (error) throw error;
   const rows = (data ?? []).map((row) => mapRow(row as never));
-  const ids = [...new Set(rows.map((row) => row.responded_by).filter(Boolean))] as string[];
+
+  const guarded = await fetchGuardedPlayerIds(rows.map((row) => row.player_id));
+  for (const row of rows) row.hasActiveGuardian = guarded.has(row.player_id);
+
+  const ids = [
+    ...new Set(rows.flatMap((row) => [row.responded_by, row.revoked_by]).filter(Boolean)),
+  ] as string[];
   if (ids.length > 0) {
     const { data: profiles } = await supabase
       .from("profiles")
@@ -164,12 +193,12 @@ export async function fetchEventInvitations(eventId: string): Promise<Invitation
     );
     for (const row of rows) {
       row.respondedByName = row.responded_by ? (names.get(row.responded_by) ?? null) : null;
+      row.revokedByName = row.revoked_by ? (names.get(row.revoked_by) ?? null) : null;
     }
   }
   return rows.sort((a, b) => (a.playerName ?? "").localeCompare(b.playerName ?? "", "sv"));
 }
 
-/** Skapar kallelser för valda spelare. Befintliga kallelser lämnas orörda. */
 /**
  * Kallelser hör bara ihop med matcher. Träningar har närvaro i stället, så
  * försök att skapa en kallelse till en träning stoppas redan här.
@@ -186,146 +215,142 @@ export async function assertMatchEvent(eventId: string): Promise<void> {
   }
 }
 
-/** Sista svarsdag = 7 dagar före matchstart (lokalt datum, yyyy-mm-dd). */
-export function defaultRespondBy(startsAt: string | null | undefined): string {
-  if (!startsAt) return "";
-  const start = new Date(startsAt);
-  if (Number.isNaN(start.getTime())) return "";
-  const due = new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}`;
-}
+export type PublishResult = {
+  added: number;
+  selected: number;
+  reachable_account: number;
+  reachable_guardian: number;
+  unreachable: number;
+};
 
-export async function createInvitations(input: {
+/**
+ * Publicerar kallelsen. All kontroll görs i databasen: matchen måste vara en
+ * match som varken är inställd eller spelad, spelarna måste tillhöra laget och
+ * vara aktiva, och sista svarsdag får inte ligga bakåt i tiden.
+ */
+export async function publishInvitations(input: {
   eventId: string;
-  teamId: string;
   playerIds: string[];
   message: string | null;
   respondBy?: string | null;
-  createdBy: string;
-}): Promise<number> {
-  if (input.playerIds.length === 0) return 0;
-  await assertMatchEvent(input.eventId);
-  // Inaktiva spelare får aldrig nya kallelser.
-  const { data: active, error: activeError } = await supabase
-    .from("players")
-    .select("id")
-    .in("id", input.playerIds)
-    .eq("is_active", true);
-  if (activeError) throw activeError;
-  const allowed = new Set((active ?? []).map((row) => row.id as string));
-  input = { ...input, playerIds: input.playerIds.filter((id) => allowed.has(id)) };
-  if (input.playerIds.length === 0) return 0;
-  let respondBy = input.respondBy ?? null;
-  if (!respondBy) {
-    const { data: evt } = await supabase
-      .from("events")
-      .select("starts_at")
-      .eq("id", input.eventId)
-      .maybeSingle();
-    respondBy = defaultRespondBy(evt?.starts_at) || null;
+}): Promise<PublishResult> {
+  if (input.playerIds.length === 0) {
+    throw new Error("Välj minst en spelare innan du publicerar kallelsen.");
   }
-  const rows = input.playerIds.map((playerId) => ({
-    event_id: input.eventId,
-    team_id: input.teamId,
-    player_id: playerId,
-    message: input.message,
-    respond_by: respondBy,
-    created_by: input.createdBy,
-  }));
-  const { data, error } = await supabase
-    .from("event_invitations")
-    .upsert(rows, { onConflict: "event_id,player_id", ignoreDuplicates: true })
-    .select("id");
+  // Databasfunktionen tar emot tomma värden, men de genererade typerna
+  // beskriver bara textvärden – därför den här överbryggningen.
+  const { data, error } = await supabase.rpc("publish_event_invitations", {
+    _event_id: input.eventId,
+    _player_ids: input.playerIds,
+    _message: input.message,
+    _respond_by: input.respondBy || null,
+  } as never);
+
   if (error) throw error;
-  return data?.length ?? 0;
+  return data as unknown as PublishResult;
 }
 
-/** Uppdaterar informationstexten för hela kallelsen. */
+/** Uppdaterar informationstexten och sista svarsdag för hela kallelsen. */
 export async function updateInvitationDetails(input: {
   eventId: string;
   message: string | null;
   respondBy?: string | null;
-}): Promise<Array<{ id: string; event_id: string; message: string | null }>> {
-  const { data, error } = await supabase
-    .from("event_invitations")
-    .update({ message: input.message, respond_by: input.respondBy ?? null })
-    .eq("event_id", input.eventId)
-    .select("id, event_id, message");
+  notify?: boolean;
+}): Promise<{ updated: number; notified: number }> {
+  const { data, error } = await supabase.rpc("update_invitation_details", {
+    _event_id: input.eventId,
+    _message: input.message,
+    _respond_by: input.respondBy || null,
+    _notify: input.notify ?? false,
+  } as never);
+
   if (error) throw error;
-  if (!data || data.length === 0) {
-    throw new Error("Kallelsen kunde inte uppdateras. Inga rader ändrades.");
-  }
-  return data;
+  return data as unknown as { updated: number; notified: number };
 }
 
-/** Sparar kallelsen: uppdaterar befintliga rader och skapar bara för nya spelare. */
+/**
+ * Sparar allt i dialogen i ett svep: först ändrad information till redan
+ * kallade, sedan eventuella nya mottagare.
+ */
 export async function saveInvitationPlan(input: {
   eventId: string;
-  teamId: string;
   hasExisting: boolean;
   newPlayerIds: string[];
   message: string | null;
   respondBy?: string | null;
-  createdBy: string;
-}): Promise<{ added: number; updated: number }> {
+  notify?: boolean;
+}): Promise<{ added: number; updated: number; published: PublishResult | null }> {
   let updated = 0;
   if (input.hasExisting) {
-    const rows = await updateInvitationDetails({
+    const result = await updateInvitationDetails({
       eventId: input.eventId,
       message: input.message,
       respondBy: input.respondBy ?? null,
+      notify: input.notify ?? false,
     });
-    updated = rows.length;
+    updated = result.updated;
   }
 
-  let added = 0;
+  let published: PublishResult | null = null;
   if (input.newPlayerIds.length > 0) {
-    added = await createInvitations({
+    published = await publishInvitations({
       eventId: input.eventId,
-      teamId: input.teamId,
       playerIds: input.newPlayerIds,
       message: input.message,
       respondBy: input.respondBy ?? null,
-      createdBy: input.createdBy,
     });
   }
 
-  return { added, updated };
+  return { added: published?.added ?? 0, updated, published };
 }
 
-export async function removeInvitation(id: string) {
-  const { error } = await supabase.from("event_invitations").delete().eq("id", id);
+/** Återkallar en kallelse. Historiken finns kvar. */
+export async function revokeInvitation(invitationId: string): Promise<void> {
+  const { error } = await supabase.rpc("revoke_invitation", { _invitation_id: invitationId });
   if (error) throw error;
 }
 
-/** Registrerar ett svar och sparar ändringen i historiken. Rör aldrig närvarodata. */
+/** Stänger eller öppnar kallelsen för mottagarnas svar. */
+export async function setInvitesClosed(eventId: string, closed: boolean): Promise<void> {
+  const { error } = await supabase.rpc("set_event_invites_closed", {
+    _event_id: eventId,
+    _closed: closed,
+  });
+  if (error) throw error;
+}
+
+/** Skapar en notis till alla kallade när något viktigt ändras. */
+export async function notifyInvitedOfChange(input: {
+  eventId: string;
+  title: string;
+  body: string;
+}): Promise<number> {
+  const { data, error } = await supabase.rpc("notify_invited_of_change", {
+    _event_id: input.eventId,
+    _title: input.title,
+    _body: input.body,
+  });
+  if (error) throw error;
+  return (data as unknown as number) ?? 0;
+}
+
+/**
+ * Registrerar ett svar. Databasen kontrollerar vem som svarar, sparar svaret
+ * och historiken i samma transaktion och rör aldrig närvarodata.
+ */
 export async function respondToInvitation(input: {
-  invitation: Invitation;
+  invitation: Pick<Invitation, "id">;
   status: InviteStatus;
   comment?: string | null;
-  userId: string;
-  role: "coach" | "player" | "guardian";
-}) {
-  const { error } = await supabase
-    .from("event_invitations")
-    .update({
-      status: input.status,
-      comment: input.comment ?? input.invitation.comment,
-      responded_by: input.userId,
-      responded_at: new Date().toISOString(),
-    })
-    .eq("id", input.invitation.id);
-  if (error) throw error;
+}): Promise<{ status: string; role: string; late: boolean; closed: boolean }> {
+  const { data, error } = await supabase.rpc("respond_to_invitation", {
+    _invitation_id: input.invitation.id,
+    _status: input.status,
+    _comment: input.comment ?? null,
+  } as never);
 
-  await supabase.from("event_invitation_log").insert({
-    invitation_id: input.invitation.id,
-    team_id: input.invitation.team_id,
-    from_status: input.invitation.status,
-    to_status: input.status,
-    changed_by: input.userId,
-    changed_role: input.role,
-  });
+  if (error) throw error;
+  return data as unknown as { status: string; role: string; late: boolean; closed: boolean };
 }
 
 export type InvitationLogRow = {
@@ -362,17 +387,21 @@ export async function fetchInvitationLog(invitationId: string): Promise<Invitati
 }
 
 /**
- * Skapar riktiga notiser i appen via databasen. Databasfunktionen skickar bara
- * till spelare med status "Ej svarat", når spelarens eget konto och alla aktiva
- * vårdnadshavare, och hoppar över mottagare som redan fått en påminnelse de
- * senaste fem minuterna. Två snabba tryck kan därför inte ge dubbla notiser.
- * Inga mejl eller pushnotiser skickas – de kanalerna är inte aktiverade.
+ * Skapar riktiga notiser i appen via databasen. En användare får en samlad
+ * notis även om hen är vårdnadshavare till flera kallade barn. Databasen
+ * stoppar påminnelser för inställda och redan startade matcher, hoppar över
+ * återkallade och skickar aldrig två notiser inom fem minuter.
  */
 export async function createReminders(input: {
   eventId: string;
   title: string;
   body: string;
-}): Promise<{ sent: number; skippedRecent: number; missingAccount: number }> {
+}): Promise<{
+  sent: number;
+  skippedRecent: number;
+  missingAccount: number;
+  unreachablePlayers: string;
+}> {
   const { data, error } = await supabase.rpc("send_invite_reminders", {
     _event_id: input.eventId,
     _title: input.title,
@@ -380,19 +409,30 @@ export async function createReminders(input: {
   });
   if (error) throw error;
   const row = (Array.isArray(data) ? data[0] : data) as
-    { sent: number; skipped_recent: number; missing_account: number } | undefined;
+    | {
+        sent: number;
+        skipped_recent: number;
+        missing_account: number;
+        unreachable_players?: string;
+      }
+    | undefined;
   return {
     sent: row?.sent ?? 0,
     skippedRecent: row?.skipped_recent ?? 0,
     missingAccount: row?.missing_account ?? 0,
+    unreachablePlayers: row?.unreachable_players ?? "",
   };
 }
+
+export const EXTERNAL_CHANNELS_NOTE =
+  "E-post och push är inte aktiverat – notisen finns bara i appen.";
 
 /** Ärlig text om vad som faktiskt hände när påminnelsen skickades. */
 export function reminderResultText(result: {
   sent: number;
   skippedRecent: number;
   missingAccount: number;
+  unreachablePlayers?: string;
 }): string {
   if (result.sent === 0 && result.skippedRecent > 0) {
     return "Ingen ny påminnelse skickades. De obesvarade fick redan en påminnelse nyss.";
@@ -402,22 +442,14 @@ export function reminderResultText(result: {
   }
   const parts = [`Påminnelse i appen skickad till ${result.sent} mottagare.`];
   if (result.missingAccount > 0) {
-    parts.push(`${result.missingAccount} spelare saknar konto och nåddes inte.`);
+    parts.push(
+      result.unreachablePlayers
+        ? `Nåddes inte: ${result.unreachablePlayers}.`
+        : `${result.missingAccount} spelare saknar konto och nåddes inte.`,
+    );
   }
-  parts.push(EXTERNAL_CHANNELS_TEXT);
+  parts.push(EXTERNAL_CHANNELS_NOTE);
   return parts.join(" ");
-}
-
-export const EXTERNAL_CHANNELS_TEXT =
-  "E-post och push är inte aktiverat – notisen finns bara i appen.";
-
-/** Sätter sista svarsdag utan att röra befintliga svar. */
-export async function setRespondBy(eventId: string, respondBy: string | null): Promise<void> {
-  const { error } = await supabase
-    .from("event_invitations")
-    .update({ respond_by: respondBy })
-    .eq("event_id", eventId);
-  if (error) throw error;
 }
 
 export type MyInvitation = Invitation & {
@@ -429,6 +461,7 @@ export type MyInvitation = Invitation & {
     starts_at: string;
     location: string | null;
     cancelled_at: string | null;
+    invites_closed_at: string | null;
     home_team: string | null;
     away_team: string | null;
   };
@@ -439,7 +472,7 @@ export async function fetchMyInvitations(): Promise<MyInvitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
     .select(
-      "*, players(name, member_user_id, is_active), events(id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team), teams(name)",
+      "*, players(name, member_user_id, is_active), events(id, team_id, type, title, starts_at, location, cancelled_at, invites_closed_at, home_team, away_team), teams(name)",
     );
   if (error) throw error;
   return (data ?? [])
@@ -459,7 +492,7 @@ export async function setEventCancelled(eventId: string, cancelled: boolean) {
   if (error) throw error;
 }
 
-/** Kallelser grupperas per aktivitet så att samma träning bara visas en gång. */
+/** Kallelser grupperas per aktivitet så att samma match bara visas en gång. */
 export type InvitationGroup = {
   eventId: string;
   teamId: string;
@@ -504,8 +537,10 @@ export async function fetchTeamInviteCounts(
     .eq("team_id", teamId);
   if (error) throw error;
   const map: Record<string, TeamInviteCount> = {};
-  for (const row of data ?? []) {
-    const key = row.event_id as string;
+  for (const row of activeInvitations(
+    (data ?? []) as Array<{ event_id: string; status: string }>,
+  )) {
+    const key = row.event_id;
     const current = map[key] ?? { total: 0, answered: 0 };
     current.total += 1;
     if (row.status !== "pending") current.answered += 1;
@@ -516,9 +551,16 @@ export async function fetchTeamInviteCounts(
 
 /** Kort text om kallelsens läge. */
 export function inviteStateText(count: TeamInviteCount | undefined): string {
-  if (!count || count.total === 0) return "Ingen kallelse skickad";
+  if (!count || count.total === 0) return "Ingen kallelse publicerad";
   const missing = count.total - count.answered;
   return missing === 0
     ? `Alla ${count.total} har svarat`
     : `${count.answered} av ${count.total} har svarat`;
 }
+
+/** Kort statusrad per spelare i tränarens lista. */
+export function invitationRowText(invitation: Invitation): string {
+  return inviteStatusLabel(invitation.status);
+}
+
+export { countInvitations as countInvites };

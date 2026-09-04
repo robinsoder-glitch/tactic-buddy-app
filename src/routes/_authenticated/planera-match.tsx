@@ -28,6 +28,8 @@ import {
 import {
   fetchEventInvitations,
   inviteStatusLabel,
+  revokeInvitation,
+  type PlayerInviteStatus,
   summaryText,
   countInvitations,
   type Invitation,
@@ -266,7 +268,7 @@ function MatchPlanner({
   const [saving, setSaving] = useState(false);
 
   const statusByPlayer = useMemo(() => {
-    const map = new Map<string, InviteStatus>();
+    const map = new Map<string, PlayerInviteStatus>();
     invitations.forEach((inv) => map.set(inv.player_id, inv.status));
     return map;
   }, [invitations]);
@@ -277,14 +279,21 @@ function MatchPlanner({
     return map;
   }, [players]);
 
-  // Summering över de uttagna spelarna: spelare utan kallelserad räknas som Ej svarat.
+  // Summering över de uttagna spelarna. En spelare utan kallelse är "Ej kallad"
+  // och räknas därför aldrig som obesvarad.
   const displayCounts = useMemo(
     () =>
       countInvitations(
-        playerIds.map((id) => ({
-          status: invitations.find((i) => i.player_id === id)?.status ?? "pending",
-        })),
+        playerIds
+          .map((id) => invitations.find((i) => i.player_id === id))
+          .filter(Boolean)
+          .map((inv) => ({ status: inv!.status })),
       ),
+    [playerIds, invitations],
+  );
+
+  const uninvitedInSquad = useMemo(
+    () => playerIds.filter((id) => !invitations.some((inv) => inv.player_id === id)),
     [playerIds, invitations],
   );
 
@@ -397,6 +406,24 @@ function MatchPlanner({
           `${playersById.get(id)?.name ?? "Spelaren"} låg på planen – platsen blir Tom plats.`,
         );
       }
+      const invitation = invitations.find((inv) => inv.player_id === id);
+      if (invitation && invitation.status !== "revoked") {
+        const revokeIt = window.confirm(
+          `${playersById.get(id)?.name ?? "Spelaren"} är kallad. Vill du återkalla kallelsen också?`,
+        );
+        if (revokeIt) {
+          void revokeInvitation(invitation.id)
+            .then(() => {
+              setInvitations((prev) =>
+                prev.map((inv) =>
+                  inv.id === invitation.id ? { ...inv, status: "revoked" as InviteStatus } : inv,
+                ),
+              );
+              toast.success("Kallelsen är återkallad.");
+            })
+            .catch(() => toast.error("Kunde inte återkalla kallelsen."));
+        }
+      }
       setPlayerIds(playerIds.filter((p) => p !== id));
       setSlots(ns);
       setBench(nb);
@@ -406,6 +433,11 @@ function MatchPlanner({
           "Spelaren har svarat att den inte kan delta. Vill du ändå ta ut spelaren?",
         );
         if (!ok) return;
+      }
+      if (invitations.length > 0 && !statusByPlayer.has(id)) {
+        toast.info(
+          `${playersById.get(id)?.name ?? "Spelaren"} är inte kallad. Lägg till spelaren i kallelsen på matchsidan.`,
+        );
       }
       setPlayerIds([...playerIds, id]);
       setBench((b) => [...b, id]);
@@ -645,7 +677,10 @@ function MatchPlanner({
 
           <section className="rounded-xl border bg-card p-4">
             <h2 className="mb-2 font-medium">Spelarnas svar</h2>
-            <p className="text-sm text-muted-foreground">{summaryText(displayCounts)}</p>
+            <p className="text-sm text-muted-foreground">
+              {summaryText(displayCounts)}
+              {uninvitedInSquad.length > 0 ? ` · ${uninvitedInSquad.length} ej kallade` : ""}
+            </p>
             <ul className="mt-2 space-y-1 text-sm">
               {sortedPlayers
                 .filter((p) => playerIds.includes(p.id))
@@ -658,7 +693,7 @@ function MatchPlanner({
                       {p.name}
                     </span>
                     <span className="text-muted-foreground">
-                      {inviteStatusLabel(statusByPlayer.get(p.id) ?? "pending")}
+                      {inviteStatusLabel(statusByPlayer.get(p.id))}
                     </span>
                   </li>
                 ))}
@@ -857,7 +892,7 @@ function MatchPlanner({
               </p>
               <ul className="space-y-2">
                 {sortedPlayers.map((p) => {
-                  const st = statusByPlayer.get(p.id) ?? "pending";
+                  const st = statusByPlayer.get(p.id) ?? "not_invited";
                   const checked = playerIds.includes(p.id);
                   return (
                     <li key={p.id}>

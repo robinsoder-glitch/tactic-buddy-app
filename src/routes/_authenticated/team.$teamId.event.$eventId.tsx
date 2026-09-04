@@ -33,24 +33,30 @@ import {
 } from "@/lib/teams";
 
 import {
+  ANSWER_STATUSES,
   INVITE_STATUSES,
+  LATE_RESPONSE_TEXT,
   NO_ACCOUNT_TEXT,
   NO_REMINDER_TEXT,
+  RESPOND_BY_STATE_LABELS,
   canRespondAsGuardian,
   canRespondSelf,
   countInvitations,
   createReminders,
-  defaultRespondBy,
+  isLateResponse,
   reminderResultText,
+  respondByState,
+  respondedByText,
+  revokeInvitation,
+  revokedText,
+  setInvitesClosed,
   summaryText,
-  setRespondBy,
   fetchInvitationLog,
   EXTERNAL_CHANNELS_TEXT,
   expectedAttendance,
   fetchEventInvitations,
   inviteStatusLabel,
   respondToInvitation,
-  saveInvitationPlan,
   setEventCancelled,
   type InviteStatus,
   type Invitation,
@@ -58,17 +64,9 @@ import {
 
 import { useTeamRole } from "@/hooks/useTeamRole";
 import { fetchMyGuardedPlayerIds } from "@/lib/guardians";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { BackLink } from "@/components/BackLink";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { InviteDialog } from "@/components/InviteDialog";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/event/$eventId")({
   head: () => ({
@@ -100,10 +98,7 @@ function EventPage() {
 
   const [filter, setFilter] = useState<Filter>("alla");
   const [creating, setCreating] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [message, setMessage] = useState("");
   const [openRow, setOpenRow] = useState<string | null>(null);
-  const [respondBy, setRespondByValue] = useState("");
 
   const event = useQuery({ queryKey: ["event", eventId], queryFn: () => fetchEvent(eventId) });
   const players = useQuery({
@@ -206,71 +201,42 @@ function EventPage() {
     queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
   };
 
-  const create = useMutation({
-    mutationFn: async () => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      const invited = new Set(list.map((item) => item.player_id));
-      const newPlayerIds = selected.filter((id) => !invited.has(id));
-      // Utan befintlig kallelse och utan valda spelare finns inget att spara.
-      if (list.length === 0 && newPlayerIds.length === 0) {
-        throw new Error("NO_PLAYERS_SELECTED");
-      }
-      const result = await saveInvitationPlan({
-        eventId,
-        teamId,
-        hasExisting: list.length > 0,
-        newPlayerIds,
-        message: message.trim() || null,
-        respondBy: respondBy || null,
-        createdBy: userId,
-      });
-
-      // Verifiera mot databasen innan vi visar ett lyckat meddelande.
-      await queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
-      const saved = await queryClient.fetchQuery({
-        queryKey: ["invitations", eventId],
-        queryFn: () => fetchEventInvitations(eventId),
-      });
-      if (saved.length === 0) throw new Error("INVITATION_NOT_SAVED");
-      return result;
-    },
-    onSuccess: (result) => {
-      setCreating(false);
-      toast.success(
-        result.added > 0
-          ? `Kallelsen är uppdaterad (${result.added} nya).`
-          : "Kallelsen är uppdaterad.",
-      );
-    },
-    onError: (error: Error) => {
-      toast.error(
-        error.message === "NO_PLAYERS_SELECTED"
-          ? "Välj minst en spelare innan du sparar kallelsen."
-          : "Kunde inte spara kallelsen. Försök igen.",
-      );
-    },
-  });
-
   const respond = useMutation({
     mutationFn: ({ invitation, status }: { invitation: Invitation; status: InviteStatus }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      return respondToInvitation({
-        invitation,
-        status,
-        userId,
-        role: isCoach ? "coach" : canRespondSelf(invitation, userId) ? "player" : "guardian",
-      });
+      return respondToInvitation({ invitation, status });
     },
-    onSuccess: (_data, vars) => {
+    onSuccess: (result, vars) => {
       refresh();
       queryClient.invalidateQueries({ queryKey: ["invitation-log", vars.invitation.id] });
+      if (result.late) toast.info(`${LATE_RESPONSE_TEXT}. Svaret är sparat.`);
     },
-    onError: () =>
+    onError: (error: Error) =>
       toast.error(
-        cancelled
-          ? "Aktiviteten är inställd. Det går inte att lämna nya svar."
-          : "Kunde inte spara svaret. Försök igen.",
+        error.message ||
+          (cancelled
+            ? "Aktiviteten är inställd. Det går inte att lämna nya svar."
+            : "Kunde inte spara svaret. Försök igen."),
       ),
+  });
+
+  const revoke = useMutation({
+    mutationFn: (invitation: Invitation) => revokeInvitation(invitation.id),
+    onSuccess: () => {
+      refresh();
+      toast.success("Kallelsen är återkallad. Spelaren har fått en notis.");
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "Kunde inte återkalla kallelsen. Försök igen."),
+  });
+
+  const toggleClosed = useMutation({
+    mutationFn: (closed: boolean) => setInvitesClosed(eventId, closed),
+    onSuccess: (_data, closed) => {
+      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      toast.success(closed ? "Kallelsen är stängd för nya svar." : "Kallelsen är öppen igen.");
+    },
+    onError: (error: Error) => toast.error(error.message || "Kunde inte ändra kallelsen."),
   });
 
   const remind = useMutation({
@@ -289,15 +255,6 @@ function EventPage() {
     onError: () => toast.error("Kunde inte skapa påminnelsen. Försök igen."),
   });
 
-  const saveRespondBy = useMutation({
-    mutationFn: () => setRespondBy(eventId, respondBy || null),
-    onSuccess: () => {
-      toast.success("Sista svarsdag uppdaterad. Tidigare svar är kvar.");
-      refresh();
-    },
-    onError: () => toast.error("Kunde inte spara sista svarsdag."),
-  });
-
   const cancel = useMutation({
     mutationFn: (value: boolean) => setEventCancelled(eventId, value),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["event", eventId] }),
@@ -314,12 +271,15 @@ function EventPage() {
     [list, filter],
   );
 
-  function openDialog() {
+  // Spelare i laget som inte har någon kallelse alls – de räknas som "Ej kallad".
+  const uninvited = useMemo(() => {
     const invited = new Set(list.map((item) => item.player_id));
-    setSelected((players.data ?? []).map((player) => player.id).filter((id) => !invited.has(id)));
-    setMessage(meta?.message ?? "");
-    setRespondByValue(meta?.respond_by ?? defaultRespondBy(event.data?.starts_at));
+    return (players.data ?? []).filter(
+      (player) => !invited.has(player.id) && player.is_active !== false,
+    );
+  }, [list, players.data]);
 
+  function openDialog() {
     setCreating(true);
   }
 
@@ -520,8 +480,26 @@ function EventPage() {
           {list.length > 0 && (
             <>
               <p className="mt-3 text-sm font-semibold">{summaryText(counts)}</p>
-              {meta?.respond_by && (
-                <p className="text-xs text-muted-foreground">Sista svarsdag: {meta.respond_by}</p>
+              <p className="text-xs text-muted-foreground">
+                {
+                  RESPOND_BY_STATE_LABELS[
+                    respondByState({
+                      respondBy: meta?.respond_by ?? null,
+                      closed: Boolean(event.data?.invites_closed_at || event.data?.cancelled_at),
+                    })
+                  ]
+                }
+              </p>
+              {isCoach && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1"
+                  disabled={toggleClosed.isPending}
+                  onClick={() => toggleClosed.mutate(!event.data?.invites_closed_at)}
+                >
+                  {event.data?.invites_closed_at ? "Öppna för svar igen" : "Stäng för nya svar"}
+                </Button>
               )}
               <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                 <Stat label="Kallade" value={counts.total} />
@@ -575,7 +553,12 @@ function EventPage() {
                 {filtered.map((invitation) => {
                   const mine = canRespondSelf(invitation, userId);
                   const guardianOf = canRespondAsGuardian(invitation, guardedIds);
-                  const mayAnswer = (isCoach || mine || guardianOf) && !cancelled;
+                  const closedForAnswers = Boolean(event.data?.invites_closed_at);
+                  const mayAnswer =
+                    (isCoach || mine || guardianOf) &&
+                    !cancelled &&
+                    !closedForAnswers &&
+                    invitation.status !== "revoked";
                   const open = openRow === invitation.id;
                   return (
                     <li key={invitation.id} className="rounded-xl border border-border bg-card">
@@ -599,8 +582,24 @@ function EventPage() {
                             {invitation.responded_at
                               ? ` · ${formatDateTime(invitation.responded_at)}`
                               : ""}
-                            {invitation.respondedByName
-                              ? ` · av ${invitation.respondedByName}`
+                            {respondedByText({
+                              name: invitation.respondedByName ?? null,
+                              role: invitation.responded_role ?? null,
+                            })
+                              ? ` · ${respondedByText({
+                                  name: invitation.respondedByName ?? null,
+                                  role: invitation.responded_role ?? null,
+                                })}`
+                              : ""}
+                            {isLateResponse(invitation.responded_at, invitation.respond_by)
+                              ? ` · ${LATE_RESPONSE_TEXT}`
+                              : ""}
+                            {invitation.revoked_at
+                              ? ` · ${revokedText({
+                                  name: invitation.revokedByName ?? null,
+                                  at: invitation.revoked_at,
+                                  formatDateTime,
+                                })}`
                               : ""}
                           </p>
                           {invitation.comment && (
@@ -615,20 +614,18 @@ function EventPage() {
                       <div className="px-3 pb-3">
                         {mayAnswer ? (
                           <div className="grid grid-cols-3 gap-2">
-                            {(["attending", "maybe", "declined"] as InviteStatus[]).map(
-                              (status) => (
-                                <Button
-                                  key={status}
-                                  size="sm"
-                                  className="h-12 text-sm"
-                                  variant={invitation.status === status ? "default" : "secondary"}
-                                  disabled={respond.isPending}
-                                  onClick={() => respond.mutate({ invitation, status })}
-                                >
-                                  {inviteStatusLabel(status)}
-                                </Button>
-                              ),
-                            )}
+                            {ANSWER_STATUSES.map((status) => (
+                              <Button
+                                key={status}
+                                size="sm"
+                                className="h-12 text-sm"
+                                variant={invitation.status === status ? "default" : "secondary"}
+                                disabled={respond.isPending}
+                                onClick={() => respond.mutate({ invitation, status })}
+                              >
+                                {inviteStatusLabel(status)}
+                              </Button>
+                            ))}
                           </div>
                         ) : (
                           !invitation.memberUserId &&
@@ -637,6 +634,17 @@ function EventPage() {
                           )
                         )}
 
+                        {isCoach && invitation.status !== "revoked" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="mt-2"
+                            disabled={revoke.isPending}
+                            onClick={() => revoke.mutate(invitation)}
+                          >
+                            Återkalla kallelse
+                          </Button>
+                        )}
                         {isCoach && !invitation.memberUserId && (
                           <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
                         )}
@@ -654,106 +662,31 @@ function EventPage() {
                   <li className="text-sm text-muted-foreground">Inga spelare i den här gruppen.</li>
                 )}
               </ul>
+
+              {isCoach && filter === "alla" && uninvited.length > 0 && (
+                <div className="mt-4 rounded-xl border border-dashed border-border p-3">
+                  <p className="text-sm font-semibold">Ej kallade ({uninvited.length})</p>
+                  <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+                    {uninvited.map((player) => (
+                      <li key={player.id}>{player.name} · Ej kallad</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </>
           )}
         </section>
       )}
 
-      <Dialog open={creating} onOpenChange={setCreating}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{list.length > 0 ? "Hantera kallelse" : "Skapa kallelse"}</DialogTitle>
-          </DialogHeader>
-
-          <label className="text-sm">
-            Sista svarsdag
-            <Input
-              type="date"
-              value={respondBy}
-              onChange={(e) => setRespondByValue(e.target.value)}
-            />
-            {list.length > 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="mt-2"
-                disabled={saveRespondBy.isPending}
-                onClick={() => saveRespondBy.mutate()}
-              >
-                Spara sista svarsdag
-              </Button>
-            )}
-          </label>
-
-          <label className="text-sm">
-            Information till spelarna
-            <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Till exempel samling, utrustning eller resa."
-            />
-          </label>
-
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Spelare</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const invited = new Set(list.map((item) => item.player_id));
-                const all = (players.data ?? []).map((p) => p.id).filter((id) => !invited.has(id));
-                setSelected(selected.length === all.length ? [] : all);
-              }}
-            >
-              {selected.length > 0 &&
-              selected.length ===
-                (players.data ?? []).filter((p) => !list.some((item) => item.player_id === p.id))
-                  .length
-                ? "Avmarkera alla"
-                : "Välj alla"}
-            </Button>
-          </div>
-
-          <ul className="space-y-1">
-            {(players.data ?? []).map((player) => {
-              const already = list.some((item) => item.player_id === player.id);
-              return (
-                <li key={player.id}>
-                  <label className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm">
-                    <input
-                      type="checkbox"
-                      className="size-5"
-                      disabled={already}
-                      checked={already || selected.includes(player.id)}
-                      onChange={(e) =>
-                        setSelected((prev) =>
-                          e.target.checked
-                            ? [...prev, player.id]
-                            : prev.filter((id) => id !== player.id),
-                        )
-                      }
-                    />
-                    <span className="min-w-0 flex-1 truncate">{player.name}</span>
-                    {already && <span className="text-xs text-muted-foreground">Redan kallad</span>}
-                  </label>
-                </li>
-              );
-            })}
-            {(players.data ?? []).length === 0 && (
-              <li className="text-sm text-muted-foreground">Laget har inga spelare ännu.</li>
-            )}
-          </ul>
-
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setCreating(false)}>
-              Avbryt
-            </Button>
-            <Button onClick={() => create.mutate()} disabled={create.isPending}>
-              Spara kallelse
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <InviteDialog
+        open={creating}
+        onOpenChange={setCreating}
+        eventId={eventId}
+        players={players.data ?? []}
+        squadPlayerIds={eventSquad.data ?? []}
+        invitations={list}
+        startsAt={event.data?.starts_at ?? null}
+      />
 
       <EventDiscussion eventId={eventId} teamId={teamId} />
 

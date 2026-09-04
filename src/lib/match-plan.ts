@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { FORMATIONS } from "@/lib/formations";
-import type { InviteStatus } from "@/lib/invitations";
+import type { PlayerInviteStatus } from "@/lib/invitations";
 
 /** En planposition i laguppställningen. player_id null = Tom plats. */
 export type LineupSlot = {
@@ -123,21 +123,24 @@ export function syncLineupWithSquad(
   return { slots: nextSlots, bench, removedFromPitch };
 }
 
-const RESPONSE_ORDER: Record<InviteStatus, number> = {
+const RESPONSE_ORDER: Record<PlayerInviteStatus, number> = {
   attending: 0,
   maybe: 1,
   pending: 2,
-  declined: 3,
+  not_invited: 3,
+  declined: 4,
+  revoked: 5,
 };
 
-/** Sortera spelare efter svarstatus: Kommer, Kanske, Ej svarat, Kan inte. */
+/** Sortera spelare efter svarstatus: Kommer, Kanske, Ej svarat, Ej kallad, Kan inte. */
 export function sortPlayersByResponse<T extends { id: string; name: string }>(
   players: T[],
-  statusByPlayer: Map<string, InviteStatus>,
+  statusByPlayer: Map<string, PlayerInviteStatus>,
 ): T[] {
   return [...players].sort((a, b) => {
-    const ra = RESPONSE_ORDER[statusByPlayer.get(a.id) ?? "pending"];
-    const rb = RESPONSE_ORDER[statusByPlayer.get(b.id) ?? "pending"];
+    const ra = RESPONSE_ORDER[statusByPlayer.get(a.id) ?? "not_invited"] ?? 9;
+    const rb = RESPONSE_ORDER[statusByPlayer.get(b.id) ?? "not_invited"] ?? 9;
+
     if (ra !== rb) return ra - rb;
     return a.name.localeCompare(b.name, "sv");
   });

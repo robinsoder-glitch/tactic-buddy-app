@@ -3,7 +3,7 @@ import { useQueries } from "@tanstack/react-query";
 import { CalendarDays, CheckCircle2, MapPin, Send } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { fetchEvents, formatDateTime } from "@/lib/teams";
-import { fetchTeamInviteCounts, inviteStateText } from "@/lib/invitations";
+import { fetchTeamInviteCounts, inviteStateText, isCoachMembership } from "@/lib/invitations";
 import { eventDisplayTitle } from "@/lib/event-labels";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
  */
 export function CoachInvites() {
   const { memberships, loading } = useAccount();
-  const teams = memberships.filter((item) => item.status === "approved");
+  // Bara godkända ledarroller – en spelare i laget ska inte se utskicksvyn.
+  const teams = memberships.filter(isCoachMembership);
 
   const results = useQueries({
     queries: teams.map((item) => ({
