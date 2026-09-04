@@ -9,10 +9,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const guardiansSource = readFileSync(resolve(__dirname, "guardians.ts"), "utf8");
-const dialogSource = readFileSync(
-  resolve(__dirname, "../components/GuardianLinks.tsx"),
-  "utf8",
-);
+const dialogSource = readFileSync(resolve(__dirname, "../components/GuardianLinks.tsx"), "utf8");
 
 describe("linkGuardian", () => {
   it("går via den säkra databasfunktionen", () => {

@@ -53,8 +53,7 @@ export function GuardianLinks({
       toast.success("Vårdnadshavaren är kopplad till spelaren.");
       refresh();
     },
-    onError: (error: Error) =>
-      toast.error(error.message || "Kunde inte koppla vårdnadshavaren."),
+    onError: (error: Error) => toast.error(error.message || "Kunde inte koppla vårdnadshavaren."),
   });
 
   const toggle = useMutation({
