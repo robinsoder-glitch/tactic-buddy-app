@@ -478,53 +478,6 @@ function EventAttendance({
                 </div>
               )}
 
-              {eventType === "match" && isCoach && current && current !== "absent" && (
-                <div className="mt-3 border-t border-border pt-2">
-                  <p className="text-xs font-medium text-muted-foreground">Speltid</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
-                    {PLAYING_TIME_PRESETS.map((preset) => (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        aria-label={`${preset.label} för ${player.name}`}
-                        className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                        onClick={() => {
-                          const minutes = minutesFromShare(preset.share, durationMinutes);
-                          if (minutes === null) {
-                            toast.error("Ange matchens längd först.");
-                            return;
-                          }
-                          setDraft((value) => setEntry(value, player.id, { minutes }));
-                        }}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                    <Input
-                      type="number"
-                      min={0}
-                      inputMode="numeric"
-                      className="h-8 w-24"
-                      aria-label={`Exakta minuter för ${player.name}`}
-                      value={entry.minutes ?? ""}
-                      onChange={(event) => {
-                        const raw = event.target.value.trim();
-                        setDraft((value) =>
-                          setEntry(value, player.id, {
-                            minutes: raw === "" ? null : Number(raw),
-                          }),
-                        );
-                      }}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {(() => {
-                        const share = playingTimeShare(entry.minutes, durationMinutes);
-                        return share === null ? "min" : `min · ${share} % av matchen`;
-                      })()}
-                    </span>
-                  </div>
-                </div>
-              )}
 
               {isCoach && current && (
                 <Input
