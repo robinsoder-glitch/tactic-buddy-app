@@ -218,6 +218,7 @@ function TeamsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
 
       <section className="mt-6 space-y-3">
         {teams.isLoading && <p className="text-sm text-muted-foreground">Laddar lag…</p>}
