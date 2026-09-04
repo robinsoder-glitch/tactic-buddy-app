@@ -27,6 +27,7 @@ import { friendlyError } from "@/lib/user-errors";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
 import { safeNextPath } from "@/lib/invite-links";
+import { authModeFromSearch, authSearchForMode } from "@/lib/auth-mode";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => ({
