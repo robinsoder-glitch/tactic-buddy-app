@@ -262,9 +262,6 @@ function TeamsPage() {
                   .join(" · ")}
               </p>
             </div>
-            <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">
-              {team.join_code}
-            </span>
           </Link>
         ))}
       </section>
