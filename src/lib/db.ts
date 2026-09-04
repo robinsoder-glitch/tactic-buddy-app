@@ -270,7 +270,18 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
   };
 }
 
+/**
+ * Sparar sekvensen. Tidigare steg läses in först och läggs tillbaka om
+ * skrivningen misslyckas, så att ett avbrutet sparande aldrig lämnar taktiken
+ * tom. Ett sparfel lämnar alltså föregående tillstånd orört.
+ */
 export async function saveFrames(tacticId: string, userId: string, frames: Frame[]) {
+  const { data: previous, error: readError } = await supabase
+    .from("tactic_frames")
+    .select("id, tactic_id, user_id, position, name, note, objects, drawings")
+    .eq("tactic_id", tacticId);
+  if (readError) throw new Error(readError.message);
+
   const { error: deleteError } = await supabase
     .from("tactic_frames")
     .delete()
@@ -288,7 +299,12 @@ export async function saveFrames(tacticId: string, userId: string, frames: Frame
   }));
 
   const { error } = await supabase.from("tactic_frames").insert(payload);
-  if (error) throw new Error(error.message);
+  if (error) {
+    if ((previous ?? []).length > 0) {
+      await supabase.from("tactic_frames").insert(previous as never);
+    }
+    throw new Error(error.message);
+  }
 
   await supabase
     .from("tactics")
