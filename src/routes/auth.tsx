@@ -63,7 +63,13 @@ function AuthPage() {
   const search = Route.useSearch();
   const nextPath = safeNextPath(search.next);
   const goOn = () => navigate({ to: nextPath ?? "/" });
-  const [mode, setMode] = useState<Mode>(search.mode === "signup" ? "signup" : "signin");
+  const mode: Mode = authModeFromSearch(search.mode);
+  const setMode = (next: Mode) => {
+    void navigate({
+      to: "/auth",
+      search: (prev: { mode?: "signup"; next?: string }) => authSearchForMode(prev, next),
+    });
+  };
   const [role, setRole] = useState<AccountRole | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
