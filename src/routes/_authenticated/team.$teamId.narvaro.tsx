@@ -475,7 +475,6 @@ function EventAttendance({
                 </div>
               )}
 
-
               {isCoach && current && (
                 <Input
                   className="mt-2 h-8 text-sm"
