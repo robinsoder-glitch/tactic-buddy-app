@@ -292,11 +292,6 @@ function EventAttendance({
 
   const save = useMutation({
     mutationFn: async () => {
-      for (const entry of Object.values(draft)) {
-        if (eventType !== "match" || entry.status === "absent") continue;
-        const error = validateMinutes(entry.minutes, durationMinutes);
-        if (error) throw new Error(error);
-      }
       return saveEventAttendance({
         eventId,
         teamId,
