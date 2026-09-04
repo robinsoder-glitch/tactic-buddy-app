@@ -175,24 +175,68 @@ export const CLEARED_SETUP_METADATA = {
 
 const STORAGE_KEY = "tt.account-setup";
 
-export function storeSetup(setup: AccountSetup) {
+type StoredSetup = { email: string | null; setup: AccountSetup };
+
+function normalizeEmail(email?: string | null): string | null {
+  const value = email?.trim().toLowerCase();
+  return value ? value : null;
+}
+
+function isAccountSetup(value: unknown): value is AccountSetup {
+  const role = (value as AccountSetup | null)?.role;
+  return role === "coach" || role === "player";
+}
+
+/**
+ * Sparar underlaget lokalt som reserv till auth-metadata. Underlaget binds till
+ * registreringens e-postadress så att en avbruten registrering aldrig kan
+ * tillämpas på ett annat konto som loggar in på samma enhet.
+ */
+export function storeSetup(setup: AccountSetup, email?: string | null) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(setup));
+    const payload: StoredSetup = { email: normalizeEmail(email), setup };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     /* ignorera */
   }
 }
 
-export function readSetup(): AccountSetup | null {
+function parseStoredSetup(): StoredSetup | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as AccountSetup;
-    if (parsed?.role !== "coach" && parsed?.role !== "player") return null;
-    return parsed;
+    const parsed = JSON.parse(raw) as Partial<StoredSetup> | AccountSetup;
+    if (parsed && typeof parsed === "object" && "setup" in parsed) {
+      const stored = parsed as StoredSetup;
+      if (!isAccountSetup(stored.setup)) return null;
+      return { email: normalizeEmail(stored.email), setup: stored.setup };
+    }
+    // Gammalt format utan e-postbindning används aldrig – risken att träffa
+    // fel konto är större än nyttan.
+    return null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Förhandsifyllning (t.ex. i onboarding). Underlag utan e-postadress – till
+ * exempel från en Google-registrering – får bara fylla i formulär, aldrig
+ * tillämpas automatiskt på ett konto.
+ */
+export function readSetup(): AccountSetup | null {
+  return parseStoredSetup()?.setup ?? null;
+}
+
+/**
+ * Strikt läsning vid inloggning: underlaget tillämpas bara när lagrad e-post
+ * stämmer exakt med det inloggade kontots e-postadress.
+ */
+export function readSetupForUser(userEmail: string | null | undefined): AccountSetup | null {
+  const stored = parseStoredSetup();
+  const email = normalizeEmail(userEmail);
+  if (!stored || !stored.email || !email) return null;
+  return stored.email === email ? stored.setup : null;
 }
 
 export function clearSetup() {
@@ -252,13 +296,15 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
 
 /**
  * Slutför registreringen efter e-postbekräftelse – underlaget läses i första
- * hand från auth-metadata, så det fungerar även på en annan enhet.
+ * hand från auth-metadata (bundet till kontot), annars från enhetens lokala
+ * kopia, men bara när e-postadressen stämmer med det inloggade kontot.
  */
 export async function completePendingSetup(user: {
   id: string;
+  email?: string | null;
   user_metadata?: Record<string, unknown> | null;
 }): Promise<SetupResult | null> {
-  const setup = setupFromMetadata(user.user_metadata) ?? readSetup();
+  const setup = setupFromMetadata(user.user_metadata) ?? readSetupForUser(user.email);
   if (!setup) return null;
   const result = await applyAccountSetup(user.id, setup);
   clearSetup();

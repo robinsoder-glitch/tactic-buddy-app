@@ -18,6 +18,6 @@ describe("saveFrames skyddar tidigare sekvenser", () => {
   });
 
   it("lägger tillbaka tidigare steg när skrivningen misslyckas", () => {
-    expect(body).toContain("await supabase.from(\"tactic_frames\").insert(previous as never)");
+    expect(body).toContain('await supabase.from("tactic_frames").insert(previous as never)');
   });
 });

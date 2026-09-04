@@ -93,6 +93,12 @@ function PlayerPage() {
         <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
       </div>
 
+      {players.isError && (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          Spelaren kunde inte hämtas. Kontrollera uppkopplingen och försök igen.
+        </p>
+      )}
+
       <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
         <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
           {player?.photoUrl ? (
@@ -114,20 +120,28 @@ function PlayerPage() {
               <dd>{age} år</dd>
             </>
           )}
-          <dt className="text-muted-foreground">Position</dt>
-          <dd>{player?.is_goalkeeper ? "Målvakt" : "Utespelare"}</dd>
+          {player && (
+            <>
+              <dt className="text-muted-foreground">Position</dt>
+              <dd>{player.is_goalkeeper ? "Målvakt" : "Utespelare"}</dd>
+            </>
+          )}
           {player?.gender && (
             <>
               <dt className="text-muted-foreground">Kön</dt>
               <dd>{GENDER_LABELS[player.gender] ?? player.gender}</dd>
             </>
           )}
-          <dt className="text-muted-foreground">Allergi</dt>
-          <dd>
-            {player?.has_allergy
-              ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
-              : "Nej"}
-          </dd>
+          {player && (
+            <>
+              <dt className="text-muted-foreground">Allergi</dt>
+              <dd>
+                {player.has_allergy
+                  ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
+                  : "Nej"}
+              </dd>
+            </>
+          )}
         </dl>
       </div>
 

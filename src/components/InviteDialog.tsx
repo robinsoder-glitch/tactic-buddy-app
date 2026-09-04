@@ -61,8 +61,11 @@ export function InviteDialog({
   startsAt: string | null | undefined;
 }) {
   const queryClient = useQueryClient();
-  const hasExisting = invitations.some((item) => item.status !== "revoked");
-  const meta = invitations[0];
+  const activeInvitations = invitations.filter((item) => item.status !== "revoked");
+  const hasExisting = activeInvitations.length > 0;
+  // Text och svarsdag hämtas bara från en aktiv kallelse – aldrig från en
+  // återkallad rad.
+  const meta = activeInvitations[0];
 
   const [selected, setSelected] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -74,7 +77,7 @@ export function InviteDialog({
   // Nollställs varje gång dialogen öppnas. Avbryt sparar därför aldrig något.
   useEffect(() => {
     if (!open) return;
-    const invitedIds = new Set(invitations.map((item) => item.player_id));
+    const invitedIds = new Set(activeInvitations.map((item) => item.player_id));
     const suggestion = squadPlayerIds.filter((id) => {
       const player = players.find((p) => p.id === id);
       return player && player.is_active !== false && !invitedIds.has(id);
@@ -85,7 +88,8 @@ export function InviteDialog({
     setNotify(true);
     setSearch("");
     setReview(false);
-  }, [open, invitations, players, squadPlayerIds, hasExisting, meta, startsAt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, invitations, players, squadPlayerIds, startsAt]);
 
   const guarded = useQuery({
     queryKey: ["guarded-of-team-players", players.map((p) => p.id).join(",")],
@@ -94,9 +98,10 @@ export function InviteDialog({
   });
   const guardedIds = guarded.data ?? new Set<string>();
 
+  // Återkallade kallelser räknas inte – spelaren kan kallas igen.
   const invitedIds = useMemo(
-    () => new Set(invitations.map((item) => item.player_id)),
-    [invitations],
+    () => new Set(activeInvitations.map((item) => item.player_id)),
+    [activeInvitations],
   );
 
   const selectable = useMemo(

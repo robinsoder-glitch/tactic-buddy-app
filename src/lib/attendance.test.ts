@@ -39,6 +39,11 @@ const events = [
   event("t3", "training", "2027-01-01T17:00:00Z"),
 ];
 
+const cancelled = {
+  ...event("m2", "match", "2026-08-11T09:00:00Z"),
+  cancelled_at: "2026-08-10T20:00:00Z",
+} as TeamEvent;
+
 const rows: AttendanceRow[] = [
   {
     id: "1",
@@ -158,5 +163,18 @@ describe("liknande spelarnamn", () => {
     expect(findSimilarPlayers("vincent akesson", squad).map((p) => p.id)).toEqual(["p1"]);
     expect(findSimilarPlayers("Nils Ek", squad)).toEqual([]);
     expect(findSimilarPlayers("Alma Berg", squad, "p2")).toEqual([]);
+  });
+});
+
+describe("pastEvents", () => {
+  it("räknar aldrig inställda händelser som genomförda", () => {
+    const done = pastEvents([...events, cancelled], new Date("2026-08-30T00:00:00Z"));
+    expect(done.map((item) => item.id)).not.toContain("m2");
+    expect(done.map((item) => item.id)).toContain("m1");
+  });
+
+  it("räknar inte framtida händelser", () => {
+    const done = pastEvents(events, new Date("2026-08-30T00:00:00Z"));
+    expect(done.map((item) => item.id)).not.toContain("t3");
   });
 });

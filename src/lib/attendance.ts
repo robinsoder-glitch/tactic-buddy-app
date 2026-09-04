@@ -166,9 +166,16 @@ export function counts(status: AttendanceStatus): boolean {
   return status === "present" || status === "partial";
 }
 
-/** Händelser som redan har startat – bara de ingår i statistiken. */
+/**
+ * Genomförda händelser – bara de ingår i statistiken. Inställda händelser
+ * räknas aldrig, oavsett om starttiden passerat.
+ */
 export function pastEvents(events: TeamEvent[], now: Date = new Date()): TeamEvent[] {
-  return events.filter((event) => new Date(event.starts_at).getTime() <= now.getTime());
+  return events.filter(
+    (event) =>
+      !(event as { cancelled_at?: string | null }).cancelled_at &&
+      new Date(event.starts_at).getTime() <= now.getTime(),
+  );
 }
 
 /** Sammanställer träningar och matcher per spelare. */

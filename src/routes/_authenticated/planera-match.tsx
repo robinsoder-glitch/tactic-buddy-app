@@ -359,7 +359,10 @@ function MatchPlanner({
           const match = lineup.formation.match(/^(\d+v\d+)/);
           setFormat(match?.[1] ?? "7v7");
         } else {
-          const def = defaultSlots(format);
+          // Utan sparad uppställning följer planeringen lagets spelform.
+          const teamFormat = t.game_format && FORMAT_LABELS[t.game_format] ? t.game_format : "7v7";
+          setFormat(teamFormat);
+          const def = defaultSlots(teamFormat);
           setSlots(def);
           setBench(activeSquad);
         }
