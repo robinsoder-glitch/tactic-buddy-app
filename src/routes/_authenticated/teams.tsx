@@ -38,7 +38,9 @@ export const Route = createFileRoute("/_authenticated/teams")({
 });
 
 function TeamsPage() {
-  const { userId, isCoach } = useAccount();
+  const { userId, isCoach, memberships } = useAccount();
+  // Väntande ansökningar visas separat – laget syns först när ledaren godkänt.
+  const pendingTeams = memberships.filter((item) => item.status === "pending");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
