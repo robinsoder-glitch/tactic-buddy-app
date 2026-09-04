@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
-import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { PlanStatusBadge, PlanStatusBadgePending } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
