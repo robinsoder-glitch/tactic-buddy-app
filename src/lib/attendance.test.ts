@@ -39,6 +39,11 @@ const events = [
   event("t3", "training", "2027-01-01T17:00:00Z"),
 ];
 
+const cancelled = {
+  ...event("m2", "match", "2026-08-11T09:00:00Z"),
+  cancelled_at: "2026-08-10T20:00:00Z",
+} as TeamEvent;
+
 const rows: AttendanceRow[] = [
   {
     id: "1",
