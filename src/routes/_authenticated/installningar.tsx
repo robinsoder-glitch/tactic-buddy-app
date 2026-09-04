@@ -92,7 +92,9 @@ function SettingsPage() {
     else toast.success("Vi har mailat en länk för att byta lösenord.");
   }
 
-  const approved = memberships.filter((item) => item.status === "approved");
+  const approvedTeams = groupMembershipsByTeam(
+    memberships.filter((item) => item.status === "approved"),
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
