@@ -10,6 +10,7 @@ import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   deleteTeam,
   fetchTeam,
+  fetchTeamCodes,
   fetchTeamImpact,
   rotateTeamCode,
   setTeamArchived,
@@ -34,6 +35,11 @@ function AboutPage() {
   const { confirm, confirmDialog } = useConfirm();
   const queryClient = useQueryClient();
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
+  const codes = useQuery({
+    queryKey: ["team-codes", teamId],
+    queryFn: () => fetchTeamCodes(teamId),
+    enabled: isCoach,
+  });
   const impact = useQuery({
     queryKey: ["team-impact", teamId],
     queryFn: () => fetchTeamImpact(teamId),
@@ -167,8 +173,8 @@ function AboutPage() {
             Lagkod för spelare och föräldrar
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-2xl tracking-widest">{team.data?.join_code}</span>
-            <Button size="sm" variant="secondary" onClick={() => copyCode(team.data?.join_code)}>
+            <span className="font-mono text-2xl tracking-widest">{codes.data?.join_code ?? "······"}</span>
+            <Button size="sm" variant="secondary" onClick={() => copyCode(codes.data?.join_code)}>
               <Copy className="size-4" aria-hidden /> Kopiera
             </Button>
             <Button size="sm" variant="ghost" onClick={() => newCode("player")}>
@@ -183,11 +189,11 @@ function AboutPage() {
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs tracking-wide text-muted-foreground">Tränarkod för nya ledare</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-2xl tracking-widest">{team.data?.coach_join_code}</span>
+            <span className="font-mono text-2xl tracking-widest">{codes.data?.coach_join_code ?? "······"}</span>
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => copyCode(team.data?.coach_join_code)}
+              onClick={() => copyCode(codes.data?.coach_join_code)}
             >
               <Copy className="size-4" aria-hidden /> Kopiera
             </Button>
