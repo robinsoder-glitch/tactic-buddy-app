@@ -115,7 +115,7 @@ export function GuardianLinks({
             >
               <option value="">Välj konto…</option>
               {(members.data ?? [])
-                .filter((member) => !linked.has(member.user_id))
+                .filter((member) => member.status === "approved" && !linked.has(member.user_id))
                 .map((member) => (
                   <option key={member.id} value={member.user_id}>
                     {member.displayName ?? "Medlem"}

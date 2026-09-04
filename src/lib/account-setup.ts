@@ -296,13 +296,15 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
 
 /**
  * Slutför registreringen efter e-postbekräftelse – underlaget läses i första
- * hand från auth-metadata, så det fungerar även på en annan enhet.
+ * hand från auth-metadata (bundet till kontot), annars från enhetens lokala
+ * kopia, men bara när e-postadressen stämmer med det inloggade kontot.
  */
 export async function completePendingSetup(user: {
   id: string;
+  email?: string | null;
   user_metadata?: Record<string, unknown> | null;
 }): Promise<SetupResult | null> {
-  const setup = setupFromMetadata(user.user_metadata) ?? readSetup();
+  const setup = setupFromMetadata(user.user_metadata) ?? readSetupForUser(user.email);
   if (!setup) return null;
   const result = await applyAccountSetup(user.id, setup);
   clearSetup();
