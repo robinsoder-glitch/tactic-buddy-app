@@ -2775,7 +2775,7 @@ export type Database = {
       }
       announcement_team: { Args: { _announcement_id: string }; Returns: string }
       approve_team_join_request: {
-        Args: { _member_id: string }
+        Args: { _member_id: string; _player_id?: string }
         Returns: {
           linked_player_id: string
           member_role: string
