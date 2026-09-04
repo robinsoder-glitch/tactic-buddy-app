@@ -24,7 +24,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
-import { hasErrors, splitLocal, toIso, validateEventTimes } from "@/lib/event-datetime";
+import {
+  hasErrors,
+  scheduleFromFormData,
+  splitLocal,
+  toIso,
+  validateEventTimes,
+} from "@/lib/event-datetime";
 
 type Props = {
   teamId: string;
@@ -157,12 +163,9 @@ export function EventManager({
     event.preventDefault();
     if (!userId) return;
     const submitted = new FormData(event.currentTarget);
-    const submittedSchedule: ScheduleForm = {
-      date: String(submitted.get("date") ?? ""),
-      start: String(submitted.get("start") ?? ""),
-      end: String(submitted.get("end") ?? ""),
-      meet: type === "match" ? String(submitted.get("meet") ?? "") : "",
-    };
+    const submittedSchedule: ScheduleForm = scheduleFromFormData(submitted, {
+      isMatch: type === "match",
+    });
     const submittedErrors = validateEventTimes(submittedSchedule);
     setSchedule(submittedSchedule);
     if (hasErrors(submittedErrors)) {
@@ -367,6 +370,7 @@ export function EventManager({
               <Label htmlFor="e-date">Datum</Label>
               <DateField
                 id="e-date"
+                name="date"
                 value={schedule.date}
                 onChange={(value) => updateSchedule("date", value)}
               />

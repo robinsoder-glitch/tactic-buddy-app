@@ -2775,7 +2775,7 @@ export type Database = {
       }
       announcement_team: { Args: { _announcement_id: string }; Returns: string }
       approve_team_join_request: {
-        Args: { _member_id: string }
+        Args: { _member_id: string; _player_id?: string }
         Returns: {
           linked_player_id: string
           member_role: string
@@ -2830,6 +2830,14 @@ export type Database = {
         }[]
       }
       get_shared_match: { Args: { _token: string }; Returns: Json }
+      get_shared_tactic: { Args: { _share_id: string }; Returns: Json }
+      get_team_codes: {
+        Args: { _team_id: string }
+        Returns: {
+          coach_join_code: string
+          join_code: string
+        }[]
+      }
       get_team_players_private: {
         Args: { _team_id: string }
         Returns: {

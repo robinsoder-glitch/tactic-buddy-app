@@ -25,11 +25,14 @@ function readable(value: string): string | null {
  */
 export function DateField({
   id,
+  name,
   value,
   onChange,
   quickPicks = true,
 }: {
   id?: string;
+  /** Fältnamn så att datumet följer med när formuläret läses av. */
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   quickPicks?: boolean;
@@ -52,6 +55,7 @@ export function DateField({
       <div className="relative">
         <Input
           id={id}
+          {...(name ? { name } : {})}
           ref={ref}
           type="date"
           value={value}

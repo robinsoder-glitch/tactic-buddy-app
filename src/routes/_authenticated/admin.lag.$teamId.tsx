@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllClubs, fetchTeamAdminDetail } from "@/lib/admin-data";
+import { fetchTeamCodes } from "@/lib/teams";
 import { deleteTeam } from "@/lib/admin.functions";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -34,6 +35,10 @@ function AdminTeamDetail() {
     queryFn: () => fetchTeamAdminDetail(teamId),
   });
   const clubs = useQuery({ queryKey: ["admin-clubs"], queryFn: fetchAllClubs });
+  const codes = useQuery({
+    queryKey: ["team-codes", teamId],
+    queryFn: () => fetchTeamCodes(teamId),
+  });
 
   const [form, setForm] = useState({
     name: "",
@@ -226,8 +231,8 @@ function AdminTeamDetail() {
           </label>
         </div>
         <p className="text-xs text-muted-foreground">
-          Spelarkod <span className="font-mono">{team.join_code}</span> · Ledarkod{" "}
-          <span className="font-mono">{team.coach_join_code}</span>
+          Spelarkod <span className="font-mono">{codes.data?.join_code ?? "······"}</span> ·
+          Ledarkod <span className="font-mono">{codes.data?.coach_join_code ?? "······"}</span>
         </p>
         <div className="flex flex-wrap gap-2">
           <button

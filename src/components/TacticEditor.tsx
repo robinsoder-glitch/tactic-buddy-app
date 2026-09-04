@@ -1532,7 +1532,7 @@ export function TacticEditor({ id }: { id: string }) {
                 tone: "default",
                 title: "Dela taktiken via länk?",
                 description:
-                  "Alla som har länken kan se taktiken – även personer utan konto. Inga uppgifter om lag, spelare eller din profil delas. Du kan stänga av delningen när du vill.",
+                  "Alla som har länken kan se taktiken – även personer utan konto. Spelarnas namn, foton och lag byts ut mot Spelare 1, Spelare 2 och så vidare. Obs: dina anteckningar i bilderna visas som de är, så skriv inget känsligt där. Du kan stänga av delningen när du vill.",
                 confirmLabel: "Slå på delning",
               }).then((ok) => ok && share.mutate(true));
             }}

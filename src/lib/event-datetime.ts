@@ -105,3 +105,20 @@ export function validateEventTimes(form: EventTimeForm): EventTimeErrors {
 export function hasErrors(errors: EventTimeErrors): boolean {
   return Object.keys(errors).length > 0;
 }
+
+/**
+ * Läser av aktivitetsformuläret. Datumet ligger i fältet "date", vilket kräver
+ * att datumrutan har ett name – annars kommer aktiviteten in utan datum.
+ */
+export function scheduleFromFormData(
+  data: FormData,
+  options: { isMatch: boolean },
+): { date: string; start: string; end: string; meet: string } {
+  const read = (key: string) => String(data.get(key) ?? "").trim();
+  return {
+    date: read("date"),
+    start: read("start"),
+    end: read("end"),
+    meet: options.isMatch ? read("meet") : "",
+  };
+}

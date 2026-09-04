@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Drawing, FieldObject, Frame, PitchType, PlayerRow, PlayerWithPhoto } from "./tactics";
+import { parseSharedTactic } from "./shared-tactic";
 
 const BUCKET = "player-photos";
 
@@ -300,35 +301,14 @@ export async function setTacticSharing(id: string, isPublic: boolean) {
   if (error) throw error;
 }
 
+/**
+ * Publik delningslänk. Läses via en säker databasfunktion som tar bort
+ * spelar-id, foto-länkar och riktiga namn innan innehållet lämnar databasen.
+ */
 export async function fetchSharedTactic(shareId: string): Promise<TacticDetail> {
-  const { data, error } = await supabase
-    .from("tactics")
-    .select("id, name, pitch_type")
-    .eq("share_id", shareId)
-    .eq("is_public", true)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("get_shared_tactic", { _share_id: shareId });
   if (error) throw error;
-  if (!data) throw new Error("Taktiken är inte delad eller finns inte.");
-
-  const { data: frameRows, error: framesError } = await supabase
-    .from("tactic_frames")
-    .select("id, name, note, objects, drawings, position")
-    .eq("tactic_id", data.id)
-    .order("position");
-  if (framesError) throw framesError;
-
-  return {
-    id: data.id as string,
-    name: data.name as string,
-    pitch_type: data.pitch_type as PitchType,
-    frames: (frameRows ?? []).map((row) => ({
-      id: row.id as string,
-      name: (row.name as string | null) ?? null,
-      note: (row.note as string | null) ?? null,
-      objects: (row.objects as unknown as FieldObject[]) ?? [],
-      drawings: (row.drawings as unknown as Drawing[]) ?? [],
-    })),
-  };
+  return parseSharedTactic(data);
 }
 
 /** First frame of every tactic, used for list thumbnails. */
