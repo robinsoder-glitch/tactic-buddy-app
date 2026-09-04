@@ -55,6 +55,7 @@ export function DateField({
       <div className="relative">
         <Input
           id={id}
+          {...(name ? { name } : {})}
           ref={ref}
           type="date"
           value={value}
