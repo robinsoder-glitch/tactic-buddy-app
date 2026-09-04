@@ -67,7 +67,11 @@ function AuthPage() {
   const setMode = (next: Mode) => {
     void navigate({
       to: "/auth",
-      search: (prev: { mode?: "signup"; next?: string }) => authSearchForMode(prev, next),
+      search: (prev: Record<string, unknown>) =>
+        authSearchForMode(
+          { ...(typeof prev["next"] === "string" ? { next: prev["next"] } : {}) },
+          next,
+        ),
     });
   };
   const [role, setRole] = useState<AccountRole | null>(null);
