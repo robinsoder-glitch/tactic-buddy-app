@@ -15,7 +15,6 @@ import {
   playingTimeShare,
   PLAYING_TIME_PRESETS,
   registeredCount,
-  setMatchDuration,
   validateMinutes,
 } from "@/lib/attendance";
 import {
@@ -258,9 +257,6 @@ function EventAttendance({
 }) {
   const queryClient = useQueryClient();
   const playerIds = useMemo(() => players.map((player) => player.id), [players]);
-  const [durationDraft, setDurationDraft] = useState(
-    durationMinutes ? String(durationMinutes) : "",
-  );
   const [onlyUnregistered, setOnlyUnregistered] = useState(false);
   const [draft, setDraft] = useState<Draft>({});
 
@@ -297,15 +293,6 @@ function EventAttendance({
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
-
-  const saveDuration = useMutation({
-    mutationFn: async (minutes: number) => setMatchDuration(eventId, minutes),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events", teamId] });
-      toast.success("Matchens längd sparades.");
-    },
-    onError: () => toast.error("Det gick inte att spara matchens längd."),
-  });
 
   const save = useMutation({
     mutationFn: async () => {
@@ -413,46 +400,6 @@ function EventAttendance({
             >
               Ej registrerade
             </Button>
-          </div>
-        </div>
-      )}
-
-      {eventType === "match" && (
-        <div className="mt-3 rounded-xl border border-border bg-card p-3">
-          <label htmlFor="match-duration" className="text-sm font-medium">
-            Matchens längd (minuter)
-          </label>
-          <p className="text-xs text-muted-foreground">
-            Behövs för snabbvalen av speltid. Speltiden visas bara för lagets ledare.
-          </p>
-          <div className="mt-2 flex items-center gap-2">
-            <Input
-              id="match-duration"
-              type="number"
-              min={1}
-              inputMode="numeric"
-              className="w-28"
-              disabled={!isCoach}
-              value={durationDraft}
-              onChange={(event) => setDurationDraft(event.target.value)}
-            />
-            {isCoach && (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={saveDuration.isPending}
-                onClick={() => {
-                  const minutes = Number(durationDraft);
-                  if (!Number.isInteger(minutes) || minutes <= 0) {
-                    toast.error("Ange matchens längd i hela minuter.");
-                    return;
-                  }
-                  saveDuration.mutate(minutes);
-                }}
-              >
-                Spara längd
-              </Button>
-            )}
           </div>
         </div>
       )}
