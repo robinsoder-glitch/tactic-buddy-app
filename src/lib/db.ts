@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Drawing, FieldObject, Frame, PitchType, PlayerRow, PlayerWithPhoto } from "./tactics";
+import { parseSharedTactic } from "./shared-tactic";
 
 const BUCKET = "player-photos";
 
