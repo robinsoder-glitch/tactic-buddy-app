@@ -393,14 +393,14 @@ function TacticsDashboard({ userId }: { userId: string }) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-8">
+    <main className="mx-auto max-w-4xl px-4 pb-28 pt-8">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <BrandLogo
             size={32}
             nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary"
           />
-          <h1 className="truncate font-display text-4xl font-bold">
+          <h1 className="mt-2 truncate font-display text-4xl font-bold tracking-tight">
             {profile?.display_name?.trim() ? `Hej ${profile.display_name.trim()}` : "Hej!"}
           </h1>
           {!profile?.display_name?.trim() && (
