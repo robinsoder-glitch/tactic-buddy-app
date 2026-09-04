@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
 import { DEFAULT_THEME, THEME_LABELS, loadTheme, saveTheme, type ThemeChoice } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
