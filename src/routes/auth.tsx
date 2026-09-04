@@ -108,12 +108,15 @@ function AuthPage() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       // Har kontot skapats med lagkod men inte hunnit kopplas – gör klart det nu.
+      // Underlaget tillämpas bara när det hör till just det här kontot.
       let result = null;
       try {
         result = data.user ? await completePendingSetup(data.user) : null;
       } catch (setupError) {
         toast.error(friendlyError(setupError, "Kunde inte koppla dig till laget"));
       }
+      // Rensa alltid bort eventuella rester från andra registreringsförsök.
+      if (!result) clearSetup();
       await queryClient.invalidateQueries();
       if (result?.teamName && result.status === "pending") {
         toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
@@ -143,8 +146,9 @@ function AuthPage() {
     }
     setBusy(true);
     try {
-      // Sparas lokalt: e-postbekräftelse kan göra att sessionen kommer först vid inloggning.
-      storeSetup(setup);
+      // Sparas lokalt, bundet till e-postadressen: e-postbekräftelse kan göra
+      // att sessionen kommer först vid inloggning.
+      storeSetup(setup, email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
