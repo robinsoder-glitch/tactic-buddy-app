@@ -97,129 +97,127 @@ function TeamsPage() {
               key={item.id}
               className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground"
             >
-              <span className="font-semibold text-foreground">
-                {item.team?.name ?? "Laget"}
-              </span>{" "}
-              – din ansökan väntar på att en ledare godkänner dig. Du ser lagets sidor så snart du
-              är godkänd.
+              <span className="font-semibold text-foreground">{item.team?.name ?? "Laget"}</span> –
+              din ansökan väntar på att en ledare godkänner dig. Du ser lagets sidor så snart du är
+              godkänd.
             </p>
           ))}
         </section>
       )}
 
       {isCoach && (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button className="mt-5 w-full">
-            <Plus className="size-4" /> Nytt lag
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nytt lag</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="club">Klubb</Label>
-              <select
-                id="club"
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={clubId ?? ""}
-                onChange={(event) => setClubId(event.target.value || null)}
-              >
-                <option value="">Skapa ny klubb…</option>
-                {clubs.data?.map((club) => (
-                  <option key={club.id} value={club.id}>
-                    {club.name}
-                  </option>
-                ))}
-              </select>
-              {!clubId && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-5 w-full">
+              <Plus className="size-4" /> Nytt lag
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Nytt lag</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="club">Klubb</Label>
+                <select
+                  id="club"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={clubId ?? ""}
+                  onChange={(event) => setClubId(event.target.value || null)}
+                >
+                  <option value="">Skapa ny klubb…</option>
+                  {clubs.data?.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+                {!clubId && (
+                  <Input
+                    aria-label="Klubbens namn"
+                    placeholder="Klubbens namn"
+                    value={clubName}
+                    onChange={(event) => setClubName(event.target.value)}
+                  />
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="team-name">Lagnamn</Label>
                 <Input
-                  aria-label="Klubbens namn"
-                  placeholder="Klubbens namn"
-                  value={clubName}
-                  onChange={(event) => setClubName(event.target.value)}
+                  id="team-name"
+                  placeholder="T.ex. PF-18 FO"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
                 />
-              )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="team-name">Lagnamn</Label>
-              <Input
-                id="team-name"
-                placeholder="T.ex. PF-18 FO"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="age">Åldersgrupp</Label>
-              <Input
-                id="age"
-                placeholder="T.ex. P14 eller 2012"
-                value={ageGroup}
-                onChange={(event) => setAgeGroup(event.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Spelform</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {GAME_FORMATS.map((item) => (
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="age">Åldersgrupp</Label>
+                <Input
+                  id="age"
+                  placeholder="T.ex. P14 eller 2012"
+                  value={ageGroup}
+                  onChange={(event) => setAgeGroup(event.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Spelform</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {GAME_FORMATS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={gameFormat === item.id}
+                      onClick={() => setGameFormat(item.id)}
+                      className={`rounded-lg border px-2 py-2 text-sm ${
+                        gameFormat === item.id
+                          ? "border-primary bg-primary/10 font-semibold"
+                          : "border-border"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Styr planstorleken på taktiktavlan för laget.
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ground">Hemmaplan</Label>
+                <Input
+                  id="ground"
+                  placeholder="T.ex. Långholmens IP"
+                  value={homeGround}
+                  onChange={(event) => setHomeGround(event.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Föreslås automatiskt som plats för träningar och matcher.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(TEAM_GENDER_LABELS).map(([value, label]) => (
                   <button
-                    key={item.id}
+                    key={value}
                     type="button"
-                    aria-pressed={gameFormat === item.id}
-                    onClick={() => setGameFormat(item.id)}
+                    onClick={() => setGender(value)}
                     className={`rounded-lg border px-2 py-2 text-sm ${
-                      gameFormat === item.id
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-border"
+                      gender === value
+                        ? "border-primary bg-primary/15"
+                        : "border-border text-muted-foreground"
                     }`}
                   >
-                    {item.label}
+                    {label}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Styr planstorleken på taktiktavlan för laget.
-              </p>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ground">Hemmaplan</Label>
-              <Input
-                id="ground"
-                placeholder="T.ex. Långholmens IP"
-                value={homeGround}
-                onChange={(event) => setHomeGround(event.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Föreslås automatiskt som plats för träningar och matcher.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {Object.entries(TEAM_GENDER_LABELS).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setGender(value)}
-                  className={`rounded-lg border px-2 py-2 text-sm ${
-                    gender === value
-                      ? "border-primary bg-primary/15"
-                      : "border-border text-muted-foreground"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => create.mutate()} disabled={create.isPending}>
-              Skapa lag
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button onClick={() => create.mutate()} disabled={create.isPending}>
+                Skapa lag
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
 
       <section className="mt-6 space-y-3">

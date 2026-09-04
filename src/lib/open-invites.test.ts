@@ -45,8 +45,8 @@ describe("countOpenInvites", () => {
     const past = invite({
       event: { starts_at: "2026-09-01T17:00:00Z", cancelled_at: null, invites_closed_at: null },
     });
-    expect(countOpenInvites([past, invite({ status: "attending" })], now, { userId: "user-a" })).toBe(
-      0,
-    );
+    expect(
+      countOpenInvites([past, invite({ status: "attending" })], now, { userId: "user-a" }),
+    ).toBe(0);
   });
 });
