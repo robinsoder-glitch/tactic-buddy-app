@@ -15,7 +15,6 @@ import {
   playingTimeShare,
   PLAYING_TIME_PRESETS,
   registeredCount,
-  
   validateMinutes,
 } from "@/lib/attendance";
 import {
