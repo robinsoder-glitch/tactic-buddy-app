@@ -233,9 +233,18 @@ function TeamsPage() {
             {showArchived ? "Dölj arkiverade lag" : `Visa arkiverade lag (${archivedCount})`}
           </button>
         )}
-        {visibleTeams.length === 0 && !teams.isLoading && (
+        {teams.isError && (
+          <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            Lagen kunde inte hämtas just nu. Kontrollera uppkopplingen och försök igen.
+          </p>
+        )}
+        {visibleTeams.length === 0 && !teams.isLoading && !teams.isError && (
           <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Inga lag än. Skapa ditt första lag!
+            {isCoach
+              ? "Inga lag än. Skapa ditt första lag!"
+              : pendingTeams.length > 0
+                ? "Du ser lagets sidor så snart ledaren godkänt din ansökan."
+                : "Du är inte med i något lag än. Använd lagkoden du fått av tränaren."}
           </p>
         )}
         {visibleTeams.map((team) => (
