@@ -127,7 +127,11 @@ function CalendarOverview() {
                       <p className="font-medium">{eventTitleLine(event)}</p>
                     )}
                     <p className="mt-1 flex flex-wrap items-center gap-2">
-                      <PlanStatusBadge status={statusFor(event)} />
+                      {statusReady ? (
+                        <PlanStatusBadge status={statusFor(event)} />
+                      ) : (
+                        <PlanStatusBadgePending />
+                      )}
                       {isCancelled(event) && (
                         <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
                           Inställd
