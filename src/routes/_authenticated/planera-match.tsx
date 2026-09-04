@@ -334,17 +334,25 @@ function MatchPlanner({
         setMeetTime(ev.meet_at ? timeOnly(ev.meet_at) : "");
         setMeetInfo("");
         setCoachIds(evCoaches.map((c) => c.user_id));
-        setPlayerIds(squad);
+        // Endast spelare som fortfarande finns i truppen och är aktiva får räknas.
+        const activeIds = new Set(
+          pls
+            .filter((p) => (p as { is_active?: boolean }).is_active !== false)
+            .map((p) => p.id as string),
+        );
+        const activeSquad = squad.filter((id) => activeIds.has(id));
+        setPlayerIds(activeSquad);
         if (lineup) {
-          setSlots(lineup.slots);
-          setBench(lineup.bench);
+          const synced = syncLineupWithSquad(lineup.slots, activeSquad);
+          setSlots(synced.slots);
+          setBench(synced.bench);
           setTacticId(lineup.tactic_id);
           const match = lineup.formation.match(/^(\d+v\d+)/);
           setFormat(match?.[1] ?? "7v7");
         } else {
           const def = defaultSlots(format);
           setSlots(def);
-          setBench(squad);
+          setBench(activeSquad);
         }
         const { data: plan } = await supabase
           .from("event_plans")
