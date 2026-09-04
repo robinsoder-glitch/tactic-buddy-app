@@ -270,27 +270,34 @@ function SettingsPage() {
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Shield className="size-4 text-primary" /> Mina lag
         </h2>
-        {approved.length === 0 && (
+        {approvedTeams.length === 0 && (
           <p className="text-sm text-muted-foreground">Du är inte med i något lag ännu.</p>
         )}
-        {approved.map((item) => (
+        {approvedTeams.map((group) => (
           <Link
-            key={item.id}
+            key={group.team_id}
             to="/team/$teamId"
-            params={{ teamId: item.team_id }}
-            className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm"
+            params={{ teamId: group.team_id }}
+            className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2 text-sm"
           >
             <span className="truncate">
-              {item.team?.name ?? "Lag"}
-              {item.team?.gender && (
+              {group.team?.name ?? "Lag"}
+              {group.team?.gender && (
                 <span className="text-muted-foreground">
                   {" "}
-                  · {TEAM_GENDER_LABELS[item.team.gender]}
+                  · {TEAM_GENDER_LABELS[group.team.gender]}
                 </span>
               )}
             </span>
-            <span className="text-xs text-muted-foreground">
-              {item.role === "coach" ? "Ledare" : "Spelare"}
+            <span className="flex shrink-0 flex-wrap justify-end gap-1">
+              {membershipRoleLabels(group.roles).map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                >
+                  {label}
+                </span>
+              ))}
             </span>
           </Link>
         ))}
