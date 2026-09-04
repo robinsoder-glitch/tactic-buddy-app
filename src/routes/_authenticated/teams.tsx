@@ -83,22 +83,29 @@ function TeamsPage() {
       toast.error(error instanceof Error ? error.message : "Kunde inte skapa laget"),
   });
 
-  if (!isCoach) {
-    return (
-      <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-muted-foreground">Endast tränare kan skapa lag.</p>
-        <Button asChild variant="secondary" className="mt-4">
-          <Link to="/">Till startsidan</Link>
-        </Button>
-      </main>
-    );
-  }
-
   return (
     <main className="mx-auto max-w-2xl px-4 pb-24 pt-8">
       <BackLink fallback="/">Tillbaka</BackLink>
-      <h1 className="mt-3 font-display text-4xl font-bold">Mina lag</h1>
+      <h1 className="mt-3 font-display text-4xl font-bold">{isCoach ? "Mina lag" : "Mitt lag"}</h1>
 
+      {pendingTeams.length > 0 && (
+        <section className="mt-4 space-y-2">
+          {pendingTeams.map((item) => (
+            <p
+              key={item.id}
+              className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground"
+            >
+              <span className="font-semibold text-foreground">
+                {item.team?.name ?? "Laget"}
+              </span>{" "}
+              – din ansökan väntar på att en ledare godkänner dig. Du ser lagets sidor så snart du
+              är godkänd.
+            </p>
+          ))}
+        </section>
+      )}
+
+      {isCoach && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className="mt-5 w-full">
