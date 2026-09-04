@@ -58,22 +58,21 @@ export async function fetchPlayerGuardians(playerId: string): Promise<GuardianLi
   return rows.map((row) => ({ ...row, guardianName: names.get(row.guardian_user_id) ?? null }));
 }
 
+/**
+ * Kopplar en vårdnadshavare till ett barn. Databasen kontrollerar att den
+ * inloggade är ledare i laget, att kontot är en godkänd medlem i samma lag
+ * och att det inte är spelarens eget konto.
+ */
 export async function linkGuardian(input: {
   playerId: string;
   guardianUserId: string;
   relation: string | null;
-  createdBy: string;
 }): Promise<void> {
-  const { error } = await supabase.from("player_guardians").upsert(
-    {
-      player_id: input.playerId,
-      guardian_user_id: input.guardianUserId,
-      relation: input.relation,
-      is_active: true,
-      created_by: input.createdBy,
-    },
-    { onConflict: "player_id,guardian_user_id" },
-  );
+  const { error } = await supabase.rpc("link_guardian", {
+    _player_id: input.playerId,
+    _guardian_user_id: input.guardianUserId,
+    _relation: input.relation,
+  } as never);
   if (error) throw error;
 }
 
