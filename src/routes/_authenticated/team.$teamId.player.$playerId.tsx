@@ -114,20 +114,28 @@ function PlayerPage() {
               <dd>{age} år</dd>
             </>
           )}
-          <dt className="text-muted-foreground">Position</dt>
-          <dd>{player?.is_goalkeeper ? "Målvakt" : "Utespelare"}</dd>
+          {player && (
+            <>
+              <dt className="text-muted-foreground">Position</dt>
+              <dd>{player.is_goalkeeper ? "Målvakt" : "Utespelare"}</dd>
+            </>
+          )}
           {player?.gender && (
             <>
               <dt className="text-muted-foreground">Kön</dt>
               <dd>{GENDER_LABELS[player.gender] ?? player.gender}</dd>
             </>
           )}
-          <dt className="text-muted-foreground">Allergi</dt>
-          <dd>
-            {player?.has_allergy
-              ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
-              : "Nej"}
-          </dd>
+          {player && (
+            <>
+              <dt className="text-muted-foreground">Allergi</dt>
+              <dd>
+                {player.has_allergy
+                  ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
+                  : "Nej"}
+              </dd>
+            </>
+          )}
         </dl>
       </div>
 
