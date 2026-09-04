@@ -154,7 +154,7 @@ function PlayerHome() {
             key={item.id}
             to="/team/$teamId"
             params={{ teamId: item.team_id }}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4"
+            className="glass-card flex items-center gap-3 rounded-xl p-4 transition-all hover:border-primary/50"
           >
             <Shield className="size-5 text-primary" />
             <div>
@@ -277,7 +277,7 @@ function Landing() {
           {LANDING_FEATURES.map((feature) => (
             <li
               key={feature.title}
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              className="glass-card rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50"
             >
               <feature.icon className="size-6 text-primary" aria-hidden />
               <h3 className="mt-3 font-display text-lg font-semibold">{feature.title}</h3>
