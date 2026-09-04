@@ -9,7 +9,7 @@ import { acceptTeamInvite, previewTeamInvite } from "@/lib/teams";
 import {
   canAcceptInvite,
   INVITE_PREVIEW_MESSAGES,
-  inviteAuthPath,
+  inviteAuthSearch,
   inviteExpiryText,
   inviteRoleLabel,
   PENDING_INVITE_KEY,
@@ -119,10 +119,14 @@ function InvitePage() {
           {canAccept && signedIn === false && (
             <div className="mt-6 grid gap-2">
               <Button asChild>
-                <Link to={inviteAuthPath(token, "signup")}>Skapa konto och gå med</Link>
+                <Link to="/auth" search={inviteAuthSearch(token, "signup")}>
+                  Skapa konto och gå med
+                </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to={inviteAuthPath(token, "signin")}>Jag har redan ett konto</Link>
+                <Link to="/auth" search={inviteAuthSearch(token, "signin")}>
+                  Jag har redan ett konto
+                </Link>
               </Button>
             </div>
           )}
