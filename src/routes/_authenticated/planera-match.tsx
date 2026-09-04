@@ -501,8 +501,9 @@ function MatchPlanner({
       );
       if (freshEvent) setEvent(freshEvent as unknown as MatchEvent);
       if (lineup) {
-        setSlots(lineup.slots);
-        setBench(lineup.bench);
+        const synced = syncLineupWithSquad(lineup.slots, freshSquad);
+        setSlots(synced.slots);
+        setBench(synced.bench);
         setTacticId(lineup.tactic_id);
       }
       setCoachIds(freshCoaches.map((c) => c.user_id));
