@@ -295,7 +295,6 @@ function EventAttendance({
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
 
-
   const save = useMutation({
     mutationFn: async () => {
       for (const entry of Object.values(draft)) {
@@ -405,7 +404,6 @@ function EventAttendance({
           </div>
         </div>
       )}
-
 
       {players.length === 0 && (
         <p className="mt-6 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
