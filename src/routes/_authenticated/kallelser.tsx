@@ -15,6 +15,7 @@ import {
   respondByState,
   fetchMyInvitations,
   inviteStatusLabel,
+  isCoachMembership,
   respondToInvitation,
   type InviteStatus,
   type MyInvitation,
@@ -45,14 +46,14 @@ export const Route = createFileRoute("/_authenticated/kallelser")({
 });
 
 function MyInvitesPage() {
-  const { userId, isCoach, isAdmin } = useAccount();
+  const { userId, isAdmin, memberships } = useAccount();
   const queryClient = useQueryClient();
   const [showPast, setShowPast] = useState(false);
 
   const invites = useQuery({
     queryKey: ["my-invitations"],
     queryFn: fetchMyInvitations,
-    enabled: !isCoach && !isAdmin,
+    enabled: Boolean(userId),
   });
   const guarded = useQuery({
     queryKey: ["guarded-players", userId],
