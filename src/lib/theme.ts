@@ -1,7 +1,8 @@
 export type ThemeChoice = "light" | "system" | "dark";
 
 export const THEME_KEY = "taktiktavlan:theme";
-export const DEFAULT_THEME: ThemeChoice = "light";
+/** Standardtema är mörkt ("Djup gräsplan"). Ljust väljs i inställningarna. */
+export const DEFAULT_THEME: ThemeChoice = "dark";
 
 export const THEME_LABELS: Record<ThemeChoice, string> = {
   light: "Ljust",
@@ -17,14 +18,16 @@ export function loadTheme(): ThemeChoice {
 
 export function resolveTheme(choice: ThemeChoice): "light" | "dark" {
   if (choice !== "system") return choice;
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function applyTheme(choice: ThemeChoice) {
   if (typeof document === "undefined") return;
   const resolved = resolveTheme(choice);
-  document.documentElement.classList.toggle("dark", resolved === "dark");
+  // Mörkt är grundpaletten (:root) – bara ljust läge behöver en egen klass.
+  document.documentElement.classList.toggle("light", resolved === "light");
+  document.documentElement.classList.remove("dark");
   document.documentElement.style.colorScheme = resolved;
 }
 
@@ -38,10 +41,10 @@ export function saveTheme(choice: ThemeChoice) {
 export const THEME_BOOT_SCRIPT = `
 (() => {
   try {
-    const raw = localStorage.getItem(${JSON.stringify(THEME_KEY)}) || "light";
-    const dark = raw === "dark" || (raw === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.toggle("dark", dark);
-    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+    const raw = localStorage.getItem(${JSON.stringify(THEME_KEY)}) || "dark";
+    const light = raw === "light" || (raw === "system" && !matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("light", light);
+    document.documentElement.style.colorScheme = light ? "light" : "dark";
   } catch {}
 })();
 `;
