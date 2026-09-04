@@ -2900,6 +2900,14 @@ export type Database = {
           team_name: string
         }[]
       }
+      link_guardian: {
+        Args: {
+          _guardian_user_id: string
+          _player_id: string
+          _relation?: string
+        }
+        Returns: undefined
+      }
       log_event_change: {
         Args: { _changed_fields: Json; _event_id: string; _notice: string }
         Returns: string
