@@ -15,8 +15,6 @@ export type Team = {
   about: string | null;
   home_ground: string | null;
   photo_path: string | null;
-  join_code: string;
-  coach_join_code: string;
   club_id: string | null;
   created_by: string;
   archived_at: string | null;
@@ -182,7 +180,7 @@ export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, game_format, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -200,7 +198,7 @@ export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, game_format, gender, about, home_ground, photo_path, join_code, coach_join_code, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
     )
     .eq("id", id)
     .single();
@@ -404,6 +402,21 @@ export async function joinTeamWithCode(
     role: row.member_role,
     status: row.member_status,
   };
+}
+
+/**
+ * Lagets koder hämtas via en skyddad databasfunktion. Bara godkända tränare i
+ * laget (och plattformens administratör) får svar – koderna finns inte längre
+ * med i lagets vanliga uppgifter.
+ */
+export async function fetchTeamCodes(
+  teamId: string,
+): Promise<{ join_code: string; coach_join_code: string }> {
+  const { data, error } = await supabase.rpc("get_team_codes", { _team_id: teamId });
+  if (error) throw error;
+  const row = (data as { join_code: string; coach_join_code: string }[] | null)?.[0];
+  if (!row) throw new Error("Lagets koder kunde inte hämtas.");
+  return row;
 }
 
 /** Skapar en ny spelar- eller tränarkod. Endast lagets tränare. */
@@ -704,7 +717,7 @@ export async function deleteEvent(id: string) {
 export async function fetchAdminOverview() {
   const [clubs, teams, members, profiles, players] = await Promise.all([
     supabase.from("clubs").select("id, name, city"),
-    supabase.from("teams").select("id, name, age_group, gender, club_id, join_code"),
+    supabase.from("teams").select("id, name, age_group, gender, club_id"),
     supabase.from("team_members").select("id, team_id, user_id, role, status"),
     supabase.from("profiles").select("id, display_name"),
     supabase.from("players").select("id, name, team_id"),

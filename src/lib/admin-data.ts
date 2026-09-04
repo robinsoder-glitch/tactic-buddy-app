@@ -5,7 +5,7 @@ export async function fetchAllTeams() {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, gender, club_id, join_code, coach_join_code, home_ground, archived_at, created_at",
+      "id, name, age_group, gender, club_id, home_ground, archived_at, created_at",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -31,7 +31,13 @@ export async function fetchPlatformStats() {
 
 export async function fetchTeamAdminDetail(teamId: string) {
   const [team, members, players, profiles] = await Promise.all([
-    supabase.from("teams").select("*").eq("id", teamId).maybeSingle(),
+    supabase
+      .from("teams")
+      .select(
+        "id, name, age_group, gender, game_format, club_id, about, home_ground, photo_path, archived_at, created_at, created_by",
+      )
+      .eq("id", teamId)
+      .maybeSingle(),
     supabase
       .from("team_members")
       .select("id, user_id, role, status, created_at")
