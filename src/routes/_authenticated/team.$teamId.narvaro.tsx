@@ -114,7 +114,6 @@ function AttendancePage() {
           isCoach={isCoach}
           eventId={selected.id}
           eventType={selected.type}
-          durationMinutes={selected.match_duration_minutes ?? null}
           heading={eventLabel(selected)}
           subheading={`${formatDateTime(selected.starts_at)}${selected.location ? ` · ${selected.location}` : ""}`}
           players={(players.data ?? []).map((player) => ({
