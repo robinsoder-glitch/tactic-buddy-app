@@ -93,6 +93,13 @@ function PlayerPage() {
         <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
       </div>
 
+      {players.isError && (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          Spelaren kunde inte hämtas. Kontrollera uppkopplingen och försök igen.
+        </p>
+      )}
+
+
       <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
         <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
           {player?.photoUrl ? (
