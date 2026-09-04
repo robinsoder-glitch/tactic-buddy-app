@@ -201,7 +201,7 @@
 - [x] Kunskapsbank: nya sammanfattningar KB048, KB050, KB069, KB072, KB081; direktlänkar KB053, KB064
 - [x] Kunskapsbank UI: åldersetiketter borta, tydlig märkning Artikel/Forskning/Resursbank/Verktyg, källa vid knappen
 - [x] P0: godkännande kopplar till spelarkort som tränaren pekar ut (ingen namnmatchning)
-- [ ] KB043: sammanfatta poddavsnittet och publicera igen
+- [x] KB043: ny sammanfattning av poddavsnittet, publicerad igen (2026-09-04)
 
 ## Etapp 2 – Smart inbjudan, QR och godkännande (2026-09-04)
 - [x] Personlig engångslänk: valfri e-postlåsning, mottagarnamn, koppling till spelarkort, 2–30 dagar, återkallning
