@@ -68,7 +68,7 @@ function AboutPage() {
     if (!ok) return;
     try {
       await rotateTeamCode(teamId, kind);
-      await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+      await queryClient.invalidateQueries({ queryKey: ["team-codes", teamId] });
       toast.success("Ny kod skapad");
     } catch (error) {
       toast.error(friendlyError(error, "Kunde inte skapa ny kod"));
