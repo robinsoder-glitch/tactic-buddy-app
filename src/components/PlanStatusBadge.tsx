@@ -26,6 +26,22 @@ export function PlanStatusBadge({
   );
 }
 
+/**
+ * Visas medan underlaget hämtas så att ingen hinner se en felaktig status
+ * som sedan byts ut när svaren kommer in.
+ */
+export function PlanStatusBadgePending({ className = "" }: { className?: string }) {
+  return (
+    <span
+      data-status="loading"
+      aria-live="polite"
+      className={`inline-flex shrink-0 animate-pulse items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground ${className}`}
+    >
+      Hämtar status…
+    </span>
+  );
+}
+
 /** Färgad markering till vänster i listorna. */
 export function planStatusBar(status: PlanStatus): string {
   return status === "done" ? "bg-emerald-500" : "bg-destructive";
