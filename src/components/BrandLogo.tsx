@@ -12,7 +12,7 @@ type Props = {
   className?: string;
 };
 
-/** Varumärket Fotbollsrummet – hela loggan eller enbart hexagonmärket. */
+/** Varumärket Fotbollsrummet – hela loggan eller enbart hörnflaggsmärket. */
 export function BrandLogo({ size = 40, showName = true, className }: Props) {
   const src = showName ? logoAsset.url : markAsset.url;
   return (
@@ -20,7 +20,7 @@ export function BrandLogo({ size = 40, showName = true, className }: Props) {
       src={src}
       alt={BRAND_LOGO_ALT}
       style={{ height: size, width: showName ? undefined : size }}
-      className={`shrink-0 object-contain ${showName ? "w-auto dark:rounded-md dark:bg-white dark:px-2 dark:py-1" : ""} ${className ?? ""}`}
+      className={`brand-logo shrink-0 object-contain ${showName ? "w-auto" : ""} ${className ?? ""}`}
     />
   );
 }
