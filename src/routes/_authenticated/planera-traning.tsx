@@ -399,11 +399,7 @@ function PlanTrainingPage() {
                         )}
                       </span>
                     </span>
-                    {statusReady ? (
-                      <PlanStatusBadge status={status} />
-                    ) : (
-                      <PlanStatusBadgePending />
-                    )}
+                    {statusReady ? <PlanStatusBadge status={status} /> : <PlanStatusBadgePending />}
                   </Link>
                 </li>
               );
