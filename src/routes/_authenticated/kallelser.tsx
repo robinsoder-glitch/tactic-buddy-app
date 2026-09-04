@@ -140,13 +140,13 @@ function MyInvitesPage() {
               ? "Du har inga tidigare kallelser."
               : "Du har inga kallelser att svara på just nu."}
           </p>
-          {isCoach && (
+          {isLeader && (
             <p className="inline-flex items-center gap-2">
               <Info className="size-4" aria-hidden /> Som ledare svarar du inte på kallelser. Du
               skickar dem under Matcher.
             </p>
           )}
-          {isCoach && (
+          {isLeader && (
             <Link to="/planera-match" className="block text-primary underline">
               Till Matcher
             </Link>
