@@ -47,7 +47,7 @@ describe("godkänna ansökan", () => {
     const squad = read("src/routes/_authenticated/team.$teamId.index.tsx");
     expect(squad).toContain("needsPlayerCard(member.role)");
     expect(squad).toContain("playerOptionLabel(player)");
-    expect(squad).toContain('approve.mutate({ id: member.id, playerId: null })');
+    expect(squad).toContain("approve.mutate({ id: member.id, playerId: null })");
   });
 
   it("har en migration som slutar gissa utifrån namn", () => {

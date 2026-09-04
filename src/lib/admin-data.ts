@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export async function fetchAllTeams() {
   const { data, error } = await supabase
     .from("teams")
-    .select(
-      "id, name, age_group, gender, club_id, home_ground, archived_at, created_at",
-    )
+    .select("id, name, age_group, gender, club_id, home_ground, archived_at, created_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];

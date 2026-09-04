@@ -42,6 +42,8 @@ describe("lagkoder", () => {
     expect(migrations).toMatch(/CREATE OR REPLACE FUNCTION public\.get_team_codes/);
     expect(migrations).toContain("is_platform_admin(uid)");
     expect(migrations).toContain("Endast lagets tränare kan se lagets koder.");
-    expect(migrations).toContain("UPDATE public.teams SET coach_join_code = public.gen_team_code()");
+    expect(migrations).toContain(
+      "UPDATE public.teams SET coach_join_code = public.gen_team_code()",
+    );
   });
 });
