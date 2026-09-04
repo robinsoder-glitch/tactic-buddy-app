@@ -926,7 +926,7 @@ export async function approveTeamJoinRequest(
 ): Promise<{ role: string; linkedPlayerId: string | null }> {
   const { data, error } = await supabase.rpc("approve_team_join_request", {
     _member_id: memberId,
-    _player_id: playerId,
+    ...(playerId ? { _player_id: playerId } : {}),
   });
   if (error) throw new Error(error.message);
   const row = (
