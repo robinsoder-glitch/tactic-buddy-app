@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueries } from "@tanstack/react-query";
 import { CalendarCheck, CheckCircle2, ChevronRight, CircleAlert } from "lucide-react";
+import { groupMembershipsByTeam } from "@/lib/memberships";
 import { useAccount } from "@/hooks/useAccount";
 import { CoachOnly } from "@/components/CoachOnly";
 import { eventLabel, fetchTeamAttendance, pastEvents, registeredCount } from "@/lib/attendance";
@@ -33,7 +34,10 @@ export const Route = createFileRoute("/_authenticated/narvaro")({
 
 function NarvaroPage() {
   const { memberships, loading } = useAccount();
-  const teams = memberships.filter((item) => item.status === "approved");
+  // Ett lag ska bara visas en gång även om användaren har flera roller i det.
+  const teams = groupMembershipsByTeam(
+    memberships.filter((item) => item.status === "approved"),
+  ).map((group) => ({ team_id: group.team_id, team: group.team }));
 
   const results = useQueries({
     queries: teams.map((item) => ({
@@ -97,7 +101,7 @@ function NarvaroPage() {
         </div>
       )}
 
-      <ul className="mt-6 space-y-2">
+      <ul className="mt-6 space-y-2" hidden={busy}>
         {list.map((item) => {
           const done = item.players > 0 && item.registered >= item.players;
           return (
