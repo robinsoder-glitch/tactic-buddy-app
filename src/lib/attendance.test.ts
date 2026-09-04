@@ -165,3 +165,16 @@ describe("liknande spelarnamn", () => {
     expect(findSimilarPlayers("Alma Berg", squad, "p2")).toEqual([]);
   });
 });
+
+describe("pastEvents", () => {
+  it("räknar aldrig inställda händelser som genomförda", () => {
+    const done = pastEvents([...events, cancelled], new Date("2026-08-30T00:00:00Z"));
+    expect(done.map((item) => item.id)).not.toContain("m2");
+    expect(done.map((item) => item.id)).toContain("m1");
+  });
+
+  it("räknar inte framtida händelser", () => {
+    const done = pastEvents(events, new Date("2026-08-30T00:00:00Z"));
+    expect(done.map((item) => item.id)).not.toContain("t3");
+  });
+});
