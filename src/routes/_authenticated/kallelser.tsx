@@ -87,10 +87,19 @@ function MyInvitesPage() {
     .sort((a, b) => b.event.starts_at.localeCompare(a.event.starts_at));
   const list = showPast ? past : upcoming;
 
-  if (isCoach || isAdmin) return <CoachInvites />;
+  // Dubbelroller: en ledare kan samtidigt vara vårdnadshavare i ett annat lag.
+  // Ledarvyn visas när personen är ledare, men den egna listan göms aldrig när
+  // det finns kallelser som personen själv eller barnet ska svara på.
+  const isLeader = memberships.some(isCoachMembership) || isAdmin;
+  if (isLeader && mine.length === 0) return <CoachInvites />;
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-8 md:pt-20">
+      {isLeader && (
+        <div className="mb-6">
+          <CoachInvites />
+        </div>
+      )}
       <h1 className="font-display text-3xl font-bold">Mina kallelser</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Kallelser gäller bara matcher. Träningar svarar du inte på – där registrerar ledaren närvaro
