@@ -39,6 +39,15 @@ export function inviteAuthPath(token: string, mode: "signin" | "signup"): string
   return mode === "signup" ? `/auth?mode=signup&next=${next}` : `/auth?next=${next}`;
 }
 
+/** Sökparametrar till /auth – routern kräver dem separat från sökvägen. */
+export function inviteAuthSearch(
+  token: string,
+  mode: "signin" | "signup",
+): { mode?: "signup"; next: string } {
+  const next = `/inbjudan/${token}`;
+  return mode === "signup" ? { mode: "signup", next } : { next };
+}
+
 /** Endast interna vägar tillåts som återvändo efter inloggning. */
 export function safeNextPath(value: string | null | undefined): string | null {
   if (!value) return null;

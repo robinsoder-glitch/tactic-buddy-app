@@ -25,9 +25,10 @@ export function resolveTheme(choice: ThemeChoice): "light" | "dark" {
 export function applyTheme(choice: ThemeChoice) {
   if (typeof document === "undefined") return;
   const resolved = resolveTheme(choice);
-  // Mörkt är grundpaletten (:root) – bara ljust läge behöver en egen klass.
+  // Mörkt är grundpaletten (:root). Klassen `dark` sätts ändå så att
+  // dark:-varianterna och diagrammens mörka tema fortsätter fungera.
   document.documentElement.classList.toggle("light", resolved === "light");
-  document.documentElement.classList.remove("dark");
+  document.documentElement.classList.toggle("dark", resolved === "dark");
   document.documentElement.style.colorScheme = resolved;
 }
 
@@ -44,6 +45,7 @@ export const THEME_BOOT_SCRIPT = `
     const raw = localStorage.getItem(${JSON.stringify(THEME_KEY)}) || "dark";
     const light = raw === "light" || (raw === "system" && !matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.classList.toggle("light", light);
+    document.documentElement.classList.toggle("dark", !light);
     document.documentElement.style.colorScheme = light ? "light" : "dark";
   } catch {}
 })();
