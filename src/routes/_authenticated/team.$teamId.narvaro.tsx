@@ -10,12 +10,8 @@ import {
   eventLabel,
   fetchEventAttendance,
   fetchTeamAttendance,
-  minutesFromShare,
   pastEvents,
-  playingTimeShare,
-  PLAYING_TIME_PRESETS,
   registeredCount,
-  validateMinutes,
 } from "@/lib/attendance";
 import {
   ABSENCE_REASONS,
