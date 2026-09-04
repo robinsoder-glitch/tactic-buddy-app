@@ -2830,6 +2830,7 @@ export type Database = {
         }[]
       }
       get_shared_match: { Args: { _token: string }; Returns: Json }
+      get_shared_tactic: { Args: { _share_id: string }; Returns: Json }
       get_team_players_private: {
         Args: { _team_id: string }
         Returns: {
