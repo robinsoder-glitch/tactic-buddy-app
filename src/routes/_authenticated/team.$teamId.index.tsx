@@ -26,6 +26,11 @@ import {
 } from "@/lib/player-privacy";
 import { friendlyError } from "@/lib/user-errors";
 import { joinSourceLabel } from "@/lib/invite-links";
+import {
+  approvalHelpText,
+  needsPlayerCard,
+  playerOptionLabel,
+} from "@/lib/join-approval";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -177,10 +182,18 @@ function SquadPage() {
 
   const [duplicates, setDuplicates] = useState<{ id: string; name: string }[]>([]);
 
+  const [approving, setApproving] = useState<{ id: string; role: string; who: string } | null>(
+    null,
+  );
+  const [chosenPlayer, setChosenPlayer] = useState("");
+
   const approve = useMutation({
-    mutationFn: (id: string) => approveTeamJoinRequest(id),
+    mutationFn: (input: { id: string; playerId: string | null }) =>
+      approveTeamJoinRequest(input.id, input.playerId),
     onSuccess: () => {
       toast.success("Ansökan godkänd.");
+      setApproving(null);
+      setChosenPlayer("");
       queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
     },
@@ -235,11 +248,16 @@ function SquadPage() {
                     aria-label={`Godkänn ${who}`}
                     disabled={approve.isPending}
                     onClick={() => {
+                      if (needsPlayerCard(member.role)) {
+                        setChosenPlayer("");
+                        setApproving({ id: member.id, role: member.role, who });
+                        return;
+                      }
                       void confirm({
                         title: "Godkänn ansökan",
-                        description: `${who} blir medlem i laget och kopplas till rätt spelarkort.`,
+                        description: `${who} blir ledare i laget.`,
                         confirmLabel: "Godkänn",
-                      }).then((ok) => ok && approve.mutate(member.id));
+                      }).then((ok) => ok && approve.mutate({ id: member.id, playerId: null }));
                     }}
                   >
                     <Check className="size-4" />
