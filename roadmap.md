@@ -200,7 +200,7 @@
 - [x] Kunskapsbank: 28 nivåändringar, KB043 avpublicerad, KB091 ny kategori/sammanfattning
 - [x] Kunskapsbank: nya sammanfattningar KB048, KB050, KB069, KB072, KB081; direktlänkar KB053, KB064
 - [x] Kunskapsbank UI: åldersetiketter borta, tydlig märkning Artikel/Forskning/Resursbank/Verktyg, källa vid knappen
-- [ ] P0: godkänd spelare/vårdnadshavare ska automatiskt kopplas till spelarpost (approve_team_join_request)
+- [x] P0: godkännande kopplar till spelarkort som tränaren pekar ut (ingen namnmatchning)
 - [ ] KB043: sammanfatta poddavsnittet och publicera igen
 
 ## Etapp 2 – Smart inbjudan, QR och godkännande (2026-09-04)
@@ -220,3 +220,9 @@
 - [x] Tränarsnack kvar som separat ledarchatt, lässtatus flyttad till servern
 - [x] Notisräknare i menyn för olästa viktiga meddelanden
 - [x] Livetestat: skickat meddelande, mottagarförhandsvisning, läskvitto, fråga på aktivitet
+
+## Fyra P0-rättningar (2026-09-04)
+- [x] Datumet följer med när träning eller match sparas
+- [x] Delade taktiker visar inga spelaruppgifter (anonymiserad databasfunktion, anonym direktläsning stängd)
+- [x] Spelarkod och tränarkod läses bara av godkända tränare via skyddad funktion; tränarkoderna roterade
+- [x] Godkännande av spelare/vårdnadshavare kräver utpekat spelarkort med tröjnummer
