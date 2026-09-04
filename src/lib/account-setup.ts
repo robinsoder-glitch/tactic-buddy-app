@@ -239,6 +239,14 @@ export function readSetupForUser(userEmail: string | null | undefined): AccountS
   return stored.email === email ? stored.setup : null;
 }
 
+export function clearSetup() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignorera */
+  }
+}
+
 export type SetupResult = {
   role: AccountKind;
   teamId: string | null;

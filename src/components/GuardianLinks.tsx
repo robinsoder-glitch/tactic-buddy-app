@@ -45,7 +45,6 @@ export function GuardianLinks({
         playerId,
         guardianUserId: picked,
         relation: relation.trim() || null,
-        createdBy: userId,
       });
     },
     onSuccess: () => {
@@ -54,7 +53,8 @@ export function GuardianLinks({
       toast.success("Vårdnadshavaren är kopplad till spelaren.");
       refresh();
     },
-    onError: () => toast.error("Kunde inte koppla vårdnadshavaren."),
+    onError: (error: Error) =>
+      toast.error(error.message || "Kunde inte koppla vårdnadshavaren."),
   });
 
   const toggle = useMutation({
