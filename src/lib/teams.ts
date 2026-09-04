@@ -917,14 +917,16 @@ export async function acceptTeamInvite(
 }
 
 /**
- * Godkänner en ansökan i ett steg: medlemskapet blir godkänt, spelaren eller
- * vårdnadshavaren kopplas till rätt spelarkort och personen får en intern notis.
+ * Godkänner en ansökan i ett steg. För spelare och vårdnadshavare måste
+ * tränaren peka ut spelarkortet – databasen gissar aldrig utifrån namn.
  */
 export async function approveTeamJoinRequest(
   memberId: string,
+  playerId: string | null = null,
 ): Promise<{ role: string; linkedPlayerId: string | null }> {
   const { data, error } = await supabase.rpc("approve_team_join_request", {
     _member_id: memberId,
+    _player_id: playerId,
   });
   if (error) throw new Error(error.message);
   const row = (
