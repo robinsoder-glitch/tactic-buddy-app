@@ -279,3 +279,28 @@ export async function setMatchDuration(eventId: string, minutes: number | null) 
     .eq("id", eventId);
   if (error) throw error;
 }
+
+/**
+ * Händelser inom ett datumintervall. Tomma gränser betyder "ingen gräns",
+ * och båda dagarna räknas med i sin helhet (lokal tid).
+ */
+export function eventsInRange(events: TeamEvent[], from: string, to: string): TeamEvent[] {
+  const start = from ? new Date(`${from}T00:00:00`).getTime() : null;
+  const end = to ? new Date(`${to}T23:59:59.999`).getTime() : null;
+  return events.filter((event) => {
+    const time = new Date(event.starts_at).getTime();
+    if (!Number.isFinite(time)) return false;
+    if (start !== null && Number.isFinite(start) && time < start) return false;
+    if (end !== null && Number.isFinite(end) && time > end) return false;
+    return true;
+  });
+}
+
+/** Antal händelser där spelaren har en registrerad närvaro. */
+export function registeredForPlayer(
+  rows: AttendanceRow[],
+  eventIds: Set<string>,
+  playerId: string,
+): number {
+  return rows.filter((row) => row.player_id === playerId && eventIds.has(row.event_id)).length;
+}
