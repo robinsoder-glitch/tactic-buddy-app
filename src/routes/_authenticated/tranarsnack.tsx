@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { MessagesSquare } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { TeamChatPanel } from "@/components/TeamChatPanel";
 import { CoachOnly } from "@/components/CoachOnly";
 
+const searchSchema = z.object({ team: z.string().optional() });
+
 export const Route = createFileRoute("/_authenticated/tranarsnack")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Tränarsnack – chatt för lagets ledare" },
@@ -30,12 +34,13 @@ export const Route = createFileRoute("/_authenticated/tranarsnack")({
 });
 
 function TranarsnackPage() {
+  const { team: teamParam } = Route.useSearch();
   const { memberships, loading } = useAccount();
   const coachTeams = memberships.filter(
     (item) => item.status === "approved" && item.role === "coach",
   );
   const [teamId, setTeamId] = useState<string | null>(null);
-  const active = teamId ?? coachTeams[0]?.team_id ?? null;
+  const active = teamId ?? teamParam ?? coachTeams[0]?.team_id ?? null;
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-8 md:pt-20">
