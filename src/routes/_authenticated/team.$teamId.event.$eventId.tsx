@@ -7,6 +7,7 @@ import { EventStatusOverview } from "@/components/EventStatusOverview";
 import { EventEditDialog } from "@/components/EventEditDialog";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
+import { currentInvitation } from "@/lib/invite-status";
 import { fetchEventPlan, fetchEventResources, fetchSquad } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { fetchEventAttendance } from "@/lib/attendance";
