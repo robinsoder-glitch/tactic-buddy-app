@@ -232,5 +232,5 @@
 - [x] Punkt 2: rensade dubbla sidor och förenklad meny
 - [x] Punkt 3: startsidan "Idag" (nästa aktiviteter, obesvarade kallelser, planering som saknas, olästa meddelanden)
 - [ ] Punkt 4: enhetliga laddnings-/tom-/felvyer, samma ordval, mobilanpassning av matchplanering och taktikritaren, tillgänglighet
-- [ ] Punkt 5: dela upp de största sidorna och samla dubblerad kod
+- [x] Punkt 5: dela upp de största sidorna och samla dubblerad kod
 - [ ] Punkt 6: mät om fart och antal databasfrågor
