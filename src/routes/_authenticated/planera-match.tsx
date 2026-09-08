@@ -620,8 +620,9 @@ function MatchPlanner({
           <div className="rounded-xl border bg-card p-4">
             <h2 className="font-display text-lg font-semibold">Kallelse</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Kallelser går aldrig ut automatiskt – du bestämmer när de skickas, och de går bara
-              till spelarna i truppen. Träningar har inga kallelser.
+              Kallelser går aldrig ut automatiskt – du bestämmer när de skickas. De når spelarna i
+              truppen och de vuxna som är kopplade till dem, och visas bara i appen. Träningar har
+              inga kallelser.
             </p>
             <p className="mt-2 text-sm font-semibold">
               {invitations.length === 0
