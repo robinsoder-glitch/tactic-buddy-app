@@ -234,3 +234,11 @@
 - [x] Punkt 4: enhetliga laddnings-/tom-/felvyer, samma ordval, mobilanpassning av matchplanering och taktikritaren, tillgänglighet
 - [x] Punkt 5: dela upp de största sidorna och samla dubblerad kod
 - [x] Punkt 6: mät om fart och antal databasfrågor (mätning 8 sep: delade nycklar för banker, längre vila, färre omhämtningar)
+
+## Förfina Fotbollsrummet (instruktion 2026-09-08)
+- [x] Steg 1 – Registrering och lagbehörigheter
+- [ ] Steg 2 – Tillförlitliga kallelser och påminnelser
+- [ ] Steg 3 – Bevara planer och taktikarbeten
+- [ ] Steg 4 – Samma sanna uppgifter i alla vyer
+- [ ] Steg 5 – Förfina befintligt innehåll
+- [ ] Steg 6 – Små förbättringar

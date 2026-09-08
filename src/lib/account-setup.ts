@@ -32,7 +32,8 @@ export const SETUP_ERRORS = {
   codeLength: "Lagkoden ska vara exakt sex tecken.",
   codeInvalid: "Koden stämmer inte. Kontrollera de sex tecknen med din tränare.",
   codeExpired: "Koden gäller inte längre. Be din tränare om lagets aktuella kod.",
-  codeLookupFailed: "Koden kunde inte kontrolleras just nu. Kontrollera din uppkoppling.",
+  codeLookupFailed:
+    "Koden kunde inte kontrolleras just nu. Det är ett tekniskt fel – försök igen om en stund.",
   codeNeedsCoach: "Den koden är en spelarkod. Som tränare behöver du lagets tränarkod.",
   codeNeedsPlayer:
     "Den koden är en tränarkod. Som spelare eller vårdnadshavare behöver du lagets spelarkod.",

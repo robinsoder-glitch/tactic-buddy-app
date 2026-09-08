@@ -240,7 +240,9 @@ function AuthPage() {
       <section className="order-2 lg:order-1">
         <BrandLogo size={56} showName={false} />
         <h2 className="mt-5 font-display text-3xl font-bold sm:text-4xl">{BRAND_NAME}</h2>
-        <p className="mt-2 font-display text-xl font-semibold">Välkommen tillbaka</p>
+        <p className="mt-2 font-display text-xl font-semibold">
+          {mode === "signin" ? "Välkommen tillbaka" : "Välkommen till Fotbollsrummet"}
+        </p>
         <p className="mt-3 max-w-md text-muted-foreground">
           Planera träningar och matcher, samla laget och fortsätt utveckla er spelidé.
         </p>
@@ -266,7 +268,9 @@ function AuthPage() {
               ? "Skapa konto"
               : role === "coach"
                 ? "Tränarkonto"
-                : "Spelarkonto"}
+                : setup.isGuardian
+                  ? "Vårdnadshavarkonto"
+                  : "Spelarkonto"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "signin"
@@ -274,8 +278,10 @@ function AuthPage() {
             : showRoleStep
               ? "Börja med att välja vad du är. Du kan alltid byta lag senare."
               : role === "coach"
-                ? "Du behöver vara minst 18 år. Har du en tränarkod går du med i laget direkt."
-                : "Ange lagkoden du fått av tränaren så skickas en ansökan till laget."}
+                ? "Du behöver vara minst 18 år. Har du en tränarkod skickas en ansökan som en tränare i laget godkänner."
+                : setup.isGuardian
+                  ? "Kontot är ditt som vuxen – barnet kopplas till det. Ange lagkoden du fått av tränaren så skickas en ansökan till laget."
+                  : "Ange lagkoden du fått av tränaren så skickas en ansökan till laget."}
         </p>
 
         {showRoleStep ? (
