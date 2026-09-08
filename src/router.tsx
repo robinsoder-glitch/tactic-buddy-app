@@ -16,12 +16,27 @@ export const getRouter = () => {
     },
   });
 
+  // Banker och bibliotek ändras sällan – låt dem ligga kvar länge i minnet
+  // så att sidbyten inte hämtar hela innehållet på nytt.
+  const LONG_LIVED = 30 * 60_000;
+  for (const key of [
+    ["tb-tactics"],
+    ["tb-drills"],
+    ["tb-sessions"],
+    ["tb-goalkeeper"],
+    ["tb-formations"],
+    ["tb-rulesets"],
+    ["knowledge-articles"],
+  ]) {
+    queryClient.setQueryDefaults(key, { staleTime: LONG_LIVED, gcTime: LONG_LIVED });
+  }
+
   const router = createRouter({
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 30_000,
   });
 
   return router;
