@@ -1,0 +1,1 @@
+UPDATE public.knowledge_articles SET content_type = 'Artikel och guide', updated_at = now() WHERE id = 'KB066';
