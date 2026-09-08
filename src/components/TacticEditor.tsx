@@ -1065,7 +1065,8 @@ export function TacticEditor({ id }: { id: string }) {
 
         <Button
           variant="ghost"
-          size="icon" className="size-11"
+          size="icon"
+          className="size-11"
           aria-label="Visa guide"
           onClick={() => setTourOpen(true)}
         >
@@ -1277,7 +1278,8 @@ export function TacticEditor({ id }: { id: string }) {
         <div className="ml-auto flex gap-1">
           <Button
             variant="ghost"
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label="Ångra"
             title={historySize.undoLabel ? `Ångra: ${historySize.undoLabel}` : "Ångra"}
             onClick={undo}
@@ -1287,7 +1289,8 @@ export function TacticEditor({ id }: { id: string }) {
           </Button>
           <Button
             variant="ghost"
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label="Gör om"
             title={historySize.redoLabel ? `Gör om: ${historySize.redoLabel}` : "Gör om"}
             onClick={redo}
@@ -1579,7 +1582,8 @@ export function TacticEditor({ id }: { id: string }) {
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label="Föregående sekvens"
             onClick={() => goToStep(current - 1)}
             disabled={current === 0}
@@ -1587,7 +1591,8 @@ export function TacticEditor({ id }: { id: string }) {
             <ChevronLeft className="size-4" />
           </Button>
           <Button
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label={playing ? "Pausa" : "Spela upp"}
             onClick={() => setPlaying((value) => !value)}
             disabled={frames.length < 2}
@@ -1596,7 +1601,8 @@ export function TacticEditor({ id }: { id: string }) {
           </Button>
           <Button
             variant="ghost"
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label="Nästa sekvens"
             onClick={() => goToStep(current + 1)}
             disabled={current >= frames.length - 1}
@@ -1613,7 +1619,8 @@ export function TacticEditor({ id }: { id: string }) {
           </button>
           <Button
             variant={loop ? "default" : "ghost"}
-            size="icon" className="size-11"
+            size="icon"
+            className="size-11"
             aria-label="Loopa"
             onClick={() => setLoop((value) => !value)}
           >
@@ -1783,7 +1790,8 @@ export function TacticEditor({ id }: { id: string }) {
           <div className="flex items-center justify-center gap-2">
             <Button
               variant="secondary"
-              size="icon" className="size-11"
+              size="icon"
+              className="size-11"
               aria-label="Föregående sekvens"
               onClick={() => goToStep(current - 1)}
               disabled={current === 0}
@@ -1791,7 +1799,8 @@ export function TacticEditor({ id }: { id: string }) {
               <ChevronLeft className="size-5" />
             </Button>
             <Button
-              size="icon" className="size-11"
+              size="icon"
+              className="size-11"
               aria-label={playing ? "Pausa" : "Spela allt"}
               onClick={() => (playing ? setPlaying(false) : playAll())}
               disabled={frames.length < 2}
@@ -1800,7 +1809,8 @@ export function TacticEditor({ id }: { id: string }) {
             </Button>
             <Button
               variant="secondary"
-              size="icon" className="size-11"
+              size="icon"
+              className="size-11"
               aria-label="Nästa sekvens"
               onClick={() => goToStep(current + 1)}
               disabled={current >= frames.length - 1}
