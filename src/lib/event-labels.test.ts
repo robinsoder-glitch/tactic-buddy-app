@@ -22,6 +22,12 @@ describe("Kalenderkort utan dubbla ord", () => {
     expect(eventDisplayTitle({ type: "training", title: " träning " })).toBe("Träning");
   });
 
+  it("visar lagen även när titeln sparats som bara 'Match'", () => {
+    expect(
+      eventDisplayTitle({ type: "match", title: "Match", home_team: "Nykonto Lag", away_team: "Motstånd 1" }),
+    ).toBe("Nykonto Lag – Motstånd 1");
+  });
+
   it("visar lagen för match utan egen titel", () => {
     expect(eventDisplayTitle({ type: "match", home_team: "IFK", away_team: "AIK" })).toBe(
       "IFK – AIK",
