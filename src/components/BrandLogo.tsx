@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { BRAND_LOGO_ALT } from "@/lib/brand";
-import logoAsset from "@/assets/fotbollsrummet-logo.png.asset.json";
-import markAsset from "@/assets/fotbollsrummet-mark.png.asset.json";
+import logoDark from "@/assets/fotbollsrummet-logo-dark.png.asset.json";
+import logoLight from "@/assets/fotbollsrummet-logo-light.png.asset.json";
+import markDark from "@/assets/fotbollsrummet-mark-dark.png.asset.json";
+import markLight from "@/assets/fotbollsrummet-mark-light.png.asset.json";
 
 type Props = {
   /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
@@ -12,9 +15,32 @@ type Props = {
   className?: string;
 };
 
-/** Varumärket Fotbollsrummet – hela loggan eller enbart hörnflaggsmärket. */
+/** Sant när sidan visas i ljust läge (klassen `light` på <html>). */
+function useIsLightTheme() {
+  const [isLight, setIsLight] = useState(false);
+
+  useEffect(() => {
+    const read = () => setIsLight(document.documentElement.classList.contains("light"));
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return isLight;
+}
+
+/**
+ * Varumärket Fotbollsrummet – hela loggan eller enbart hörnflaggsmärket.
+ * Bilden finns i två färgvarianter så att den ser bra ut i både mörkt
+ * och ljust läge, utan färgfilter.
+ */
 export function BrandLogo({ size = 40, showName = true, className }: Props) {
-  const src = showName ? logoAsset.url : markAsset.url;
+  const isLight = useIsLightTheme();
+  const src = showName
+    ? (isLight ? logoLight.url : logoDark.url)
+    : (isLight ? markLight.url : markDark.url);
+
   return (
     <img
       src={src}
