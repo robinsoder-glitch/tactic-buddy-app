@@ -22,12 +22,7 @@ import {
   type FavoriteKind,
   type Drill,
 } from "@/lib/taktikbank";
-import {
-  drillMeta,
-  filterDrills,
-  filterGoalkeeperCards,
-  filterSessions,
-} from "@/lib/ovningsbank";
+import { drillMeta, filterDrills, filterGoalkeeperCards, filterSessions } from "@/lib/ovningsbank";
 import { drillDefaultMinutes, drillDurationLabel } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
@@ -339,7 +334,7 @@ function OvningsbankPage() {
             type="button"
             onClick={() => setOnlyFavorites((value) => !value)}
             aria-pressed={onlyFavorites}
-            className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+            className={`flex items-center gap-1 min-h-9 rounded-full border px-3 py-2 text-xs ${
               onlyFavorites
                 ? "border-primary bg-primary/15 text-foreground"
                 : "border-border text-muted-foreground"
@@ -572,7 +567,7 @@ function FilterGroup({
           key={key}
           type="button"
           onClick={() => onChange(key)}
-          className={`rounded-full border px-3 py-1 text-xs ${
+          className={`min-h-9 rounded-full border px-3 py-2 text-xs ${
             value === key
               ? "border-primary bg-primary/15 text-foreground"
               : "border-border text-muted-foreground"

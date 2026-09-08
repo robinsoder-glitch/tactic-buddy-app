@@ -83,7 +83,12 @@ export function PickDrillButton({
     return (
       <>
         <span className="inline-flex items-center gap-2">
-          <Button size={size} disabled={saving} onClick={() => void addToSession(false)}>
+          <Button
+            size={size}
+            className="min-h-10"
+            disabled={saving}
+            onClick={() => void addToSession(false)}
+          >
             Lägg till i passet
           </Button>
           <label className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -94,7 +99,7 @@ export function PickDrillButton({
               aria-label="Antal minuter"
               value={minutes}
               onChange={(event) => setMinutes(event.target.value)}
-              className="h-9 w-16 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              className="h-10 w-16 rounded-md border border-input bg-background px-2 text-sm text-foreground"
             />
             min
           </label>
@@ -158,7 +163,7 @@ export function PickDrillButton({
   return (
     <>
       <span className="inline-flex items-center gap-2">
-        <Button size={size} onClick={() => add(false)}>
+        <Button size={size} className="min-h-10" onClick={() => add(false)}>
           Lägg till i denna träning
         </Button>
         <label className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -169,7 +174,7 @@ export function PickDrillButton({
             aria-label="Antal minuter"
             value={minutes}
             onChange={(event) => setMinutes(event.target.value)}
-            className="h-9 w-16 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+            className="h-10 w-16 rounded-md border border-input bg-background px-2 text-sm text-foreground"
           />
           min
         </label>

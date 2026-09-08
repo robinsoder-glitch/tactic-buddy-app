@@ -29,7 +29,7 @@ export function FilterPanel({
           type="button"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
-          className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${
+          className={`flex items-center gap-1.5 min-h-9 rounded-full border px-3 py-2 text-xs ${
             open || activeCount > 0
               ? "border-primary bg-primary/15 text-foreground"
               : "border-border text-muted-foreground"
