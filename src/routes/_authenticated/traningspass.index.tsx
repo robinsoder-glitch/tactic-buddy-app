@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ErrorState, LoadingState } from "@/components/StateViews";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -224,14 +225,14 @@ function MySessionsPage() {
         övriga tränare se och köra passet, även om du själv inte kan vara med.
       </p>
 
-      {sessions.isLoading && (
-        <p className="mt-6 text-sm text-muted-foreground">Laddar dina träningar…</p>
-      )}
+      {sessions.isLoading && <LoadingState className="mt-6" text="Hämtar dina träningar …" />}
 
       {sessions.isError && (
-        <p className="mt-6 text-sm text-muted-foreground">
-          Det gick inte att hämta dina träningar just nu. Försök igen om en stund.
-        </p>
+        <ErrorState
+          className="mt-6"
+          text="Det gick inte att hämta dina träningar just nu."
+          onRetry={() => void sessions.refetch()}
+        />
       )}
 
       {!sessions.isLoading && !sessions.isError && mine.length === 0 && (

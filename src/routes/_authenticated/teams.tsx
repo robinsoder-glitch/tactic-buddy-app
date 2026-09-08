@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { EmptyState, ErrorState, LoadingState } from "@/components/StateViews";
 import { GAME_FORMATS, type GameFormatId } from "@/lib/game-format";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -221,7 +222,7 @@ function TeamsPage() {
       )}
 
       <section className="mt-6 space-y-3">
-        {teams.isLoading && <p className="text-sm text-muted-foreground">Laddar lag…</p>}
+        {teams.isLoading && <LoadingState text="Hämtar dina lag …" />}
         {archivedCount > 0 && (
           <button
             type="button"
@@ -232,19 +233,24 @@ function TeamsPage() {
           </button>
         )}
         {teams.isError && (
-          <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
-            Lagen kunde inte hämtas just nu. Kontrollera uppkopplingen och försök igen.
-          </p>
+          <ErrorState
+            text="Lagen kunde inte hämtas just nu. Kontrollera uppkopplingen."
+            onRetry={() => void teams.refetch()}
+          />
         )}
         {visibleTeams.length === 0 && !teams.isLoading && !teams.isError && (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            {isCoach
-              ? "Inga lag än. Skapa ditt första lag!"
-              : pendingTeams.length > 0
-                ? "Du ser lagets sidor så snart ledaren godkänt din ansökan."
-                : "Du är inte med i något lag än. Använd lagkoden du fått av tränaren."}
-          </p>
+          <EmptyState
+            title={isCoach ? "Inga lag än" : "Du är inte med i något lag än"}
+            description={
+              isCoach
+                ? "Skapa ditt första lag för att komma igång."
+                : pendingTeams.length > 0
+                  ? "Du ser lagets sidor så snart ledaren godkänt din ansökan."
+                  : "Använd lagkoden du fått av tränaren."
+            }
+          />
         )}
+
         {visibleTeams.map((team) => (
           <Link
             key={team.id}

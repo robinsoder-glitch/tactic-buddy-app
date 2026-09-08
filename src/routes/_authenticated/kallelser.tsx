@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ErrorState, LoadingState } from "@/components/StateViews";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ban, CalendarDays, Info, MapPin } from "lucide-react";
@@ -136,20 +137,17 @@ function MyInvitesPage() {
         </Button>
       </div>
 
+      {invites.isLoading && <LoadingState text="Hämtar dina kallelser …" />}
+
       {(invites.isError || guarded.isError) && (
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground">Dina kallelser kunde inte hämtas just nu.</p>
-          <Button
-            size="sm"
-            className="mt-2"
-            onClick={() => {
-              void invites.refetch();
-              void guarded.refetch();
-            }}
-          >
-            Försök igen
-          </Button>
-        </div>
+        <ErrorState
+          className="mt-4"
+          text="Dina kallelser kunde inte hämtas just nu."
+          onRetry={() => {
+            void invites.refetch();
+            void guarded.refetch();
+          }}
+        />
       )}
 
       {!invites.isLoading && !invites.isError && !guarded.isError && list.length === 0 && (
