@@ -300,20 +300,38 @@ function MatchPlanner({
   useEffect(() => {
     void (async () => {
       try {
-        const [{ data: ev }, t, members, pls, invs, squad, evCoaches, lineup, tacts, shr] =
-          await Promise.all([
-            supabase.from("events").select("*").eq("id", eventId).single(),
-            fetchTeam(teamId),
-            fetchTeamMembers(teamId),
-            fetchTeamPlayers(teamId),
-            fetchEventInvitations(eventId),
-            (await import("@/lib/planning")).fetchSquad(eventId),
-            fetchEventCoaches([eventId]),
-            fetchLineup(eventId),
-            fetchTactics(),
-            fetchMatchShare(eventId),
-          ]);
+        // Det som måste finnas för att kunna visa matchen.
+        const [{ data: ev, error: evErr }, t, members, pls] = await Promise.all([
+          supabase.from("events").select("*").eq("id", eventId).maybeSingle(),
+          fetchTeam(teamId),
+          fetchTeamMembers(teamId),
+          fetchTeamPlayers(teamId),
+        ]);
+        if (evErr) throw new Error("Kunde inte hämta matchen. Prova att ladda om sidan.");
         if (!ev) throw new Error("Matchen hittades inte.");
+
+        // Resten är extra: om något av det strular vill vi ändå visa matchen.
+        const rest = await Promise.allSettled([
+          fetchEventInvitations(eventId),
+          fetchSquad(eventId),
+          fetchEventCoaches([eventId]),
+          fetchLineup(eventId),
+          fetchTactics(),
+          fetchMatchShare(eventId),
+        ]);
+        const value = <T,>(index: number, fallback: T): T =>
+          rest[index]?.status === "fulfilled"
+            ? ((rest[index] as PromiseFulfilledResult<T>).value ?? fallback)
+            : fallback;
+        const invs = value<Invitation[]>(0, []);
+        const squad = value<string[]>(1, []);
+        const evCoaches = value<{ user_id: string }[]>(2, []);
+        const lineup = rest[3]?.status === "fulfilled" ? rest[3].value : null;
+        const tacts = value<TacticSummary[]>(4, []);
+        const shr = rest[5]?.status === "fulfilled" ? rest[5].value : null;
+        if (rest.some((r) => r.status === "rejected")) {
+          toast.error("En del av matchinformationen kunde inte hämtas. Ladda om sidan.");
+        }
         setEvent(ev as unknown as MatchEvent);
         setTeam(t);
         setCoaches(
