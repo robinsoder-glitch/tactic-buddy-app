@@ -106,18 +106,6 @@
   --sidebar-ring: #c7f464;
 }
 
-/* Loggan finns i två färgvarianter. Visa den som passar valt läge. */
-.brand-logo-light {
-  display: none;
-}
-
-.light .brand-logo-dark {
-  display: none;
-}
-
-.light .brand-logo-light {
-  display: inline-block;
-}
 
 /* Ljust tema: mjuk grön bakgrund, vita kort, djupgrön primärfärg. */
 .light {
