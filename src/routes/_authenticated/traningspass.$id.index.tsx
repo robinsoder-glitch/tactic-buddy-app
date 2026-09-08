@@ -182,22 +182,28 @@ function SessionBuilder() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
-      <header className="flex items-center gap-2">
-        <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
-        <div className="flex-1">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
-          <h1 className="font-display text-2xl font-bold">{session.data.title}</h1>
+      <header className="space-y-3">
+        <div className="flex items-start gap-2">
+          <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
+            <h1 className="font-display text-xl font-bold break-words sm:text-2xl">
+              {session.data.title}
+            </h1>
+          </div>
         </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
-            Visa träningspass
-          </Link>
-        </Button>
-        <Button asChild size="sm">
-          <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
-            Genomför träning
-          </Link>
-        </Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
+          <Button asChild variant="outline" className="min-h-11 w-full sm:w-auto">
+            <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
+              Visa träningspass
+            </Link>
+          </Button>
+          <Button asChild className="min-h-11 w-full sm:w-auto">
+            <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
+              Genomför träning
+            </Link>
+          </Button>
+        </div>
       </header>
 
       <section className="mt-5 space-y-3 rounded-xl border border-border bg-card p-4">
