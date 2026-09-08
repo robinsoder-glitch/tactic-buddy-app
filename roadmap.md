@@ -242,3 +242,5 @@
 - [ ] Steg 4 – Samma sanna uppgifter i alla vyer
 - [ ] Steg 5 – Förfina befintligt innehåll
 - [ ] Steg 6 – Små förbättringar
+
+- [x] Rätta de 20 färdiga taktikkorten (text mot verkligheten) och testa hur de syns i taktikritaren
