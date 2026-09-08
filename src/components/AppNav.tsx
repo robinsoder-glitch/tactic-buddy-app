@@ -11,6 +11,7 @@ import {
   Mail,
   MailQuestion,
   MessagesSquare,
+  Home,
   Settings,
   Shield,
   ShieldCheck,
@@ -44,6 +45,8 @@ const ICONS: Record<string, typeof Menu> = {
   "/teams": Shield,
   "/installningar": Settings,
   "/kallelser": MailQuestion,
+  "/": Home,
+  "/planera": ClipboardList,
 };
 
 export function AppNav() {
