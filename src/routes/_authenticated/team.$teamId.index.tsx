@@ -317,7 +317,9 @@ function SquadPage() {
               <p className="text-xs text-muted-foreground">
                 {[
                   player.is_goalkeeper ? "Målvakt" : null,
-                  player.gender ? GENDER_LABELS[player.gender] : null,
+                  player.gender && player.gender !== "none"
+                    ? GENDER_LABELS[player.gender]
+                    : null,
                   birthLabel(player.birth_date),
                 ]
                   .filter(Boolean)
