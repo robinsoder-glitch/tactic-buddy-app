@@ -130,3 +130,32 @@ Kodtest: 55 filer, 495 tester gröna. `tsgo --noEmit` utan fel. ESLint 0 fel, 17
 
 Inte verifierat: verkligt samtidigt anrop från två parallella databassessioner (provet
 kördes sekventiellt med låsningen på plats), samt e-postbekräftelse på annan enhet.
+
+## Steg 02 – Kallelser, mottagare och notiser (uppfyllt)
+
+Fynd och rättningar:
+
+- Mottagare av kallelser och påminnelser hämtades tidigare enbart från spelarkortets
+  konto och aktiva vårdnadshavare, utan kontroll av lagmedlemskap. En vuxen som tagits
+  bort ur laget kunde därför få nya notiser via en gammal barnkoppling. Ny intern
+  funktion `invite_recipient_users(player_id, team_id)` kräver godkänt medlemskap i rätt
+  lag och används nu av både `save_invitation_plan` och `send_invite_reminders`.
+- Påminnelserapporten räknade ett barn med nåbar vuxen som "utan konto". Räkningen görs
+  nu per kallelse och bara när ingen mottagare alls finns.
+- Två samtidiga tryck på påminnelse kunde skicka dubbla notiser. Nu tas ett lås per
+  aktivitet och notiserna har en dubblettnyckel per mottagare och timme.
+- Påminnelser stoppas även när kallelsen är stängd, inte bara vid inställd eller påbörjad match.
+- En vuxen med ett nykallat och ett tidigare kallat barn fick både "Ny kallelse" och
+  "Kallelsen har ändrats" i samma handling. Ändringsnotisen hoppas nu över för den som
+  redan fått en ny kallelse i samma sparning.
+- Inställningen "Push på den här enheten" lovade utskick som inte finns; ingen
+  push-avsändare är kopplad. Rutan visar nu var notiserna faktiskt syns.
+
+Ändrade filer: `src/components/NotificationSettingsCard.tsx`.
+Migrationer: ny `invite_recipient_users`, omskrivna `save_invitation_plan` och
+`send_invite_reminders`, samt borttagen direktåtkomst till hjälpfunktionen.
+
+Kodtest: 55 filer, 495 tester gröna. `tsgo --noEmit` utan fel. ESLint 0 fel, 17 kända varningar.
+Säkerhetslintern ligger kvar på 45 kända varningar (oförändrat).
+
+Inte verifierat: verkligt samtidigt påminnelsetryck från två parallella sessioner.

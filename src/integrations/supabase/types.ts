@@ -2953,6 +2953,12 @@ export type Database = {
         Args: { _invitation_id: string }
         Returns: string
       }
+      invite_recipient_users: {
+        Args: { _player_id: string; _team_id: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       is_adult_account: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean

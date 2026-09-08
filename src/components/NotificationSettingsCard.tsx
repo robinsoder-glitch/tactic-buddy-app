@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { BellRing, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -15,8 +14,6 @@ import {
   type NotificationSettings,
   defaultPreferences,
   fetchNotificationConfig,
-  registerPushDevice,
-  revokePushDevices,
   saveNotificationPreference,
   saveNotificationSettings,
 } from "@/lib/notifications";
@@ -26,7 +23,6 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
   const [prefs, setPrefs] = useState<NotificationPreference[]>(defaultPreferences());
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -67,49 +63,6 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
       await saveNotificationSettings(userId, patch);
     } catch {
       toast.error("Kunde inte spara inställningen.");
-    }
-  }
-
-  async function enablePush() {
-    if (!userId) return;
-    if (typeof Notification === "undefined") {
-      toast.error("Den här enheten stöder inte notiser.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        toast.message("Notiser är avstängda i webbläsaren.");
-        return;
-      }
-      const registration = await navigator.serviceWorker?.ready;
-      const endpoint = registration?.scope ?? window.location.origin;
-      await registerPushDevice(
-        userId,
-        `${endpoint}#${navigator.userAgent.slice(0, 40)}`,
-        "Den här enheten",
-      );
-      await patchSettings({ push_enabled: true });
-      toast.success("Push aktiverat på den här enheten.");
-    } catch {
-      toast.error("Kunde inte aktivera push.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function disablePush() {
-    if (!userId) return;
-    setBusy(true);
-    try {
-      await revokePushDevices(userId);
-      await patchSettings({ push_enabled: false });
-      toast.success("Push avstängt.");
-    } catch {
-      toast.error("Kunde inte stänga av push.");
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -176,25 +129,12 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
             </div>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-border bg-background p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">Push på den här enheten</p>
-                <p className="text-xs text-muted-foreground">
-                  {settings.push_enabled
-                    ? "Aktiverat."
-                    : "Avstängt tills du väljer att slå på det."}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant={settings.push_enabled ? "outline" : "default"}
-                disabled={busy}
-                onClick={settings.push_enabled ? disablePush : enablePush}
-              >
-                {settings.push_enabled ? "Stäng av" : "Slå på"}
-              </Button>
-            </div>
+          <div className="rounded-xl border border-border bg-background p-3">
+            <p className="text-sm font-medium">Så här når notiserna dig</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Notiser visas i appen, under Meddelanden. Notiser till mobilens låsskärm är inte igång
+              ännu.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -240,7 +180,7 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
 
           <p className="text-xs text-muted-foreground">
             E-post och SMS visas när vi kopplat på en leverantör. Fram till dess levereras notiser i
-            appen och som push på enheter du själv slagit på.
+            appen.
           </p>
         </>
       )}
