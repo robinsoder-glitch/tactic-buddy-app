@@ -72,26 +72,27 @@ function PlayerRulesPage() {
               </p>
               <h2
                 id={`kapitel-${chapter.number}-rubrik`}
-                className="mt-1 font-display text-2xl font-bold"
+                className="mt-1 break-words font-display text-xl font-bold sm:text-2xl"
               >
                 {chapter.title}
               </h2>
-              <p className="mt-2 max-w-[70ch] text-sm text-muted-foreground">{chapter.intro}</p>
+              <p className="mt-2 max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch]">
+                {chapter.intro}
+              </p>
             </div>
 
             <ol className="mt-4 space-y-3">
               {chapter.rules.map((rule) => (
-                <li
-                  key={rule.number}
-                  className="rounded-2xl border border-border bg-card p-4"
-                >
-                  <p className="font-semibold">
+                <li key={rule.number} className="rounded-2xl border border-border bg-card p-4">
+                  <p className="text-lg font-bold">
                     <span className="mr-2 font-display text-primary">
                       § {chapter.number}.{rule.number}
                     </span>
                     {rule.title}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{rule.text}</p>
+                  <p className="mt-1 max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch]">
+                    {rule.text}
+                  </p>
                 </li>
               ))}
             </ol>
