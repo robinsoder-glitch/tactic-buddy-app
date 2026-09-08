@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { BellRing, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -15,8 +14,6 @@ import {
   type NotificationSettings,
   defaultPreferences,
   fetchNotificationConfig,
-  registerPushDevice,
-  revokePushDevices,
   saveNotificationPreference,
   saveNotificationSettings,
 } from "@/lib/notifications";
@@ -26,7 +23,6 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
   const [prefs, setPrefs] = useState<NotificationPreference[]>(defaultPreferences());
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -69,9 +65,6 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
       toast.error("Kunde inte spara inställningen.");
     }
   }
-
-
-
 
   return (
     <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
@@ -139,11 +132,10 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
           <div className="rounded-xl border border-border bg-background p-3">
             <p className="text-sm font-medium">Så här når notiserna dig</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Notiser visas i appen, under Meddelanden. Notiser till mobilens låsskärm är inte
-              igång ännu.
+              Notiser visas i appen, under Meddelanden. Notiser till mobilens låsskärm är inte igång
+              ännu.
             </p>
           </div>
-
 
           <div className="space-y-2">
             {prefs.map((preference) => (
@@ -190,7 +182,6 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
             E-post och SMS visas när vi kopplat på en leverantör. Fram till dess levereras notiser i
             appen.
           </p>
-
         </>
       )}
     </section>
