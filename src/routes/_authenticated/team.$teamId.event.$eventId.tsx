@@ -37,6 +37,7 @@ import {
   ANSWER_STATUSES,
   INVITE_STATUSES,
   LATE_RESPONSE_TEXT,
+  GUARDIAN_ONLY_TEXT,
   NO_ACCOUNT_TEXT,
   NO_REMINDER_TEXT,
   RESPOND_BY_STATE_LABELS,
@@ -632,7 +633,9 @@ function EventPage() {
                         ) : (
                           !invitation.memberUserId &&
                           isCoach === false && (
-                            <p className="text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {invitation.hasActiveGuardian ? GUARDIAN_ONLY_TEXT : NO_ACCOUNT_TEXT}
+                            </p>
                           )
                         )}
 
@@ -648,7 +651,9 @@ function EventPage() {
                           </Button>
                         )}
                         {isCoach && !invitation.memberUserId && (
-                          <p className="mt-2 text-xs text-muted-foreground">{NO_ACCOUNT_TEXT}</p>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {invitation.hasActiveGuardian ? GUARDIAN_ONLY_TEXT : NO_ACCOUNT_TEXT}
+                          </p>
                         )}
                         {cancelled && (
                           <p className="mt-2 text-xs text-muted-foreground">
