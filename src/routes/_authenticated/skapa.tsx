@@ -72,6 +72,16 @@ function CreatePage() {
     if (teamFormat) setFormat(teamFormat);
   }
 
+  /**
+   * Utan eget val följer tavlan lagets spelform: spelar laget 5 mot 5 väljs
+   * 5 mot 5, spelar de 11 mot 11 väljs 11 mot 11.
+   */
+  const defaultTeamId = coachTeams[0]?.team_id ?? "";
+  const activeTeamId = teamId || defaultTeamId;
+  const activeTeam = (myTeams.data ?? []).find((item) => item.id === activeTeamId);
+  const teamFormat = parseGameFormat(activeTeam?.game_format);
+  const activeFormat: GameFormatId = formatTouched ? format : (teamFormat ?? format);
+
   const cards = useQuery({
     queryKey: ["tb-tactics"],
     queryFn: fetchTacticCards,
