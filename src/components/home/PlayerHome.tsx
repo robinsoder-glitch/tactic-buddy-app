@@ -6,7 +6,6 @@ import { useAccount } from "@/hooks/useAccount";
 import { TodayPanel } from "@/components/TodayPanel";
 import { Button } from "@/components/ui/button";
 
-
 export function PlayerHome() {
   const queryClient = useQueryClient();
   const { memberships, profile } = useAccount();
