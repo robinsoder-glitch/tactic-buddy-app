@@ -53,6 +53,7 @@ function CreatePage() {
   const [step, setStep] = useState<"choose" | "blank" | "template">("choose");
   const [name, setName] = useState("");
   const [format, setFormat] = useState<GameFormatId>("5v5");
+  const [formatTouched, setFormatTouched] = useState(false);
   const [teamId, setTeamId] = useState<string>("");
   const [query, setQuery] = useState("");
 
