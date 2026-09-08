@@ -102,9 +102,9 @@ function CreatePage() {
     mutationFn: () =>
       createTactic(
         user!.id,
-        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
-        pitchTypeForFormat(format),
-        teamId || null,
+        name.trim() || `Ny taktik ${gameFormatLabel(activeFormat)}`,
+        pitchTypeForFormat(activeFormat),
+        activeTeamId || null,
       ),
     onSuccess: (id) => navigate({ to: "/tactic/$id", params: { id } }),
     onError: () => toast.error("Kunde inte skapa taktiken"),
@@ -119,8 +119,8 @@ function CreatePage() {
       return createTacticFromFrames(
         user!.id,
         card.title,
-        pitchTypeForFormat(cardFormat ?? format),
-        teamId || null,
+        pitchTypeForFormat(cardFormat ?? activeFormat),
+        activeTeamId || null,
         frames,
       );
     },
@@ -190,15 +190,23 @@ function CreatePage() {
 
           <div className="space-y-2">
             <p className="text-sm font-semibold">Spelform</p>
+            {!formatTouched && teamFormat && (
+              <p className="text-xs text-muted-foreground">
+                Vald automatiskt från lagets spelform ({gameFormatLabel(teamFormat)}). Du kan byta.
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {GAME_FORMATS.map((item) => (
                 <button
                   key={item.id}
                   type="button"
-                  aria-pressed={format === item.id}
-                  onClick={() => setFormat(item.id)}
+                  aria-pressed={activeFormat === item.id}
+                  onClick={() => {
+                    setFormatTouched(true);
+                    setFormat(item.id);
+                  }}
                   className={`rounded-xl border p-3 text-left transition-colors ${
-                    format === item.id
+                    activeFormat === item.id
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/60"
                   }`}
@@ -214,13 +222,13 @@ function CreatePage() {
             <div className="space-y-2">
               <p className="text-sm font-semibold">Spelarbank från lag</p>
               <div className="flex flex-wrap gap-2">
-                <Chip active={teamId === ""} onClick={() => setTeamId("")}>
+                <Chip active={activeTeamId === ""} onClick={() => setTeamId("")}>
                   Utan lag
                 </Chip>
                 {coachTeams.map((item) => (
                   <Chip
                     key={item.team_id}
-                    active={teamId === item.team_id}
+                    active={activeTeamId === item.team_id}
                     onClick={() => chooseTeam(item.team_id)}
                   >
                     {item.team?.name ?? "Lag"}
