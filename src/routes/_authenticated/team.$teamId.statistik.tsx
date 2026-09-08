@@ -216,6 +216,8 @@ function StatsPage() {
 
       <p className="mt-3 text-xs text-muted-foreground">
         Sen ankomst räknas som deltagande. Sjuk eller skadad och frånvarande räknas som frånvaro.
+        "Ej registrerat" betyder att ingen har fyllt i närvaron för spelaren i perioden – det är
+        inte samma sak som 0 %.
       </p>
     </section>
   );
