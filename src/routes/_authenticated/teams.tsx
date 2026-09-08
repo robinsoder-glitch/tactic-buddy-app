@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAccount } from "@/hooks/useAccount";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
-import { createTeam, fetchClubs, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { createTeam, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
