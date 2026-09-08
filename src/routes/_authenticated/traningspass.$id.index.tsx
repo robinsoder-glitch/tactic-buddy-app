@@ -274,7 +274,11 @@ function SessionBuilder() {
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button disabled={saveInfo.isPending} onClick={() => saveInfo.mutate()}>
+              <Button
+                className="min-h-11"
+                disabled={saveInfo.isPending}
+                onClick={() => saveInfo.mutate()}
+              >
                 <Save className="size-4" /> {saveInfo.isPending ? "Sparar…" : "Spara information"}
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -282,6 +286,7 @@ function SessionBuilder() {
               </span>
               <Button
                 variant="outline"
+                className="min-h-11"
                 disabled={setStatus.isPending}
                 aria-label={
                   session.data.status === "done"
@@ -361,6 +366,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Flytta upp"
                     disabled={index === 0}
                     onClick={() => reorder(index, -1)}
@@ -370,6 +376,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Flytta ner"
                     disabled={index === items.length - 1}
                     onClick={() => reorder(index, 1)}
@@ -379,6 +386,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Ta bort del"
                     onClick={async () => {
                       const ok = await confirm({
