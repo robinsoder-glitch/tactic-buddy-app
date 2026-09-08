@@ -110,6 +110,45 @@ function StatsPage() {
         </div>
       </div>
 
+      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border border-border p-3">
+        <div className="space-y-1">
+          <Label htmlFor="stat-from" className="text-xs text-muted-foreground">
+            Från och med
+          </Label>
+          <Input
+            id="stat-from"
+            type="date"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+            className="w-40"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="stat-to" className="text-xs text-muted-foreground">
+            Till och med
+          </Label>
+          <Input
+            id="stat-to"
+            type="date"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            className="w-40"
+          />
+        </div>
+        {(from || to) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFrom("");
+              setTo("");
+            }}
+          >
+            Visa hela säsongen
+          </Button>
+        )}
+      </div>
+
       {loading && <p className="mt-4 text-sm text-muted-foreground">Laddar statistiken…</p>}
 
       {!loading && summaries.length === 0 && (
