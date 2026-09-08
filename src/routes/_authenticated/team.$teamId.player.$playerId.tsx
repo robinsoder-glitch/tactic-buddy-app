@@ -101,15 +101,15 @@ function PlayerPage() {
         </p>
       )}
 
-      <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
-        <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
+      <div className="mt-4 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row">
+        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary sm:size-24">
           {player?.photoUrl ? (
             <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
           ) : (
             <UserRound className="size-10 text-muted-foreground" />
           )}
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-y-2 text-sm">
+        <dl className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 break-words text-sm">
           {player?.number != null && (
             <>
               <dt className="text-muted-foreground">Nummer</dt>
