@@ -129,7 +129,11 @@ export async function fetchEventResources(eventIds: string[]): Promise<EventReso
     .from("event_resources")
     .select("id, event_id, kind, resource_id, minutes, note, sort_order")
     .in("event_id", eventIds)
-    .order("sort_order");
+    // Sekundär sortering gör att två rader med samma plats (till exempel samma
+    // övning tillagd två gånger) alltid visas i samma ordning.
+    .order("sort_order")
+    .order("created_at")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as EventResourceRow[];
 }
@@ -139,19 +143,41 @@ export async function removeEventResource(id: string) {
   if (error) throw error;
 }
 
-/** Flyttar en del upp eller ner i planeringen. */
+/** Ny ordning där varje rad får en egen plats, även om platserna var lika förut. */
+export function reorderRows<T extends { id: string; sort_order: number }>(
+  rows: T[],
+  index: number,
+  direction: -1 | 1,
+): T[] {
+  const target = index + direction;
+  if (index < 0 || index >= rows.length || target < 0 || target >= rows.length) {
+    return rows.map((row, position) => ({ ...row, sort_order: position }));
+  }
+  const list = [...rows];
+  const a = list[index]!;
+  list[index] = list[target]!;
+  list[target] = a;
+  return list.map((row, position) => ({ ...row, sort_order: position }));
+}
+
+/** Flyttar en del upp eller ner i planeringen och numrerar om hela listan. */
 export async function moveEventResource(
   rows: EventResourceRow[],
   index: number,
   direction: -1 | 1,
 ) {
-  const target = index + direction;
-  if (target < 0 || target >= rows.length) return;
-  const a = rows[index]!;
-  const b = rows[target]!;
-  await supabase.from("event_resources").update({ sort_order: b.sort_order }).eq("id", a.id);
-  await supabase.from("event_resources").update({ sort_order: a.sort_order }).eq("id", b.id);
+  const next = reorderRows(rows, index, direction);
+  for (const row of next) {
+    const before = rows.find((item) => item.id === row.id);
+    if (before && before.sort_order === row.sort_order) continue;
+    const { error } = await supabase
+      .from("event_resources")
+      .update({ sort_order: row.sort_order })
+      .eq("id", row.id);
+    if (error) throw error;
+  }
 }
+
 
 /** Uttagna spelare för flera aktiviteter, används i listorna. */
 export async function fetchSquads(

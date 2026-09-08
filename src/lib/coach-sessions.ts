@@ -113,7 +113,11 @@ export async function fetchSessionItems(sessionId: string): Promise<CoachSession
     .from("coach_session_items")
     .select(ITEM_COLUMNS)
     .eq("session_id", sessionId)
-    .order("sort_order");
+    // Sekundär sortering håller ordningen stabil när samma övning ligger
+    // två gånger i passet eller när två rader har samma plats.
+    .order("sort_order")
+    .order("created_at")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as unknown as CoachSessionItem[];
 }
@@ -122,10 +126,13 @@ export async function fetchAllSessionItems(): Promise<CoachSessionItem[]> {
   const { data, error } = await supabase
     .from("coach_session_items")
     .select(ITEM_COLUMNS)
-    .order("sort_order");
+    .order("sort_order")
+    .order("created_at")
+    .order("id");
   if (error) throw error;
   return (data ?? []) as unknown as CoachSessionItem[];
 }
+
 
 /** Skapar ett nytt personligt träningspass. Ägaren sätts av databasen. */
 export async function createCoachSession(
