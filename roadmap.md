@@ -226,3 +226,11 @@
 - [x] Delade taktiker visar inga spelaruppgifter (anonymiserad databasfunktion, anonym direktläsning stängd)
 - [x] Spelarkod och tränarkod läses bara av godkända tränare via skyddad funktion; tränarkoderna roterade
 - [x] Godkännande av spelare/vårdnadshavare kräver utpekat spelarkort med tröjnummer
+
+## Översyn 2026-09-08 – förbättringsplan
+- [x] Punkt 1: snabbare app (cache, realtid, smalare hämtningar)
+- [x] Punkt 2: rensade dubbla sidor och förenklad meny
+- [x] Punkt 3: startsidan "Idag" (nästa aktiviteter, obesvarade kallelser, planering som saknas, olästa meddelanden)
+- [ ] Punkt 4: enhetliga laddnings-/tom-/felvyer, samma ordval, mobilanpassning av matchplanering och taktikritaren, tillgänglighet
+- [ ] Punkt 5: dela upp de största sidorna och samla dubblerad kod
+- [ ] Punkt 6: mät om fart och antal databasfrågor
