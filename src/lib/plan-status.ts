@@ -1,6 +1,6 @@
 /**
  * Gemensam statusregel för både match och träning.
- * Endast två synliga statusar finns: Klar (grön) och Ej klar (röd).
+ * Endast två synliga statusar finns: Planerad (grön) och Ej planerad (röd).
  */
 export type PlanStatus = "done" | "todo";
 
@@ -29,8 +29,18 @@ export function planStatus(input: PlanStatusInput): PlanStatus {
   return (input.resourceCount ?? 0) > 0 ? "done" : "todo";
 }
 
-export function planStatusLabel(status: PlanStatus): "Klar" | "Ej klar" {
-  return status === "done" ? "Klar" : "Ej klar";
+/**
+ * "Planerad" i stället för "Klar": planen är sparad, men det betyder inte att
+ * truppen är fullbemannad – få spelare tillåts med en bekräftelse.
+ */
+export function planStatusLabel(status: PlanStatus): "Planerad" | "Ej planerad" {
+  return status === "done" ? "Planerad" : "Ej planerad";
+}
+
+export function planStatusHint(status: PlanStatus): string {
+  return status === "done"
+    ? "Planeringen är sparad. Kontrollera att truppen är komplett."
+    : "Planeringen är inte sparad ännu.";
 }
 
 /** Räknar rader per aktivitet, används av listorna. */

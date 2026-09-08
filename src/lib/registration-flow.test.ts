@@ -29,7 +29,12 @@ import {
   type AccountSetup,
 } from "./account-setup";
 
-const player: AccountSetup = { role: "player", name: "Elias", code: "A1B2C3" };
+const player: AccountSetup = {
+  role: "player",
+  name: "Elias",
+  code: "A1B2C3",
+  birth: "2008-05-04",
+};
 const coach: AccountSetup = {
   role: "coach",
   name: "Anna",

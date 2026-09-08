@@ -43,9 +43,9 @@ describe("planStatus", () => {
     expect(planStatus({ type: "training", planSaved: true, resourceCount: 1 })).toBe("done");
   });
 
-  it("visar bara Klar eller Ej klar", () => {
-    expect(planStatusLabel("done")).toBe("Klar");
-    expect(planStatusLabel("todo")).toBe("Ej klar");
+  it("visar bara Planerad eller Ej planerad", () => {
+    expect(planStatusLabel("done")).toBe("Planerad");
+    expect(planStatusLabel("todo")).toBe("Ej planerad");
   });
 });
 

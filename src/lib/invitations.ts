@@ -165,7 +165,8 @@ export async function fetchGuardedPlayerIds(playerIds: string[]): Promise<Set<st
     .select("player_id")
     .in("player_id", playerIds)
     .eq("is_active", true);
-  if (error) return new Set();
+  // Ett läsfel får inte tolkas som "inga vuxna" – då skulle vyn visa fel.
+  if (error) throw new Error(error.message);
   return new Set((data ?? []).map((row) => row.player_id as string));
 }
 

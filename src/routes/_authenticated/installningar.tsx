@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -233,8 +233,11 @@ function SettingsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Label className="flex-1">Rutnätets finhet</Label>
+          <Label htmlFor="grid-step" className="flex-1">
+            Rutnätets finhet
+          </Label>
           <select
+            id="grid-step"
             value={String(prefs.gridStep)}
             onChange={(event) => patchPrefs({ gridStep: Number(event.target.value) })}
             className="rounded-md border border-input bg-background px-2 py-1 text-sm"
@@ -245,8 +248,11 @@ function SettingsPage() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <Label className="flex-1">Standardplan</Label>
+          <Label htmlFor="pitch-type" className="flex-1">
+            Standardplan
+          </Label>
           <select
+            id="pitch-type"
             value={prefs.pitchType}
             onChange={(event) =>
               patchPrefs({ pitchType: event.target.value as AppPrefs["pitchType"] })
@@ -370,13 +376,25 @@ function PrefRow({
   checked: boolean;
   onChange: (value: boolean) => void;
 }) {
+  // Varje reglage får ett eget namn och beskrivning, så att en skärmläsare
+  // kan säga vad inställningen gör.
+  const id = useId();
   return (
     <div className="flex items-start gap-3">
       <div className="flex-1">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
+        <Label htmlFor={id} className="text-sm font-medium">
+          {label}
+        </Label>
+        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+          {hint}
+        </p>
       </div>
-      <Switch checked={checked} onCheckedChange={onChange} />
+      <Switch
+        id={id}
+        aria-describedby={`${id}-hint`}
+        checked={checked}
+        onCheckedChange={onChange}
+      />
     </div>
   );
 }

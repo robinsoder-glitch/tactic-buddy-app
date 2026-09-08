@@ -212,6 +212,15 @@ export async function saveMatchPlanFull(input: {
   bench: string[];
   tacticId: string | null;
   required: number;
+  /** Matchens tid och plats sparas i samma transaktion som planen. */
+  event?: {
+    location: string | null;
+    startsAt: string;
+    endsAt: string | null;
+    meetAt: string | null;
+    homeTeam: string | null;
+    awayTeam: string | null;
+  };
 }) {
   const { error } = await supabase.rpc("save_match_plan", {
     _event_id: input.eventId,
@@ -224,6 +233,13 @@ export async function saveMatchPlanFull(input: {
     _bench: input.bench,
     _tactic_id: input.tacticId as string,
     _required: input.required,
+    _update_event: !!input.event,
+    _location: input.event?.location as string,
+    _starts_at: input.event?.startsAt as string,
+    _ends_at: input.event?.endsAt as string,
+    _meet_at: input.event?.meetAt as string,
+    _home_team: input.event?.homeTeam as string,
+    _away_team: input.event?.awayTeam as string,
   });
   if (error) throw new Error(error.message);
 }

@@ -171,11 +171,14 @@ export function counts(status: AttendanceStatus): boolean {
  * räknas aldrig, oavsett om starttiden passerat.
  */
 export function pastEvents(events: TeamEvent[], now: Date = new Date()): TeamEvent[] {
-  return events.filter(
-    (event) =>
-      !(event as { cancelled_at?: string | null }).cancelled_at &&
-      new Date(event.starts_at).getTime() <= now.getTime(),
-  );
+  // En aktivitet räknas som genomförd först när den är slut – en match som
+  // pågår just nu ska inte dyka upp i närvaro och statistik.
+  return events.filter((event) => {
+    if ((event as { cancelled_at?: string | null }).cancelled_at) return false;
+    const ends = (event as { ends_at?: string | null }).ends_at;
+    const end = ends ? new Date(ends) : new Date(event.starts_at);
+    return end.getTime() <= now.getTime();
+  });
 }
 
 /** Sammanställer träningar och matcher per spelare. */

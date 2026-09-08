@@ -484,10 +484,11 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   // Känsliga uppgifter hämtas separat – databasen avgör vem som får se dem.
   const privateById = new Map<string, PlayerPrivateRow>();
   const priv = await supabase.rpc("get_team_players_private", { _team_id: teamId });
-  if (!priv.error) {
-    for (const row of (priv.data ?? []) as PlayerPrivateRow[]) {
-      privateById.set(row.player_id, row);
-    }
+  // Ett läsfel får inte se ut som "ingen allergi" – då kan en ledare missa
+  // viktig information. Visa i stället felet.
+  if (priv.error) throw new Error(priv.error.message);
+  for (const row of (priv.data ?? []) as PlayerPrivateRow[]) {
+    privateById.set(row.player_id, row);
   }
 
   return Promise.all(

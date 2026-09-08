@@ -1,5 +1,5 @@
 import { CheckCircle2, CircleAlert } from "lucide-react";
-import { planStatusLabel, type PlanStatus } from "@/lib/plan-status";
+import { planStatusHint, planStatusLabel, type PlanStatus } from "@/lib/plan-status";
 
 /** Samma badge används i alla vyer så statusen aldrig ser olika ut. */
 export function PlanStatusBadge({
@@ -14,6 +14,7 @@ export function PlanStatusBadge({
   return (
     <span
       data-status={status}
+      title={planStatusHint(status)}
       className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
         done
           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"

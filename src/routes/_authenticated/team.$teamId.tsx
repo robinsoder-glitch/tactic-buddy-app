@@ -106,14 +106,16 @@ function TeamLayout() {
               .join(" · ")}
           </p>
         </div>
-        <Link
-          to="/team/$teamId/tranarsnack"
-          params={{ teamId }}
-          className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground hover:bg-accent"
-        >
-          <MessagesSquare className="size-4 text-primary" aria-hidden />
-          Tränarsnack
-        </Link>
+        {isCoachRole && (
+          <Link
+            to="/team/$teamId/tranarsnack"
+            params={{ teamId }}
+            className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground hover:bg-accent"
+          >
+            <MessagesSquare className="size-4 text-primary" aria-hidden />
+            Tränarsnack
+          </Link>
+        )}
       </header>
 
       <nav className="mt-5 -mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
@@ -126,7 +128,9 @@ function TeamLayout() {
             className="flex shrink-0 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground data-[status=active]:border-primary data-[status=active]:bg-primary/10 data-[status=active]:text-foreground"
           >
             <tab.icon className="size-4 text-primary" />
-            {tab.label}
+            {/* Medlemmar ser samma sida, men den heter Ledare för dem – där
+                finns inga inställningar att ändra. */}
+            {tab.to === "/team/$teamId/leaders" && !isCoachRole ? "Ledare" : tab.label}
           </Link>
         ))}
       </nav>
