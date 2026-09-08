@@ -1710,6 +1710,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_kind: string | null
           avatar_path: string | null
           birth_date: string | null
           created_at: string
@@ -1719,6 +1720,7 @@ export type Database = {
           is_adult_confirmed: boolean
         }
         Insert: {
+          account_kind?: string | null
           avatar_path?: string | null
           birth_date?: string | null
           created_at?: string
@@ -1728,6 +1730,7 @@ export type Database = {
           is_adult_confirmed?: boolean
         }
         Update: {
+          account_kind?: string | null
           avatar_path?: string | null
           birth_date?: string | null
           created_at?: string
@@ -2545,6 +2548,41 @@ export type Database = {
           },
         ]
       }
+      team_join_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          kind: string
+          rotated_at: string | null
+          team_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          kind: string
+          rotated_at?: string | null
+          team_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          kind?: string
+          rotated_at?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_join_codes_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           can_manage_attendance: boolean
@@ -2811,6 +2849,18 @@ export type Database = {
           _source: string
           _team_id?: string
           _title?: string
+        }
+        Returns: string
+      }
+      create_team: {
+        Args: {
+          _age_group?: string
+          _club_id?: string
+          _club_name?: string
+          _game_format?: string
+          _gender?: string
+          _home_ground?: string
+          _name: string
         }
         Returns: string
       }

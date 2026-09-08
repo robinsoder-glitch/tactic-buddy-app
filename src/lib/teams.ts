@@ -144,10 +144,11 @@ export async function fetchMyRoles(): Promise<AppRole[]> {
   return (data ?? []).map((row) => row.role as AppRole);
 }
 
-export async function claimRole(userId: string, role: Exclude<AppRole, "admin">) {
-  const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
-  if (error && !error.message.includes("duplicate")) throw error;
-}
+/**
+ * Kontotypen är bara en avsikt från registreringen. Den ger ingen behörighet –
+ * all behörighet kommer från godkänt medlemskap i ett lag.
+ */
+export type AccountKindValue = "coach" | "player" | "guardian";
 
 export async function updateProfile(input: {
   id: string;
@@ -156,6 +157,7 @@ export async function updateProfile(input: {
   is_adult_confirmed?: boolean;
   avatar_path?: string | null;
   guardian_for_name?: string | null;
+  account_kind?: AccountKindValue | null;
 }) {
   const { id, ...raw } = input;
   const rest = Object.fromEntries(
@@ -168,7 +170,9 @@ export async function updateProfile(input: {
 export async function fetchProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name")
+    .select(
+      "id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name, account_kind",
+    )
     .eq("id", userId)
     .maybeSingle();
   if (error) throw error;
@@ -217,6 +221,10 @@ export async function fetchClubs() {
   return data ?? [];
 }
 
+/**
+ * Klubb, lag och det egna ledarmedlemskapet skapas i ett enda databassteg.
+ * Går något fel skapas ingenting alls – inga halva lag blir kvar.
+ */
 export async function createTeam(input: {
   userId: string;
   clubName: string;
@@ -228,41 +236,21 @@ export async function createTeam(input: {
   gameFormat?: string | null;
   homeGround?: string | null;
 }) {
-  let clubId = input.clubId;
-  if (!clubId && input.clubName.trim()) {
-    const { data, error } = await supabase
-      .from("clubs")
-      .insert({ name: input.clubName.trim(), created_by: input.userId })
-      .select("id")
-      .single();
-    if (error) throw error;
-    clubId = data.id;
-  }
-
-  const { data, error } = await supabase
-    .from("teams")
-    .insert({
-      created_by: input.userId,
-      club_id: clubId,
-      name: input.name.trim(),
-      age_group: input.ageGroup.trim() || null,
-      game_format: input.gameFormat ?? null,
-      gender: input.gender,
-      home_ground: input.homeGround?.trim() || null,
-    })
-    .select("id")
-    .single();
-  if (error) throw error;
-
-  const { error: memberError } = await supabase.from("team_members").insert({
-    team_id: data.id,
-    user_id: input.userId,
-    role: "coach",
-    status: "approved",
+  const ageGroup = input.ageGroup.trim();
+  const gameFormat = input.gameFormat?.trim();
+  const homeGround = input.homeGround?.trim();
+  const clubName = input.clubName.trim();
+  const { data, error } = await supabase.rpc("create_team", {
+    _name: input.name.trim(),
+    _gender: input.gender,
+    ...(ageGroup ? { _age_group: ageGroup } : {}),
+    ...(gameFormat ? { _game_format: gameFormat } : {}),
+    ...(homeGround ? { _home_ground: homeGround } : {}),
+    ...(input.clubId ? { _club_id: input.clubId } : {}),
+    ...(clubName ? { _club_name: clubName } : {}),
   });
-  if (memberError) throw memberError;
-
-  return data.id as string;
+  if (error) throw error;
+  return data as string;
 }
 
 export async function updateTeam(

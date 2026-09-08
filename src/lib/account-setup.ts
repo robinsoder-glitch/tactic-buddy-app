@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { claimRole, findTeamByCode, joinTeamWithCode, updateProfile } from "./teams";
+import { findTeamByCode, joinTeamWithCode, updateProfile } from "./teams";
 
 export type AccountRole = "coach" | "player";
 /** Kontotyp så som den lagras: vårdnadshavare är en egen typ, inte en spelare. */
@@ -272,16 +272,17 @@ export async function applyAccountSetup(userId: string, setup: AccountSetup): Pr
     if (mismatch) throw new Error(mismatch);
   }
 
+  // Kontotypen sparas bara som avsikt på profilen – den ger ingen behörighet.
   await updateProfile({
     id: userId,
     display_name: profileDisplayName(setup),
     birth_date: setup.birth || null,
     ...(kind === "coach" ? { is_adult_confirmed: true } : {}),
     guardian_for_name: guardianChildName(setup),
+    account_kind: kind,
   });
 
   if (!code) {
-    await claimRole(userId, setup.role);
     return { role: kind, teamId: null, teamName: null, status: null };
   }
 
