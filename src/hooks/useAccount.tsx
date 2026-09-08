@@ -60,6 +60,8 @@ export function useAccount() {
     roles: roleList,
     accountKind: accountKind ?? null,
     needsOnboarding,
+    accountReady,
+
     isAdmin: roleList.includes("admin"),
     isCoach: accountKind === "coach" || hasLeaderMembership || roleList.includes("coach"),
     isPlayer:
