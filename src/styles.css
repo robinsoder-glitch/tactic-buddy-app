@@ -106,9 +106,17 @@
   --sidebar-ring: #c7f464;
 }
 
-/* Loggan är vit – invertera den i ljust läge så den syns mot ljus bakgrund. */
-.light .brand-logo {
-  filter: invert(1) brightness(0.2);
+/* Loggan finns i två färgvarianter. Visa den som passar valt läge. */
+.brand-logo-light {
+  display: none;
+}
+
+.light .brand-logo-dark {
+  display: none;
+}
+
+.light .brand-logo-light {
+  display: inline-block;
 }
 
 /* Ljust tema: mjuk grön bakgrund, vita kort, djupgrön primärfärg. */
