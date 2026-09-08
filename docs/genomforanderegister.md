@@ -1,0 +1,94 @@
+# Genomföranderegister – Fotbollsrummet
+
+Baslinje upprättad 2026-09-08 (steg 00). Registret följer stegnumren i den inklistrade
+roadmapen (steg 00–14 samt E1) och är den enda platsen där status för dessa steg förs.
+
+## 1. Verifierad baslinje (kod och miljö)
+
+| Kontroll | Resultat |
+| --- | --- |
+| Vitest | 55 filer, 491 tester – gröna |
+| TypeScript (`tsgo --noEmit`) | Utan fel |
+| Produktionsbygge (`bun run build`) | Lyckas |
+| ESLint | 0 fel, 17 varningar (samtliga `react-refresh/only-export-components`) |
+| Prettier | Rättat `src/lib/event-labels.test.ts`. Kvar: `src/integrations/supabase/types.ts`, `previewAuthStorage.ts` (autogenererade, ändras ej), `src/routes/README.md`, `src/styles.css` |
+| Installerade migrationer | 91 st, senaste `20260908183547` |
+| Frontendversion i testmiljön | Okänd – förhandsvisningen byggs om per ändring; ingen versionsmarkör kopplad till installerad databasversion |
+
+Datainnehåll i databasen just nu: 112 publicerade kunskapsartiklar, 20 taktikkort,
+14 bankövningar, 3 bankpass, 2 egna träningspass, 0 passgenomföranden, 43 innehållslänkar,
+0 periodplaner, 0 favoriter, 4 kvittensrader för idempotenta operationer.
+
+## 2. Dataklassning och referenser
+
+| Typ | Tabeller | Referens |
+| --- | --- | --- |
+| Redaktionellt bankinnehåll (läs för alla inloggade, skrivskyddat) | `tb_drills`, `tb_tactics`, `tb_training_sessions`, `tb_formations`, `tb_rulesets`, `tb_goalkeeper_cards`, `tb_district_profiles`, `tb_taxonomy`, `knowledge_articles` | Text-ID (`t01_…`, `KB042`) som refereras som `resource_id` + `kind` |
+| Privat användarinnehåll | `coach_sessions`, `coach_session_items`, `coach_drills`, `tactics`, `tactic_frames`, `tb_favorites` | `user_id`; `coach_session_items.resource_id` pekar antingen på bank-ID eller egen övning |
+| Laginnehåll | `events`, `event_resources`, `event_plans`, `event_squad`, `event_invitations`, `event_attendance`, `match_lineups`, `team_periods`, `period_links`, `session_runs`, `session_run_items`, `team_chat_messages`, `players`, `team_members` | `team_id` + RLS via `is_team_member` / `is_team_coach` |
+| Korsreferenser | `content_links` (`source_type/source_id` → `target_type/target_id`) | Fritt textpar, ingen främmande nyckel – gäller både bank- och användarinnehåll |
+
+Redan befintliga funktioner som **inte** ska byggas om som nya parallella funktioner:
+passmallar (`coach_sessions.is_template`), favoriter (`tb_favorites`), periodplanering
+(`team_periods`, `period_links`, `period_progression`), tidslinje i passvisningen och
+passgenomförande (`session_runs`, `session_run_items`, `session_run_attendance`).
+
+## 3. Rollmatris (avsedd behörighet)
+
+| Roll | Källa | Får | Får inte |
+| --- | --- | --- | --- |
+| coach / head_coach / club_admin med `status = approved` | `team_members` | Planera, kalla, registrera närvaro, chatta, se privata spelaruppgifter i eget lag | Något i annat lag |
+| player (godkänd) | `team_members` + `players.member_user_id` | Se lagets aktiviteter, svara på egna kallelser | Administration, andras privata uppgifter |
+| Vårdnadshavare | `player_guardians.is_active` | Svara för kopplade barn, se barnets aktiviteter | Ledaruppgifter i barnets lag |
+| Dubbelroll (ledare i A, vårdnadshavare i B) | Två medlemsrader | Ledaruppgifter i A, barnets svar i B | Ledaruppgifter i B |
+| Väntande medlem | `status = pending` | Se att ansökan väntar | All lagdata |
+| Indragen behörighet | Borttagen medlemsrad / `is_active = false` | Inget | Notiser och läsning via gamla barnkopplingar |
+
+Global roll i `user_roles` (`admin`) styr endast plattformsadministration och ger aldrig
+lagbehörighet; lagbehörighet härleds alltid ur `team_members` via `isLeaderRole()` +
+godkänd status.
+
+## 4. Stegstatus
+
+| Steg | Status | Nuläge, berörda filer och verifiering |
+| --- | --- | --- |
+| 00 Baslinje | **Uppfyllt** | Detta dokument. Tester/typkontroll/bygge/lint körda, migrationsläge avläst. |
+| 01 Konton, medlemskap, lagåtkomst | **Delvis uppfyllt** | `accountReady`, uppskjuten lagkodskontroll till efter inloggning, kolumnvis SELECT på `teams` som skyddar `join_code`/`coach_join_code`, vuxenkontroll före guardian-medlemskap, födelsedatumstrigger. Filer: `src/hooks/useAccount.tsx`, `src/lib/account-setup.ts`, `src/routes/auth.tsx`, `src/lib/team-roles.ts`, `src/lib/permissions.ts`. Kvar att verifiera: samtidig acceptans av två länkar till samma spelarkort, direkta API-anrop som väntande/indragen medlem, ogiltigt kalenderdatum (31 februari) på servern. |
+| 02 Kallelser | **Delvis uppfyllt** | Transaktionell `save_invitation_plan`, atomisk anspråkslogik i `operation_results` (nyckel bunden till användare/scope/event), notisdedupe med operations-ID, senaste aktiva kallelse väljs. Kvar: `send_invite_reminders` räknar barn med nåbar vårdnadshavare även som onåbart; separata mått för spelare vs mottagarkonton saknas; två barn hos samma vuxen är inte bevisat mot dedupe; rollback-prov i riktig transaktion saknas. |
+| 03 Skyddat arbete och utkast | **Delvis uppfyllt** | `save_match_plan` och `save_tactic_frames` är atomiska; matchplanens förläsning skiljer obligatoriska och valfria data; närvaro sparar uttryckligt `finalDraft`. **Kvarstående fynd:** `openBlankTactic` i `src/lib/db.ts` raderar samtliga användarens utkast när en tom tavla öppnas. Versionskontroll vid samtidig redigering saknas helt. |
+| 04 Roller, status, datum, fellägen | **Delvis uppfyllt** | Idag-vyn, `PlanStatusBadge`, `StateViews`, ICS-sluttid och kalenderrubrik med hemma–borta är på plats. **Kvarstående fynd:** `src/lib/teams.ts` sätter `has_allergy: false` när privat post saknas; oregistrerad närvaro skiljs inte tydligt från 0 %; push visas som aktiverbart i `NotificationSettingsCard` trots att kallelser bara går i appen. |
+| 05 Förhandsvisa övningar utan att tappa passet | **Saknas** | Ingen gemensam målkontext (måltyp, mål-ID, lag, infogningsposition, returväg). `AddToTrainingDialog` håller `sessionId`/`eventId` som separata lokala fält, övningsbanken har ingen returväg. |
+| 06 Passrader, ordning och tid | **Delvis uppfyllt** | `coach_session_items` har `sort_order` och minuter; tidslinje finns i passvisningen. Dubbel förekomst av samma övning och entydig radidentitet ej verifierad. |
+| 07 Instruktioner och taktikkort | **Delvis uppfyllt** | 60 bildtexter i `tb_tactics` omarbetade; sex-mot-fem-undantaget bevarat. Regelkontroll mot aktuell SvFF-källa återstår. |
+| 08 Egen övning kopplad till taktikbild | **Saknas** | `coach_drills` har ingen koppling till `tactics`/`tb_tactics`; `content_links` används inte för detta. |
+| 09 Filter med tillförlitlig metadata | **Delvis uppfyllt** | Filter finns i banker och kunskapsbank. Metadatakvalitet per fält ej inventerad. |
+| 10 Var övningen används och genomförts | **Saknas** | Ingen vy som visar `event_resources`/`coach_session_items`/`session_run_items` per övning. |
+| 11 Namngivna övningssamlingar | **Saknas** | Endast `tb_favorites` (platt lista) finns. |
+| 12 Frånvaro över datumintervall | **Saknas** | `event_attendance` är per aktivitet; inget intervallstöd. |
+| 13 Återanvända platser, konkret uppföljning | **Saknas** | `events.location` är fritext utan förslagslista. |
+| 14 Slutverifiering | **Ej påbörjat** | Kräver steg 01–13. |
+| E1 Valbar e-post för matchkallelser | **Saknas** | Endast notiser i appen; ingen e-postkanal. |
+
+## 5. Tidigare fynd – gäller de fortfarande?
+
+| Fynd | Bedömning |
+| --- | --- |
+| Lagkodens registreringsanrop före inloggning | Åtgärdat – kontrollen sker efter autentisering |
+| Kodkolumner exponerade via bred SELECT | Åtgärdat – kolumnvisa rättigheter; direkt API-prov som väntande/indragen medlem återstår |
+| Vuxenkontroll före guardian-medlemskap | Åtgärdat i `accept_team_invite` |
+| Samtidiga kallelseoperationer | Åtgärdat med atomiskt anspråk; två-barnsfallet ej bevisat |
+| Påminnelsers nåbarhet | **Kvarstår** |
+| Förläsningsfel blir tom matchplan | Åtgärdat |
+| Ny taktiktavla rensar andra utkast | **Kvarstår** (`openBlankTactic`) |
+| Saknad uppgift visas som noll eller nej | **Kvarstår** (allergi, närvaroprocent) |
+| Tappad målaktivitet i övningsbanken | **Kvarstår** (steg 05) |
+| Lokala datum | Delvis åtgärdat (ICS-sluttid); sommartid och midnatt ej provade |
+| Missvisande pushtext | **Kvarstår** |
+| Pedagogiska brister i taktikkort | Åtgärdat för alla 60 bildtexter |
+
+## 6. Ingång till steg 01
+
+Konkreta prov som steg 01 ska genomföra: direkt REST-anrop mot `teams` som anonym,
+väntande medlem, spelare, vårdnadshavare och ledare; två personliga länkar till samma
+spelarkort samtidigt; registrering med 31 februari mot servern; kontobyte direkt efter
+misslyckad profilhämtning.
