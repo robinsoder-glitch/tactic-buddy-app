@@ -397,16 +397,10 @@ function OvningsbankPage() {
               <article
                 key={drill.id}
                 id={`ovning-${drill.id}`}
-                className={`relative flex items-start gap-2 rounded-xl border bg-card p-4 transition hover:border-primary ${
+                className={`flex items-start gap-2 rounded-xl border bg-card p-4 transition hover:border-primary ${
                   highlight === drill.id ? "border-primary" : "border-border"
                 }`}
               >
-                <Link
-                  to="/ovningsbank/$drillId"
-                  params={{ drillId: drill.id }}
-                  aria-label={`Öppna övningen ${drill.title}`}
-                  className="absolute inset-0 rounded-xl"
-                />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs tracking-wide text-muted-foreground">
                     {meta.formats.map(formatLabelFor).join(" · ") || "Alla spelformer"}
@@ -415,11 +409,20 @@ function OvningsbankPage() {
                       : ""}
                     {` · ${drillDurationLabel(drill)}`}
                   </p>
-                  <h2 className="font-display text-lg font-semibold">{drill.title}</h2>
+                  <h2 className="font-display text-lg font-semibold">
+                    <Link
+                      to="/ovningsbank/$drillId"
+                      params={{ drillId: drill.id }}
+                      aria-label={`Öppna övningen ${drill.title}`}
+                      className="hover:underline"
+                    >
+                      {drill.title}
+                    </Link>
+                  </h2>
                   <p className="text-sm text-muted-foreground">{drill.purpose}</p>
                   <DrillKeyFacts drill={drill} />
 
-                  <div className="relative z-10">
+                  <div>
                     <RelatedContent
                       sections={relatedSections(
                         links.data ?? [],
@@ -429,7 +432,8 @@ function OvningsbankPage() {
                       )}
                     />
                   </div>
-                  <div className="relative z-10 mt-3">
+
+                  <div className="mt-3">
                     <PickDrillButton
                       kind="drill"
                       resourceId={drill.id}
@@ -439,7 +443,8 @@ function OvningsbankPage() {
                     />
                   </div>
                 </div>
-                <div className="relative z-10">
+                <div>
+
                   <FavoriteButton
                     active={favoriteSet.has(`drill:${drill.id}`)}
                     onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}
