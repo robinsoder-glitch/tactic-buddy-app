@@ -243,4 +243,4 @@
 - [ ] Steg 5 – Förfina befintligt innehåll
 - [ ] Steg 6 – Små förbättringar
 
-- [ ] Rätta de 20 färdiga taktikkorten (text mot verkligheten) och testa hur de syns i taktikritaren
+- [x] Rätta de 20 färdiga taktikkorten (text mot verkligheten) och testa hur de syns i taktikritaren
