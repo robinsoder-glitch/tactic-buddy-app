@@ -289,11 +289,12 @@ function EventAttendance({
   }, [dirty]);
 
   const save = useMutation({
-    mutationFn: async () => {
+    // Underlaget skickas alltid med – aldrig läst ur state efter en uppdatering.
+    mutationFn: async (finalDraft?: Draft) => {
       return saveEventAttendance({
         eventId,
         teamId,
-        rows: toPayload(draft, eventType),
+        rows: toPayload(finalDraft ?? draft, eventType),
       });
     },
     onSuccess: async (count) => {
