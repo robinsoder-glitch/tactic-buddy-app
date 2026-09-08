@@ -21,7 +21,16 @@ export function EventDiscussion({ eventId, teamId }: { eventId: string; teamId: 
     queryKey: ["event-messages", eventId],
     queryFn: () => fetchEventMessages(eventId),
     enabled: !!eventId,
-    refetchInterval: 20000,
+    staleTime: 15000,
+    // Reserv om direktkanalen inte är tillgänglig.
+    refetchInterval: 120000,
+  });
+
+  useRealtimeRefetch({
+    table: "event_messages",
+    filter: `event_id=eq.${eventId}`,
+    queryKey: ["event-messages", eventId],
+    enabled: !!eventId,
   });
 
   const list = messages.data ?? [];
