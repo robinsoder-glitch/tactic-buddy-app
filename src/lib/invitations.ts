@@ -106,6 +106,8 @@ export function canRespondAsGuardian(
 }
 
 export const NO_ACCOUNT_TEXT = "Spelaren saknar kopplat konto. En ledare kan registrera svaret.";
+export const GUARDIAN_ONLY_TEXT =
+  "Spelaren har inget eget konto. Kallelsen når en kopplad vuxen som kan svara.";
 export const NO_REMINDER_TEXT =
   "Ingen digital påminnelse kan skickas eftersom spelaren saknar kopplat konto.";
 
