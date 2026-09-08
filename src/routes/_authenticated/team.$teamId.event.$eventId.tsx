@@ -152,7 +152,8 @@ function EventPage() {
   // Kallelser hör bara ihop med matcher.
   const isMatchEvent = event.data?.type === "match";
   const cancelled = Boolean(event.data?.cancelled_at);
-  const meta = list[0];
+  // Aktuell text/svarsdag: senast uppdaterade aktiva kallelse, aldrig en återkallad rad.
+  const meta = currentInvitation(list);
   const [editing, setEditing] = useState(false);
 
   const sessionResourceId =
