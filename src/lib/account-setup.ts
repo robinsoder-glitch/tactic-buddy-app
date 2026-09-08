@@ -51,6 +51,29 @@ export function ageAt(birth: string, today = new Date()): number {
   return years;
 }
 
+/** Äldsta födelseår appen accepterar – samma gräns som databasen. */
+export const MIN_BIRTH_YEAR = 1900;
+
+/**
+ * Kontrollerar att ett datum verkligen finns. `new Date("2026-02-31")` blir
+ * 3 mars i webbläsaren, så datumet måste jämföras tecken för tecken.
+ */
+export function birthDateError(value: string, today = new Date()): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return "Ange ett giltigt födelsedatum";
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+  const real =
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+  if (!real) return "Det datumet finns inte. Kontrollera dag och månad.";
+  if (year < MIN_BIRTH_YEAR) return "Kontrollera födelseåret.";
+  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  if (date.getTime() > todayUtc) return "Födelsedatumet kan inte ligga i framtiden.";
+  return null;
+}
+
 /** Trimmar och versaliserar koden. Tomt när ingen kod angetts. */
 export function normalizeTeamCode(raw?: string | null): string {
   return (raw ?? "").trim().toUpperCase();
