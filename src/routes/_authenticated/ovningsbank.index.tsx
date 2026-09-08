@@ -227,11 +227,11 @@ function OvningsbankPage() {
     favorites: favoriteSet,
   });
 
-  const visibleKeepers = (keepers.data ?? []).filter((card) => {
-    if (onlyFavorites && !favoriteSet.has(`goalkeeper:${card.id}`)) return false;
-    const needle = query.trim().toLowerCase();
-    if (!needle) return true;
-    return [card.title, card.purpose ?? ""].join(" ").toLowerCase().includes(needle);
+  const visibleKeepers = filterGoalkeeperCards(keepers.data ?? [], {
+    query,
+    age,
+    onlyFavorites,
+    favorites: favoriteSet,
   });
 
   if (loading) {
