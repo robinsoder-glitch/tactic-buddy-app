@@ -1,4 +1,4 @@
-import type { Drill, TacticCard, TrainingSessionCard } from "./taktikbank";
+import type { Drill, GoalkeeperCard, TacticCard, TrainingSessionCard } from "./taktikbank";
 
 /** Härledd metadata för en övning, baserad på de taktikkort övningen är kopplad till. */
 export type DrillMeta = {
