@@ -141,9 +141,9 @@ export async function createTactic(
 }
 
 /**
- * Öppnar arbetsytan med en helt tom tavla. Tidigare utkast raderas så att inga
- * gamla spelare eller ritningar följer med, och så att tomma tavlor inte samlas
- * på hög. Utkastet syns aldrig i "Mina taktiker" förrän användaren sparar.
+ * Öppnar arbetsytan med en helt tom tavla. Endast utkast som saknar allt
+ * innehåll städas bort, så att påbörjat arbete i ett annat utkast aldrig
+ * försvinner. Utkastet syns aldrig i "Mina taktiker" förrän användaren sparar.
  */
 export async function openBlankTactic(userId: string, name = "Tom tavla"): Promise<string> {
   const { data, error } = await supabase
@@ -153,11 +153,41 @@ export async function openBlankTactic(userId: string, name = "Tom tavla"): Promi
     .eq("is_draft", true);
   if (error) throw error;
 
-  for (const row of data ?? []) {
-    await deleteTactic(row.id as string);
+  const draftIds = (data ?? []).map((row) => row.id as string);
+  if (draftIds.length > 0) {
+    const { data: frames, error: frameError } = await supabase
+      .from("tactic_frames")
+      .select("tactic_id, objects, drawings, name, note")
+      .in("tactic_id", draftIds);
+    // Ett läsfel får inte tolkas som "tomt" – då skulle arbete raderas.
+    if (frameError) throw frameError;
+
+    const withContent = new Set(
+      (frames ?? [])
+        .filter((frame) => frameHasContent(frame))
+        .map((frame) => frame.tactic_id as string),
+    );
+    for (const id of draftIds) {
+      if (!withContent.has(id)) await deleteTactic(id);
+    }
   }
 
   return createTactic(userId, name, "full", null, { draft: true });
+}
+
+/** Sant när rutan innehåller något användaren skulle sakna. */
+function frameHasContent(frame: {
+  objects: unknown;
+  drawings: unknown;
+  name?: unknown;
+  note?: unknown;
+}): boolean {
+  const objects = Array.isArray(frame.objects) ? frame.objects : [];
+  const drawings = Array.isArray(frame.drawings) ? frame.drawings : [];
+  const text = [frame.name, frame.note].some(
+    (value) => typeof value === "string" && value.trim().length > 0,
+  );
+  return objects.length > 0 || drawings.length > 0 || text;
 }
 
 /** Markerar utkastet som en riktig, sparad taktik. */

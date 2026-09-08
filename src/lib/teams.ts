@@ -56,7 +56,8 @@ export type TeamPlayer = {
   guardian2_name: string | null;
   guardian2_phone: string | null;
   guardian2_email: string | null;
-  has_allergy: boolean;
+  /** null = uppgiften är inte ifylld ännu; skiljs medvetet från Nej. */
+  has_allergy: boolean | null;
   allergy_note: string | null;
   is_active?: boolean;
   photoUrl: string | null;
@@ -469,7 +470,7 @@ const EMPTY_PRIVATE = {
   guardian2_name: null,
   guardian2_phone: null,
   guardian2_email: null,
-  has_allergy: false,
+  has_allergy: null,
   allergy_note: null,
 } as const;
 
@@ -505,7 +506,7 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
               guardian2_name: secret.guardian2_name,
               guardian2_phone: secret.guardian2_phone,
               guardian2_email: secret.guardian2_email,
-              has_allergy: secret.has_allergy ?? false,
+              has_allergy: secret.has_allergy ?? null,
               allergy_note: secret.allergy_note,
             }
           : {}),

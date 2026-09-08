@@ -4,11 +4,7 @@ const base =
   "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-colors";
 
 /** Spelarnas egen kunskapsdel – helt skild från ledarnas kunskapsbank. */
-export function PlayerKnowledgeTabs({
-  active,
-}: {
-  active: "technique" | "rules" | "fairplay";
-}) {
+export function PlayerKnowledgeTabs({ active }: { active: "technique" | "rules" | "fairplay" }) {
   const cls = (isActive: boolean) =>
     `${base} ${
       isActive

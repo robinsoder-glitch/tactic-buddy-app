@@ -136,9 +136,11 @@ function PlayerPage() {
             <>
               <dt className="text-muted-foreground">Allergi</dt>
               <dd>
-                {player.has_allergy
-                  ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
-                  : "Nej"}
+                {player.has_allergy === null
+                  ? "Ej ifyllt"
+                  : player.has_allergy
+                    ? `Ja${player.allergy_note ? ` – ${player.allergy_note}` : ""}`
+                    : "Nej"}
               </dd>
             </>
           )}
