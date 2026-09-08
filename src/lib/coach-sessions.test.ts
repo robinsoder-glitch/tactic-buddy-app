@@ -50,3 +50,22 @@ describe("coach-sessions", () => {
     expect(template.data.blocks[0]?.order).toBe(2);
   });
 });
+
+describe("ordning med dubbletter", () => {
+  const duplicates = [
+    { id: "a", sort_order: 0, minutes: 10 },
+    { id: "b", sort_order: 0, minutes: 10 },
+    { id: "c", sort_order: 0, minutes: 10 },
+  ];
+
+  it("ger varje rad en egen plats även när platserna var lika", () => {
+    const next = moveItem(duplicates, 2, -1);
+    expect(next.map((item) => item.id)).toEqual(["a", "c", "b"]);
+    expect(next.map((item) => item.sort_order)).toEqual([0, 1, 2]);
+  });
+
+  it("lägger samma övning sist utan att krocka", () => {
+    expect(nextSortOrder(duplicates)).toBe(1);
+    expect(nextSortOrder([...duplicates, { id: "d", sort_order: 4, minutes: 5 }])).toBe(5);
+  });
+});
