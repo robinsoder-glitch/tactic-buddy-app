@@ -20,10 +20,11 @@ function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user && !account.loading && account.needsOnboarding) {
+    if (!loading && user && !account.loading && account.accountReady && account.needsOnboarding) {
       navigate({ to: "/onboarding" });
     }
-  }, [loading, user, account.loading, account.needsOnboarding, navigate]);
+  }, [loading, user, account.loading, account.accountReady, account.needsOnboarding, navigate]);
+
 
   if (loading || (user && account.loading)) {
     return (
