@@ -155,13 +155,20 @@ function CollectionsPage() {
                   >
                     <Input
                       value={editing.name}
-                      onChange={(event) => setEditing({ id: collection.id, name: event.target.value })}
+                      onChange={(event) =>
+                        setEditing({ id: collection.id, name: event.target.value })
+                      }
                       aria-label="Nytt namn på samlingen"
                     />
                     <Button type="submit" size="sm">
                       Spara
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(null)}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEditing(null)}
+                    >
                       Avbryt
                     </Button>
                   </form>
