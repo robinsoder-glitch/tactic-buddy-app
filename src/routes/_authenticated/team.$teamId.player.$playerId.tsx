@@ -88,9 +88,11 @@ function PlayerPage() {
 
   return (
     <section>
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
         <BackIconButton fallback={`/team/${teamId}`} label="Tillbaka till truppen" />
-        <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
+        <h2 className="min-w-0 break-words font-display text-xl font-bold sm:text-2xl">
+          {player?.name ?? "Spelare"}
+        </h2>
       </div>
 
       {players.isError && (
