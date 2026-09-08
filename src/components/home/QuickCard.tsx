@@ -1,67 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
 
-cat > /tmp/h_dash.txt <<'EOF'
-import { useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  BookOpen,
-  CalendarDays,
-  ClipboardList,
-  CopyPlus,
-  Download,
-  Link2,
-  LogOut,
-  MessagesSquare,
-  MoreVertical,
-  Pencil,
-  Plus,
-  Shield,
-  Trash2,
-  Trophy,
-  Upload,
-  Users,
-} from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAccount } from "@/hooks/useAccount";
-import { useUnreadChat } from "@/hooks/useUnreadChat";
-import {
-  createTacticFromFrames,
-  deleteTactic,
-  duplicateTactic,
-  fetchTactic,
-  fetchTacticPreviews,
-  fetchTactics,
-  renameTactic,
-} from "@/lib/db";
-import { fetchEvents, formatDateTime } from "@/lib/teams";
-import type { TeamEvent } from "@/lib/teams";
-import { downloadTacticFile, parseTacticFile } from "@/lib/tactic-file";
-import { pitchTypeLabel } from "@/lib/game-format";
-import type { TacticSummary } from "@/lib/db";
-import { TacticThumb } from "@/components/TacticThumb";
-import { BrandLogo } from "@/components/BrandLogo";
-import { TodayPanel } from "@/components/TodayPanel";
-import { QuickCard } from "@/components/home/QuickCard";
-import { useConfirm } from "@/components/ConfirmDelete";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
 export function QuickCard({
   to,
   icon,
