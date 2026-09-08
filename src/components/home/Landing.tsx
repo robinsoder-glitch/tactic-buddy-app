@@ -1,3 +1,19 @@
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  BookOpen,
+  CalendarDays,
+  ClipboardList,
+  GraduationCap,
+  Heart,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BRAND_EYEBROW, BRAND_INTRO, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+
 const LANDING_FEATURES = [
   {
     icon: ClipboardList,

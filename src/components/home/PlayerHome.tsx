@@ -6,7 +6,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { TodayPanel } from "@/components/TodayPanel";
 import { Button } from "@/components/ui/button";
 
-export EOF
+
 cat > /tmp/h_landing.txt <<'EOF'
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BRAND_EYEBROW, BRAND_INTRO, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 
-function PlayerHome() {
+export function PlayerHome() {
   const queryClient = useQueryClient();
   const { memberships, profile } = useAccount();
   const approved = memberships.filter((item) => item.status === "approved");

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-export EOF
+
 cat > /tmp/h_dash.txt <<'EOF'
 import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -62,7 +62,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-function QuickCard({
+export function QuickCard({
   to,
   icon,
   title,
