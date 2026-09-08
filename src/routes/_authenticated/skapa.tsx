@@ -54,7 +54,7 @@ function CreatePage() {
   const [name, setName] = useState("");
   const [format, setFormat] = useState<GameFormatId>("5v5");
   const [formatTouched, setFormatTouched] = useState(false);
-  const [teamId, setTeamId] = useState<string>("");
+  const [teamId, setTeamId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   const coachTeams = account.memberships.filter(
@@ -77,7 +77,7 @@ function CreatePage() {
    * 5 mot 5, spelar de 11 mot 11 väljs 11 mot 11.
    */
   const defaultTeamId = coachTeams[0]?.team_id ?? "";
-  const activeTeamId = teamId || defaultTeamId;
+  const activeTeamId = teamId ?? defaultTeamId;
   const activeTeam = (myTeams.data ?? []).find((item) => item.id === activeTeamId);
   const teamFormat = parseGameFormat(activeTeam?.game_format);
   const activeFormat: GameFormatId = formatTouched ? format : (teamFormat ?? format);
