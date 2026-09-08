@@ -112,6 +112,8 @@ export function validateSetup(
   if (setup.role === "coach") {
     if (!setup.birth) return "Ange ditt födelsedatum";
     const age = ageAt(setup.birth);
+    const dateError = birthDateError(setup.birth);
+    if (dateError) return dateError;
     if (Number.isNaN(age)) return "Ange ett giltigt födelsedatum";
     if (age < MIN_COACH_AGE) return "Du måste vara minst 18 år för ett tränarkonto";
     if (!setup.adultConfirmed) return "Du behöver intyga att uppgiften stämmer";
