@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMyRoles, fetchMyMemberships, fetchProfile } from "@/lib/teams";
+import { isLeaderRole } from "@/lib/team-roles";
 import { useAuth } from "./useAuth";
 
 export function useAccount() {
@@ -25,6 +26,15 @@ export function useAccount() {
   });
 
   const roleList = roles.data ?? [];
+  const membershipList = memberships.data ?? [];
+  const accountKind = (profile.data as { account_kind?: string | null } | null)?.account_kind;
+
+  // Behörighet kommer från medlemskapet i laget. Kontotypen på profilen styr
+  // bara vad som visas, t.ex. att en ny tränare kan skapa sitt första lag.
+  const hasLeaderMembership = membershipList.some((item) => isLeaderRole(item.role));
+  const hasPlayerMembership = membershipList.some(
+    (item) => item.role === "player" || item.role === "guardian",
+  );
 
   return {
     user,
@@ -32,9 +42,13 @@ export function useAccount() {
     profile: profile.data ?? null,
     roles: roleList,
     isAdmin: roleList.includes("admin"),
-    isCoach: roleList.includes("coach"),
-    isPlayer: roleList.includes("player"),
-    memberships: memberships.data ?? [],
-    loading: loading || roles.isLoading || memberships.isLoading,
+    isCoach: accountKind === "coach" || hasLeaderMembership || roleList.includes("coach"),
+    isPlayer:
+      accountKind === "player" ||
+      accountKind === "guardian" ||
+      hasPlayerMembership ||
+      roleList.includes("player"),
+    memberships: membershipList,
+    loading: loading || roles.isLoading || memberships.isLoading || profile.isLoading,
   };
 }

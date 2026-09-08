@@ -2,13 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findTeamByCode = vi.fn();
 const joinTeamWithCode = vi.fn();
-const claimRole = vi.fn();
 const updateProfile = vi.fn();
 
 vi.mock("./teams", () => ({
   findTeamByCode: (...args: unknown[]) => findTeamByCode(...args),
   joinTeamWithCode: (...args: unknown[]) => joinTeamWithCode(...args),
-  claimRole: (...args: unknown[]) => claimRole(...args),
   updateProfile: (...args: unknown[]) => updateProfile(...args),
 }));
 
@@ -54,7 +52,6 @@ function team(join_role: "coach" | "player") {
 beforeEach(() => {
   vi.clearAllMocks();
   updateProfile.mockResolvedValue(undefined);
-  claimRole.mockResolvedValue(undefined);
   joinTeamWithCode.mockResolvedValue({
     teamId: "team-1",
     teamName: "IFK P12",
@@ -124,7 +121,6 @@ describe("applyAccountSetup", () => {
     findTeamByCode.mockResolvedValue(null);
     await expect(applyAccountSetup("user-1", player)).rejects.toThrow(SETUP_ERRORS.codeInvalid);
     expect(joinTeamWithCode).not.toHaveBeenCalled();
-    expect(claimRole).not.toHaveBeenCalled();
     expect(updateProfile).not.toHaveBeenCalled();
   });
 
@@ -146,7 +142,6 @@ describe("applyAccountSetup", () => {
   it("skapar inte motsägelsefulla roller vid fel kodtyp", async () => {
     findTeamByCode.mockResolvedValue(team("coach"));
     await expect(applyAccountSetup("user-1", player)).rejects.toThrow(SETUP_ERRORS.codeNeedsPlayer);
-    expect(claimRole).not.toHaveBeenCalled();
     expect(joinTeamWithCode).not.toHaveBeenCalled();
   });
 
