@@ -1,34 +1,23 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { BRAND_LOGO_ALT } from "@/lib/brand";
 import logoDark from "@/assets/fotbollsrummet-logo-dark.png.asset.json";
 import logoLight from "@/assets/fotbollsrummet-logo-light.png.asset.json";
 import markDark from "@/assets/fotbollsrummet-mark-dark.png.asset.json";
 import markLight from "@/assets/fotbollsrummet-mark-light.png.asset.json";
 
-type Props = {
-  /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
-  size?: number;
-  /** Visa hela loggan med namnet. Annars bara märket. */
-  showName?: boolean;
-  /** Behålls för bakåtkompatibilitet – namnet ingår i bilden. */
-  nameClassName?: string;
-  className?: string;
-};
-
-function subscribeToTheme(onChange: () => void) {
-  if (typeof document === "undefined") return () => {};
-  const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  return () => observer.disconnect();
-}
-
 /** Sant när sidan visas i ljust läge (klassen `light` på <html>). */
 function useIsLightTheme() {
-  return useSyncExternalStore(
-    subscribeToTheme,
-    () => document.documentElement.classList.contains("light"),
-    () => false,
-  );
+  const [isLight, setIsLight] = useState(false);
+
+  useEffect(() => {
+    const read = () => setIsLight(document.documentElement.classList.contains("light"));
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return isLight;
 }
 
 /**
