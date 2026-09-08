@@ -1,16 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Download } from "lucide-react";
 import {
   attendanceCsv,
+  eventsInRange,
   fetchTeamAttendance,
   pastEvents,
   percent,
+  registeredForPlayer,
   summarize,
 } from "@/lib/attendance";
 import { fetchEvents, fetchTeamPlayers } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/statistik")({
   head: () => ({
