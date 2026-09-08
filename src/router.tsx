@@ -30,6 +30,9 @@ export const getRouter = () => {
   ]) {
     queryClient.setQueryDefaults(key, { staleTime: LONG_LIVED, gcTime: LONG_LIVED });
   }
+  // Kunskapsbankens redigeringsvy uppdateras vid varje ändring, så den får en
+  // kortare men ändå märkbar vila.
+  queryClient.setQueryDefaults(["kb-articles"], { staleTime: 5 * 60_000, gcTime: LONG_LIVED });
 
   const router = createRouter({
     routeTree,
