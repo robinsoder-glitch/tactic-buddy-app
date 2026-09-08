@@ -36,6 +36,7 @@ const ICONS: Record<string, typeof Menu> = {
   "/planera-match": Trophy,
   "/taktik": BookOpen,
   "/kunskapsbank": GraduationCap,
+  "/spelarkunskap": GraduationCap,
   "/ovningsbank": Dumbbell,
   "/kalender": CalendarDays,
   "/narvaro": CalendarCheck,

@@ -44,7 +44,7 @@ export const PLAYER_MAIN_TABS: MainTab[] = [
   { to: "/kalender", label: "Kalender", exact: false },
   { to: "/kallelser", label: "Mina kallelser", exact: false },
   { to: "/teams", label: "Mitt lag", exact: false },
-  { to: "/kunskapsbank", label: "Kunskap", exact: false },
+  { to: "/spelarkunskap", label: "Kunskap", exact: false },
 ];
 
 export const PLAYER_SECONDARY_TABS: MainTab[] = [
