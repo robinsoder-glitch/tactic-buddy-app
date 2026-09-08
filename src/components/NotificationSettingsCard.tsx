@@ -228,8 +228,9 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
 
           <p className="text-xs text-muted-foreground">
             E-post och SMS visas när vi kopplat på en leverantör. Fram till dess levereras notiser i
-            appen och som push på enheter du själv slagit på.
+            appen.
           </p>
+
         </>
       )}
     </section>
