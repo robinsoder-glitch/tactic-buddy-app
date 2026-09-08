@@ -69,7 +69,6 @@ function TeamsPage() {
     ).values(),
   ).sort((a, b) => a.name.localeCompare(b.name, "sv"));
 
-
   const create = useMutation({
     mutationFn: () => {
       if (!userId) throw new Error("Inte inloggad");
@@ -153,7 +152,6 @@ function TeamsPage() {
                     onChange={(event) => setClubName(event.target.value)}
                   />
                 )}
-
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="team-name">Lagnamn</Label>

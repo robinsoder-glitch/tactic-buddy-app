@@ -39,7 +39,11 @@ export function useAccount() {
 
   // Behörighet kommer från medlemskapet i laget. Kontotypen på profilen styr
   // bara vad som visas, t.ex. att en ny tränare kan skapa sitt första lag.
-  const hasLeaderMembership = membershipList.some((item) => isLeaderRole(item.role));
+  // Ledaruppgifter kräver ett godkänt ledarmedlemskap – en väntande ansökan
+  // ger inga ledarrättigheter.
+  const hasLeaderMembership = membershipList.some(
+    (item) => isLeaderRole(item.role) && item.status === "approved",
+  );
   const hasPlayerMembership = membershipList.some(
     (item) => item.role === "player" || item.role === "guardian",
   );
@@ -51,7 +55,6 @@ export function useAccount() {
   const accountReady = roles.isSuccess && memberships.isSuccess && profile.isSuccess;
   const needsOnboarding =
     accountReady && roleList.length === 0 && membershipList.length === 0 && !accountKind;
-
 
   return {
     user,

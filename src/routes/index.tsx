@@ -25,7 +25,6 @@ function HomePage() {
     }
   }, [loading, user, account.loading, account.accountReady, account.needsOnboarding, navigate]);
 
-
   if (loading || (user && account.loading)) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-muted-foreground">

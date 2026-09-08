@@ -3,6 +3,7 @@ import { Check, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 import { findTeamByCode, type TeamCodeMatch } from "@/lib/teams";
 import {
   SETUP_ERRORS,
@@ -43,16 +44,35 @@ export function AccountSetupFields({
   const [checking, setChecking] = useState(false);
   // Sant när kontrollen misslyckades tekniskt – då är det inte samma sak som fel kod.
   const [lookupFailed, setLookupFailed] = useState(false);
+  // Kodslagningen kräver inloggning. Innan kontot finns kontrolleras koden
+  // i stället när anslutningen görs, direkt efter registreringen.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   // Tränare: startar man ett nytt lag eller går man med i ett befintligt via tränarkod?
   const [coachJoins, setCoachJoins] = useState(() => !!setup.code?.trim());
   const code = normalizeTeamCode(setup.code);
   const isCoach = setup.role === "coach";
   const showCodeField = showCode && (!isCoach || coachJoins);
   const complete = code.length === TEAM_CODE_LENGTH;
+  const deferred = signedIn === false;
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active) setSignedIn(!!data.session);
+      })
+      .catch(() => {
+        if (active) setSignedIn(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     // Kontrollera aldrig innan sex tecken är ifyllda – annars visas fel i onödan.
-    if (!showCodeField || !complete) {
+    if (!showCodeField || !complete || signedIn !== true) {
       setMatch(null);
       setLookupFailed(false);
       setChecking(false);
@@ -81,31 +101,46 @@ export function AccountSetupFields({
       clearTimeout(timer);
       setChecking(false);
     };
-  }, [code, showCodeField, complete]);
+  }, [code, showCodeField, complete, signedIn]);
 
   const kindError = codeKindError(
     setup,
     match ? (match.join_role === "coach" ? "coach" : "player") : null,
   );
-  const codeError = !showCodeField
-    ? null
-    : !complete
+  const codeError =
+    !showCodeField || deferred
       ? null
-      : checking
+      : !complete
         ? null
-        : lookupFailed
-          ? SETUP_ERRORS.codeLookupFailed
-          : !match
-            ? SETUP_ERRORS.codeInvalid
-            : kindError;
+        : checking
+          ? null
+          : lookupFailed
+            ? SETUP_ERRORS.codeLookupFailed
+            : !match
+              ? SETUP_ERRORS.codeInvalid
+              : kindError;
 
   useEffect(() => {
     onCodeStatus?.({
       required: showCodeField,
-      ready: !showCodeField || (complete && !checking && !!match && !kindError && !lookupFailed),
+      // Utan inloggning går koden inte att slå upp i förväg – då blockeras inte
+      // registreringen, koden kontrolleras i stället vid anslutningen.
+      ready:
+        !showCodeField ||
+        (deferred ? complete : complete && !checking && !!match && !kindError && !lookupFailed),
       error: codeError,
     });
-  }, [showCodeField, complete, checking, match, kindError, lookupFailed, codeError, onCodeStatus]);
+  }, [
+    showCodeField,
+    complete,
+    checking,
+    match,
+    kindError,
+    lookupFailed,
+    codeError,
+    deferred,
+    onCodeStatus,
+  ]);
 
   return (
     <div className="space-y-4">
@@ -164,7 +199,9 @@ export function AccountSetupFields({
               }`}
             >
               <span className="font-medium">Jag är vårdnadshavare</span>
-              <span className="block text-xs text-muted-foreground">Kontot gäller mitt barn</span>
+              <span className="block text-xs text-muted-foreground">
+                Kontot är ditt – barnet kopplas till det
+              </span>
             </button>
           </div>
           {setup.isGuardian ? (
@@ -268,7 +305,13 @@ export function AccountSetupFields({
           {!complete && code.length > 0 && (
             <p className="text-xs text-muted-foreground">Koden är sex tecken.</p>
           )}
+          {deferred && complete && (
+            <p className="text-xs text-muted-foreground">
+              Vi kontrollerar koden när kontot skapas.
+            </p>
+          )}
           {codeError && <p className="text-xs text-destructive">{codeError}</p>}
+
           <p className="text-xs text-muted-foreground">
             {setup.role === "coach"
               ? "Tränarkoden får du av en befintlig tränare i laget. En tränare i laget godkänner dig."
