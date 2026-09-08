@@ -1,6 +1,8 @@
 import { BRAND_LOGO_ALT } from "@/lib/brand";
-import logoAsset from "@/assets/fotbollsrummet-logo.png.asset.json";
-import markAsset from "@/assets/fotbollsrummet-mark.png.asset.json";
+import logoDark from "@/assets/fotbollsrummet-logo-dark.png.asset.json";
+import logoLight from "@/assets/fotbollsrummet-logo-light.png.asset.json";
+import markDark from "@/assets/fotbollsrummet-mark-dark.png.asset.json";
+import markLight from "@/assets/fotbollsrummet-mark-light.png.asset.json";
 
 type Props = {
   /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
@@ -12,15 +14,21 @@ type Props = {
   className?: string;
 };
 
-/** Varumärket Fotbollsrummet – hela loggan eller enbart hörnflaggsmärket. */
+/**
+ * Varumärket Fotbollsrummet – hela loggan eller enbart hörnflaggsmärket.
+ * Båda färgvarianterna finns i sidan; stilmallen visar den som passar
+ * mörkt respektive ljust läge. Så slipper vi blink vid sidladdning.
+ */
 export function BrandLogo({ size = 40, showName = true, className }: Props) {
-  const src = showName ? logoAsset.url : markAsset.url;
+  const dark = showName ? logoDark.url : markDark.url;
+  const light = showName ? logoLight.url : markLight.url;
+  const style = { height: size, width: showName ? undefined : size };
+  const base = `brand-logo shrink-0 object-contain ${showName ? "w-auto" : ""} ${className ?? ""}`;
+
   return (
-    <img
-      src={src}
-      alt={BRAND_LOGO_ALT}
-      style={{ height: size, width: showName ? undefined : size }}
-      className={`brand-logo shrink-0 object-contain ${showName ? "w-auto" : ""} ${className ?? ""}`}
-    />
+    <>
+      <img src={dark} alt={BRAND_LOGO_ALT} style={style} className={`${base} brand-logo-dark`} />
+      <img src={light} alt="" aria-hidden style={style} className={`${base} brand-logo-light`} />
+    </>
   );
 }
