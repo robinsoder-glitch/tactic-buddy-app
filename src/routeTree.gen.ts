@@ -46,6 +46,7 @@ import { Route as AuthenticatedKunskapsbankTeknikRouteImport } from './routes/_a
 import { Route as AuthenticatedKunskapsbankVanligaMisstagRouteImport } from './routes/_authenticated/kunskapsbank.vanliga-misstag'
 import { Route as AuthenticatedOvningsbankIndexRouteImport } from './routes/_authenticated/ovningsbank.index'
 import { Route as AuthenticatedOvningsbankDrillIdRouteImport } from './routes/_authenticated/ovningsbank.$drillId'
+import { Route as AuthenticatedSpelarkunskapIndexRouteImport } from './routes/_authenticated/spelarkunskap.index'
 import { Route as AuthenticatedTacticIdRouteImport } from './routes/_authenticated/tactic.$id'
 import { Route as AuthenticatedTaktikbankIndexRouteImport } from './routes/_authenticated/taktikbank.index'
 import { Route as AuthenticatedTaktikbankCardIdRouteImport } from './routes/_authenticated/taktikbank.$cardId'
@@ -273,6 +274,12 @@ const AuthenticatedOvningsbankDrillIdRoute =
     path: '/ovningsbank/$drillId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSpelarkunskapIndexRoute =
+  AuthenticatedSpelarkunskapIndexRouteImport.update({
+    id: '/spelarkunskap/',
+    path: '/spelarkunskap/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTacticIdRoute = AuthenticatedTacticIdRouteImport.update({
   id: '/tactic/$id',
   path: '/tactic/$id',
@@ -464,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
+  '/spelarkunskap/': typeof AuthenticatedSpelarkunskapIndexRoute
   '/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/traningspass/': typeof AuthenticatedTraningspassIndexRoute
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
@@ -523,6 +531,7 @@ export interface FileRoutesByTo {
   '/kalender': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
   '/ovningsbank': typeof AuthenticatedOvningsbankIndexRoute
+  '/spelarkunskap': typeof AuthenticatedSpelarkunskapIndexRoute
   '/taktikbank': typeof AuthenticatedTaktikbankIndexRoute
   '/traningspass': typeof AuthenticatedTraningspassIndexRoute
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
@@ -588,6 +597,7 @@ export interface FileRoutesById {
   '/_authenticated/kalender/': typeof AuthenticatedKalenderIndexRoute
   '/_authenticated/kunskapsbank/': typeof AuthenticatedKunskapsbankIndexRoute
   '/_authenticated/ovningsbank/': typeof AuthenticatedOvningsbankIndexRoute
+  '/_authenticated/spelarkunskap/': typeof AuthenticatedSpelarkunskapIndexRoute
   '/_authenticated/taktikbank/': typeof AuthenticatedTaktikbankIndexRoute
   '/_authenticated/traningspass/': typeof AuthenticatedTraningspassIndexRoute
   '/_authenticated/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
     | '/kalender/'
     | '/kunskapsbank/'
     | '/ovningsbank/'
+    | '/spelarkunskap/'
     | '/taktikbank/'
     | '/traningspass/'
     | '/admin/lag/$teamId'
@@ -712,6 +723,7 @@ export interface FileRouteTypes {
     | '/kalender'
     | '/kunskapsbank'
     | '/ovningsbank'
+    | '/spelarkunskap'
     | '/taktikbank'
     | '/traningspass'
     | '/admin/lag/$teamId'
@@ -776,6 +788,7 @@ export interface FileRouteTypes {
     | '/_authenticated/kalender/'
     | '/_authenticated/kunskapsbank/'
     | '/_authenticated/ovningsbank/'
+    | '/_authenticated/spelarkunskap/'
     | '/_authenticated/taktikbank/'
     | '/_authenticated/traningspass/'
     | '/_authenticated/admin/lag/$teamId'
@@ -1067,6 +1080,13 @@ declare module '@tanstack/react-router' {
       path: '/ovningsbank/$drillId'
       fullPath: '/ovningsbank/$drillId'
       preLoaderRoute: typeof AuthenticatedOvningsbankDrillIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spelarkunskap/': {
+      id: '/_authenticated/spelarkunskap/'
+      path: '/spelarkunskap'
+      fullPath: '/spelarkunskap/'
+      preLoaderRoute: typeof AuthenticatedSpelarkunskapIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tactic/$id': {
@@ -1376,6 +1396,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTraningspassIdRoute: typeof AuthenticatedTraningspassIdRouteWithChildren
   AuthenticatedKunskapsbankIndexRoute: typeof AuthenticatedKunskapsbankIndexRoute
   AuthenticatedOvningsbankIndexRoute: typeof AuthenticatedOvningsbankIndexRoute
+  AuthenticatedSpelarkunskapIndexRoute: typeof AuthenticatedSpelarkunskapIndexRoute
   AuthenticatedTaktikbankIndexRoute: typeof AuthenticatedTaktikbankIndexRoute
   AuthenticatedTraningspassIndexRoute: typeof AuthenticatedTraningspassIndexRoute
 }
@@ -1413,6 +1434,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedTraningspassIdRouteWithChildren,
   AuthenticatedKunskapsbankIndexRoute: AuthenticatedKunskapsbankIndexRoute,
   AuthenticatedOvningsbankIndexRoute: AuthenticatedOvningsbankIndexRoute,
+  AuthenticatedSpelarkunskapIndexRoute: AuthenticatedSpelarkunskapIndexRoute,
   AuthenticatedTaktikbankIndexRoute: AuthenticatedTaktikbankIndexRoute,
   AuthenticatedTraningspassIndexRoute: AuthenticatedTraningspassIndexRoute,
 }
