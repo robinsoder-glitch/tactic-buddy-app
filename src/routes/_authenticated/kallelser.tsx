@@ -150,7 +150,6 @@ function MyInvitesPage() {
         />
       )}
 
-
       {!invites.isLoading && !invites.isError && !guarded.isError && list.length === 0 && (
         <div className="mt-6 space-y-2 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           <p>

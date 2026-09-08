@@ -7,7 +7,13 @@ import { cn } from "@/lib/utils";
  * Används överallt så att appen ser likadan ut oavsett var man är.
  */
 
-export function LoadingState({ text = "Hämtar …", className }: { text?: string; className?: string }) {
+export function LoadingState({
+  text = "Hämtar …",
+  className,
+}: {
+  text?: string;
+  className?: string;
+}) {
   return (
     <p
       role="status"

@@ -235,7 +235,6 @@ function MySessionsPage() {
         />
       )}
 
-
       {!sessions.isLoading && !sessions.isError && mine.length === 0 && (
         <div className="mt-8 rounded-xl border border-dashed border-border p-8 text-center">
           <ListChecks className="mx-auto size-8 text-primary" />

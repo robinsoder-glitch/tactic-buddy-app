@@ -111,7 +111,6 @@ export function TeamChatPanel({
           <EmptyState title="Inga meddelanden ännu" description="Skriv det första!" />
         )}
 
-
         {list.map((message) => {
           const mine = message.user_id === userId;
           return (
