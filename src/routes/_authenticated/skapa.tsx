@@ -53,7 +53,8 @@ function CreatePage() {
   const [step, setStep] = useState<"choose" | "blank" | "template">("choose");
   const [name, setName] = useState("");
   const [format, setFormat] = useState<GameFormatId>("5v5");
-  const [teamId, setTeamId] = useState<string>("");
+  const [formatTouched, setFormatTouched] = useState(false);
+  const [teamId, setTeamId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   const coachTeams = account.memberships.filter(
@@ -70,6 +71,16 @@ function CreatePage() {
     const teamFormat = parseGameFormat(team?.game_format);
     if (teamFormat) setFormat(teamFormat);
   }
+
+  /**
+   * Utan eget val följer tavlan lagets spelform: spelar laget 5 mot 5 väljs
+   * 5 mot 5, spelar de 11 mot 11 väljs 11 mot 11.
+   */
+  const defaultTeamId = coachTeams[0]?.team_id ?? "";
+  const activeTeamId = teamId ?? defaultTeamId;
+  const activeTeam = (myTeams.data ?? []).find((item) => item.id === activeTeamId);
+  const teamFormat = parseGameFormat(activeTeam?.game_format);
+  const activeFormat: GameFormatId = formatTouched ? format : (teamFormat ?? format);
 
   const cards = useQuery({
     queryKey: ["tb-tactics"],
@@ -91,9 +102,9 @@ function CreatePage() {
     mutationFn: () =>
       createTactic(
         user!.id,
-        name.trim() || `Ny taktik ${gameFormatLabel(format)}`,
-        pitchTypeForFormat(format),
-        teamId || null,
+        name.trim() || `Ny taktik ${gameFormatLabel(activeFormat)}`,
+        pitchTypeForFormat(activeFormat),
+        activeTeamId || null,
       ),
     onSuccess: (id) => navigate({ to: "/tactic/$id", params: { id } }),
     onError: () => toast.error("Kunde inte skapa taktiken"),
@@ -108,8 +119,8 @@ function CreatePage() {
       return createTacticFromFrames(
         user!.id,
         card.title,
-        pitchTypeForFormat(cardFormat ?? format),
-        teamId || null,
+        pitchTypeForFormat(cardFormat ?? activeFormat),
+        activeTeamId || null,
         frames,
       );
     },
@@ -179,15 +190,23 @@ function CreatePage() {
 
           <div className="space-y-2">
             <p className="text-sm font-semibold">Spelform</p>
+            {!formatTouched && teamFormat && (
+              <p className="text-xs text-muted-foreground">
+                Vald automatiskt från lagets spelform ({gameFormatLabel(teamFormat)}). Du kan byta.
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {GAME_FORMATS.map((item) => (
                 <button
                   key={item.id}
                   type="button"
-                  aria-pressed={format === item.id}
-                  onClick={() => setFormat(item.id)}
+                  aria-pressed={activeFormat === item.id}
+                  onClick={() => {
+                    setFormatTouched(true);
+                    setFormat(item.id);
+                  }}
                   className={`rounded-xl border p-3 text-left transition-colors ${
-                    format === item.id
+                    activeFormat === item.id
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/60"
                   }`}
@@ -203,13 +222,13 @@ function CreatePage() {
             <div className="space-y-2">
               <p className="text-sm font-semibold">Spelarbank från lag</p>
               <div className="flex flex-wrap gap-2">
-                <Chip active={teamId === ""} onClick={() => setTeamId("")}>
+                <Chip active={activeTeamId === ""} onClick={() => setTeamId("")}>
                   Utan lag
                 </Chip>
                 {coachTeams.map((item) => (
                   <Chip
                     key={item.team_id}
-                    active={teamId === item.team_id}
+                    active={activeTeamId === item.team_id}
                     onClick={() => chooseTeam(item.team_id)}
                   >
                     {item.team?.name ?? "Lag"}
