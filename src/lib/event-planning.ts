@@ -19,6 +19,8 @@ export type PlannableEvent = {
   starts_at: string;
   location: string | null;
   team_name: string | null;
+  home_team?: string | null;
+  away_team?: string | null;
 };
 
 /** Kommande träningar och matcher i de lag användaren är med i. */
@@ -27,7 +29,7 @@ export async function fetchUpcomingEvents(
 ) {
   const { data, error } = await supabase
     .from("events")
-    .select("id, team_id, type, title, starts_at, location, cancelled_at, teams(name)")
+    .select("id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)")
     .gte("starts_at", fromIso)
     .is("cancelled_at", null)
     .order("starts_at")
@@ -41,6 +43,8 @@ export async function fetchUpcomingEvents(
     starts_at: row.starts_at as string,
     location: (row.location as string | null) ?? null,
     team_name: (row as unknown as { teams: { name: string } | null }).teams?.name ?? null,
+    home_team: (row.home_team as string | null) ?? null,
+    away_team: (row.away_team as string | null) ?? null,
   })) satisfies PlannableEvent[];
 }
 

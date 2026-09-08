@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchUpcomingEvents, type PlannableEvent } from "@/lib/event-planning";
 import { planStatus } from "@/lib/plan-status";
+import { eventDisplayTitle } from "@/lib/event-labels";
 import { fetchEventPlans, fetchSquad, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { useAccount } from "@/hooks/useAccount";
@@ -174,7 +175,7 @@ function MatchPlanningPage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="font-medium">{event.title ?? "Match"}</p>
+                          <p className="font-medium">{eventDisplayTitle(event)}</p>
                           <p className="text-sm text-muted-foreground">
                             {event.team_name} · {formatDateTime(event.starts_at)}
                           </p>
