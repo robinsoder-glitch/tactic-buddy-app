@@ -3,6 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { fetchDrill, fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { drillMeta } from "@/lib/ovningsbank";
+import {
+  fetchDrillUsage,
+  usageDateLabel,
+  usageSummary,
+  USAGE_SOURCE_LABELS,
+} from "@/lib/drill-usage";
 import { drillDefaultMinutes } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
@@ -126,6 +132,46 @@ function DrillPage() {
           defaultMinutes={drillDefaultMinutes(drill.data)}
         />
       </div>
+
+      <DrillUsageSection drillId={drill.data.id} />
     </main>
+  );
+}
+
+/** Visar var övningen är inplanerad och när den har genomförts. */
+function DrillUsageSection({ drillId }: { drillId: string }) {
+  const usage = useQuery({
+    queryKey: ["drill-usage", drillId],
+    queryFn: () => fetchDrillUsage(drillId),
+  });
+
+  return (
+    <section className="mt-8" aria-label="Så har övningen använts">
+      <h2 className="font-display text-lg font-bold">Så har du använt övningen</h2>
+      {usage.isLoading && <p className="mt-2 text-sm text-muted-foreground">Laddar…</p>}
+      {usage.isError && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Kunde inte hämta användningen just nu. Försök igen senare.
+        </p>
+      )}
+      {usage.data && (
+        <>
+          <p className="mt-2 text-sm text-muted-foreground">{usageSummary(usage.data)}</p>
+          {usage.data.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {usage.data.map((item) => (
+                <li key={item.id} className="rounded-xl border border-border px-3 py-2 text-sm">
+                  <p className="font-medium">{item.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {USAGE_SOURCE_LABELS[item.source]} · {usageDateLabel(item.date)}
+                    {item.done ? " · Genomförd" : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </section>
   );
 }
