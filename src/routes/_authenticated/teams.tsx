@@ -59,7 +59,16 @@ function TeamsPage() {
   const allTeams = teams.data ?? [];
   const archivedCount = allTeams.filter((team) => team.archived_at).length;
   const visibleTeams = showArchived ? allTeams : allTeams.filter((team) => !team.archived_at);
-  const clubs = useQuery({ queryKey: ["clubs"], queryFn: fetchClubs });
+  // Bara klubbar där man själv redan har ett lag ska gå att välja. Andras
+  // klubbar ska inte synas för en ny tränare – då skriver man bara in sin egen.
+  const myClubs = Array.from(
+    new Map(
+      allTeams
+        .filter((team) => team.club?.id && team.club?.name)
+        .map((team) => [team.club!.id, { id: team.club!.id, name: team.club!.name }]),
+    ).values(),
+  ).sort((a, b) => a.name.localeCompare(b.name, "sv"));
+
 
   const create = useMutation({
     mutationFn: () => {
