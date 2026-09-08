@@ -166,7 +166,7 @@ function PlayerPage() {
           ].filter((guardian) => guardian.name || guardian.phone || guardian.email).length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Inga uppgifter ifyllda än.</p>
           ) : (
-            <ul className="mt-2 space-y-3 text-sm">
+            <ul className="mt-2 space-y-3 break-words text-sm">
               {[
                 {
                   name: player?.guardian1_name,
