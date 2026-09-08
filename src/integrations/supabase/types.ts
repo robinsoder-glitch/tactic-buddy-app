@@ -2109,6 +2109,62 @@ export type Database = {
           },
         ]
       }
+      tb_collection_items: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          kind: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tb_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "tb_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tb_collections: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tb_district_profiles: {
         Row: {
           created_at: string
