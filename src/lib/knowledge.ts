@@ -36,16 +36,28 @@ export type KnowledgeArticle = {
 const COLUMNS =
   "id, slug, title_sv, title_original, summary_sv, learn_sv, try_next_sv, category, age_label, age_5_7, age_8_9, age_10, game_format_label, format_3v3, format_5v5, format_7v7, level, content_type, language, source_name, source_type, reading_minutes, coach_value, evidence_level, original_url, checked_date, is_published, featured, sort_order, copyright_note";
 
-export async function fetchKnowledgeArticles(): Promise<KnowledgeArticle[]> {
+/**
+ * Listvyerna visar kort – de behöver inte artiklarnas långa texter. Vi hämtar
+ * bara det som syns i listan; hela artikeln hämtas när man öppnar den.
+ */
+const LIST_COLUMNS =
+  "id, slug, title_sv, summary_sv, category, age_label, age_5_7, age_8_9, age_10, game_format_label, format_3v3, format_5v5, format_7v7, level, content_type, language, source_name, source_type, reading_minutes, coach_value, original_url, checked_date, is_published, featured, sort_order";
+
+export type KnowledgeArticleListItem = Omit<
+  KnowledgeArticle,
+  "title_original" | "learn_sv" | "try_next_sv" | "evidence_level" | "copyright_note"
+>;
+
+export async function fetchKnowledgeArticles(): Promise<KnowledgeArticleListItem[]> {
   const { data, error } = await supabase
     .from("knowledge_articles")
-    .select(COLUMNS)
+    .select(LIST_COLUMNS)
     .eq("is_published", true)
     .order("featured", { ascending: false })
     .order("sort_order", { ascending: true })
     .order("title_sv", { ascending: true });
   if (error) throw error;
-  return (data ?? []) as unknown as KnowledgeArticle[];
+  return (data ?? []) as unknown as KnowledgeArticleListItem[];
 }
 
 export async function fetchKnowledgeArticle(slug: string): Promise<KnowledgeArticle | null> {
