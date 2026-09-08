@@ -132,6 +132,10 @@ function PlayerHome() {
         </Button>
       </header>
 
+      <div className="mt-6">
+        <TodayPanel isCoach={false} />
+      </div>
+
       <section className="mt-6 space-y-3">
         {pending.map((item) => (
           <p
