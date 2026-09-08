@@ -5,6 +5,16 @@ import logoLight from "@/assets/fotbollsrummet-logo-light.png.asset.json";
 import markDark from "@/assets/fotbollsrummet-mark-dark.png.asset.json";
 import markLight from "@/assets/fotbollsrummet-mark-light.png.asset.json";
 
+type Props = {
+  /** Logotypens höjd i px. Sidhuvud/meny ≈ 32–40, startsida ≈ 56. */
+  size?: number;
+  /** Visa hela loggan med namnet. Annars bara märket. */
+  showName?: boolean;
+  /** Behålls för bakåtkompatibilitet – namnet ingår i bilden. */
+  nameClassName?: string;
+  className?: string;
+};
+
 /** Sant när sidan visas i ljust läge (klassen `light` på <html>). */
 function useIsLightTheme() {
   const [isLight, setIsLight] = useState(false);
