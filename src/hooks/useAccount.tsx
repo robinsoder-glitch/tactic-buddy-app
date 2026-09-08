@@ -45,9 +45,13 @@ export function useAccount() {
   );
 
   // Kom igång-sidan ska bara visas för den som varken valt kontotyp, har en
-  // roll eller är med i ett lag. Annars fastnar t.ex. en ny tränare som redan
-  // skapat sitt lag i valet av kontotyp.
-  const needsOnboarding = roleList.length === 0 && membershipList.length === 0 && !accountKind;
+  // roll eller är med i ett lag – och bara när vi faktiskt har hämtat allt.
+  // Annars kan ett tillfälligt fel eller en långsam hämtning kasta tillbaka
+  // en tränare som redan skapat sitt lag till "skapa"-läget.
+  const accountReady = roles.isSuccess && memberships.isSuccess && profile.isSuccess;
+  const needsOnboarding =
+    accountReady && roleList.length === 0 && membershipList.length === 0 && !accountKind;
+
 
   return {
     user,
