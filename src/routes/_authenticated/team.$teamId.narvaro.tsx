@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CalendarCheck, ChevronRight, ListChecks, Users } from "lucide-react";
@@ -252,6 +252,7 @@ function EventAttendance({
   const playerIds = useMemo(() => players.map((player) => player.id), [players]);
   const [onlyUnregistered, setOnlyUnregistered] = useState(false);
   const [draft, setDraft] = useState<Draft>({});
+  const backAfterSave = useRef(false);
 
   const rows = useQuery({
     queryKey: ["attendance-event", eventId],
@@ -299,6 +300,10 @@ function EventAttendance({
       toast.success(`Närvaron sparades för ${count} spelare.`);
       await queryClient.invalidateQueries({ queryKey: ["attendance-event", eventId] });
       onChanged();
+      if (backAfterSave.current) {
+        backAfterSave.current = false;
+        onBack();
+      }
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Det gick inte att spara närvaron."),
@@ -509,7 +514,9 @@ function EventAttendance({
               <Button
                 disabled={save.isPending}
                 onClick={() => {
-                  // Färdigställ: alla utan status räknas som frånvarande.
+                  // Färdigställ: alla utan status räknas som frånvarande,
+                  // och efter sparning återgår vi till listan med alla träningar.
+                  backAfterSave.current = true;
                   setDraft((current) => {
                     let next = current;
                     for (const player of players) {
