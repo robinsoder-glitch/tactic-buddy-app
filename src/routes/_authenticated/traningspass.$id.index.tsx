@@ -315,21 +315,25 @@ function SessionBuilder() {
       <SessionSharing sessionId={id} title={session.data.title} teamId={session.data.team_id} />
 
       <section className="mt-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-display text-lg font-semibold">
             Innehåll{" "}
             <span className="text-sm font-normal text-muted-foreground">
               ({minutesLabel(totalMinutes(items))})
             </span>
           </h2>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => setAddOpen(true)} aria-label="Lägg till del">
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+            <Button
+              className="min-h-11 w-full justify-center sm:w-auto"
+              onClick={() => setAddOpen(true)}
+              aria-label="Lägg till del"
+            >
               <Plus className="size-4" /> Lägg till del
             </Button>
             <Link
               to="/ovningsbank"
               search={{ sessionId: id }}
-              className="inline-flex min-h-9 items-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary sm:w-auto"
             >
               <BookOpen className="size-4" aria-hidden /> Hämta från Träningsbanken
             </Link>
