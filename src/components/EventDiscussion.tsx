@@ -10,6 +10,7 @@ import {
   sendEventMessage,
 } from "@/lib/announcements";
 import { useAccount } from "@/hooks/useAccount";
+import { useRealtimeRefetch } from "@/hooks/useRealtimeRefetch";
 
 /** Frågor och svar som hör till en enskild aktivitet. */
 export function EventDiscussion({ eventId, teamId }: { eventId: string; teamId: string }) {
