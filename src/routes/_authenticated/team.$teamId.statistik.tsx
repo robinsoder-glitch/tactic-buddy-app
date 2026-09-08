@@ -194,13 +194,17 @@ function StatsPage() {
                     {row.trainings} / {row.trainingsTotal}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    {percent(row.trainings, row.trainingsTotal)} %
+                    {(registered.get(row.playerId) ?? 0) === 0
+                      ? "Ej registrerat"
+                      : `${percent(row.trainings, row.trainingsTotal)} %`}
                   </td>
                   <td className="px-3 py-2 text-right">
                     {row.matches} / {row.matchesTotal}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    {percent(row.matches, row.matchesTotal)} %
+                    {(registered.get(row.playerId) ?? 0) === 0
+                      ? "Ej registrerat"
+                      : `${percent(row.matches, row.matchesTotal)} %`}
                   </td>
                   <td className="px-3 py-2 text-right">{row.absent}</td>
                 </tr>
