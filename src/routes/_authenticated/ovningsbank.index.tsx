@@ -433,7 +433,7 @@ function OvningsbankPage() {
                     />
                   </div>
 
-                  <div className="relative z-10 mt-3">
+                  <div className="mt-3">
                     <PickDrillButton
                       kind="drill"
                       resourceId={drill.id}
@@ -443,7 +443,8 @@ function OvningsbankPage() {
                     />
                   </div>
                 </div>
-                <div className="relative z-10">
+                <div>
+
                   <FavoriteButton
                     active={favoriteSet.has(`drill:${drill.id}`)}
                     onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}
