@@ -1033,15 +1033,17 @@ export function TacticEditor({ id }: { id: string }) {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-4xl flex-col gap-3 px-3 pb-6 pt-3">
-      <header className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="icon" className="size-11" aria-label="Tillbaka">
-          <Link to="/">
-            <ArrowLeft className="size-5" />
-          </Link>
-        </Button>
-        <h1 className="min-w-0 flex-1 truncate font-display text-2xl font-bold">
-          {isDraft ? "Ny taktik" : tactic.data.name}
-        </h1>
+      <header className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 basis-full items-center gap-2 sm:basis-auto sm:flex-1">
+          <Button asChild variant="ghost" size="icon" className="size-11" aria-label="Tillbaka">
+            <Link to="/">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <h1 className="min-w-0 flex-1 truncate font-display text-xl font-bold sm:text-2xl">
+            {isDraft ? "Ny taktik" : tactic.data.name}
+          </h1>
+        </div>
         <span className="text-xs text-muted-foreground">
           {save.isPending ? "Sparar…" : isDraft ? "Inte sparad än" : dirty ? "Osparat" : "Sparat"}
         </span>
