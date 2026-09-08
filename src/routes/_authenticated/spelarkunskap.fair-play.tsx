@@ -44,10 +44,7 @@ function FairPlayPage() {
 
       <ol className="mt-6 space-y-3">
         {FAIR_PLAY_RULES.map((rule) => (
-          <li
-            key={rule.number}
-            className="flex gap-3 rounded-2xl border border-border bg-card p-4"
-          >
+          <li key={rule.number} className="flex gap-3 rounded-2xl border border-border bg-card p-4">
             <span
               aria-hidden
               className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary"

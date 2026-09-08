@@ -29,7 +29,9 @@ export async function fetchUpcomingEvents(
 ) {
   const { data, error } = await supabase
     .from("events")
-    .select("id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)")
+    .select(
+      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)",
+    )
     .gte("starts_at", fromIso)
     .is("cancelled_at", null)
     .order("starts_at")

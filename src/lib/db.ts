@@ -190,7 +190,6 @@ function frameHasContent(frame: {
   return objects.length > 0 || drawings.length > 0 || text;
 }
 
-
 /** Markerar utkastet som en riktig, sparad taktik. */
 export async function publishTactic(id: string, name: string) {
   const { error } = await supabase.from("tactics").update({ name, is_draft: false }).eq("id", id);
