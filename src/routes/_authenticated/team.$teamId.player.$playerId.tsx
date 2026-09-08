@@ -88,9 +88,11 @@ function PlayerPage() {
 
   return (
     <section>
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
         <BackIconButton fallback={`/team/${teamId}`} label="Tillbaka till truppen" />
-        <h2 className="font-display text-2xl font-bold">{player?.name ?? "Spelare"}</h2>
+        <h2 className="min-w-0 break-words font-display text-xl font-bold sm:text-2xl">
+          {player?.name ?? "Spelare"}
+        </h2>
       </div>
 
       {players.isError && (
@@ -99,15 +101,15 @@ function PlayerPage() {
         </p>
       )}
 
-      <div className="mt-4 flex gap-4 rounded-xl border border-border bg-card p-4">
-        <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary">
+      <div className="mt-4 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row">
+        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary sm:size-24">
           {player?.photoUrl ? (
             <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
           ) : (
             <UserRound className="size-10 text-muted-foreground" />
           )}
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-y-2 text-sm">
+        <dl className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 break-words text-sm">
           {player?.number != null && (
             <>
               <dt className="text-muted-foreground">Nummer</dt>
@@ -164,7 +166,7 @@ function PlayerPage() {
           ].filter((guardian) => guardian.name || guardian.phone || guardian.email).length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Inga uppgifter ifyllda än.</p>
           ) : (
-            <ul className="mt-2 space-y-3 text-sm">
+            <ul className="mt-2 space-y-3 break-words text-sm">
               {[
                 {
                   name: player?.guardian1_name,
