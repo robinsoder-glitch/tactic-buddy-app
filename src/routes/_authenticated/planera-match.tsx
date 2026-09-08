@@ -495,18 +495,6 @@ function MatchPlanner({
     }
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("events")
-        .update({
-          location: location.trim() || null,
-          starts_at: startIso,
-          ends_at: endTime ? new Date(`${date}T${endTime}`).toISOString() : null,
-          meet_at: meetIso,
-          home_team: homeAway === "hemma" ? team.name : opponent.trim() || null,
-          away_team: homeAway === "hemma" ? opponent.trim() || null : team.name,
-        })
-        .eq("id", eventId);
-      if (error) throw error;
       await saveMatchPlanFull({
         eventId,
         teamId,
@@ -518,6 +506,14 @@ function MatchPlanner({
         bench,
         tacticId,
         required: effectiveRequired,
+        event: {
+          location: location.trim() || null,
+          startsAt: startIso,
+          endsAt: endTime ? new Date(`${date}T${endTime}`).toISOString() : null,
+          meetAt: meetIso,
+          homeTeam: homeAway === "hemma" ? team.name : opponent.trim() || null,
+          awayTeam: homeAway === "hemma" ? opponent.trim() || null : team.name,
+        },
       });
       toast.success("Matchplanen är sparad");
       // Läsläget ska visa de nyss sparade uppgifterna utan omladdning.

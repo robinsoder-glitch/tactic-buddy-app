@@ -40,8 +40,10 @@ export const SETUP_ERRORS = {
   weakPassword: "Lösenordet måste vara minst 6 tecken.",
 } as const;
 
+/** Returnerar NaN när datumet inte går att tolka, så det aldrig kan passera som giltigt. */
 export function ageAt(birth: string, today = new Date()): number {
   const date = new Date(birth);
+  if (Number.isNaN(date.getTime())) return Number.NaN;
   let years = today.getFullYear() - date.getFullYear();
   const months = today.getMonth() - date.getMonth();
   if (months < 0 || (months === 0 && today.getDate() < date.getDate())) years -= 1;
@@ -85,12 +87,19 @@ export function validateSetup(
 
   if (setup.role === "coach") {
     if (!setup.birth) return "Ange ditt födelsedatum";
-    if (ageAt(setup.birth) < MIN_COACH_AGE) return "Du måste vara minst 18 år för ett tränarkonto";
+    const age = ageAt(setup.birth);
+    if (Number.isNaN(age)) return "Ange ett giltigt födelsedatum";
+    if (age < MIN_COACH_AGE) return "Du måste vara minst 18 år för ett tränarkonto";
     if (!setup.adultConfirmed) return "Du behöver intyga att uppgiften stämmer";
   } else {
     if (setup.isGuardian && !setup.playerName?.trim()) return "Ange spelarens namn";
-    if (!setup.isGuardian && setup.birth && ageAt(setup.birth) < MIN_PLAYER_ACCOUNT_AGE) {
-      return "Är spelaren under 13 år ska en vårdnadshavare skapa kontot";
+    if (!setup.isGuardian) {
+      if (!setup.birth) return "Ange spelarens födelsedatum";
+      const age = ageAt(setup.birth);
+      if (Number.isNaN(age)) return "Ange ett giltigt födelsedatum";
+      if (age < MIN_PLAYER_ACCOUNT_AGE) {
+        return "Är spelaren under 13 år ska en vårdnadshavare skapa kontot";
+      }
     }
   }
 

@@ -14,7 +14,12 @@ import {
   type AccountSetup,
 } from "./account-setup";
 
-const player: AccountSetup = { role: "player", name: "Robin", code: "ABC123" };
+const player: AccountSetup = {
+  role: "player",
+  name: "Robin",
+  code: "ABC123",
+  birth: "2008-05-04",
+};
 const coach: AccountSetup = {
   role: "coach",
   name: "Maria",

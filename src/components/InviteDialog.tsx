@@ -78,22 +78,34 @@ export function InviteDialog({
   const operationId = useRef<string>("");
 
   // Nollställs varje gång dialogen öppnas. Avbryt sparar därför aldrig något.
+  // Bakgrundsomladdning av kallelser/spelare får INTE nollställa formuläret
+  // eller byta operations-id mitt i ett pågående försök.
+  const latest = useRef({
+    activeInvitations,
+    players,
+    squadPlayerIds,
+    startsAt,
+    hasExisting,
+    meta,
+  });
+  latest.current = { activeInvitations, players, squadPlayerIds, startsAt, hasExisting, meta };
+
   useEffect(() => {
     if (!open) return;
-    const invitedIds = new Set(activeInvitations.map((item) => item.player_id));
-    const suggestion = squadPlayerIds.filter((id) => {
-      const player = players.find((p) => p.id === id);
+    const snap = latest.current;
+    const invitedIds = new Set(snap.activeInvitations.map((item) => item.player_id));
+    const suggestion = snap.squadPlayerIds.filter((id) => {
+      const player = snap.players.find((p) => p.id === id);
       return player && player.is_active !== false && !invitedIds.has(id);
     });
-    setSelected(hasExisting ? [] : suggestion);
-    setMessage(meta?.message ?? "");
-    setRespondBy(meta?.respond_by ?? suggestRespondBy(startsAt));
+    setSelected(snap.hasExisting ? [] : suggestion);
+    setMessage(snap.meta?.message ?? "");
+    setRespondBy(snap.meta?.respond_by ?? suggestRespondBy(snap.startsAt));
     setNotify(true);
     setSearch("");
     setReview(false);
     operationId.current = crypto.randomUUID();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, invitations, players, squadPlayerIds, startsAt]);
+  }, [open]);
 
   const guarded = useQuery({
     queryKey: ["guarded-of-team-players", players.map((p) => p.id).join(",")],

@@ -1334,6 +1334,33 @@ export type Database = {
         }
         Relationships: []
       }
+      operation_results: {
+        Row: {
+          created_at: string
+          op_id: string
+          result: Json
+          scope: string
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          op_id: string
+          result: Json
+          scope: string
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          op_id?: string
+          result?: Json
+          scope?: string
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       period_links: {
         Row: {
           created_at: string
@@ -2926,6 +2953,10 @@ export type Database = {
         Args: { _invitation_id: string }
         Returns: string
       }
+      is_adult_account: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_announcement_recipient: {
         Args: { _announcement_id: string; _user_id: string }
         Returns: boolean
@@ -3037,16 +3068,23 @@ export type Database = {
       }
       save_match_plan: {
         Args: {
+          _away_team?: string
           _bench: string[]
           _coach_ids: string[]
+          _ends_at?: string
           _event_id: string
           _formation: string
+          _home_team?: string
+          _location?: string
+          _meet_at?: string
           _notes: string
           _player_ids: string[]
           _required: number
           _slots: Json
+          _starts_at?: string
           _tactic_id: string
           _team_id: string
+          _update_event?: boolean
         }
         Returns: undefined
       }

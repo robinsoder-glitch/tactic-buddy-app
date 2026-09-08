@@ -34,11 +34,14 @@ describe("validateSetup tränare", () => {
 
 describe("validateSetup spelare", () => {
   it("kräver lagkod när den behövs", () => {
-    expect(validateSetup({ role: "player", name: "Elias" }, { requireCode: true })).toMatch(
-      /lagkod/i,
-    );
     expect(
-      validateSetup({ role: "player", name: "Elias", code: "A1B2C3" }, { requireCode: true }),
+      validateSetup({ role: "player", name: "Elias", birth: "2008-05-04" }, { requireCode: true }),
+    ).toMatch(/lagkod/i);
+    expect(
+      validateSetup(
+        { role: "player", name: "Elias", code: "A1B2C3", birth: "2008-05-04" },
+        { requireCode: true },
+      ),
     ).toBeNull();
   });
 

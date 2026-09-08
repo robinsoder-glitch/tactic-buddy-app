@@ -35,6 +35,7 @@ export function CoachInvites() {
   });
 
   const busy = loading || results.some((result) => result.isLoading);
+  const failed = results.some((result) => result.isError);
   const now = Date.now();
   const rows = results
     .flatMap((result) => {
@@ -58,12 +59,22 @@ export function CoachInvites() {
       <h1 className="font-display text-3xl font-bold">Kallelser</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Kallelser går aldrig ut automatiskt – du väljer när de skickas, och de går bara till
-        spelarna. Träningar har ingen kallelse, där registrerar du närvaro efteråt.
+        spelarna och de vuxna som är kopplade till dem i appen. Träningar har ingen kallelse, där
+        registrerar du närvaro efteråt.
       </p>
 
       {busy && <p className="mt-6 text-sm text-muted-foreground">Hämtar matcher …</p>}
 
-      {!busy && rows.length === 0 && (
+      {!busy && failed && (
+        <div className="mt-6 space-y-2 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
+          <p>Matcherna kunde inte hämtas just nu.</p>
+          <Button size="sm" onClick={() => results.forEach((result) => void result.refetch())}>
+            Försök igen
+          </Button>
+        </div>
+      )}
+
+      {!busy && !failed && rows.length === 0 && (
         <div className="mt-6 space-y-3 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           <p>Det finns inga kommande matcher att kalla till.</p>
           <Button asChild size="sm">

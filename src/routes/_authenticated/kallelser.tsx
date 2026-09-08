@@ -5,6 +5,7 @@ import { Ban, CalendarDays, Info, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import {
   NO_ACCOUNT_TEXT,
+  canRecipientAnswer,
   canRespondAsGuardian,
   canRespondSelf,
   hasMultiplePlayers,
@@ -26,6 +27,15 @@ import { eventDisplayTitle } from "@/lib/event-labels";
 import { fetchMyGuardedPlayerIds } from "@/lib/guardians";
 import { Button } from "@/components/ui/button";
 import { CoachInvites } from "@/components/CoachInvites";
+
+/** Sista svarsdag visas som ett konkret datum, inte bara som status. */
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("sv-SE", {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+  });
+}
 
 export const Route = createFileRoute("/_authenticated/kallelser")({
   head: () => ({
@@ -126,16 +136,23 @@ function MyInvitesPage() {
         </Button>
       </div>
 
-      {invites.isError && (
+      {(invites.isError || guarded.isError) && (
         <div className="mt-4">
           <p className="text-sm text-muted-foreground">Dina kallelser kunde inte hämtas just nu.</p>
-          <Button size="sm" className="mt-2" onClick={() => invites.refetch()}>
+          <Button
+            size="sm"
+            className="mt-2"
+            onClick={() => {
+              void invites.refetch();
+              void guarded.refetch();
+            }}
+          >
             Försök igen
           </Button>
         </div>
       )}
 
-      {!invites.isLoading && !invites.isError && list.length === 0 && (
+      {!invites.isLoading && !invites.isError && !guarded.isError && list.length === 0 && (
         <div className="mt-6 space-y-2 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           <p>
             {showPast
@@ -189,8 +206,13 @@ function MyInvitesPage() {
               {group.invitations.map((invitation) => {
                 const self = canRespondSelf(invitation, userId);
                 const guardianOf = canRespondAsGuardian(invitation, guardedIds);
+                const answerable = canRecipientAnswer({
+                  status: invitation.status,
+                  cancelled: Boolean(group.event.cancelled_at),
+                  invitesClosed: Boolean(group.event.invites_closed_at),
+                });
                 const closed = Boolean(group.event.invites_closed_at);
-                const mayAnswer = (self || guardianOf) && !closed;
+                const mayAnswer = (self || guardianOf) && answerable.ok;
                 return (
                   <div
                     key={invitation.id}
@@ -201,8 +223,16 @@ function MyInvitesPage() {
                     )}
                     {invitation.message && <p className="mt-1 text-sm">{invitation.message}</p>}
                     <p className="mt-1 text-sm font-semibold">
-                      Ditt svar: {inviteStatusLabel(invitation.status)}
+                      Ditt svar:{" "}
+                      {invitation.status === "revoked"
+                        ? "Kallelsen är återkallad"
+                        : inviteStatusLabel(invitation.status)}
                     </p>
+                    {invitation.respond_by && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Sista svarsdag: {formatDate(invitation.respond_by)}
+                      </p>
+                    )}
                     <p className="mt-1 text-xs text-muted-foreground">
                       {
                         RESPOND_BY_STATE_LABELS[
@@ -234,11 +264,13 @@ function MyInvitesPage() {
                       </div>
                     ) : (
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {cancelled
-                          ? "Matchen är inställd. Nya svar är stängda."
-                          : closed
-                            ? "Kallelsen är stängd för nya svar."
-                            : NO_ACCOUNT_TEXT}
+                        {!answerable.ok
+                          ? answerable.reason
+                          : cancelled
+                            ? "Matchen är inställd. Nya svar är stängda."
+                            : closed
+                              ? "Kallelsen är stängd för nya svar."
+                              : NO_ACCOUNT_TEXT}
                       </p>
                     )}
                   </div>
