@@ -42,6 +42,7 @@ import { pitchTypeLabel } from "@/lib/game-format";
 import type { TacticSummary } from "@/lib/db";
 import { TacticThumb } from "@/components/TacticThumb";
 import { BrandLogo } from "@/components/BrandLogo";
+import { TodayPanel } from "@/components/TodayPanel";
 
 import {
   BRAND_DESCRIPTION,
@@ -131,6 +132,10 @@ function PlayerHome() {
           <LogOut className="size-5" />
         </Button>
       </header>
+
+      <div className="mt-6">
+        <TodayPanel isCoach={false} />
+      </div>
 
       <section className="mt-6 space-y-3">
         {pending.map((item) => (
@@ -433,7 +438,11 @@ function TacticsDashboard({ userId }: { userId: string }) {
         </Button>
       </header>
 
-      <section className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5">
+        <TodayPanel isCoach={isCoach} />
+      </div>
+
+      <section className="mt-3 grid gap-3 sm:grid-cols-3">
         <QuickCard
           to="/planera-traning"
           icon={<ClipboardList className="size-5" />}
