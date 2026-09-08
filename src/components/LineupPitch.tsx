@@ -101,14 +101,14 @@ export function LineupPitch({
             </text>
             {showNames && (
               <text
-                x={cx}
+                x={Math.min(Math.max(cx, 11), 89)}
                 y={cy + 7.4}
                 textAnchor="middle"
                 fontSize="2.7"
                 fill="currentColor"
                 fillOpacity="0.85"
               >
-                {player ? player.name.split(" ")[0] : "Tom plats"}
+                {player ? player.name.split(" ")[0] : "Tom"}
                 {slot.gk ? " (MV)" : ""}
               </text>
             )}
