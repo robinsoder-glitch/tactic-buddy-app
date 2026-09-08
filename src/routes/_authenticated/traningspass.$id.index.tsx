@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowLeft, ArrowUp, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   addSessionItem,
@@ -316,9 +316,18 @@ function SessionBuilder() {
               ({minutesLabel(totalMinutes(items))})
             </span>
           </h2>
-          <Button size="sm" onClick={() => setAddOpen(true)} aria-label="Lägg till del">
-            <Plus className="size-4" /> Lägg till del
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => setAddOpen(true)} aria-label="Lägg till del">
+              <Plus className="size-4" /> Lägg till del
+            </Button>
+            <Link
+              to="/ovningsbank"
+              search={{ sessionId: id }}
+              className="inline-flex min-h-9 items-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary"
+            >
+              <BookOpen className="size-4" aria-hidden /> Hämta från Träningsbanken
+            </Link>
+          </div>
         </div>
 
         {items.length === 0 && (

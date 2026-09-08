@@ -45,6 +45,7 @@ type OvningsbankSearch = {
   markera?: string | undefined;
   eventId?: string | undefined;
   teamId?: string | undefined;
+  sessionId?: string | undefined;
 };
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/")({
@@ -61,6 +62,10 @@ export const Route = createFileRoute("/_authenticated/ovningsbank/")({
       teamId:
         typeof search["teamId"] === "string" && search["teamId"]
           ? (search["teamId"] as string)
+          : undefined,
+      sessionId:
+        typeof search["sessionId"] === "string" && search["sessionId"]
+          ? (search["sessionId"] as string)
           : undefined,
     };
   },
@@ -413,6 +418,11 @@ function OvningsbankPage() {
                     <Link
                       to="/ovningsbank/$drillId"
                       params={{ drillId: drill.id }}
+                      search={{
+                        eventId: search.eventId,
+                        teamId: search.teamId,
+                        sessionId: search.sessionId,
+                      }}
                       aria-label={`Öppna övningen ${drill.title}`}
                       className="hover:underline"
                     >
