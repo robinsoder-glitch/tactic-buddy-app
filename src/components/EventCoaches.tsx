@@ -12,6 +12,7 @@ import {
   removeEventCoach,
 } from "@/lib/event-coaches";
 import { fetchTeamMembers } from "@/lib/teams";
+import { isLeaderRole } from "@/lib/team-roles";
 
 type Props = {
   eventId: string;
@@ -40,7 +41,7 @@ export function EventCoaches({ eventId, teamId, userId, canEdit }: Props) {
 
   const coachOptions = (members.data ?? []).filter(
     (member) =>
-      member.role === "coach" &&
+      isLeaderRole(member.role) &&
       member.status === "approved" &&
       !(coaches.data ?? []).some((row) => row.user_id === member.user_id),
   );

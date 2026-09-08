@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchUnreadChatCount } from "@/lib/team-chat";
 import { useAccount } from "./useAccount";
+import { isLeaderRole } from "@/lib/team-roles";
 
 /** Antal olästa meddelanden i Tränarsnack för de lag man är ledare i. */
 export function useUnreadChat(): number {
   const { memberships, userId } = useAccount();
   const teamIds = memberships
-    .filter((item) => item.status === "approved" && item.role === "coach")
+    .filter((item) => item.status === "approved" && isLeaderRole(item.role))
     .map((item) => item.team_id);
 
   const unread = useQuery({

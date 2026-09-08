@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAccount } from "@/hooks/useAccount";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { isLeaderRole } from "@/lib/team-roles";
 
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 
@@ -40,7 +41,7 @@ export function SessionSharing({
   });
 
   const coachTeams = account.memberships.filter(
-    (item) => item.role === "coach" && item.status === "approved",
+    (item) => isLeaderRole(item.role) && item.status === "approved",
   );
   const coachTeamIds = useMemo(() => new Set(coachTeams.map((item) => item.team_id)), [coachTeams]);
 

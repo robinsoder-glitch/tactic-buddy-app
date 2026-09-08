@@ -5,6 +5,7 @@ import { MessagesSquare } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { TeamChatPanel } from "@/components/TeamChatPanel";
 import { CoachOnly } from "@/components/CoachOnly";
+import { isLeaderRole } from "@/lib/team-roles";
 
 const searchSchema = z.object({ team: z.string().optional() });
 
@@ -37,7 +38,7 @@ function TranarsnackPage() {
   const { team: teamParam } = Route.useSearch();
   const { memberships, loading } = useAccount();
   const coachTeams = memberships.filter(
-    (item) => item.status === "approved" && item.role === "coach",
+    (item) => item.status === "approved" && isLeaderRole(item.role),
   );
   const [teamId, setTeamId] = useState<string | null>(null);
   const active = teamId ?? teamParam ?? coachTeams[0]?.team_id ?? null;

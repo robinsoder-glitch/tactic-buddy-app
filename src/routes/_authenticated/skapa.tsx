@@ -19,6 +19,7 @@ import { cardToFrames, fetchTacticCards, GAME_MOMENT_LABELS, label } from "@/lib
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CoachOnly } from "@/components/CoachOnly";
+import { isLeaderRole } from "@/lib/team-roles";
 
 export const Route = createFileRoute("/_authenticated/skapa")({
   head: () => ({
@@ -56,7 +57,7 @@ function CreatePage() {
   const [query, setQuery] = useState("");
 
   const coachTeams = account.memberships.filter(
-    (item) => item.role === "coach" && item.status === "approved",
+    (item) => isLeaderRole(item.role) && item.status === "approved",
   );
   const canUseBank = account.isCoach || account.isAdmin;
 

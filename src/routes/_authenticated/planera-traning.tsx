@@ -52,6 +52,7 @@ import { fetchDrills, fetchGoalkeeperCards } from "@/lib/taktikbank";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine } from "@/lib/event-labels";
 import { CoachOnly } from "@/components/CoachOnly";
+import { isLeaderRole } from "@/lib/team-roles";
 
 type Search = {
   eventId?: string | undefined;
@@ -103,7 +104,7 @@ function PlanTrainingPage() {
   const [view, setView] = useState<"start" | "book">("start");
 
   const coachTeams = memberships.filter(
-    (item) => item.status === "approved" && item.role === "coach",
+    (item) => item.status === "approved" && isLeaderRole(item.role),
   );
   const [teamId, setTeamId] = useState<string>("");
   const activeTeam = teamId || coachTeams[0]?.team_id || "";

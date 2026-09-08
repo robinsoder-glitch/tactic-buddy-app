@@ -44,11 +44,19 @@ export function useAccount() {
     (item) => item.role === "player" || item.role === "guardian",
   );
 
+  // Kom igång-sidan ska bara visas för den som varken valt kontotyp, har en
+  // roll eller är med i ett lag. Annars fastnar t.ex. en ny tränare som redan
+  // skapat sitt lag i valet av kontotyp.
+  const needsOnboarding =
+    roleList.length === 0 && membershipList.length === 0 && !accountKind;
+
   return {
     user,
     userId,
     profile: profile.data ?? null,
     roles: roleList,
+    accountKind: accountKind ?? null,
+    needsOnboarding,
     isAdmin: roleList.includes("admin"),
     isCoach: accountKind === "coach" || hasLeaderMembership || roleList.includes("coach"),
     isPlayer:
@@ -60,3 +68,4 @@ export function useAccount() {
     loading: loading || roles.isLoading || memberships.isLoading || profile.isLoading,
   };
 }
+
