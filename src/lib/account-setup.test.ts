@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ageAt, birthDateError, profileDisplayName, roleFromCodeMatch, validateSetup } from "./account-setup";
+import {
+  ageAt,
+  birthDateError,
+  profileDisplayName,
+  roleFromCodeMatch,
+  validateSetup,
+} from "./account-setup";
 
 const today = new Date("2026-01-01T00:00:00Z");
 

@@ -64,9 +64,7 @@ export function birthDateError(value: string, today = new Date()): string | null
   const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
   const date = new Date(Date.UTC(year, month - 1, day));
   const real =
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day;
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
   if (!real) return "Det datumet finns inte. Kontrollera dag och månad.";
   if (year < MIN_BIRTH_YEAR) return "Kontrollera födelseåret.";
   const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
