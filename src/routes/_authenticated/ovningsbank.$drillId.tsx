@@ -160,10 +160,7 @@ function DrillUsageSection({ drillId }: { drillId: string }) {
           {usage.data.length > 0 && (
             <ul className="mt-3 space-y-2">
               {usage.data.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-xl border border-border px-3 py-2 text-sm"
-                >
+                <li key={item.id} className="rounded-xl border border-border px-3 py-2 text-sm">
                   <p className="font-medium">{item.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {USAGE_SOURCE_LABELS[item.source]} · {usageDateLabel(item.date)}
