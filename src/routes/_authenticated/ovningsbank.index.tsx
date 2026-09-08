@@ -444,7 +444,6 @@ function OvningsbankPage() {
                   </div>
                 </div>
                 <div>
-
                   <FavoriteButton
                     active={favoriteSet.has(`drill:${drill.id}`)}
                     onClick={() => toggleFavorite.mutate({ kind: "drill", id: drill.id })}

@@ -47,8 +47,7 @@ export function useAccount() {
   // Kom igång-sidan ska bara visas för den som varken valt kontotyp, har en
   // roll eller är med i ett lag. Annars fastnar t.ex. en ny tränare som redan
   // skapat sitt lag i valet av kontotyp.
-  const needsOnboarding =
-    roleList.length === 0 && membershipList.length === 0 && !accountKind;
+  const needsOnboarding = roleList.length === 0 && membershipList.length === 0 && !accountKind;
 
   return {
     user,
@@ -68,4 +67,3 @@ export function useAccount() {
     loading: loading || roles.isLoading || memberships.isLoading || profile.isLoading,
   };
 }
-
