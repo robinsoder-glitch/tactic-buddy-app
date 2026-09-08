@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,8 @@ import {
   type EventTimeErrors,
 } from "@/lib/event-datetime";
 import { changeReceipt, diffEvent, logEventChange } from "@/lib/event-changes";
-import type { TeamEvent } from "@/lib/teams";
+import { recentLocations } from "@/lib/locations";
+import { fetchEvents, type TeamEvent } from "@/lib/teams";
 
 type Props = {
   open: boolean;
@@ -41,6 +42,12 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
   const [meetTime, setMeetTime] = useState(splitLocal(event.meet_at).time);
   const [location, setLocation] = useState(event.location ?? "");
   const [errors, setErrors] = useState<EventTimeErrors>({});
+  const teamEvents = useQuery({
+    queryKey: ["events", event.team_id],
+    queryFn: () => fetchEvents(event.team_id),
+    enabled: open,
+  });
+  const places = recentLocations(teamEvents.data ?? []);
 
   useEffect(() => {
     if (!open) return;
@@ -129,10 +136,30 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
           Plats
           <Input
             value={location}
+            list="event-edit-places"
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Till exempel Sportfältet plan 3"
           />
+          <datalist id="event-edit-places">
+            {places.map((place) => (
+              <option key={place} value={place} />
+            ))}
+          </datalist>
         </label>
+        {places.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {places.slice(0, 4).map((place) => (
+              <button
+                key={place}
+                type="button"
+                onClick={() => setLocation(place)}
+                className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+              >
+                {place}
+              </button>
+            ))}
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>

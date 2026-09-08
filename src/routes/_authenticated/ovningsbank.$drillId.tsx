@@ -14,6 +14,7 @@ import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
 import { PickDrillButton } from "@/components/PickDrillButton";
 import { PickModeBanner } from "@/components/PickModeBanner";
+import { CollectionButton } from "@/components/CollectionButton";
 import { parsePickSearch } from "@/lib/training-pick";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
@@ -124,13 +125,14 @@ function DrillPage() {
 
       <DrillDetails drill={drill.data} showGaps={isAdmin} />
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
         <PickDrillButton
           kind="drill"
           resourceId={drill.data.id}
           title={drill.data.title}
           defaultMinutes={drillDefaultMinutes(drill.data)}
         />
+        <CollectionButton kind="drill" resourceId={drill.data.id} title={drill.data.title} />
       </div>
 
       <DrillUsageSection drillId={drill.data.id} />

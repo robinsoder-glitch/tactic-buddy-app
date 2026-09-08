@@ -1,16 +1,20 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Download } from "lucide-react";
 import {
   attendanceCsv,
+  eventsInRange,
   fetchTeamAttendance,
   pastEvents,
   percent,
+  registeredForPlayer,
   summarize,
 } from "@/lib/attendance";
 import { fetchEvents, fetchTeamPlayers } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/statistik")({
   head: () => ({
@@ -43,11 +47,26 @@ function StatsPage() {
     queryFn: () => fetchTeamAttendance(teamId),
   });
 
-  const done = useMemo(() => pastEvents(events.data ?? []), [events.data]);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  const done = useMemo(
+    () => eventsInRange(pastEvents(events.data ?? []), from, to),
+    [events.data, from, to],
+  );
   const summaries = useMemo(
     () => summarize(players.data ?? [], done, attendance.data ?? []),
     [players.data, done, attendance.data],
   );
+  const eventIds = useMemo(() => new Set(done.map((event) => event.id)), [done]);
+  const registered = useMemo(() => {
+    const rows = attendance.data ?? [];
+    const map = new Map<string, number>();
+    for (const player of players.data ?? []) {
+      map.set(player.id, registeredForPlayer(rows, eventIds, player.id));
+    }
+    return map;
+  }, [attendance.data, players.data, eventIds]);
 
   const loading = events.isLoading || players.isLoading || attendance.isLoading;
 
@@ -89,6 +108,45 @@ function StatsPage() {
             <Download className="size-4" /> Ladda ner
           </Button>
         </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border border-border p-3">
+        <div className="space-y-1">
+          <Label htmlFor="stat-from" className="text-xs text-muted-foreground">
+            Från och med
+          </Label>
+          <Input
+            id="stat-from"
+            type="date"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+            className="w-40"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="stat-to" className="text-xs text-muted-foreground">
+            Till och med
+          </Label>
+          <Input
+            id="stat-to"
+            type="date"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            className="w-40"
+          />
+        </div>
+        {(from || to) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFrom("");
+              setTo("");
+            }}
+          >
+            Visa hela säsongen
+          </Button>
+        )}
       </div>
 
       {loading && <p className="mt-4 text-sm text-muted-foreground">Laddar statistiken…</p>}
@@ -136,13 +194,17 @@ function StatsPage() {
                     {row.trainings} / {row.trainingsTotal}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    {percent(row.trainings, row.trainingsTotal)} %
+                    {(registered.get(row.playerId) ?? 0) === 0
+                      ? "Ej registrerat"
+                      : `${percent(row.trainings, row.trainingsTotal)} %`}
                   </td>
                   <td className="px-3 py-2 text-right">
                     {row.matches} / {row.matchesTotal}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    {percent(row.matches, row.matchesTotal)} %
+                    {(registered.get(row.playerId) ?? 0) === 0
+                      ? "Ej registrerat"
+                      : `${percent(row.matches, row.matchesTotal)} %`}
                   </td>
                   <td className="px-3 py-2 text-right">{row.absent}</td>
                 </tr>
@@ -154,6 +216,8 @@ function StatsPage() {
 
       <p className="mt-3 text-xs text-muted-foreground">
         Sen ankomst räknas som deltagande. Sjuk eller skadad och frånvarande räknas som frånvaro.
+        "Ej registrerat" betyder att ingen har fyllt i närvaron för spelaren i perioden – det är
+        inte samma sak som 0 %.
       </p>
     </section>
   );

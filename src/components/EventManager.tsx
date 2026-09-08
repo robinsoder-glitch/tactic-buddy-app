@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { recentLocations } from "@/lib/locations";
 import {
   hasErrors,
   scheduleFromFormData,
@@ -106,6 +107,11 @@ export function EventManager({
     queryKey: ["events", teamId, type],
     queryFn: () => fetchEvents(teamId, type),
   });
+  const allEvents = useQuery({
+    queryKey: ["events", teamId],
+    queryFn: () => fetchEvents(teamId),
+  });
+  const places = recentLocations(allEvents.data ?? []);
 
   const errors = validateEventTimes({ ...schedule, meet: type === "match" ? schedule.meet : "" });
   const visibleErrors = showErrors ? errors : {};
@@ -490,9 +496,29 @@ export function EventManager({
               <Input
                 id="e-place"
                 value={location}
+                list="event-places"
                 placeholder={homeGround || "T.ex. Långholmens IP"}
                 onChange={(event) => setLocation(event.target.value)}
               />
+              <datalist id="event-places">
+                {places.map((place) => (
+                  <option key={place} value={place} />
+                ))}
+              </datalist>
+              {places.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {places.slice(0, 4).map((place) => (
+                    <button
+                      key={place}
+                      type="button"
+                      onClick={() => setLocation(place)}
+                      className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                    >
+                      {place}
+                    </button>
+                  ))}
+                </div>
+              )}
               {homeGround && location !== homeGround && (
                 <button
                   type="button"

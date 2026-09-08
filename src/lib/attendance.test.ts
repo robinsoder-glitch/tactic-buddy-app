@@ -3,6 +3,8 @@ import {
   attendanceCsv,
   counts,
   eventLabel,
+  eventsInRange,
+  registeredForPlayer,
   minutesFromShare,
   playingTimeShare,
   validateMinutes,
@@ -176,5 +178,30 @@ describe("pastEvents", () => {
   it("räknar inte framtida händelser", () => {
     const done = pastEvents(events, new Date("2026-08-30T00:00:00Z"));
     expect(done.map((item) => item.id)).not.toContain("t3");
+  });
+});
+
+describe("eventsInRange och registeredForPlayer", () => {
+  const list = [
+    { id: "a", starts_at: "2026-01-10T10:00:00", type: "training" },
+    { id: "b", starts_at: "2026-02-10T10:00:00", type: "training" },
+    { id: "c", starts_at: "2026-03-10T10:00:00", type: "match" },
+  ] as never[] as import("./teams").TeamEvent[];
+
+  it("filtrerar på intervall och tar med hela slutdagen", () => {
+    expect(eventsInRange(list, "2026-02-01", "2026-03-10").map((e) => e.id)).toEqual(["b", "c"]);
+  });
+
+  it("tom gräns betyder ingen gräns", () => {
+    expect(eventsInRange(list, "", "").length).toBe(3);
+  });
+
+  it("räknar bara registreringar inom urvalet", () => {
+    const rows = [
+      { event_id: "a", player_id: "p1" },
+      { event_id: "c", player_id: "p1" },
+    ] as never[] as import("./attendance").AttendanceRow[];
+    expect(registeredForPlayer(rows, new Set(["c"]), "p1")).toBe(1);
+    expect(registeredForPlayer(rows, new Set(["c"]), "p2")).toBe(0);
   });
 });
