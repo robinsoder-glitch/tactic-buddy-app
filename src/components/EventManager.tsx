@@ -1,3 +1,4 @@
+import { timeOnly } from "@/lib/datetime-format";
 import { useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -69,8 +70,6 @@ const REPEATS = [
   { value: "weekly", label: "Varje vecka" },
   { value: "monthly", label: "Varje månad" },
 ] as const;
-
-import { timeOnly } from "@/lib/datetime-format";
 
 export function EventManager({
   teamId,
