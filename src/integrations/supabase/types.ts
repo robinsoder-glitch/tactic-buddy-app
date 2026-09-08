@@ -1338,7 +1338,7 @@ export type Database = {
         Row: {
           created_at: string
           op_id: string
-          result: Json
+          result: Json | null
           scope: string
           target_id: string | null
           user_id: string
@@ -1346,7 +1346,7 @@ export type Database = {
         Insert: {
           created_at?: string
           op_id: string
-          result: Json
+          result?: Json | null
           scope: string
           target_id?: string | null
           user_id: string
@@ -1354,7 +1354,7 @@ export type Database = {
         Update: {
           created_at?: string
           op_id?: string
-          result?: Json
+          result?: Json | null
           scope?: string
           target_id?: string | null
           user_id?: string
