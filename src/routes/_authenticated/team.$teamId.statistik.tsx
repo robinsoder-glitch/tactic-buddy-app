@@ -47,11 +47,26 @@ function StatsPage() {
     queryFn: () => fetchTeamAttendance(teamId),
   });
 
-  const done = useMemo(() => pastEvents(events.data ?? []), [events.data]);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  const done = useMemo(
+    () => eventsInRange(pastEvents(events.data ?? []), from, to),
+    [events.data, from, to],
+  );
   const summaries = useMemo(
     () => summarize(players.data ?? [], done, attendance.data ?? []),
     [players.data, done, attendance.data],
   );
+  const eventIds = useMemo(() => new Set(done.map((event) => event.id)), [done]);
+  const registered = useMemo(() => {
+    const rows = attendance.data ?? [];
+    const map = new Map<string, number>();
+    for (const player of players.data ?? []) {
+      map.set(player.id, registeredForPlayer(rows, eventIds, player.id));
+    }
+    return map;
+  }, [attendance.data, players.data, eventIds]);
 
   const loading = events.isLoading || players.isLoading || attendance.isLoading;
 
