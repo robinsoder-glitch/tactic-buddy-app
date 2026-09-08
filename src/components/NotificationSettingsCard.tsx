@@ -70,48 +70,8 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
     }
   }
 
-  async function enablePush() {
-    if (!userId) return;
-    if (typeof Notification === "undefined") {
-      toast.error("Den här enheten stöder inte notiser.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        toast.message("Notiser är avstängda i webbläsaren.");
-        return;
-      }
-      const registration = await navigator.serviceWorker?.ready;
-      const endpoint = registration?.scope ?? window.location.origin;
-      await registerPushDevice(
-        userId,
-        `${endpoint}#${navigator.userAgent.slice(0, 40)}`,
-        "Den här enheten",
-      );
-      await patchSettings({ push_enabled: true });
-      toast.success("Push aktiverat på den här enheten.");
-    } catch {
-      toast.error("Kunde inte aktivera push.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
-  async function disablePush() {
-    if (!userId) return;
-    setBusy(true);
-    try {
-      await revokePushDevices(userId);
-      await patchSettings({ push_enabled: false });
-      toast.success("Push avstängt.");
-    } catch {
-      toast.error("Kunde inte stänga av push.");
-    } finally {
-      setBusy(false);
-    }
-  }
+
 
   return (
     <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
