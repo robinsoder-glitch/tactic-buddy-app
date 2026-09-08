@@ -176,26 +176,14 @@ export function NotificationSettingsCard({ userId }: { userId: string | null }) 
             </div>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-border bg-background p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">Push på den här enheten</p>
-                <p className="text-xs text-muted-foreground">
-                  {settings.push_enabled
-                    ? "Aktiverat."
-                    : "Avstängt tills du väljer att slå på det."}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant={settings.push_enabled ? "outline" : "default"}
-                disabled={busy}
-                onClick={settings.push_enabled ? disablePush : enablePush}
-              >
-                {settings.push_enabled ? "Stäng av" : "Slå på"}
-              </Button>
-            </div>
+          <div className="rounded-xl border border-border bg-background p-3">
+            <p className="text-sm font-medium">Så här når notiserna dig</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Notiser visas i appen, under Meddelanden. Notiser till mobilens låsskärm är inte
+              igång ännu.
+            </p>
           </div>
+
 
           <div className="space-y-2">
             {prefs.map((preference) => (
