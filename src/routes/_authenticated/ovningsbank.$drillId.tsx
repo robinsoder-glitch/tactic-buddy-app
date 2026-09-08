@@ -3,6 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { fetchDrill, fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { drillMeta } from "@/lib/ovningsbank";
+import {
+  fetchDrillUsage,
+  usageDateLabel,
+  usageSummary,
+  USAGE_SOURCE_LABELS,
+} from "@/lib/drill-usage";
 import { drillDefaultMinutes } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { DrillDetails } from "@/components/DrillDetails";
