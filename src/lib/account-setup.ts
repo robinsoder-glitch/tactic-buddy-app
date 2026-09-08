@@ -121,6 +121,8 @@ export function validateSetup(
     if (setup.isGuardian && !setup.playerName?.trim()) return "Ange spelarens namn";
     if (!setup.isGuardian) {
       if (!setup.birth) return "Ange spelarens födelsedatum";
+      const dateError = birthDateError(setup.birth);
+      if (dateError) return dateError;
       const age = ageAt(setup.birth);
       if (Number.isNaN(age)) return "Ange ett giltigt födelsedatum";
       if (age < MIN_PLAYER_ACCOUNT_AGE) {
