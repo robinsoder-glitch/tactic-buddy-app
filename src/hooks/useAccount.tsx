@@ -7,22 +7,30 @@ export function useAccount() {
   const { user, loading } = useAuth();
   const userId = user?.id ?? null;
 
+  // Behörighet ändras sällan under en session. Vi hämtar den en gång och
+  // låter den ligga kvar tills något faktiskt ändras (in-/utloggning eller
+  // en ändring i laget som gör invalidate på nycklarna nedan).
+  const ACCOUNT_STALE_TIME = 15 * 60_000;
+
   const roles = useQuery({
     queryKey: ["roles", userId],
     queryFn: fetchMyRoles,
     enabled: !!userId,
+    staleTime: ACCOUNT_STALE_TIME,
   });
 
   const memberships = useQuery({
     queryKey: ["memberships", userId],
     queryFn: fetchMyMemberships,
     enabled: !!userId,
+    staleTime: ACCOUNT_STALE_TIME,
   });
 
   const profile = useQuery({
     queryKey: ["profile", userId],
     queryFn: () => fetchProfile(userId as string),
     enabled: !!userId,
+    staleTime: ACCOUNT_STALE_TIME,
   });
 
   const roleList = roles.data ?? [];
