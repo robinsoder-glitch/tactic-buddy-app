@@ -22,6 +22,7 @@ import { Route as AuthenticatedMeddelandenRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMinaKallelserRouteImport } from './routes/_authenticated/mina-kallelser'
 import { Route as AuthenticatedNarvaroRouteImport } from './routes/_authenticated/narvaro'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPlaneraRouteImport } from './routes/_authenticated/planera'
 import { Route as AuthenticatedPlaneraMatchRouteImport } from './routes/_authenticated/planera-match'
 import { Route as AuthenticatedPlaneraTraningRouteImport } from './routes/_authenticated/planera-traning'
 import { Route as AuthenticatedSkapaRouteImport } from './routes/_authenticated/skapa'
@@ -136,6 +137,11 @@ const AuthenticatedNarvaroRoute = AuthenticatedNarvaroRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlaneraRoute = AuthenticatedPlaneraRouteImport.update({
+  id: '/planera',
+  path: '/planera',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPlaneraMatchRoute =
@@ -429,6 +435,7 @@ export interface FileRoutesByFullPath {
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera': typeof AuthenticatedPlaneraRoute
   '/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
@@ -489,6 +496,7 @@ export interface FileRoutesByTo {
   '/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/narvaro': typeof AuthenticatedNarvaroRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/planera': typeof AuthenticatedPlaneraRoute
   '/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/skapa': typeof AuthenticatedSkapaRoute
@@ -551,6 +559,7 @@ export interface FileRoutesById {
   '/_authenticated/mina-kallelser': typeof AuthenticatedMinaKallelserRoute
   '/_authenticated/narvaro': typeof AuthenticatedNarvaroRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/planera': typeof AuthenticatedPlaneraRoute
   '/_authenticated/planera-match': typeof AuthenticatedPlaneraMatchRoute
   '/_authenticated/planera-traning': typeof AuthenticatedPlaneraTraningRoute
   '/_authenticated/skapa': typeof AuthenticatedSkapaRoute
@@ -615,6 +624,7 @@ export interface FileRouteTypes {
     | '/mina-kallelser'
     | '/narvaro'
     | '/onboarding'
+    | '/planera'
     | '/planera-match'
     | '/planera-traning'
     | '/skapa'
@@ -675,6 +685,7 @@ export interface FileRouteTypes {
     | '/mina-kallelser'
     | '/narvaro'
     | '/onboarding'
+    | '/planera'
     | '/planera-match'
     | '/planera-traning'
     | '/skapa'
@@ -736,6 +747,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mina-kallelser'
     | '/_authenticated/narvaro'
     | '/_authenticated/onboarding'
+    | '/_authenticated/planera'
     | '/_authenticated/planera-match'
     | '/_authenticated/planera-traning'
     | '/_authenticated/skapa'
@@ -887,6 +899,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planera': {
+      id: '/_authenticated/planera'
+      path: '/planera'
+      fullPath: '/planera'
+      preLoaderRoute: typeof AuthenticatedPlaneraRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/planera-match': {
@@ -1337,6 +1356,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMinaKallelserRoute: typeof AuthenticatedMinaKallelserRoute
   AuthenticatedNarvaroRoute: typeof AuthenticatedNarvaroRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPlaneraRoute: typeof AuthenticatedPlaneraRoute
   AuthenticatedPlaneraMatchRoute: typeof AuthenticatedPlaneraMatchRoute
   AuthenticatedPlaneraTraningRoute: typeof AuthenticatedPlaneraTraningRoute
   AuthenticatedSkapaRoute: typeof AuthenticatedSkapaRoute
@@ -1370,6 +1390,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMinaKallelserRoute: AuthenticatedMinaKallelserRoute,
   AuthenticatedNarvaroRoute: AuthenticatedNarvaroRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPlaneraRoute: AuthenticatedPlaneraRoute,
   AuthenticatedPlaneraMatchRoute: AuthenticatedPlaneraMatchRoute,
   AuthenticatedPlaneraTraningRoute: AuthenticatedPlaneraTraningRoute,
   AuthenticatedSkapaRoute: AuthenticatedSkapaRoute,
