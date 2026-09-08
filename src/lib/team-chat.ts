@@ -9,17 +9,17 @@ export type ChatMessage = {
   displayName: string | null;
 };
 
-/** Hämtar lagets tränarsnack, äldsta först. */
+/** Hämtar de 300 senaste meddelandena och visar dem kronologiskt (äldsta först). */
 export async function fetchTeamChat(teamId: string): Promise<ChatMessage[]> {
   const { data, error } = await supabase
     .from("team_chat_messages")
     .select("id, team_id, user_id, body, created_at")
     .eq("team_id", teamId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(300);
   if (error) throw error;
 
-  const rows = (data ?? []) as Omit<ChatMessage, "displayName">[];
+  const rows = ((data ?? []) as Omit<ChatMessage, "displayName">[]).slice().reverse();
   if (!rows.length) return [];
 
   const ids = [...new Set(rows.map((row) => row.user_id))];
@@ -72,7 +72,10 @@ export async function fetchChatReads(teamIds: string[]): Promise<Record<string, 
   );
 }
 
-/** Sparar att lagets chatt är läst just nu. */
+/**
+ * Sparar lässtatus. Skicka tidsstämpeln för det senaste meddelande som
+ * faktiskt visades – annars markeras även meddelanden som aldrig syntes.
+ */
 export async function markChatRead(
   teamId: string,
   when: string = new Date().toISOString(),

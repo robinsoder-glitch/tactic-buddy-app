@@ -1,23 +1,48 @@
-import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const source = readFileSync("src/lib/db.ts", "utf8");
+const rpc = vi.fn();
+const from = vi.fn();
+
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    rpc: (...args: unknown[]) => rpc(...args),
+    from: (...args: unknown[]) => from(...args),
+    storage: { from: () => ({ createSignedUrl: async () => ({ data: null }) }) },
+  },
+}));
+
+const { saveFrames } = await import("./db");
 
 /**
- * Sparfel får aldrig radera tidigare sekvenser: koden läser in stegen innan
- * de tas bort och lägger tillbaka dem om skrivningen misslyckas.
+ * Sparandet går via en databasfunktion som kör allt i en transaktion. Ett
+ * sparfel får aldrig radera tidigare sekvenser, och klienten får inte ta bort
+ * steg på egen hand.
  */
-describe("saveFrames skyddar tidigare sekvenser", () => {
-  const body = source.slice(source.indexOf("export async function saveFrames"));
-
-  it("läser in tidigare steg innan de tas bort", () => {
-    const read = body.indexOf("const { data: previous");
-    const remove = body.indexOf(".delete()");
-    expect(read).toBeGreaterThan(-1);
-    expect(read).toBeLessThan(remove);
+describe("saveFrames sparar atomiskt", () => {
+  beforeEach(() => {
+    rpc.mockReset();
+    from.mockReset();
   });
 
-  it("lägger tillbaka tidigare steg när skrivningen misslyckas", () => {
-    expect(body).toContain('await supabase.from("tactic_frames").insert(previous as never)');
+  it("skickar stegen i ordning till databasfunktionen", async () => {
+    rpc.mockResolvedValue({ data: 2, error: null });
+    await saveFrames("t1", "u1", [
+      { id: "a", name: "Steg 1", note: null, objects: [], drawings: [] },
+      { id: "b", name: "Steg 2", note: "x", objects: [], drawings: [] },
+    ]);
+
+    expect(from).not.toHaveBeenCalled();
+    expect(rpc).toHaveBeenCalledTimes(1);
+    const [fn, args] = rpc.mock.calls[0] as [string, { _frames: { name: string }[] }];
+    expect(fn).toBe("save_tactic_frames");
+    expect(args._frames.map((f) => f.name)).toEqual(["Steg 1", "Steg 2"]);
+  });
+
+  it("kastar fel utan att röra tabellerna när sparandet misslyckas", async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: "nej" } });
+    await expect(
+      saveFrames("t1", "u1", [{ id: "a", name: "Steg 1", note: null, objects: [], drawings: [] }]),
+    ).rejects.toThrow("nej");
+    expect(from).not.toHaveBeenCalled();
   });
 });

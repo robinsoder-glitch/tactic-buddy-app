@@ -271,45 +271,22 @@ export async function fetchTactic(id: string): Promise<TacticDetail> {
 }
 
 /**
- * Sparar sekvensen. Tidigare steg läses in först och läggs tillbaka om
- * skrivningen misslyckas, så att ett avbrutet sparande aldrig lämnar taktiken
- * tom. Ett sparfel lämnar alltså föregående tillstånd orört.
+ * Sparar sekvensen i ett enda databassteg. Går något fel ligger de tidigare
+ * stegen kvar orörda, och två samtidiga sparningar körs i tur och ordning.
  */
-export async function saveFrames(tacticId: string, userId: string, frames: Frame[]) {
-  const { data: previous, error: readError } = await supabase
-    .from("tactic_frames")
-    .select("id, tactic_id, user_id, position, name, note, objects, drawings")
-    .eq("tactic_id", tacticId);
-  if (readError) throw new Error(readError.message);
-
-  const { error: deleteError } = await supabase
-    .from("tactic_frames")
-    .delete()
-    .eq("tactic_id", tacticId);
-  if (deleteError) throw new Error(deleteError.message);
-
-  const payload = frames.map((frame, index) => ({
-    tactic_id: tacticId,
-    user_id: userId,
-    position: index,
+export async function saveFrames(tacticId: string, _userId: string, frames: Frame[]) {
+  const payload = frames.map((frame) => ({
     name: frame.name,
     note: frame.note ?? null,
-    objects: frame.objects as unknown as never,
-    drawings: frame.drawings as unknown as never,
+    objects: frame.objects,
+    drawings: frame.drawings,
   }));
 
-  const { error } = await supabase.from("tactic_frames").insert(payload);
-  if (error) {
-    if ((previous ?? []).length > 0) {
-      await supabase.from("tactic_frames").insert(previous as never);
-    }
-    throw new Error(error.message);
-  }
-
-  await supabase
-    .from("tactics")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", tacticId);
+  const { error } = await supabase.rpc("save_tactic_frames", {
+    _tactic_id: tacticId,
+    _frames: payload,
+  } as never);
+  if (error) throw new Error(error.message);
 }
 
 export async function setTacticSharing(id: string, isPublic: boolean) {

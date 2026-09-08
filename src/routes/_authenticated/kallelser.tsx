@@ -69,6 +69,8 @@ function MyInvitesPage() {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      // Räknaren för obesvarade kallelser ska stämma direkt efter svaret.
+      queryClient.invalidateQueries({ queryKey: ["my-invitations-count"] });
       if (result.late) toast.info(`${LATE_RESPONSE_TEXT}. Ledaren ser när svaret kom in.`);
     },
     onError: (error: Error) =>

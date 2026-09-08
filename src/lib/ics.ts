@@ -36,7 +36,13 @@ export function buildIcs(events: TeamEvent[], teamName: string) {
 
   for (const event of events) {
     const start = new Date(event.starts_at);
-    const end = new Date(start.getTime() + 90 * 60 * 1000);
+    // Aktivitetens egen sluttid används när den finns; annars 90 minuter.
+    const ends = (event as { ends_at?: string | null }).ends_at;
+    const parsed = ends ? new Date(ends) : null;
+    const end =
+      parsed && !Number.isNaN(parsed.getTime()) && parsed.getTime() > start.getTime()
+        ? parsed
+        : new Date(start.getTime() + 90 * 60 * 1000);
     const title = event.title ?? (event.type === "training" ? "Träning" : "Match");
     lines.push(
       "BEGIN:VEVENT",
