@@ -68,7 +68,6 @@ export function currentInvitation<
   );
 }
 
-
 export type InviteCounts = {
   attending: number;
   declined: number;

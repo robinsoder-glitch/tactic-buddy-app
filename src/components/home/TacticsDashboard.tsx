@@ -57,6 +57,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { isLeaderRole } from "@/lib/team-roles";
 
 /* ----------------------------- dashboard ----------------------------- */
 
@@ -121,7 +122,7 @@ export function TacticsDashboard({ userId }: { userId: string }) {
       toast.error(error instanceof Error ? error.message : "Kunde inte importera filen"),
   });
 
-  const coachTeams = approved.filter((item) => item.role === "coach");
+  const coachTeams = approved.filter((item) => isLeaderRole(item.role));
   const activeTeam = coachTeams[0] ?? approved[0] ?? null;
 
   const visible = useMemo(() => {

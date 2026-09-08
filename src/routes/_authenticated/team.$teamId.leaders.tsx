@@ -29,6 +29,7 @@ import {
 } from "@/lib/permissions";
 import { friendlyError } from "@/lib/user-errors";
 import { ensureOwnerMembership, transferTeamOwnership } from "@/lib/teams";
+import { isLeaderRole } from "@/lib/team-roles";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/leaders")({
   head: () => ({
@@ -128,14 +129,14 @@ function LeadersPage() {
 
   const rows = members.data ?? [];
   const ownerId = team.data?.created_by ?? null;
-  const leaders = rows.filter((member) => member.role === "coach");
+  const leaders = rows.filter((member) => isLeaderRole(member.role));
   const players = rows.filter((member) => member.role === "player" && member.status === "approved");
 
   // Äldre lag kunde sakna medlemsrad för skaparen – då visades "Inga ledare ännu".
   useEffect(() => {
     if (!isOwner || !userId || !members.data) return;
     const hasRow = members.data.some(
-      (m) => m.user_id === userId && m.role === "coach" && m.status === "approved",
+      (m) => m.user_id === userId && isLeaderRole(m.role) && m.status === "approved",
     );
     if (hasRow) return;
     void ensureOwnerMembership(teamId, userId).then(() =>
@@ -336,7 +337,7 @@ function LeadersPage() {
                   <span className="min-w-0 flex-1 truncate text-sm">
                     {row.email ?? row.recipient_label ?? "Kopierbar länk"}
                     <span className="ml-2 text-xs text-muted-foreground">
-                      {row.role === "coach" ? "Ledare" : "Spelare"}
+                      {isLeaderRole(row.role) ? "Ledare" : "Spelare"}
                     </span>
                   </span>
                   <span className="text-xs text-muted-foreground">

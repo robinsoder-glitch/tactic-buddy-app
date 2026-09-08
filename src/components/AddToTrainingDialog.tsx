@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isLeaderRole } from "@/lib/team-roles";
 
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 
@@ -80,7 +81,7 @@ export function AddToTrainingButton({
     () =>
       new Set(
         (memberships.data ?? [])
-          .filter((item) => item.role === "coach" && item.status === "approved")
+          .filter((item) => isLeaderRole(item.role) && item.status === "approved")
           .map((item) => item.team_id),
       ),
     [memberships.data],

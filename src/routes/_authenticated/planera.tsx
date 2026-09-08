@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  BookOpen,
-  CalendarCheck,
-  ClipboardList,
-  Dumbbell,
-  Trophy,
-  UserPlus,
-} from "lucide-react";
+import { BookOpen, CalendarCheck, ClipboardList, Dumbbell, Trophy, UserPlus } from "lucide-react";
 import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/planera")({

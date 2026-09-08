@@ -38,8 +38,12 @@ function useIsLightTheme() {
 export function BrandLogo({ size = 40, showName = true, className }: Props) {
   const isLight = useIsLightTheme();
   const src = showName
-    ? (isLight ? logoLight.url : logoDark.url)
-    : (isLight ? markLight.url : markDark.url);
+    ? isLight
+      ? logoLight.url
+      : logoDark.url
+    : isLight
+      ? markLight.url
+      : markDark.url;
 
   return (
     <img
