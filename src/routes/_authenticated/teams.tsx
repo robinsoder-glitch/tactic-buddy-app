@@ -129,27 +129,31 @@ function TeamsPage() {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="club">Klubb</Label>
-                <select
-                  id="club"
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  value={clubId ?? ""}
-                  onChange={(event) => setClubId(event.target.value || null)}
-                >
-                  <option value="">Skapa ny klubb…</option>
-                  {clubs.data?.map((club) => (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  ))}
-                </select>
+                {myClubs.length > 0 && (
+                  <select
+                    id="club"
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={clubId ?? ""}
+                    onChange={(event) => setClubId(event.target.value || null)}
+                  >
+                    <option value="">Ny klubb…</option>
+                    {myClubs.map((club) => (
+                      <option key={club.id} value={club.id}>
+                        {club.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {!clubId && (
                   <Input
+                    id={myClubs.length > 0 ? undefined : "club"}
                     aria-label="Klubbens namn"
                     placeholder="Klubbens namn"
                     value={clubName}
                     onChange={(event) => setClubName(event.target.value)}
                   />
                 )}
+
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="team-name">Lagnamn</Label>
