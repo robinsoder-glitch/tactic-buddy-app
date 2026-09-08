@@ -7,6 +7,7 @@ import { EventStatusOverview } from "@/components/EventStatusOverview";
 import { EventEditDialog } from "@/components/EventEditDialog";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
+import { currentInvitation } from "@/lib/invite-status";
 import { fetchEventPlan, fetchEventResources, fetchSquad } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { fetchEventAttendance } from "@/lib/attendance";
@@ -151,7 +152,8 @@ function EventPage() {
   // Kallelser hör bara ihop med matcher.
   const isMatchEvent = event.data?.type === "match";
   const cancelled = Boolean(event.data?.cancelled_at);
-  const meta = list[0];
+  // Aktuell text/svarsdag: senast uppdaterade aktiva kallelse, aldrig en återkallad rad.
+  const meta = currentInvitation(list);
   const [editing, setEditing] = useState(false);
 
   const sessionResourceId =

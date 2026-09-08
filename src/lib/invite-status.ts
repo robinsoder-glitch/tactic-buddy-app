@@ -52,6 +52,23 @@ export function activeInvitations<T extends { status: string }>(list: T[]): T[] 
   return list.filter((item) => item.status !== "revoked");
 }
 
+/**
+ * Aktuell kallelsetext och svarsdag: den senast uppdaterade aktiva raden.
+ * Finns bara återkallade rader används den senaste av dem.
+ */
+export function currentInvitation<
+  T extends { status: string; created_at?: string; updated_at?: string },
+>(list: T[]): T | undefined {
+  const active = activeInvitations(list);
+  const pool = active.length > 0 ? active : list;
+  const time = (row: T) => new Date(row.updated_at ?? row.created_at ?? 0).getTime();
+  return pool.reduce<T | undefined>(
+    (best, row) => (!best || time(row) > time(best) ? row : best),
+    undefined,
+  );
+}
+
+
 export type InviteCounts = {
   attending: number;
   declined: number;

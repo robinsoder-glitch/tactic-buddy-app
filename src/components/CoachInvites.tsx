@@ -58,8 +58,8 @@ export function CoachInvites() {
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-8 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Kallelser</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Kallelser går aldrig ut automatiskt – du väljer när de skickas, och de går bara till
-        spelarna och de vuxna som är kopplade till dem i appen. Träningar har ingen kallelse, där
+        Kallelser går aldrig ut automatiskt – du väljer när de skickas. De når spelarna och de
+        vuxna som är kopplade till dem, och visas bara i appen. Träningar har ingen kallelse, där
         registrerar du närvaro efteråt.
       </p>
 
