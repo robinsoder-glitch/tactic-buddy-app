@@ -204,7 +204,7 @@ export function MatchLineupEditor({
                 {player ? (player.number ?? "") : "+"}
               </text>
               <text
-                x={cx}
+                x={Math.min(Math.max(cx, 11), 89)}
                 y={cy + 7.4}
                 textAnchor="middle"
                 fontSize="2.7"
@@ -212,7 +212,7 @@ export function MatchLineupEditor({
                 fillOpacity="0.85"
                 pointerEvents="none"
               >
-                {player ? player.name.split(" ")[0] : "Tom plats"}
+                {player ? player.name.split(" ")[0] : "Tom"}
                 {slot.gk ? " (MV)" : ""}
               </text>
             </g>
