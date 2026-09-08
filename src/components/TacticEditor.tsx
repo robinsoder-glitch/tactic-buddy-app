@@ -1416,7 +1416,9 @@ export function TacticEditor({ id }: { id: string }) {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 truncate">{player.name}</p>
+                <p className="mt-1 truncate" title={player.name}>
+                  {player.name.split(" ")[0]}
+                </p>
               </button>
             );
           })}
