@@ -3,6 +3,8 @@ import {
   attendanceCsv,
   counts,
   eventLabel,
+  eventsInRange,
+  registeredForPlayer,
   minutesFromShare,
   playingTimeShare,
   validateMinutes,
