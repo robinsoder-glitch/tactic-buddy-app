@@ -24,7 +24,12 @@ describe("Kalenderkort utan dubbla ord", () => {
 
   it("visar lagen även när titeln sparats som bara 'Match'", () => {
     expect(
-      eventDisplayTitle({ type: "match", title: "Match", home_team: "Nykonto Lag", away_team: "Motstånd 1" }),
+      eventDisplayTitle({
+        type: "match",
+        title: "Match",
+        home_team: "Nykonto Lag",
+        away_team: "Motstånd 1",
+      }),
     ).toBe("Nykonto Lag – Motstånd 1");
   });
 
