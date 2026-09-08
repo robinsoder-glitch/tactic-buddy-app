@@ -508,7 +508,7 @@ function EventAttendance({
               <Button
                 variant="secondary"
                 disabled={!dirty || save.isPending}
-                onClick={() => save.mutate()}
+                onClick={() => save.mutate(draft)}
               >
                 {save.isPending ? "Sparar…" : "Spara"}
               </Button>
@@ -518,15 +518,13 @@ function EventAttendance({
                   // Färdigställ: alla utan status räknas som frånvarande,
                   // och efter sparning återgår vi till listan med alla träningar.
                   backAfterSave.current = true;
-                  setDraft((current) => {
-                    let next = current;
-                    for (const player of players) {
-                      if (!(next[player.id]?.status ?? null))
-                        next = setEntry(next, player.id, { status: "absent" });
-                    }
-                    return next;
-                  });
-                  setTimeout(() => save.mutate(), 0);
+                  let finalDraft = draft;
+                  for (const player of players) {
+                    if (!(finalDraft[player.id]?.status ?? null))
+                      finalDraft = setEntry(finalDraft, player.id, { status: "absent" });
+                  }
+                  setDraft(finalDraft);
+                  save.mutate(finalDraft);
                 }}
               >
                 {save.isPending ? "Sparar…" : "Färdigställ närvaro"}
