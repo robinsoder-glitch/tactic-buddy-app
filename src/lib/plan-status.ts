@@ -39,7 +39,7 @@ export function planStatusLabel(status: PlanStatus): "Planerad" | "Ej planerad" 
 
 export function planStatusHint(status: PlanStatus): string {
   return status === "done"
-    ? "Planeringen är sparad. Kontrollera att truppen är komplett."
+    ? "Planeringen är sparad. Det betyder inte att truppen är fullbemannad – kontrollera antalet spelare."
     : "Planeringen är inte sparad ännu.";
 }
 
