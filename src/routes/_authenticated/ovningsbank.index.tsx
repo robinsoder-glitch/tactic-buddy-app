@@ -22,7 +22,12 @@ import {
   type FavoriteKind,
   type Drill,
 } from "@/lib/taktikbank";
-import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
+import {
+  drillMeta,
+  filterDrills,
+  filterGoalkeeperCards,
+  filterSessions,
+} from "@/lib/ovningsbank";
 import { drillDefaultMinutes, drillDurationLabel } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
