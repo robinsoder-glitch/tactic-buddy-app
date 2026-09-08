@@ -320,7 +320,7 @@ function OvningsbankPage() {
           (onlyFavorites ? 1 : 0) +
           (tab === "Övningar"
             ? [age, format, area, difficulty].filter((value) => value !== "all").length
-            : 0)
+            : [age].filter((value) => value !== "all").length)
         }
         onClear={() => {
           setOnlyFavorites(false);
