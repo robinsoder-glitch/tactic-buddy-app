@@ -69,7 +69,7 @@ function FairPlayPage() {
         </ol>
       </section>
 
-      <footer className="mt-10 rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
+      <footer className="mt-10 rounded-2xl border border-border bg-card p-4 text-base leading-relaxed text-muted-foreground">
         Kan du de här tio punkterna? Då är du en kompis alla vill ha i sitt lag. Det här är
         Fotbollsrummets egen text – era tränare och ledare hjälper er att leva upp till den.
       </footer>

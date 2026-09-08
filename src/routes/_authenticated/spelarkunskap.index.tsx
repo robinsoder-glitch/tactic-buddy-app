@@ -36,17 +36,17 @@ function PlayerTechniquePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
-      <header className="flex items-center gap-2">
+      <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
         <BackIconButton fallback="/" label="Tillbaka" />
-        <div className="flex-1">
+        <div className="min-w-0">
           <p className="font-display text-xs tracking-[0.3em] text-primary">Kunskap</p>
-          <h1 className="font-display text-3xl font-bold">Teknik</h1>
+          <h1 className="font-display text-2xl font-bold sm:text-3xl">Teknik</h1>
         </div>
       </header>
 
       <PlayerKnowledgeTabs active="technique" />
 
-      <p className="mt-4 max-w-[70ch] text-sm text-muted-foreground">
+      <p className="mt-4 max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch] sm:text-lg">
         Här är fem finter och vändningar du kan träna på. Börja långsamt, gör den många gånger och
         öka farten först när det känns lätt. Träna gärna med båda fötterna.
       </p>
@@ -54,23 +54,23 @@ function PlayerTechniquePage() {
       <Accordion type="single" collapsible className="mt-6">
         {moves.map((move) => (
           <AccordionItem key={move.id} value={move.id}>
-            <AccordionTrigger className="text-left">
+            <AccordionTrigger className="min-h-12 text-left text-base font-semibold">
               <span>
                 {move.rank}. {move.title}
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <p className="max-w-[70ch] text-sm text-muted-foreground">{move.purpose}</p>
+              <p className="max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch]">{move.purpose}</p>
 
-              <h2 className="mt-4 text-sm font-semibold">Så gör du</h2>
-              <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
+              <h2 className="mt-4 text-base font-bold">Så gör du</h2>
+              <ol className="mt-2 list-decimal space-y-2 pl-5 text-base leading-relaxed">
                 {move.howTo.map((step) => (
                   <li key={step}>{step}</li>
                 ))}
               </ol>
 
-              <h2 className="mt-4 text-sm font-semibold">Tänk på det här</h2>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+              <h2 className="mt-4 text-base font-bold">Tänk på det här</h2>
+              <ul className="mt-2 list-disc space-y-2 pl-5 text-base leading-relaxed">
                 {move.mistakes.map((item) => (
                   <li key={item}>{item}</li>
                 ))}

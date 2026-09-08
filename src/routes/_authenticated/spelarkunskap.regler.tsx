@@ -100,7 +100,7 @@ function PlayerRulesPage() {
         ))}
       </div>
 
-      <footer className="mt-10 rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
+      <footer className="mt-10 rounded-2xl border border-border bg-card p-4 text-base leading-relaxed text-muted-foreground">
         Det här är Fotbollsrummets egen enkla regelbok. De exakta reglerna för ert lag och er
         serie hittar ni hos er förening eller på svenskfotboll.se.
       </footer>
