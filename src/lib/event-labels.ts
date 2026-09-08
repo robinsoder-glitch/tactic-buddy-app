@@ -15,8 +15,9 @@ export function eventTypeLabel(event: EventLike): "Match" | "Träning" {
 export function eventDisplayTitle(event: EventLike): string {
   const typeLabel = eventTypeLabel(event);
   const custom = event.title?.trim();
-  if (custom && custom.toLowerCase() !== typeLabel.toLowerCase()) return custom;
-  if (!custom && event.type === "match" && (event.home_team || event.away_team)) {
+  const hasCustom = Boolean(custom) && custom!.toLowerCase() !== typeLabel.toLowerCase();
+  if (hasCustom) return custom!;
+  if (event.type === "match" && (event.home_team || event.away_team)) {
     return `${event.home_team ?? "Hemma"} – ${event.away_team ?? "Borta"}`;
   }
   return typeLabel;
