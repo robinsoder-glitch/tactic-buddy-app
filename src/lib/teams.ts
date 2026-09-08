@@ -127,7 +127,7 @@ async function signTeamOrLegacy(path: string | null, teamId: string): Promise<st
 export const GENDER_LABELS: Record<string, string> = {
   boy: "Pojke",
   girl: "Flicka",
-  none: "Inget alternativ",
+  none: "Vill inte ange",
 };
 
 export const TEAM_GENDER_LABELS: Record<string, string> = {
