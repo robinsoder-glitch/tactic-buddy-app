@@ -139,7 +139,7 @@ export function AppNav() {
 
   return (
     <>
-      {/* Dator: fem arbetsområden plus Lag och verktyg. */}
+      {/* Dator: fem arbetsområden plus menyn Mer. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav-top"
@@ -245,7 +245,7 @@ export function AppNav() {
         </div>
       </nav>
 
-      {/* Mobil: fem arbetsområden plus menyn Lag och verktyg. */}
+      {/* Mobil: fem arbetsområden plus menyn Mer. */}
       <nav
         aria-label="Huvudmeny"
         data-testid="app-nav"
@@ -276,7 +276,7 @@ export function AppNav() {
               className={`${barLink} ${menuOpen ? "text-primary" : ""}`}
             >
               <Menu className="relative z-10 size-5" aria-hidden />
-              <span className="relative z-10">Lag</span>
+              <span className="relative z-10">Mer</span>
             </button>
             {menuOpen && (
               <ul
