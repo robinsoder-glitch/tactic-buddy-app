@@ -68,6 +68,12 @@ function SettingsPage() {
 
   async function saveProfile() {
     if (!userId) return;
+    // Ett omöjligt datum (t.ex. 31 februari) ska stoppas här, inte bli ett databasfel.
+    const dateError = birth ? birthDateError(birth) : null;
+    if (dateError) {
+      toast.error(dateError);
+      return;
+    }
     setSavingProfile(true);
     try {
       await updateProfile({
