@@ -80,15 +80,15 @@ export function TodayPanel({ isCoach }: { isCoach: boolean }) {
             <CalendarDays className="size-4 text-primary" aria-hidden />
             Nästa aktiviteter
           </p>
-          {events.isPending && <p className="mt-1 text-sm text-muted-foreground">Hämtar …</p>}
+          {events.isPending && <LoadingState text="Hämtar aktiviteter …" />}
           {events.isError && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              Det gick inte att hämta aktiviteter.{" "}
-              <button type="button" className="underline" onClick={() => events.refetch()}>
-                Försök igen
-              </button>
-            </p>
+            <ErrorState
+              className="mt-2"
+              text="Det gick inte att hämta aktiviteter."
+              onRetry={() => void events.refetch()}
+            />
           )}
+
           {!events.isPending && !events.isError && next.length === 0 && (
             <p className="mt-1 text-sm text-muted-foreground">Inget inplanerat framåt.</p>
           )}

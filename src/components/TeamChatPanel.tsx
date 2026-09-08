@@ -99,22 +99,17 @@ export function TeamChatPanel({
       )}
 
       <div className="max-h-[55vh] space-y-3 overflow-y-auto rounded-xl border border-border bg-card p-3">
-        {messages.isLoading && (
-          <p className="text-sm text-muted-foreground">Hämtar meddelanden …</p>
-        )}
+        {messages.isLoading && <LoadingState text="Hämtar meddelanden …" />}
         {messages.isError && (
-          <div className="py-6 text-center text-sm">
-            <p className="text-destructive">Meddelandena kunde inte hämtas just nu.</p>
-            <Button size="sm" className="mt-2" onClick={() => messages.refetch()}>
-              Försök igen
-            </Button>
-          </div>
+          <ErrorState
+            text="Meddelandena kunde inte hämtas just nu."
+            onRetry={() => void messages.refetch()}
+          />
         )}
         {!messages.isLoading && !messages.isError && !list.length && (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Inga meddelanden ännu. Skriv det första!
-          </p>
+          <EmptyState title="Inga meddelanden ännu" description="Skriv det första!" />
         )}
+
 
         {list.map((message) => {
           const mine = message.user_id === userId;
