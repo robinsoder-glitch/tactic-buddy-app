@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MAIN_TABS,
   SECONDARY_TABS,
+  PLANNING_TABS,
   LEGACY_REDIRECTS,
   isTabActive,
   parentPathFor,
@@ -17,37 +18,47 @@ import {
 describe("huvudmenyn", () => {
   it("visar de primära arbetsområdena i rätt ordning", () => {
     expect(MAIN_TABS.map((tab) => tab.label)).toEqual([
+      "Idag",
+      "Kalender",
+      "Kallelser",
+      "Planera",
+      "Lag",
+    ]);
+  });
+
+  it("samlar planeringssidorna under Planera", () => {
+    expect(PLANNING_TABS.map((tab) => tab.label)).toEqual([
       "Planera träning",
       "Matcher",
-      "Kallelser",
-      "Kalender",
       "Närvaro",
-      "Taktik",
+      "Spelare",
       "Träningsbank",
-      "Kunskap",
+      "Taktik",
     ]);
+    expect(parentPathFor("/planera-match")).toBe("/planera");
   });
 
   it("samlar lag och verktyg i en sekundär meny", () => {
     expect(SECONDARY_TABS.map((tab) => tab.label)).toEqual([
-      "Spelare",
+      "Kunskap",
       "Meddelanden",
       "Tränarsnack",
-      "Mina lag",
       "Inställningar",
     ]);
   });
 
   it("markerar aktiv flik", () => {
-    const taktik = MAIN_TABS.find((tab) => tab.to === "/taktik")!;
-    expect(isTabActive("/taktik", taktik)).toBe(true);
-    expect(isTabActive("/kunskapsbank", taktik)).toBe(false);
+    const planera = MAIN_TABS.find((tab) => tab.to === "/planera")!;
+    expect(isTabActive("/planera", planera)).toBe(true);
+    expect(isTabActive("/kunskapsbank", planera)).toBe(false);
+    const idag = MAIN_TABS.find((tab) => tab.to === "/")!;
+    expect(isTabActive("/kalender", idag)).toBe(false);
   });
 
   it("ger varje detaljsida en definierad föräldervy", () => {
     expect(parentPathFor("/kunskapsbank/teknik")).toBe("/kunskapsbank");
     expect(parentPathFor("/team/abc")).toBe("/teams");
-    expect(parentPathFor("/taktik")).toBeNull();
+    expect(parentPathFor("/planera")).toBeNull();
   });
 
   it("leder gamla adresser till rätt ny sida", () => {
@@ -57,7 +68,7 @@ describe("huvudmenyn", () => {
   });
 
   it("har inga dubbla länkar till samma sida", () => {
-    const all = [...MAIN_TABS, ...SECONDARY_TABS].map((tab) => tab.to);
+    const all = [...MAIN_TABS, ...SECONDARY_TABS, ...PLANNING_TABS].map((tab) => tab.to);
     expect(new Set(all).size).toBe(all.length);
   });
 });
