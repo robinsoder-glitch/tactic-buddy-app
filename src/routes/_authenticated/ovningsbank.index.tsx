@@ -344,20 +344,20 @@ function OvningsbankPage() {
           </button>
         }
       >
+        <FilterRow title="Ålder">
+          <FilterGroup
+            value={age}
+            onChange={setAge}
+            options={[
+              ["all", "Alla åldrar"],
+              ...[7, 8, 9, 10, 11, 12].map(
+                (year) => [String(year), `${year} år`] as [string, string],
+              ),
+            ]}
+          />
+        </FilterRow>
         {tab === "Övningar" ? (
           <>
-            <FilterRow title="Ålder">
-              <FilterGroup
-                value={age}
-                onChange={setAge}
-                options={[
-                  ["all", "Alla åldrar"],
-                  ...[7, 8, 9, 10, 11, 12].map(
-                    (year) => [String(year), `${year} år`] as [string, string],
-                  ),
-                ]}
-              />
-            </FilterRow>
             <FilterRow title="Spelform">
               <FilterGroup
                 value={format}
