@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ageAt, profileDisplayName, roleFromCodeMatch, validateSetup } from "./account-setup";
+import {
+  ageAt,
+  birthDateError,
+  profileDisplayName,
+  roleFromCodeMatch,
+  validateSetup,
+} from "./account-setup";
 
 const today = new Date("2026-01-01T00:00:00Z");
 
@@ -74,5 +80,28 @@ describe("profileDisplayName", () => {
       profileDisplayName({ role: "player", name: "Maria", isGuardian: true, playerName: "Elias" }),
     ).toBe("Maria");
     expect(profileDisplayName({ role: "coach", name: "Anna" })).toBe("Anna");
+  });
+});
+
+describe("födelsedatum som inte finns", () => {
+  const today = new Date("2026-09-08T00:00:00Z");
+
+  it("stoppar 31 februari innan servern får datumet", () => {
+    expect(birthDateError("2026-02-31", today)).toMatch(/finns inte/);
+  });
+
+  it("stoppar framtida datum och för gamla år", () => {
+    expect(birthDateError("2030-01-01", today)).toMatch(/framtiden/);
+    expect(birthDateError("1899-12-31", today)).toMatch(/födelseåret/);
+  });
+
+  it("godkänner ett verkligt datum", () => {
+    expect(birthDateError("2013-02-28", today)).toBeNull();
+  });
+
+  it("registreringen avvisar omöjligt datum med begriplig text", () => {
+    expect(
+      validateSetup({ role: "player", name: "Elias", birth: "2013-02-30" }, { requireCode: false }),
+    ).toMatch(/finns inte/);
   });
 });

@@ -17,6 +17,7 @@ import { NotificationSettingsCard } from "@/components/NotificationSettingsCard"
 import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
+import { birthDateError } from "@/lib/account-setup";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
 import { DEFAULT_THEME, THEME_LABELS, loadTheme, saveTheme, type ThemeChoice } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,12 @@ function SettingsPage() {
 
   async function saveProfile() {
     if (!userId) return;
+    // Ett omöjligt datum (t.ex. 31 februari) ska stoppas här, inte bli ett databasfel.
+    const dateError = birth ? birthDateError(birth) : null;
+    if (dateError) {
+      toast.error(dateError);
+      return;
+    }
     setSavingProfile(true);
     try {
       await updateProfile({

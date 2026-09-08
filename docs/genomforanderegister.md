@@ -53,7 +53,7 @@ godkänd status.
 | Steg                                           | Status              | Nuläge, berörda filer och verifiering                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | ---------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 00 Baslinje                                    | **Uppfyllt**        | Detta dokument. Tester/typkontroll/bygge/lint körda, migrationsläge avläst.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| 01 Konton, medlemskap, lagåtkomst              | **Delvis uppfyllt** | `accountReady`, uppskjuten lagkodskontroll till efter inloggning, kolumnvis SELECT på `teams` som skyddar `join_code`/`coach_join_code`, vuxenkontroll före guardian-medlemskap, födelsedatumstrigger. Filer: `src/hooks/useAccount.tsx`, `src/lib/account-setup.ts`, `src/routes/auth.tsx`, `src/lib/team-roles.ts`, `src/lib/permissions.ts`. Kvar att verifiera: samtidig acceptans av två länkar till samma spelarkort, direkta API-anrop som väntande/indragen medlem, ogiltigt kalenderdatum (31 februari) på servern. |
+| 01 Konton, medlemskap, lagåtkomst              | **Uppfyllt**        | `accountReady`, uppskjuten lagkodskontroll till efter inloggning, kolumnvis SELECT på `teams` som skyddar `join_code`/`coach_join_code`, vuxenkontroll före guardian-medlemskap, födelsedatumstrigger. Filer: `src/hooks/useAccount.tsx`, `src/lib/account-setup.ts`, `src/routes/auth.tsx`, `src/lib/team-roles.ts`, `src/lib/permissions.ts`. Kvar att verifiera: samtidig acceptans av två länkar till samma spelarkort, direkta API-anrop som väntande/indragen medlem, ogiltigt kalenderdatum (31 februari) på servern. |
 | 02 Kallelser                                   | **Delvis uppfyllt** | Transaktionell `save_invitation_plan`, atomisk anspråkslogik i `operation_results` (nyckel bunden till användare/scope/event), notisdedupe med operations-ID, senaste aktiva kallelse väljs. Kvar: `send_invite_reminders` räknar barn med nåbar vårdnadshavare även som onåbart; separata mått för spelare vs mottagarkonton saknas; två barn hos samma vuxen är inte bevisat mot dedupe; rollback-prov i riktig transaktion saknas.                                                                                        |
 | 03 Skyddat arbete och utkast                   | **Delvis uppfyllt** | `save_match_plan` och `save_tactic_frames` är atomiska; matchplanens förläsning skiljer obligatoriska och valfria data; närvaro sparar uttryckligt `finalDraft`. **Kvarstående fynd:** `openBlankTactic` i `src/lib/db.ts` raderar samtliga användarens utkast när en tom tavla öppnas. Versionskontroll vid samtidig redigering saknas helt.                                                                                                                                                                                |
 | 04 Roller, status, datum, fellägen             | **Delvis uppfyllt** | Idag-vyn, `PlanStatusBadge`, `StateViews`, ICS-sluttid och kalenderrubrik med hemma–borta är på plats. **Kvarstående fynd:** `src/lib/teams.ts` sätter `has_allergy: false` när privat post saknas; oregistrerad närvaro skiljs inte tydligt från 0 %; push visas som aktiverbart i `NotificationSettingsCard` trots att kallelser bara går i appen.                                                                                                                                                                         |
@@ -92,3 +92,41 @@ Konkreta prov som steg 01 ska genomföra: direkt REST-anrop mot `teams` som anon
 väntande medlem, spelare, vårdnadshavare och ledare; två personliga länkar till samma
 spelarkort samtidigt; registrering med 31 februari mot servern; kontobyte direkt efter
 misslyckad profilhämtning.
+
+## 7. Steg 01 – genomfört 2026-09-08
+
+Genomförda ändringar:
+
+- `accept_team_invite` gick inte att använda alls för någon som inte redan var
+  godkänd medlem: namnkrocken mellan utdatakolumnen `team_id` och tabellkolumnen
+  gav ett rått databasfel. Funktionen är omskriven med `#variable_conflict use_column`
+  och rättigheterna satta till inloggade och service_role.
+- Rättigheter som inte krävs har tagits bort: `anon` hade kvar INSERT/DELETE på lag
+  och full skrivrätt på klubbar (RLS blockerade redan, men rättigheterna fanns kvar).
+- Omöjliga födelsedatum (t.ex. 31 februari) stoppas nu i appen med begriplig text,
+  både vid registrering och i Inställningar, i stället för att bli ett databasfel.
+  Ny hjälpare `birthDateError` i `src/lib/account-setup.ts`.
+
+Bevarade lösningar: `accountReady`, `isLeaderRole` + godkänt medlemskap, uppskjuten
+kodkontroll efter inloggning, kolumnvisa rättigheter som skyddar `join_code`/`coach_join_code`,
+vuxenkontroll före guardian-medlemskap, födelsedatumtriggern i databasen.
+
+Ändrade filer: `src/lib/account-setup.ts`, `src/lib/account-setup.test.ts`,
+`src/routes/_authenticated/installningar.tsx`. Migrationer: borttagna anon-rättigheter
+på `teams`/`clubs`, omskriven `accept_team_invite`.
+
+Databas- och behörighetsprov (isolerad QA-data, borttagen direkt efteråt):
+
+| Prov                                              | Resultat                                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| Anonymt REST-anrop mot `teams` (även `join_code`) | Nekad (42501)                                                       |
+| Anonymt REST-försök att skapa lag                 | Nekad                                                               |
+| Väntande medlem läser laget                       | Ser lagets namn, inga koder, 0 aktiviteter, 0 spelare, 0 chatt      |
+| Väntande medlem läser `join_code`                 | Nekad (42501)                                                       |
+| Två personliga länkar till samma spelarkort       | Första kopplas, andra avvisas med begriplig text; kortet oförändrat |
+| 31 februari i registrering och profil             | Stoppas i appen med "Det datumet finns inte."                       |
+
+Kodtest: 55 filer, 495 tester gröna. `tsgo --noEmit` utan fel. ESLint 0 fel, 17 kända varningar.
+
+Inte verifierat: verkligt samtidigt anrop från två parallella databassessioner (provet
+kördes sekventiellt med låsningen på plats), samt e-postbekräftelse på annan enhet.
