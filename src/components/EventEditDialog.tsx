@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,8 @@ import {
   type EventTimeErrors,
 } from "@/lib/event-datetime";
 import { changeReceipt, diffEvent, logEventChange } from "@/lib/event-changes";
-import type { TeamEvent } from "@/lib/teams";
+import { recentLocations } from "@/lib/locations";
+import { fetchEvents, type TeamEvent } from "@/lib/teams";
 
 type Props = {
   open: boolean;
