@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { copyTitle, moveItem, templateItems, totalMinutes } from "./coach-sessions";
+import { copyTitle, moveItem, nextSortOrder, templateItems, totalMinutes } from "./coach-sessions";
 import type { TrainingSessionCard } from "./taktikbank";
 
 const items = [
