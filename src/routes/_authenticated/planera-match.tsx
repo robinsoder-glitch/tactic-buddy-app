@@ -582,16 +582,21 @@ function MatchPlanner({
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Button variant="ghost" size="sm" onClick={onClose}>
           <ArrowLeft className="size-4" /> Alla matcher
         </Button>
         {mode === "read" ? (
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={() => setShareOpen(true)}
+            >
               <Share2 className="size-4" /> Dela laguppställning
             </Button>
-            <Button size="sm" onClick={() => setMode("edit")}>
+            <Button size="sm" className="flex-1 sm:flex-none" onClick={() => setMode("edit")}>
               <Pencil className="size-4" /> Ändra planering
             </Button>
           </div>
