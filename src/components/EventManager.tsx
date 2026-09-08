@@ -70,10 +70,7 @@ const REPEATS = [
   { value: "monthly", label: "Varje månad" },
 ] as const;
 
-function timeOnly(value: string | null) {
-  if (!value) return null;
-  return new Date(value).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
-}
+import { timeOnly } from "@/lib/datetime-format";
 
 export function EventManager({
   teamId,
