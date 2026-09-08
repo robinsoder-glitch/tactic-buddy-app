@@ -210,10 +210,13 @@ export async function deleteSessionItem(id: string) {
   if (error) throw error;
 }
 
-/** Sparar ny ordning för samtliga delar. */
+/**
+ * Sparar ny ordning för samtliga delar.
+ * Listan är redan omnumrerad när den kommer hit, därför sparas varje plats
+ * utan att jämföra med det gamla värdet – annars skulle inget sparas alls.
+ */
 export async function saveItemOrder(items: CoachSessionItem[]) {
   for (const [index, item] of items.entries()) {
-    if (item.sort_order === index) continue;
     const { error } = await supabase
       .from("coach_session_items")
       .update({ sort_order: index })
