@@ -108,8 +108,8 @@ function TeamLayout() {
         </div>
         {isCoachRole && (
           <Link
-            to="/team/$teamId/tranarsnack"
-            params={{ teamId }}
+            to="/tranarsnack"
+            search={{ team: teamId }}
             className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground hover:bg-accent"
           >
             <MessagesSquare className="size-4 text-primary" aria-hidden />
