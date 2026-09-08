@@ -136,21 +136,19 @@ function MyInvitesPage() {
         </Button>
       </div>
 
+      {invites.isLoading && <LoadingState text="Hämtar dina kallelser …" />}
+
       {(invites.isError || guarded.isError) && (
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground">Dina kallelser kunde inte hämtas just nu.</p>
-          <Button
-            size="sm"
-            className="mt-2"
-            onClick={() => {
-              void invites.refetch();
-              void guarded.refetch();
-            }}
-          >
-            Försök igen
-          </Button>
-        </div>
+        <ErrorState
+          className="mt-4"
+          text="Dina kallelser kunde inte hämtas just nu."
+          onRetry={() => {
+            void invites.refetch();
+            void guarded.refetch();
+          }}
+        />
       )}
+
 
       {!invites.isLoading && !invites.isError && !guarded.isError && list.length === 0 && (
         <div className="mt-6 space-y-2 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
