@@ -182,22 +182,28 @@ function SessionBuilder() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
-      <header className="flex items-center gap-2">
-        <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
-        <div className="flex-1">
-          <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
-          <h1 className="font-display text-2xl font-bold">{session.data.title}</h1>
+      <header className="space-y-3">
+        <div className="flex items-start gap-2">
+          <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
+            <h1 className="font-display text-xl font-bold break-words sm:text-2xl">
+              {session.data.title}
+            </h1>
+          </div>
         </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
-            Visa träningspass
-          </Link>
-        </Button>
-        <Button asChild size="sm">
-          <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
-            Genomför träning
-          </Link>
-        </Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
+          <Button asChild variant="outline" className="min-h-11 w-full sm:w-auto">
+            <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
+              Visa träningspass
+            </Link>
+          </Button>
+          <Button asChild className="min-h-11 w-full sm:w-auto">
+            <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
+              Genomför träning
+            </Link>
+          </Button>
+        </div>
       </header>
 
       <section className="mt-5 space-y-3 rounded-xl border border-border bg-card p-4">
@@ -268,7 +274,11 @@ function SessionBuilder() {
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button disabled={saveInfo.isPending} onClick={() => saveInfo.mutate()}>
+              <Button
+                className="min-h-11"
+                disabled={saveInfo.isPending}
+                onClick={() => saveInfo.mutate()}
+              >
                 <Save className="size-4" /> {saveInfo.isPending ? "Sparar…" : "Spara information"}
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -276,6 +286,7 @@ function SessionBuilder() {
               </span>
               <Button
                 variant="outline"
+                className="min-h-11"
                 disabled={setStatus.isPending}
                 aria-label={
                   session.data.status === "done"
@@ -309,21 +320,25 @@ function SessionBuilder() {
       <SessionSharing sessionId={id} title={session.data.title} teamId={session.data.team_id} />
 
       <section className="mt-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-display text-lg font-semibold">
             Innehåll{" "}
             <span className="text-sm font-normal text-muted-foreground">
               ({minutesLabel(totalMinutes(items))})
             </span>
           </h2>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => setAddOpen(true)} aria-label="Lägg till del">
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+            <Button
+              className="min-h-11 w-full justify-center sm:w-auto"
+              onClick={() => setAddOpen(true)}
+              aria-label="Lägg till del"
+            >
               <Plus className="size-4" /> Lägg till del
             </Button>
             <Link
               to="/ovningsbank"
               search={{ sessionId: id }}
-              className="inline-flex min-h-9 items-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary sm:w-auto"
             >
               <BookOpen className="size-4" aria-hidden /> Hämta från Träningsbanken
             </Link>
@@ -351,6 +366,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Flytta upp"
                     disabled={index === 0}
                     onClick={() => reorder(index, -1)}
@@ -360,6 +376,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Flytta ner"
                     disabled={index === items.length - 1}
                     onClick={() => reorder(index, 1)}
@@ -369,6 +386,7 @@ function SessionBuilder() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="size-11"
                     aria-label="Ta bort del"
                     onClick={async () => {
                       const ok = await confirm({
