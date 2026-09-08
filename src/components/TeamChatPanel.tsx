@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessagesSquare, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   chatTime,
   deleteTeamChatMessage,
@@ -31,15 +32,18 @@ export function TeamChatPanel({
     refetchInterval: 15000,
   });
 
-  const list = messages.data ?? [];
+  const list = useMemo(() => messages.data ?? [], [messages.data]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
     if (!isCoach) return;
-    void markChatRead(teamId).then(() =>
+    // Markera bara fram till det senaste meddelande som faktiskt visas.
+    const lastShown = list[list.length - 1]?.created_at;
+    if (!lastShown) return;
+    void markChatRead(teamId, lastShown).then(() =>
       queryClient.invalidateQueries({ queryKey: ["team-chat-unread"] }),
     );
-  }, [list.length, isCoach, teamId, queryClient]);
+  }, [list, isCoach, teamId, queryClient]);
 
   const send = useMutation({
     mutationFn: () => sendTeamChatMessage(teamId, text),
@@ -87,11 +91,20 @@ export function TeamChatPanel({
         {messages.isLoading && (
           <p className="text-sm text-muted-foreground">Hämtar meddelanden …</p>
         )}
-        {!messages.isLoading && !list.length && (
+        {messages.isError && (
+          <div className="py-6 text-center text-sm">
+            <p className="text-destructive">Meddelandena kunde inte hämtas just nu.</p>
+            <Button size="sm" className="mt-2" onClick={() => messages.refetch()}>
+              Försök igen
+            </Button>
+          </div>
+        )}
+        {!messages.isLoading && !messages.isError && !list.length && (
           <p className="py-6 text-center text-sm text-muted-foreground">
             Inga meddelanden ännu. Skriv det första!
           </p>
         )}
+
         {list.map((message) => {
           const mine = message.user_id === userId;
           return (

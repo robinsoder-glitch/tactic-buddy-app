@@ -2973,6 +2973,18 @@ export type Database = {
         Args: { _event_id: string; _rows: Json; _team_id: string }
         Returns: number
       }
+      save_invitation_plan: {
+        Args: {
+          _event_id: string
+          _message: string
+          _new_player_ids: string[]
+          _notify?: boolean
+          _op_id?: string
+          _respond_by: string
+          _update_existing?: boolean
+        }
+        Returns: Json
+      }
       save_match_plan: {
         Args: {
           _bench: string[]
@@ -2987,6 +2999,10 @@ export type Database = {
           _team_id: string
         }
         Returns: undefined
+      }
+      save_tactic_frames: {
+        Args: { _frames: Json; _tactic_id: string }
+        Returns: number
       }
       save_training_plan: {
         Args: {
@@ -3009,6 +3025,10 @@ export type Database = {
       set_event_invites_closed: {
         Args: { _closed: boolean; _event_id: string }
         Returns: Json
+      }
+      set_guardian_active: {
+        Args: { _active: boolean; _link_id: string }
+        Returns: undefined
       }
       team_role: {
         Args: { _team_id: string; _user_id: string }

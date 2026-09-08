@@ -269,8 +269,10 @@ export async function updateInvitationDetails(input: {
 }
 
 /**
- * Sparar allt i dialogen i ett svep: först ändrad information till redan
- * kallade, sedan eventuella nya mottagare.
+ * Sparar allt i dialogen i ett enda databassteg: ändrad information till redan
+ * kallade och eventuella nya eller återaktiverade mottagare. Går något fel
+ * ändras ingenting alls. `operationId` gör att dubbelklick inte ger dubbla
+ * notiser, medan en ny kallelse efter återkallelse alltid ger en ny notis.
  */
 export async function saveInvitationPlan(input: {
   eventId: string;
@@ -279,29 +281,25 @@ export async function saveInvitationPlan(input: {
   message: string | null;
   respondBy?: string | null;
   notify?: boolean;
+  operationId?: string;
 }): Promise<{ added: number; updated: number; published: PublishResult | null }> {
-  let updated = 0;
-  if (input.hasExisting) {
-    const result = await updateInvitationDetails({
-      eventId: input.eventId,
-      message: input.message,
-      respondBy: input.respondBy ?? null,
-      notify: input.notify ?? false,
-    });
-    updated = result.updated;
-  }
+  const { data, error } = await supabase.rpc("save_invitation_plan", {
+    _event_id: input.eventId,
+    _new_player_ids: input.newPlayerIds,
+    _message: input.message,
+    _respond_by: input.respondBy || null,
+    _notify: input.notify ?? false,
+    _update_existing: input.hasExisting,
+    _op_id: input.operationId ?? null,
+  } as never);
+  if (error) throw error;
 
-  let published: PublishResult | null = null;
-  if (input.newPlayerIds.length > 0) {
-    published = await publishInvitations({
-      eventId: input.eventId,
-      playerIds: input.newPlayerIds,
-      message: input.message,
-      respondBy: input.respondBy ?? null,
-    });
-  }
-
-  return { added: published?.added ?? 0, updated, published };
+  const result = data as unknown as PublishResult & { added: number; updated: number };
+  return {
+    added: result.added ?? 0,
+    updated: result.updated ?? 0,
+    published: input.newPlayerIds.length > 0 ? (result as PublishResult) : null,
+  };
 }
 
 /** Återkallar en kallelse. Historiken finns kvar. */

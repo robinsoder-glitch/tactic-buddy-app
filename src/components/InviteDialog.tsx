@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,9 @@ export function InviteDialog({
   const [notify, setNotify] = useState(true);
   const [search, setSearch] = useState("");
   const [review, setReview] = useState(false);
+  // Ett id per verklig användarhandling: dubbelklick ger inga dubbletter,
+  // men en ny kallelse efter återkallelse ger alltid en ny notis.
+  const operationId = useRef<string>("");
 
   // Nollställs varje gång dialogen öppnas. Avbryt sparar därför aldrig något.
   useEffect(() => {
@@ -88,6 +91,7 @@ export function InviteDialog({
     setNotify(true);
     setSearch("");
     setReview(false);
+    operationId.current = crypto.randomUUID();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, invitations, players, squadPlayerIds, startsAt]);
 
@@ -139,6 +143,7 @@ export function InviteDialog({
         message: message.trim() || null,
         respondBy: respondBy || null,
         notify: hasExisting && notify,
+        operationId: operationId.current,
       }),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });

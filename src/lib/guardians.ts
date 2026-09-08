@@ -76,12 +76,15 @@ export async function linkGuardian(input: {
   if (error) throw error;
 }
 
-/** Avaktiverar eller återaktiverar kopplingen utan att förlora historik. */
+/**
+ * Avaktiverar eller återaktiverar kopplingen utan att förlora historik.
+ * Kontrollen görs i databasen – klienten kan inte ändra kopplingar direkt.
+ */
 export async function setGuardianActive(linkId: string, isActive: boolean): Promise<void> {
-  const { error } = await supabase
-    .from("player_guardians")
-    .update({ is_active: isActive })
-    .eq("id", linkId);
+  const { error } = await supabase.rpc("set_guardian_active", {
+    _link_id: linkId,
+    _active: isActive,
+  } as never);
   if (error) throw error;
 }
 
