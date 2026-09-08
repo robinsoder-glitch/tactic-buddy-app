@@ -11,6 +11,7 @@ import {
   sendTeamChatMessage,
 } from "@/lib/team-chat";
 import { useTeamRole } from "@/hooks/useTeamRole";
+import { useRealtimeRefetch } from "@/hooks/useRealtimeRefetch";
 
 /** Tränarsnack: intern chatt för lagets ledare. */
 export function TeamChatPanel({
