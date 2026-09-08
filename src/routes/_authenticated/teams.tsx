@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAccount } from "@/hooks/useAccount";
 import { usePendingJoins } from "@/hooks/usePendingJoins";
-import { createTeam, fetchClubs, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { createTeam, fetchMyTeams, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,7 +59,16 @@ function TeamsPage() {
   const allTeams = teams.data ?? [];
   const archivedCount = allTeams.filter((team) => team.archived_at).length;
   const visibleTeams = showArchived ? allTeams : allTeams.filter((team) => !team.archived_at);
-  const clubs = useQuery({ queryKey: ["clubs"], queryFn: fetchClubs });
+  // Bara klubbar där man själv redan har ett lag ska gå att välja. Andras
+  // klubbar ska inte synas för en ny tränare – då skriver man bara in sin egen.
+  const myClubs = Array.from(
+    new Map(
+      allTeams
+        .filter((team) => team.club?.id && team.club?.name)
+        .map((team) => [team.club!.id, { id: team.club!.id, name: team.club!.name }]),
+    ).values(),
+  ).sort((a, b) => a.name.localeCompare(b.name, "sv"));
+
 
   const create = useMutation({
     mutationFn: () => {
@@ -120,27 +129,31 @@ function TeamsPage() {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="club">Klubb</Label>
-                <select
-                  id="club"
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  value={clubId ?? ""}
-                  onChange={(event) => setClubId(event.target.value || null)}
-                >
-                  <option value="">Skapa ny klubb…</option>
-                  {clubs.data?.map((club) => (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  ))}
-                </select>
+                {myClubs.length > 0 && (
+                  <select
+                    id="club"
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={clubId ?? ""}
+                    onChange={(event) => setClubId(event.target.value || null)}
+                  >
+                    <option value="">Ny klubb…</option>
+                    {myClubs.map((club) => (
+                      <option key={club.id} value={club.id}>
+                        {club.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {!clubId && (
                   <Input
+                    id={myClubs.length > 0 ? undefined : "club"}
                     aria-label="Klubbens namn"
                     placeholder="Klubbens namn"
                     value={clubName}
                     onChange={(event) => setClubName(event.target.value)}
                   />
                 )}
+
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="team-name">Lagnamn</Label>
