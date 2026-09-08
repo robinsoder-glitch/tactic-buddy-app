@@ -393,7 +393,7 @@ function OvningsbankPage() {
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Fler filter finns för fliken Övningar. Här söker du på titel och syfte.
+            Spelform, träningsområde och svårighetsgrad finns på fliken Övningar.
           </p>
         )}
       </FilterPanel>
