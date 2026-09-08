@@ -437,7 +437,11 @@ function TacticsDashboard({ userId }: { userId: string }) {
         </Button>
       </header>
 
-      <section className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5">
+        <TodayPanel isCoach={isCoach} />
+      </div>
+
+      <section className="mt-3 grid gap-3 sm:grid-cols-3">
         <QuickCard
           to="/planera-traning"
           icon={<ClipboardList className="size-5" />}
