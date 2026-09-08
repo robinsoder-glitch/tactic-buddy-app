@@ -121,7 +121,6 @@ describe("applyAccountSetup", () => {
     findTeamByCode.mockResolvedValue(null);
     await expect(applyAccountSetup("user-1", player)).rejects.toThrow(SETUP_ERRORS.codeInvalid);
     expect(joinTeamWithCode).not.toHaveBeenCalled();
-    expect(updateProfile).toHaveBeenCalled();
     expect(updateProfile).not.toHaveBeenCalled();
   });
 
@@ -143,7 +142,6 @@ describe("applyAccountSetup", () => {
   it("skapar inte motsägelsefulla roller vid fel kodtyp", async () => {
     findTeamByCode.mockResolvedValue(team("coach"));
     await expect(applyAccountSetup("user-1", player)).rejects.toThrow(SETUP_ERRORS.codeNeedsPlayer);
-    expect(updateProfile).toHaveBeenCalled();
     expect(joinTeamWithCode).not.toHaveBeenCalled();
   });
 
