@@ -11,6 +11,7 @@ import {
   sendTeamChatMessage,
 } from "@/lib/team-chat";
 import { useTeamRole } from "@/hooks/useTeamRole";
+import { useRealtimeRefetch } from "@/hooks/useRealtimeRefetch";
 
 /** Tränarsnack: intern chatt för lagets ledare. */
 export function TeamChatPanel({
@@ -29,7 +30,17 @@ export function TeamChatPanel({
     queryKey: ["team-chat", teamId],
     queryFn: () => fetchTeamChat(teamId),
     enabled: !!teamId && isCoach,
-    refetchInterval: 15000,
+    staleTime: 15000,
+    // Reserv om direktkanalen inte är tillgänglig (t.ex. dålig uppkoppling).
+    refetchInterval: 120000,
+  });
+
+  useRealtimeRefetch({
+    table: "team_chat_messages",
+    filter: `team_id=eq.${teamId}`,
+    queryKey: ["team-chat", teamId],
+    alsoInvalidate: [["team-chat-unread"]],
+    enabled: !!teamId && isCoach,
   });
 
   const list = useMemo(() => messages.data ?? [], [messages.data]);

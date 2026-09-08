@@ -36,16 +36,28 @@ export type KnowledgeArticle = {
 const COLUMNS =
   "id, slug, title_sv, title_original, summary_sv, learn_sv, try_next_sv, category, age_label, age_5_7, age_8_9, age_10, game_format_label, format_3v3, format_5v5, format_7v7, level, content_type, language, source_name, source_type, reading_minutes, coach_value, evidence_level, original_url, checked_date, is_published, featured, sort_order, copyright_note";
 
-export async function fetchKnowledgeArticles(): Promise<KnowledgeArticle[]> {
+/**
+ * Listvyerna visar kort – de behöver inte artiklarnas långa texter. Vi hämtar
+ * bara det som syns i listan; hela artikeln hämtas när man öppnar den.
+ */
+const LIST_COLUMNS =
+  "id, slug, title_sv, summary_sv, category, age_label, age_5_7, age_8_9, age_10, game_format_label, format_3v3, format_5v5, format_7v7, level, content_type, language, source_name, source_type, reading_minutes, coach_value, original_url, checked_date, is_published, featured, sort_order";
+
+export type KnowledgeArticleListItem = Omit<
+  KnowledgeArticle,
+  "title_original" | "learn_sv" | "try_next_sv" | "evidence_level" | "copyright_note"
+>;
+
+export async function fetchKnowledgeArticles(): Promise<KnowledgeArticleListItem[]> {
   const { data, error } = await supabase
     .from("knowledge_articles")
-    .select(COLUMNS)
+    .select(LIST_COLUMNS)
     .eq("is_published", true)
     .order("featured", { ascending: false })
     .order("sort_order", { ascending: true })
     .order("title_sv", { ascending: true });
   if (error) throw error;
-  return (data ?? []) as unknown as KnowledgeArticle[];
+  return (data ?? []) as unknown as KnowledgeArticleListItem[];
 }
 
 export async function fetchKnowledgeArticle(slug: string): Promise<KnowledgeArticle | null> {
@@ -84,14 +96,14 @@ export type KnowledgeFilter = {
   onlyFeatured?: boolean;
 };
 
-export function knowledgeCategories(articles: KnowledgeArticle[]): string[] {
+export function knowledgeCategories(articles: KnowledgeArticleListItem[]): string[] {
   return Array.from(new Set(articles.map((a) => a.category).filter(Boolean))).sort((a, b) =>
     a.localeCompare(b, "sv"),
   );
 }
 
 function distinctValues(
-  articles: KnowledgeArticle[],
+  articles: KnowledgeArticleListItem[],
   key: "level" | "language" | "source_name",
 ): string[] {
   return Array.from(
@@ -102,25 +114,25 @@ function distinctValues(
 /** Nivåerna visas alltid i stigande svårighetsgrad. */
 export const KNOWLEDGE_LEVEL_ORDER = ["Grund", "Fortsättning", "Fördjupning"];
 
-export function knowledgeLevels(articles: KnowledgeArticle[]): string[] {
+export function knowledgeLevels(articles: KnowledgeArticleListItem[]): string[] {
   const present = new Set(distinctValues(articles, "level"));
   const ordered = KNOWLEDGE_LEVEL_ORDER.filter((level) => present.has(level));
   const rest = Array.from(present).filter((level) => !KNOWLEDGE_LEVEL_ORDER.includes(level));
   return [...ordered, ...rest];
 }
 
-export function knowledgeLanguages(articles: KnowledgeArticle[]): string[] {
+export function knowledgeLanguages(articles: KnowledgeArticleListItem[]): string[] {
   return distinctValues(articles, "language");
 }
 
-export function knowledgeSources(articles: KnowledgeArticle[]): string[] {
+export function knowledgeSources(articles: KnowledgeArticleListItem[]): string[] {
   return distinctValues(articles, "source_name");
 }
 
-export function filterKnowledge(
-  articles: KnowledgeArticle[],
+export function filterKnowledge<T extends KnowledgeArticleListItem>(
+  articles: T[],
   filter: KnowledgeFilter,
-): KnowledgeArticle[] {
+): T[] {
   return articles.filter((article) => {
     if (filter.onlyFeatured && !article.featured) return false;
     if (filter.category && filter.category !== "all" && article.category !== filter.category)
@@ -147,9 +159,9 @@ export function filterKnowledge(
     if (!needle) return true;
     const haystack = [
       article.title_sv,
-      article.title_original ?? "",
+      ("title_original" in article ? (article.title_original ?? "") : "") as string,
       article.summary_sv,
-      article.learn_sv ?? "",
+      ("learn_sv" in article ? (article.learn_sv ?? "") : "") as string,
       article.coach_value ?? "",
       article.category,
       article.source_name ?? "",
@@ -160,7 +172,7 @@ export function filterKnowledge(
   });
 }
 
-export function knowledgeAgeLabel(article: KnowledgeArticle): string {
+export function knowledgeAgeLabel(article: KnowledgeArticleListItem): string {
   if (article.age_label) return article.age_label;
   const parts: string[] = [];
   if (article.age_5_7) parts.push("5–7 år");
@@ -169,7 +181,7 @@ export function knowledgeAgeLabel(article: KnowledgeArticle): string {
   return parts.length ? parts.join(", ") : "Alla åldrar";
 }
 
-export function knowledgeFormatLabel(article: KnowledgeArticle): string | null {
+export function knowledgeFormatLabel(article: KnowledgeArticleListItem): string | null {
   if (article.game_format_label) return article.game_format_label;
   const parts: string[] = [];
   if (article.format_3v3) parts.push("3 mot 3");
@@ -181,7 +193,7 @@ export function knowledgeFormatLabel(article: KnowledgeArticle): string | null {
 export type KnowledgeKind = "Artikel" | "Forskning" | "Resursbank" | "Verktyg";
 
 /** Skiljer en vanlig artikel från forskning, portalsidor och verktyg. */
-export function knowledgeKind(article: KnowledgeArticle): KnowledgeKind {
+export function knowledgeKind(article: KnowledgeArticleListItem): KnowledgeKind {
   const text = `${article.content_type ?? ""} ${article.source_type ?? ""}`.toLowerCase();
   if (text.includes("verktyg") || text.includes("app")) return "Verktyg";
   if (text.includes("resursbank") || text.includes("resursarkiv") || text.includes("dokumentarkiv"))
