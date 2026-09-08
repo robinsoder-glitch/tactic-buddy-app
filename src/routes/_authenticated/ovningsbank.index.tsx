@@ -22,7 +22,12 @@ import {
   type FavoriteKind,
   type Drill,
 } from "@/lib/taktikbank";
-import { drillMeta, filterDrills, filterSessions } from "@/lib/ovningsbank";
+import {
+  drillMeta,
+  filterDrills,
+  filterGoalkeeperCards,
+  filterSessions,
+} from "@/lib/ovningsbank";
 import { drillDefaultMinutes, drillDurationLabel } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
@@ -227,11 +232,11 @@ function OvningsbankPage() {
     favorites: favoriteSet,
   });
 
-  const visibleKeepers = (keepers.data ?? []).filter((card) => {
-    if (onlyFavorites && !favoriteSet.has(`goalkeeper:${card.id}`)) return false;
-    const needle = query.trim().toLowerCase();
-    if (!needle) return true;
-    return [card.title, card.purpose ?? ""].join(" ").toLowerCase().includes(needle);
+  const visibleKeepers = filterGoalkeeperCards(keepers.data ?? [], {
+    query,
+    age,
+    onlyFavorites,
+    favorites: favoriteSet,
   });
 
   if (loading) {
@@ -315,7 +320,7 @@ function OvningsbankPage() {
           (onlyFavorites ? 1 : 0) +
           (tab === "Övningar"
             ? [age, format, area, difficulty].filter((value) => value !== "all").length
-            : 0)
+            : [age].filter((value) => value !== "all").length)
         }
         onClear={() => {
           setOnlyFavorites(false);
@@ -339,20 +344,20 @@ function OvningsbankPage() {
           </button>
         }
       >
+        <FilterRow title="Ålder">
+          <FilterGroup
+            value={age}
+            onChange={setAge}
+            options={[
+              ["all", "Alla åldrar"],
+              ...[7, 8, 9, 10, 11, 12].map(
+                (year) => [String(year), `${year} år`] as [string, string],
+              ),
+            ]}
+          />
+        </FilterRow>
         {tab === "Övningar" ? (
           <>
-            <FilterRow title="Ålder">
-              <FilterGroup
-                value={age}
-                onChange={setAge}
-                options={[
-                  ["all", "Alla åldrar"],
-                  ...[7, 8, 9, 10, 11, 12].map(
-                    (year) => [String(year), `${year} år`] as [string, string],
-                  ),
-                ]}
-              />
-            </FilterRow>
             <FilterRow title="Spelform">
               <FilterGroup
                 value={format}
@@ -388,7 +393,7 @@ function OvningsbankPage() {
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Fler filter finns för fliken Övningar. Här söker du på titel och syfte.
+            Spelform, träningsområde och svårighetsgrad finns på fliken Övningar.
           </p>
         )}
       </FilterPanel>

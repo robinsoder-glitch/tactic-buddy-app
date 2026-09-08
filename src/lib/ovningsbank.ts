@@ -1,4 +1,4 @@
-import type { Drill, TacticCard, TrainingSessionCard } from "./taktikbank";
+import type { Drill, GoalkeeperCard, TacticCard, TrainingSessionCard } from "./taktikbank";
 
 /** Härledd metadata för en övning, baserad på de taktikkort övningen är kopplad till. */
 export type DrillMeta = {
@@ -64,6 +64,26 @@ export function filterDrills(drills: Drill[], cards: TacticCard[], filter: Drill
       if (!needle.split(/\s+/).every((word) => haystack.includes(word))) return false;
     }
     return true;
+  });
+}
+
+/** Målvaktsövningar filtreras på ålder, som finns angiven på varje kort. */
+export function filterGoalkeeperCards(
+  cards: GoalkeeperCard[],
+  filter: { query?: string; age?: string; onlyFavorites?: boolean; favorites?: Set<string> },
+): GoalkeeperCard[] {
+  return cards.filter((card) => {
+    if (filter.onlyFavorites && !filter.favorites?.has(`goalkeeper:${card.id}`)) return false;
+    if (filter.age && filter.age !== "all") {
+      const wanted = Number(filter.age);
+      const fit = card.data.ageFit;
+      if (typeof fit?.min === "number" && wanted < fit.min) return false;
+      if (typeof fit?.max === "number" && wanted > fit.max) return false;
+    }
+    const needle = (filter.query ?? "").trim().toLowerCase();
+    if (!needle) return true;
+    const haystack = [card.title, card.purpose ?? ""].join(" ").toLowerCase();
+    return needle.split(/\s+/).every((word) => haystack.includes(word));
   });
 }
 

@@ -83,6 +83,7 @@ export type GoalkeeperCardData = {
   steps?: string[];
   commonErrors?: string[];
   linkedDrillIds?: string[];
+  ageFit?: { min?: number; max?: number };
   sources?: Source[];
 };
 

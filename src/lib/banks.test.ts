@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { drillMeta, filterDrills, filterSessions } from "./ovningsbank";
+import { drillMeta, filterDrills, filterGoalkeeperCards, filterSessions } from "./ovningsbank";
 import {
   KB_CATEGORIES,
   KB_CATEGORY_LABELS,
@@ -12,7 +12,7 @@ import {
   visibleArticles,
   type KbArticle,
 } from "./kunskapsbank";
-import type { Drill, TacticCard, TrainingSessionCard } from "./taktikbank";
+import type { Drill, GoalkeeperCard, TacticCard, TrainingSessionCard } from "./taktikbank";
 
 const card = (over: Partial<TacticCard> = {}): TacticCard =>
   ({
@@ -197,5 +197,33 @@ describe("kunskapsbank import och validering", () => {
     ];
     expect(filterArticles(rows, { tags: ["kost"] })).toHaveLength(1);
     expect(allTags(rows)).toEqual(["kost", "teknik"]);
+  });
+});
+
+describe("filterGoalkeeperCards", () => {
+  const keeper = (id: string, min: number, max: number, title = "Fånga och skopa") =>
+    ({
+      id,
+      title,
+      purpose: "Ta hand om låga bollar",
+      data: { id, title, ageFit: { min, max } },
+    }) as unknown as GoalkeeperCard;
+
+  it("filtrerar på ålder", () => {
+    const cards = [keeper("gk1", 8, 9), keeper("gk2", 10, 12)];
+    expect(filterGoalkeeperCards(cards, { age: "8" }).map((c) => c.id)).toEqual(["gk1"]);
+    expect(filterGoalkeeperCards(cards, { age: "11" }).map((c) => c.id)).toEqual(["gk2"]);
+    expect(filterGoalkeeperCards(cards, { age: "all" })).toHaveLength(2);
+  });
+
+  it("söker på titel och syfte och visar bara favoriter", () => {
+    const cards = [keeper("gk1", 8, 9), keeper("gk2", 8, 9, "Utkast med hand")];
+    expect(filterGoalkeeperCards(cards, { query: "utkast" }).map((c) => c.id)).toEqual(["gk2"]);
+    expect(
+      filterGoalkeeperCards(cards, {
+        onlyFavorites: true,
+        favorites: new Set(["goalkeeper:gk1"]),
+      }).map((c) => c.id),
+    ).toEqual(["gk1"]);
   });
 });
