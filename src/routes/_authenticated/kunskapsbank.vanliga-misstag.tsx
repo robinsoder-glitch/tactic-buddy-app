@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { BackIconButton } from "@/components/BackLink";
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/accordion";
 import { MISTAKE_SOURCES, mistakesByRank, type CoachMistake } from "@/lib/coach-mistakes";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
-import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/vanliga-misstag")({
   head: () => ({

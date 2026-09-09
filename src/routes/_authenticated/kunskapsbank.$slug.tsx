@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
@@ -9,7 +10,6 @@ import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { RelatedContent } from "@/components/RelatedContent";
 import { ARTICLE_SECTIONS } from "@/lib/related-sections";
 import { BackLink } from "@/components/BackLink";
-import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   head: () => ({

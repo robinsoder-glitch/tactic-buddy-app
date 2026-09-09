@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +7,6 @@ import { fetchFavorites } from "@/lib/taktikbank";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { fetchArticles } from "@/lib/kunskapsbank";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
-import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/favoriter")({
   head: () => ({

@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -47,7 +48,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ConfirmDelete";
 import {
-import { CoachOnly } from "@/components/CoachOnly";
   Dialog,
   DialogContent,
   DialogFooter,

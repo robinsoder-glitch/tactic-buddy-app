@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -16,7 +17,6 @@ import {
   type SkillMove,
 } from "@/lib/skill-moves";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
-import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/teknik")({
   head: () => ({
