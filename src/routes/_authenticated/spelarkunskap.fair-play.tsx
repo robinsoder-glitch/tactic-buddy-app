@@ -39,8 +39,8 @@ function FairPlayPage() {
 
       <p className="mt-4 max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch] sm:text-lg">
         Fair play betyder att spela schyst och vara en bra kompis. Det här är Fotbollsrummets tio
-        punkter – vårt eget lilla regelverk för hur vi är mot varandra, på träningen, på matchen
-        och efteråt.
+        punkter – vårt eget lilla regelverk för hur vi är mot varandra, på träningen, på matchen och
+        efteråt.
       </p>
 
       <section aria-labelledby="fair-play-paragrafer" className="mt-6">
