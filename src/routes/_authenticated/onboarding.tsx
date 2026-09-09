@@ -150,6 +150,15 @@ function OnboardingPage() {
           </Button>
         </section>
       )}
+
+      <div className="mt-8 border-t border-border pt-4">
+        <p className="text-sm text-muted-foreground">Är det inte ditt konto?</p>
+        <Button variant="outline" className="mt-2 min-h-11" onClick={signOut}>
+          <LogOut className="size-4" aria-hidden />
+          Logga ut
+        </Button>
+      </div>
     </main>
   );
 }
+
