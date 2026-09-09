@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +23,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/favoriter")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: FavoritesPage,
+  component: () => (
+    <CoachOnly>
+      <FavoritesPage />
+    </CoachOnly>
+  ),
 });
 
 function FavoritesPage() {

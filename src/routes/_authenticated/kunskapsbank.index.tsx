@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { FilterPanel, FilterRow } from "@/components/FilterPanel";
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -72,7 +73,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: KunskapsbankPage,
+  component: () => (
+    <CoachOnly>
+      <KunskapsbankPage />
+    </CoachOnly>
+  ),
 });
 
 const emptyArticle: ArticleInput = {

@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -36,7 +37,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/teknik")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: TechniquePage,
+  component: () => (
+    <CoachOnly>
+      <TechniquePage />
+    </CoachOnly>
+  ),
 });
 
 function TechniquePage() {

@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { BackIconButton } from "@/components/BackLink";
@@ -30,7 +31,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/vanliga-misst
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CoachMistakesPage,
+  component: () => (
+    <CoachOnly>
+      <CoachMistakesPage />
+    </CoachOnly>
+  ),
 });
 
 function CoachMistakesPage() {

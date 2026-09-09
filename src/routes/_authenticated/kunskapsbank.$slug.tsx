@@ -1,3 +1,4 @@
+import { CoachOnly } from "@/components/CoachOnly";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
@@ -28,7 +29,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: KnowledgeArticlePage,
+  component: () => (
+    <CoachOnly>
+      <KnowledgeArticlePage />
+    </CoachOnly>
+  ),
 });
 
 /** "Passar dig som tränar barn och spelar 5 mot 5." */
