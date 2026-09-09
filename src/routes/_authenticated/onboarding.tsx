@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { RoleChoice } from "@/components/auth/RoleChoice";
@@ -106,10 +106,22 @@ function OnboardingPage() {
     }
   }
 
+  /** Utväg om man loggat in med fel konto – annars fastnar man här. */
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
   return (
     <main className="mx-auto max-w-md px-4 py-10">
       <p className="font-display text-xs tracking-[0.3em] text-primary">Kom igång</p>
       <h1 className="mt-2 font-display text-4xl font-bold">Välj kontotyp</h1>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Du är inloggad{user?.email ? ` som ${user.email}` : ""}. Sista steget är att välja om du är
+        tränare, spelare eller vårdnadshavare.
+      </p>
 
       <div className="mt-6">
         <RoleChoice value={role} onChange={chooseRole} />
@@ -137,6 +149,14 @@ function OnboardingPage() {
           </Button>
         </section>
       )}
+
+      <div className="mt-8 border-t border-border pt-4">
+        <p className="text-sm text-muted-foreground">Är det inte ditt konto?</p>
+        <Button variant="outline" className="mt-2 min-h-11" onClick={signOut}>
+          <LogOut className="size-4" aria-hidden />
+          Logga ut
+        </Button>
+      </div>
     </main>
   );
 }
