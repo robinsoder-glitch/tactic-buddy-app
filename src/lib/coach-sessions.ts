@@ -133,7 +133,6 @@ export async function fetchAllSessionItems(): Promise<CoachSessionItem[]> {
   return (data ?? []) as unknown as CoachSessionItem[];
 }
 
-
 /** Skapar ett nytt personligt träningspass. Ägaren sätts av databasen. */
 export async function createCoachSession(
   draft: SessionDraft,

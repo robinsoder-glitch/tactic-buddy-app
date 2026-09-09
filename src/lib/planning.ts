@@ -178,7 +178,6 @@ export async function moveEventResource(
   }
 }
 
-
 /** Uttagna spelare för flera aktiviteter, används i listorna. */
 export async function fetchSquads(
   eventIds: string[],

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { recentLocations } from "./locations";
 
-const event = (location: string | null, starts_at: string) =>
-  ({ location, starts_at }) as never;
+const event = (location: string | null, starts_at: string) => ({ location, starts_at }) as never;
 
 describe("recentLocations", () => {
   it("hoppar över tomma platser", () => {

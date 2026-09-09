@@ -60,7 +60,9 @@ function PlayerTechniquePage() {
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <p className="max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch]">{move.purpose}</p>
+              <p className="max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch]">
+                {move.purpose}
+              </p>
 
               <h2 className="mt-4 text-base font-bold">Så gör du</h2>
               <ol className="mt-2 list-decimal space-y-2 pl-5 text-base leading-relaxed">

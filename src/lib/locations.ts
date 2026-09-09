@@ -27,7 +27,9 @@ export function recentLocations(events: LocationSource[], limit = 8): string[] {
   }
 
   return [...seen.values()]
-    .sort((a, b) => b.count - a.count || b.latest - a.latest || a.label.localeCompare(b.label, "sv"))
+    .sort(
+      (a, b) => b.count - a.count || b.latest - a.latest || a.label.localeCompare(b.label, "sv"),
+    )
     .slice(0, Math.max(0, limit))
     .map((entry) => entry.label);
 }
