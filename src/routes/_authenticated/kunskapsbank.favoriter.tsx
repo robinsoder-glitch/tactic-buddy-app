@@ -6,6 +6,7 @@ import { fetchFavorites } from "@/lib/taktikbank";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { fetchArticles } from "@/lib/kunskapsbank";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/favoriter")({
   head: () => ({
@@ -22,7 +23,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/favoriter")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: FavoritesPage,
+  component: () => (
+    <CoachOnly>
+      <FavoritesPage />
+    </CoachOnly>
+  ),
 });
 
 function FavoritesPage() {

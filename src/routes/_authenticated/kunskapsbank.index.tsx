@@ -47,6 +47,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ConfirmDelete";
 import {
+import { CoachOnly } from "@/components/CoachOnly";
   Dialog,
   DialogContent,
   DialogFooter,
@@ -72,7 +73,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: KunskapsbankPage,
+  component: () => (
+    <CoachOnly>
+      <KunskapsbankPage />
+    </CoachOnly>
+  ),
 });
 
 const emptyArticle: ArticleInput = {

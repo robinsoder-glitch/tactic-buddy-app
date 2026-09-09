@@ -16,6 +16,7 @@ import {
   type SkillMove,
 } from "@/lib/skill-moves";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/teknik")({
   head: () => ({
@@ -36,7 +37,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/teknik")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: TechniquePage,
+  component: () => (
+    <CoachOnly>
+      <TechniquePage />
+    </CoachOnly>
+  ),
 });
 
 function TechniquePage() {

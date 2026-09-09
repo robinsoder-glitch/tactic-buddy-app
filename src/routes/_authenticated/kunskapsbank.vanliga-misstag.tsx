@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { MISTAKE_SOURCES, mistakesByRank, type CoachMistake } from "@/lib/coach-mistakes";
 import { KnowledgeTabs } from "@/components/KnowledgeTabs";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/vanliga-misstag")({
   head: () => ({
@@ -30,7 +31,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/vanliga-misst
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CoachMistakesPage,
+  component: () => (
+    <CoachOnly>
+      <CoachMistakesPage />
+    </CoachOnly>
+  ),
 });
 
 function CoachMistakesPage() {

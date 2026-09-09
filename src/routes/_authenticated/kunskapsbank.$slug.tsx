@@ -9,6 +9,7 @@ import { useRelatedContent } from "@/hooks/useRelatedContent";
 import { RelatedContent } from "@/components/RelatedContent";
 import { ARTICLE_SECTIONS } from "@/lib/related-sections";
 import { BackLink } from "@/components/BackLink";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
   head: () => ({
@@ -28,7 +29,11 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: KnowledgeArticlePage,
+  component: () => (
+    <CoachOnly>
+      <KnowledgeArticlePage />
+    </CoachOnly>
+  ),
 });
 
 /** "Passar dig som tränar barn och spelar 5 mot 5." */
