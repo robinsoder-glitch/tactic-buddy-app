@@ -127,7 +127,6 @@ function OnboardingPage() {
         <RoleChoice value={role} onChange={chooseRole} />
       </div>
 
-
       {role && (
         <section className="mt-6 space-y-4 rounded-xl border border-border bg-card p-4">
           <AccountSetupFields
@@ -161,4 +160,3 @@ function OnboardingPage() {
     </main>
   );
 }
-
