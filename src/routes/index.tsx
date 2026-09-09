@@ -21,7 +21,7 @@ function HomePage() {
 
   useEffect(() => {
     if (!loading && user && !account.loading && account.accountReady && account.needsOnboarding) {
-      navigate({ to: "/onboarding" });
+      navigate({ to: "/onboarding", replace: true });
     }
   }, [loading, user, account.loading, account.accountReady, account.needsOnboarding, navigate]);
 
