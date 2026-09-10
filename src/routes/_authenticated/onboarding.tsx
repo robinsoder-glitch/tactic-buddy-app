@@ -108,10 +108,22 @@ function OnboardingPage() {
 
   /** Utväg om man loggat in med fel konto – annars fastnar man här. */
   async function signOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    if (busy) return;
+    setBusy(true);
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error(friendlyError(error, "Utloggningen kunde inte bekräftas"));
+      }
+      navigate({ to: "/auth", replace: true });
+    } catch (error) {
+      toast.error(friendlyError(error, "Utloggningen kunde inte bekräftas"));
+      navigate({ to: "/auth", replace: true });
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (

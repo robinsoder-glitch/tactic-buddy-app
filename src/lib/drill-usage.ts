@@ -60,6 +60,10 @@ export async function fetchDrillUsage(drillId: string): Promise<DrillUsage[]> {
       .eq("resource_id", drillId),
   ]);
 
+  // Ett databasfel får aldrig se ut som "aldrig använd" – då visar sidan fel.
+  const failed = [sessions.error, events.error, runs.error].find(Boolean);
+  if (failed) throw failed;
+
   const rows: DrillUsage[] = [];
 
   for (const row of sessions.data ?? []) {

@@ -52,15 +52,18 @@ export function TodayPanel({ isCoach }: { isCoach: boolean }) {
     queryFn: () => fetchEventPlans(upcomingIds),
   });
 
+  // Räkna bara "saknar planering" när planfrågan verkligen lyckats – annars
+  // ser ett hämtningsfel ut som att planeringen är ogjord.
+  const plansReady = upcomingIds.length === 0 || plans.isSuccess;
   const missing = useMemo(
     () =>
-      isCoach
+      isCoach && plansReady
         ? eventsMissingPlan(
             events.data ?? [],
             (plans.data ?? []).filter((plan) => plan.planning_done).map((plan) => plan.event_id),
           )
         : [],
-    [isCoach, events.data, plans.data],
+    [isCoach, plansReady, events.data, plans.data],
   );
 
   const openInvites = useOpenInvites();
@@ -132,15 +135,20 @@ export function TodayPanel({ isCoach }: { isCoach: boolean }) {
           />
         )}
 
-        {unreadInbox + unreadChat > 0 && (
+        {unreadInbox > 0 && (
           <TodayRow
             icon={<MessagesSquare className="size-4 text-primary" aria-hidden />}
-            text={
-              unreadInbox > 0
-                ? `${unreadInbox} olästa viktiga meddelanden.`
-                : `${unreadChat} olästa meddelanden i lagchatten.`
-            }
+            text={`${unreadInbox} olästa viktiga meddelanden.`}
             to="/meddelanden"
+            action="Läs"
+          />
+        )}
+
+        {unreadChat > 0 && (
+          <TodayRow
+            icon={<MessagesSquare className="size-4 text-primary" aria-hidden />}
+            text={`${unreadChat} olästa meddelanden i lagchatten.`}
+            to="/tranarsnack"
             action="Läs"
           />
         )}
@@ -157,7 +165,7 @@ function TodayRow({
 }: {
   icon: React.ReactNode;
   text: string;
-  to: "/kallelser" | "/planera" | "/meddelanden";
+  to: "/kallelser" | "/planera" | "/meddelanden" | "/tranarsnack";
   action: string;
 }) {
   return (

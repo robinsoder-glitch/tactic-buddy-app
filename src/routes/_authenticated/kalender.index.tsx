@@ -70,9 +70,9 @@ function CalendarOverview() {
 
   // Statusen får bara visas när allt underlag finns – annars hinner ett
   // felaktigt "Ej klar" synas innan svaren kommer in.
+  // Ett fel i något underlag ger okänd status – aldrig ett påstående om "Ej planerad".
   const statusReady =
-    ids.length === 0 ||
-    [plans, resources, squads, coaches].every((query) => query.isSuccess || query.isError);
+    ids.length === 0 || [plans, resources, squads, coaches].every((query) => query.isSuccess);
 
   /** Samma statusregel som i Planera match och Planera träning. */
   function statusFor(event: { id: string; type?: string | null }) {

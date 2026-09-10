@@ -214,14 +214,18 @@ export async function deleteSessionItem(id: string) {
  * Listan är redan omnumrerad när den kommer hit, därför sparas varje plats
  * utan att jämföra med det gamla värdet – annars skulle inget sparas alls.
  */
+/**
+ * Sparar hela ordningen i ett enda anrop. Antingen byter alla rader plats
+ * eller ingen – en halvsparad ordning kan inte uppstå.
+ */
 export async function saveItemOrder(items: CoachSessionItem[]) {
-  for (const [index, item] of items.entries()) {
-    const { error } = await supabase
-      .from("coach_session_items")
-      .update({ sort_order: index })
-      .eq("id", item.id);
-    if (error) throw error;
-  }
+  if (items.length === 0) return;
+  const sessionId = items[0]!.session_id;
+  const { error } = await supabase.rpc("set_coach_session_item_order", {
+    p_session_id: sessionId,
+    p_ids: items.map((item) => item.id),
+  });
+  if (error) throw error;
 }
 
 /** Nästa lediga plats i ordningen. */
