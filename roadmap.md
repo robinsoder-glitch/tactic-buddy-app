@@ -244,3 +244,5 @@
 - [ ] Steg 6 – Små förbättringar
 
 - [x] Rätta de 20 färdiga taktikkorten (text mot verkligheten) och testa hur de syns i taktikritaren
+
+- [x] Onboarding: halvfärdiga konton styrs till kontotyp även via direktlänk, återvänder till önskad sida och har utloggning. Automatiskt E2E-test: `bun run test:e2e` (e2e/onboarding-flow.py).
