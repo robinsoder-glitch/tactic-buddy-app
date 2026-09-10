@@ -165,7 +165,7 @@ function TodayRow({
 }: {
   icon: React.ReactNode;
   text: string;
-  to: "/kallelser" | "/planera" | "/meddelanden";
+  to: "/kallelser" | "/planera" | "/meddelanden" | "/tranarsnack";
   action: string;
 }) {
   return (
