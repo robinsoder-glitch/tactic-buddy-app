@@ -52,15 +52,18 @@ export function TodayPanel({ isCoach }: { isCoach: boolean }) {
     queryFn: () => fetchEventPlans(upcomingIds),
   });
 
+  // Räkna bara "saknar planering" när planfrågan verkligen lyckats – annars
+  // ser ett hämtningsfel ut som att planeringen är ogjord.
+  const plansReady = upcomingIds.length === 0 || plans.isSuccess;
   const missing = useMemo(
     () =>
-      isCoach
+      isCoach && plansReady
         ? eventsMissingPlan(
             events.data ?? [],
             (plans.data ?? []).filter((plan) => plan.planning_done).map((plan) => plan.event_id),
           )
         : [],
-    [isCoach, events.data, plans.data],
+    [isCoach, plansReady, events.data, plans.data],
   );
 
   const openInvites = useOpenInvites();
