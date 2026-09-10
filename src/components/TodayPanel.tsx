@@ -135,15 +135,20 @@ export function TodayPanel({ isCoach }: { isCoach: boolean }) {
           />
         )}
 
-        {unreadInbox + unreadChat > 0 && (
+        {unreadInbox > 0 && (
           <TodayRow
             icon={<MessagesSquare className="size-4 text-primary" aria-hidden />}
-            text={
-              unreadInbox > 0
-                ? `${unreadInbox} olästa viktiga meddelanden.`
-                : `${unreadChat} olästa meddelanden i lagchatten.`
-            }
+            text={`${unreadInbox} olästa viktiga meddelanden.`}
             to="/meddelanden"
+            action="Läs"
+          />
+        )}
+
+        {unreadChat > 0 && (
+          <TodayRow
+            icon={<MessagesSquare className="size-4 text-primary" aria-hidden />}
+            text={`${unreadChat} olästa meddelanden i lagchatten.`}
+            to="/tranarsnack"
             action="Läs"
           />
         )}
