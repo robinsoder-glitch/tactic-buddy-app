@@ -3180,6 +3180,10 @@ export type Database = {
         Args: { _closed: boolean; _event_id: string }
         Returns: Json
       }
+      set_event_resource_order: {
+        Args: { p_event_id: string; p_ids: string[] }
+        Returns: undefined
+      }
       set_guardian_active: {
         Args: { _active: boolean; _link_id: string }
         Returns: undefined
