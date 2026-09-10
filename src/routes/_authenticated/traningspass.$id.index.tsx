@@ -180,9 +180,10 @@ function SessionBuilder() {
     setDraft((prev) => (prev ? { ...prev, ...patch } : prev));
 
   function reorder(index: number, direction: -1 | 1) {
+    const previous = items;
     const next = moveItem(items, index, direction);
     setItems(next);
-    saveOrder.mutate(next);
+    saveOrder.mutate({ next, previous });
   }
 
   return (
