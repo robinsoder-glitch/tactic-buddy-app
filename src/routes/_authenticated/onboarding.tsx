@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { Home, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAccount } from "@/hooks/useAccount";
 import { Button } from "@/components/ui/button";
 import { RoleChoice } from "@/components/auth/RoleChoice";
 import { AccountSetupFields } from "@/components/auth/AccountSetupFields";
@@ -19,10 +20,15 @@ import {
   type AccountSetup,
 } from "@/lib/account-setup";
 import { friendlyError } from "@/lib/user-errors";
+import { destinationAfterSetup, safeReturnPath } from "@/lib/onboarding-routing";
 import { supabase } from "@/integrations/supabase/client";
 import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
+  validateSearch: (search: Record<string, unknown>): { next?: string } => {
+    const next = safeReturnPath(typeof search["next"] === "string" ? search["next"] : null);
+    return next ? { next } : {};
+  },
   head: () => ({
     meta: [
       { title: "Välj kontotyp – Fotbollsrummet" },
@@ -45,6 +51,8 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 function OnboardingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const account = useAccount();
   const queryClient = useQueryClient();
   const [role, setRole] = useState<AccountRole | null>(null);
   const [setup, setSetup] = useState<AccountSetup>({ role: "coach", name: "" });
@@ -91,14 +99,23 @@ function OnboardingPage() {
       await queryClient.invalidateQueries();
       if (result.teamName && result.status === "pending") {
         toast.success(`Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`);
-        navigate({ to: "/" });
+      }
+      // Kom man hit från en skyddad länk går man tillbaka dit efter sparningen.
+      const destination = destinationAfterSetup({
+        returnPath: search.next ?? null,
+        teamId: result.teamId ?? null,
+        status: result.status ?? null,
+        role: result.role === "coach" ? "coach" : "player",
+      });
+      if (destination.teamId) {
+        navigate({
+          to: "/team/$teamId",
+          params: { teamId: destination.teamId },
+          replace: true,
+        });
         return;
       }
-      if (result.teamId) {
-        navigate({ to: "/team/$teamId", params: { teamId: result.teamId } });
-        return;
-      }
-      navigate({ to: result.role === "coach" ? "/teams" : "/" });
+      navigate({ to: destination.to, replace: true });
     } catch (error) {
       toast.error(friendlyError(error, "Något gick fel"));
     } finally {
@@ -162,12 +179,27 @@ function OnboardingPage() {
         </section>
       )}
 
-      <div className="mt-8 border-t border-border pt-4">
-        <p className="text-sm text-muted-foreground">Är det inte ditt konto?</p>
-        <Button variant="outline" className="mt-2 min-h-11" onClick={signOut}>
-          <LogOut className="size-4" aria-hidden />
-          Logga ut
-        </Button>
+      <div className="mt-8 space-y-3 border-t border-border pt-4">
+        {!account.needsOnboarding && account.accountReady && (
+          <div>
+            <p className="text-sm text-muted-foreground">Ditt konto är redan klart.</p>
+            <Button
+              variant="outline"
+              className="mt-2 min-h-11"
+              onClick={() => navigate({ to: "/", replace: true })}
+            >
+              <Home className="size-4" aria-hidden />
+              Tillbaka till appen
+            </Button>
+          </div>
+        )}
+        <div>
+          <p className="text-sm text-muted-foreground">Är det inte ditt konto?</p>
+          <Button variant="outline" className="mt-2 min-h-11" onClick={signOut} disabled={busy}>
+            <LogOut className="size-4" aria-hidden />
+            Logga ut
+          </Button>
+        </div>
       </div>
     </main>
   );
