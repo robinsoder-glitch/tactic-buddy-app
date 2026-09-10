@@ -3172,6 +3172,10 @@ export type Database = {
           unreachable_players: string
         }[]
       }
+      set_coach_session_item_order: {
+        Args: { p_ids: string[]; p_session_id: string }
+        Returns: undefined
+      }
       set_event_invites_closed: {
         Args: { _closed: boolean; _event_id: string }
         Returns: Json
