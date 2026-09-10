@@ -131,9 +131,14 @@ function SessionBuilder() {
   })();
 
   const saveOrder = useMutation({
-    mutationFn: (next: CoachSessionItem[]) => saveItemOrder(next),
+    mutationFn: ({ next }: { next: CoachSessionItem[]; previous: CoachSessionItem[] }) =>
+      saveItemOrder(next),
     onSuccess: invalidate,
-    onError: () => toast.error("Det gick inte att spara ordningen."),
+    onError: (_error, variables) => {
+      // Återställ listan så att skärmen visar det som faktiskt är sparat.
+      setItems(variables.previous);
+      toast.error("Det gick inte att spara ordningen. Ordningen är oförändrad.");
+    },
   });
 
   const removeItem = useMutation({

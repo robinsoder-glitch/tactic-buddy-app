@@ -167,15 +167,14 @@ export async function moveEventResource(
   direction: -1 | 1,
 ) {
   const next = reorderRows(rows, index, direction);
-  for (const row of next) {
-    const before = rows.find((item) => item.id === row.id);
-    if (before && before.sort_order === row.sort_order) continue;
-    const { error } = await supabase
-      .from("event_resources")
-      .update({ sort_order: row.sort_order })
-      .eq("id", row.id);
-    if (error) throw error;
-  }
+  const eventId = next[0]?.event_id;
+  if (!eventId) return;
+  // Hela ordningen sparas i ett anrop – annars kan halva bytet bli kvar.
+  const { error } = await supabase.rpc("set_event_resource_order", {
+    p_event_id: eventId,
+    p_ids: next.map((row) => row.id),
+  });
+  if (error) throw error;
 }
 
 /** Uttagna spelare för flera aktiviteter, används i listorna. */
