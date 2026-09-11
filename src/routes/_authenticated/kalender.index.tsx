@@ -100,7 +100,9 @@ function CalendarOverview() {
   const list = events.data ?? [];
 
   return (
-    <section className="pt-4">
+    <>
+      <MonthCalendar />
+      <section className="pt-6">
       <h2 className="font-display text-xl font-bold">Kommande aktiviteter</h2>
       {list.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
