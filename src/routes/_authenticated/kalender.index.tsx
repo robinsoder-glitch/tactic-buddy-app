@@ -9,6 +9,8 @@ import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine, eventTypeLabel, isCancelled } from "@/lib/event-labels";
 import { MonthCalendar } from "@/components/MonthCalendar";
+import { MatchStatusControl } from "@/components/MatchStatusControl";
+import { fetchEventsWithInvitations, matchStatus } from "@/lib/match-status";
 
 /** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
 const EVENT_STYLES = {
@@ -67,6 +69,14 @@ function CalendarOverview() {
     queryKey: ["event-coaches", ids.join(",")],
     queryFn: () => fetchEventCoaches(ids),
     enabled: ids.length > 0,
+  });
+  const matchIds = (events.data ?? [])
+    .filter((event) => event.type === "match")
+    .map((event) => event.id);
+  const invited = useQuery({
+    queryKey: ["event-invited", matchIds.join(",")],
+    queryFn: () => fetchEventsWithInvitations(matchIds),
+    enabled: matchIds.length > 0,
   });
 
   // Statusen får bara visas när allt underlag finns – annars hinner ett
@@ -134,6 +144,18 @@ function CalendarOverview() {
                           <PlanStatusBadge status={statusFor(event)} />
                         ) : (
                           <PlanStatusBadgePending />
+                        )}
+                        {event.type === "match" && (
+                          <MatchStatusControl
+                            eventId={event.id}
+                            teamId={event.team_id}
+                            status={matchStatus({
+                              override: event.match_status ?? null,
+                              startsAt: event.starts_at,
+                              hasInvitations: invited.data?.has(event.id) ?? false,
+                            })}
+                            size="sm"
+                          />
                         )}
                         {isCancelled(event) && (
                           <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
