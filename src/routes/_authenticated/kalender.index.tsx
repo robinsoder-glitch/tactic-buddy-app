@@ -140,9 +140,7 @@ function CalendarOverview() {
                           <p className="truncate font-medium">
                             {eventTitleLine(event) || eventTypeLabel(event)}
                           </p>
-                          <p className="text-sm text-primary">
-                            {formatDateTime(event.starts_at)}
-                          </p>
+                          <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
                         </div>
                         <p className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                           {isCoach &&
