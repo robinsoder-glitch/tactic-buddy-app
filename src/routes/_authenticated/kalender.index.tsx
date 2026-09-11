@@ -8,6 +8,7 @@ import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/plannin
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine, eventTypeLabel, isCancelled } from "@/lib/event-labels";
+import { MonthCalendar } from "@/components/MonthCalendar";
 
 /** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
 const EVENT_STYLES = {
@@ -100,60 +101,63 @@ function CalendarOverview() {
   const list = events.data ?? [];
 
   return (
-    <section className="pt-4">
-      <h2 className="font-display text-xl font-bold">Kommande aktiviteter</h2>
-      {list.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          Inget inplanerat just nu.
-        </p>
-      ) : (
-        <ul className="mt-3 space-y-2">
-          {list.map((event) => {
-            const style = EVENT_STYLES[event.type === "match" ? "match" : "training"];
-            const Icon = style.icon;
-            return (
-              <li key={event.id}>
-                <Link
-                  to="/team/$teamId/event/$eventId"
-                  params={{ teamId: event.team_id, eventId: event.id }}
-                  className={`flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50 ${style.card}`}
-                >
-                  <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
-                      {eventTypeLabel(event)}
-                    </p>
-                    {eventTitleLine(event) && (
-                      <p className="font-medium">{eventTitleLine(event)}</p>
-                    )}
-                    <p className="mt-1 flex flex-wrap items-center gap-2">
-                      {statusReady ? (
-                        <PlanStatusBadge status={statusFor(event)} />
-                      ) : (
-                        <PlanStatusBadgePending />
-                      )}
-                      {isCancelled(event) && (
-                        <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
-                          Inställd
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                    {event.team_name && (
-                      <p className="text-xs text-muted-foreground">{event.team_name}</p>
-                    )}
-                    {event.location && (
-                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="size-3" /> {event.location}
+    <>
+      <MonthCalendar />
+      <section className="pt-6">
+        <h2 className="font-display text-xl font-bold">Kommande aktiviteter</h2>
+        {list.length === 0 ? (
+          <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Inget inplanerat just nu.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {list.map((event) => {
+              const style = EVENT_STYLES[event.type === "match" ? "match" : "training"];
+              const Icon = style.icon;
+              return (
+                <li key={event.id}>
+                  <Link
+                    to="/team/$teamId/event/$eventId"
+                    params={{ teamId: event.team_id, eventId: event.id }}
+                    className={`flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50 ${style.card}`}
+                  >
+                    <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
+                        {eventTypeLabel(event)}
                       </p>
-                    )}
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
+                      {eventTitleLine(event) && (
+                        <p className="font-medium">{eventTitleLine(event)}</p>
+                      )}
+                      <p className="mt-1 flex flex-wrap items-center gap-2">
+                        {statusReady ? (
+                          <PlanStatusBadge status={statusFor(event)} />
+                        ) : (
+                          <PlanStatusBadgePending />
+                        )}
+                        {isCancelled(event) && (
+                          <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                            Inställd
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
+                      {event.team_name && (
+                        <p className="text-xs text-muted-foreground">{event.team_name}</p>
+                      )}
+                      {event.location && (
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="size-3" /> {event.location}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+    </>
   );
 }

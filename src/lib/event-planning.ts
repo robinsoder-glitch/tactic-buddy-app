@@ -144,3 +144,29 @@ export function linkLabel(link: SessionEventLink): string {
   const what = link.title?.trim() || (link.type === "match" ? "Match" : "Träning");
   return `${when} · ${what}`;
 }
+
+/** Träningar och matcher inom ett datumintervall – används av månadskalendern. */
+export async function fetchEventsInRange(fromIso: string, toIso: string) {
+  const { data, error } = await supabase
+    .from("events")
+    .select(
+      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)",
+    )
+    .gte("starts_at", fromIso)
+    .lt("starts_at", toIso)
+    .is("cancelled_at", null)
+    .order("starts_at")
+    .limit(300);
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    team_id: row.team_id as string,
+    type: row.type as "training" | "match",
+    title: (row.title as string | null) ?? null,
+    starts_at: row.starts_at as string,
+    location: (row.location as string | null) ?? null,
+    team_name: (row as unknown as { teams: { name: string } | null }).teams?.name ?? null,
+    home_team: (row.home_team as string | null) ?? null,
+    away_team: (row.away_team as string | null) ?? null,
+  })) satisfies PlannableEvent[];
+}
