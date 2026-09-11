@@ -8,6 +8,7 @@ import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/plannin
 import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine, eventTypeLabel, isCancelled } from "@/lib/event-labels";
+import { MonthCalendar } from "@/components/MonthCalendar";
 
 /** Träning och match har egen symbol och färg så de går att skilja åt direkt. */
 const EVENT_STYLES = {
