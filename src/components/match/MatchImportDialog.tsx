@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,7 @@ async function readAsBase64(file: File): Promise<string> {
 
 export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props) {
   const parse = useServerFn(parseMatchSource);
+  const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
@@ -133,6 +136,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
         });
         created += 1;
       }
+      await invalidateCalendar(queryClient);
       toast.success(`${created} matcher lades till i kalendern.`);
       setOpen(false);
       reset();

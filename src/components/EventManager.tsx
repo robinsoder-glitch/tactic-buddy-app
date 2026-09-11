@@ -1,6 +1,7 @@
 import { timeOnly } from "@/lib/datetime-format";
 import { useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { MapPin, Plus, Repeat, Shirt, Trash2, Users } from "lucide-react";
 import {
@@ -205,6 +206,7 @@ export function EventManager({
         repeatCount,
       });
       await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      await invalidateCalendar(queryClient);
       onChanged?.();
       toast.success(
         savedMessage ??
@@ -224,6 +226,7 @@ export function EventManager({
     mutationFn: (id: string) => deleteEvent(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["events", teamId] });
+      await invalidateCalendar(queryClient);
       onChanged?.();
     },
   });
