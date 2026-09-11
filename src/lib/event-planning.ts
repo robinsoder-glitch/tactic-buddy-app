@@ -21,6 +21,7 @@ export type PlannableEvent = {
   team_name: string | null;
   home_team?: string | null;
   away_team?: string | null;
+  match_status?: string | null;
 };
 
 /** Kommande träningar och matcher i de lag användaren är med i. */
@@ -30,7 +31,7 @@ export async function fetchUpcomingEvents(
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)",
+      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, match_status, teams(name)",
     )
     .gte("starts_at", fromIso)
     .is("cancelled_at", null)
@@ -47,6 +48,7 @@ export async function fetchUpcomingEvents(
     team_name: (row as unknown as { teams: { name: string } | null }).teams?.name ?? null,
     home_team: (row.home_team as string | null) ?? null,
     away_team: (row.away_team as string | null) ?? null,
+    match_status: (row.match_status as string | null) ?? null,
   })) satisfies PlannableEvent[];
 }
 
@@ -150,7 +152,7 @@ export async function fetchEventsInRange(fromIso: string, toIso: string) {
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, teams(name)",
+      "id, team_id, type, title, starts_at, location, cancelled_at, home_team, away_team, match_status, teams(name)",
     )
     .gte("starts_at", fromIso)
     .lt("starts_at", toIso)
@@ -168,5 +170,6 @@ export async function fetchEventsInRange(fromIso: string, toIso: string) {
     team_name: (row as unknown as { teams: { name: string } | null }).teams?.name ?? null,
     home_team: (row.home_team as string | null) ?? null,
     away_team: (row.away_team as string | null) ?? null,
+    match_status: (row.match_status as string | null) ?? null,
   })) satisfies PlannableEvent[];
 }
