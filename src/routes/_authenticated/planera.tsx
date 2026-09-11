@@ -93,6 +93,8 @@ function PlanHubPage() {
           </li>
         ))}
       </ul>
+
+      <MonthCalendar />
     </main>
   );
 }
