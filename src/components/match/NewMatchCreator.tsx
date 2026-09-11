@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EventManager } from "@/components/EventManager";
+import { MatchImportDialog } from "@/components/match/MatchImportDialog";
 import { useAccount } from "@/hooks/useAccount";
 
 export function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
