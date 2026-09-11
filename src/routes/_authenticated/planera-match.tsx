@@ -262,6 +262,7 @@ function MatchPlanner({
   const [bench, setBench] = useState<string[]>([]);
   const [tacticId, setTacticId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   const statusByPlayer = useMemo(() => {
     const map = new Map<string, PlayerInviteStatus>();
