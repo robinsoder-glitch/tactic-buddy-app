@@ -133,43 +133,48 @@ function CalendarOverview() {
                   >
                     <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
                     <div className="min-w-0 flex-1">
-                      <p className={`text-[11px] font-semibold tracking-wide ${style.icon_color}`}>
-                        {eventTypeLabel(event)}
-                      </p>
-                      {eventTitleLine(event) && (
-                        <p className="font-medium">{eventTitleLine(event)}</p>
-                      )}
-                      <p className="mt-1 flex flex-wrap items-center gap-2">
-                        {statusReady ? (
-                          <PlanStatusBadge status={statusFor(event)} />
-                        ) : (
-                          <PlanStatusBadgePending />
-                        )}
-                        {event.type === "match" && (
-                          <MatchStatusControl
-                            eventId={event.id}
-                            teamId={event.team_id}
-                            status={matchStatus({
-                              override: event.match_status ?? null,
-                              startsAt: event.starts_at,
-                              hasInvitations: invited.data?.has(event.id) ?? false,
-                            })}
-                            size="sm"
-                          />
-                        )}
-                        {isCancelled(event) && (
-                          <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
-                            Inställd
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                      {event.team_name && (
-                        <p className="text-xs text-muted-foreground">{event.team_name}</p>
-                      )}
-                      {event.location && (
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="size-3" /> {event.location}
+                      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">
+                            {eventTitleLine(event) || eventTypeLabel(event)}
+                          </p>
+                          <p className="text-sm text-primary">
+                            {formatDateTime(event.starts_at)}
+                          </p>
+                        </div>
+                        <p className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                          {statusReady ? (
+                            <PlanStatusBadge status={statusFor(event)} />
+                          ) : (
+                            <PlanStatusBadgePending />
+                          )}
+                          {event.type === "match" && (
+                            <MatchStatusControl
+                              eventId={event.id}
+                              teamId={event.team_id}
+                              status={matchStatus({
+                                override: event.match_status ?? null,
+                                startsAt: event.starts_at,
+                                hasInvitations: invited.data?.has(event.id) ?? false,
+                              })}
+                              size="sm"
+                            />
+                          )}
+                          {isCancelled(event) && (
+                            <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                              Inställd
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      {(event.team_name || event.location) && (
+                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                          {event.team_name && <span>{event.team_name}</span>}
+                          {event.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="size-3" /> {event.location}
+                            </span>
+                          )}
                         </p>
                       )}
                     </div>
