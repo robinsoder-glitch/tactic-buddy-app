@@ -189,7 +189,8 @@ export function MonthCalendar() {
                         params={{ teamId: event.team_id, eventId: event.id }}
                         className="block font-semibold hover:underline"
                       >
-                        {timeOf(event.starts_at)} {eventTitleLine(event) || (isMatch ? "Match" : "Träning")}
+                        {timeOf(event.starts_at)}{" "}
+                        {eventTitleLine(event) || (isMatch ? "Match" : "Träning")}
                       </Link>
                       {event.team_name && (
                         <p className="text-xs text-muted-foreground">{event.team_name}</p>
