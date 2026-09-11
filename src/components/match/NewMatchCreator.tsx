@@ -37,17 +37,27 @@ export function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
         </select>
       )}
       {activeTeam && (
-        <EventManager
-          teamId={activeTeam}
-          userId={user?.id ?? null}
-          isCoach
-          type="match"
-          title="Matchtillfällen"
-          newLabel="Boka match"
-          hideList
-          onChanged={onChanged}
-          savedMessage="Matchen har lagts till i kalendern."
-        />
+        <>
+          <EventManager
+            teamId={activeTeam}
+            userId={user?.id ?? null}
+            isCoach
+            type="match"
+            title="Matchtillfällen"
+            newLabel="Boka match"
+            hideList
+            onChanged={onChanged}
+            savedMessage="Matchen har lagts till i kalendern."
+          />
+          <MatchImportDialog
+            teamId={activeTeam}
+            teamName={
+              coachTeams.find((m) => m.team_id === activeTeam)?.team?.name ?? "Vårt lag"
+            }
+            userId={user?.id ?? null}
+            onCreated={onChanged}
+          />
+        </>
       )}
     </section>
   );
