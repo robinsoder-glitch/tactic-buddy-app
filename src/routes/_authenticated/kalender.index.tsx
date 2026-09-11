@@ -156,6 +156,7 @@ function CalendarOverview() {
           })}
         </ul>
       )}
-    </section>
+      </section>
+    </>
   );
 }
