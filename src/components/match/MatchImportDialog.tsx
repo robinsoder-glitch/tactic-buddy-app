@@ -97,9 +97,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
 
   function update(index: number, patch: Partial<ImportedMatch>) {
     setRows((current) =>
-      (current ?? []).map((row, position) =>
-        position === index ? { ...row, ...patch } : row,
-      ),
+      (current ?? []).map((row, position) => (position === index ? { ...row, ...patch } : row)),
     );
   }
 
@@ -288,7 +286,11 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                 <Button type="button" variant="ghost" onClick={reset} disabled={saving}>
                   Börja om
                 </Button>
-                <Button type="button" onClick={() => void create()} disabled={saving || chosen.size === 0}>
+                <Button
+                  type="button"
+                  onClick={() => void create()}
+                  disabled={saving || chosen.size === 0}
+                >
                   {saving ? "Sparar…" : `Skapa ${chosen.size} matcher`}
                 </Button>
               </div>

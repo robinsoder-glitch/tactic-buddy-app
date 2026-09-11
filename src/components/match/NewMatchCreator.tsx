@@ -52,9 +52,7 @@ export function NewMatchCreator({ onChanged }: { onChanged: () => void }) {
           />
           <MatchImportDialog
             teamId={activeTeam}
-            teamName={
-              coachTeams.find((m) => m.team_id === activeTeam)?.team?.name ?? "Vårt lag"
-            }
+            teamName={coachTeams.find((m) => m.team_id === activeTeam)?.team?.name ?? "Vårt lag"}
             userId={user?.id ?? null}
             onCreated={onChanged}
           />

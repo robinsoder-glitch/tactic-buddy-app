@@ -74,7 +74,10 @@ function pad(year: number, month: number, day: number): string | null {
 
 /** Gör om tider som "18.30", "1830" eller "kl 18:30" till TT:MM. */
 export function normalizeTime(input: string | null | undefined): string | null {
-  const text = (input ?? "").trim().toLowerCase().replace(/^kl\.?\s*/, "");
+  const text = (input ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^kl\.?\s*/, "");
   if (!text) return null;
   const colon = text.match(/^(\d{1,2})[:.](\d{2})/);
   if (colon) return clampTime(Number(colon[1]), Number(colon[2]));
