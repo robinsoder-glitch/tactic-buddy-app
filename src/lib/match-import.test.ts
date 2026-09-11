@@ -35,7 +35,7 @@ describe("normalisering av inlästa matcher", () => {
   it("rensar, sorterar och markerar osäkra rader", () => {
     const rows = normalizeImportedMatches(
       [
-        { date: "12/6", time: "11:00", home_team: "IFK", away_team: "QA Lag P2015" },
+        { date: "2026-06-12", time: "11:00", home_team: "IFK", away_team: "QA Lag P2015" },
         { date: "9 maj", time: "", home_team: "QA Lag P2015", away_team: "IFK" },
         { date: "trams", time: "10:00" },
       ],
