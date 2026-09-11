@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, CalendarPlus, ClipboardList, MapPin, Plus, Trash2 } from "lucide-react";
+import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
 import { Button } from "@/components/ui/button";
@@ -231,6 +232,7 @@ function PlanTrainingPage() {
       queryClient.invalidateQueries({ queryKey: ["event-resources"] });
       queryClient.invalidateQueries({ queryKey: ["event-plan"] });
       queryClient.invalidateQueries({ queryKey: ["event-plans"] });
+      void invalidateCalendar(queryClient);
       toast.success("Träningsplaneringen har sparats.");
       navigate({ to: "/planera-traning", search: { markera: eventId ?? undefined } });
     },

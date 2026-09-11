@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -89,6 +90,7 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
       await queryClient.invalidateQueries({ queryKey: ["event", event.id] });
       queryClient.invalidateQueries({ queryKey: ["events", event.team_id] });
       queryClient.invalidateQueries({ queryKey: ["event-change-log", event.id] });
+      await invalidateCalendar(queryClient);
       toast.success(changeReceipt(changes));
       onOpenChange(false);
     },
