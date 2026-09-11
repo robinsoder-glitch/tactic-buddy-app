@@ -9,6 +9,7 @@ import { fetchEventCoaches } from "@/lib/event-coaches";
 import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine, eventTypeLabel, isCancelled } from "@/lib/event-labels";
 import { MonthCalendar } from "@/components/MonthCalendar";
+import { useAccount } from "@/hooks/useAccount";
 import { MatchStatusControl } from "@/components/MatchStatusControl";
 import { fetchEventsWithInvitations, matchStatus } from "@/lib/match-status";
 
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/kalender/")({
 });
 
 function CalendarOverview() {
+  const { isCoach } = useAccount();
   const events = useQuery({ queryKey: ["upcoming-events"], queryFn: () => fetchUpcomingEvents() });
   const ids = (events.data ?? []).map((event) => event.id);
   const plans = useQuery({
@@ -143,11 +145,12 @@ function CalendarOverview() {
                           </p>
                         </div>
                         <p className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                          {statusReady ? (
-                            <PlanStatusBadge status={statusFor(event)} />
-                          ) : (
-                            <PlanStatusBadgePending />
-                          )}
+                          {isCoach &&
+                            (statusReady ? (
+                              <PlanStatusBadge status={statusFor(event)} />
+                            ) : (
+                              <PlanStatusBadgePending />
+                            ))}
                           {event.type === "match" && (
                             <MatchStatusControl
                               eventId={event.id}
