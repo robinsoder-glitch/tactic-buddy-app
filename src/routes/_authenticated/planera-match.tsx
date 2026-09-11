@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidateCalendar } from "@/lib/calendar-cache";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
 import { EventCoaches } from "@/components/EventCoaches";
@@ -526,6 +528,7 @@ function MatchPlanner({
           awayTeam: homeAway === "hemma" ? opponent.trim() || null : team.name,
         },
       });
+      await invalidateCalendar(queryClient);
       toast.success("Matchplanen är sparad");
       // Läsläget ska visa de nyss sparade uppgifterna utan omladdning.
       const [{ data: freshEvent }, lineup, freshCoaches, freshSquad, freshPlan] = await Promise.all(
