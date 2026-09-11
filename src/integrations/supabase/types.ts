@@ -922,6 +922,7 @@ export type Database = {
           location: string | null
           match_duration_minutes: number | null
           match_kind: string | null
+          match_status: string | null
           meet_at: string | null
           notes: string | null
           series_id: string | null
@@ -944,6 +945,7 @@ export type Database = {
           location?: string | null
           match_duration_minutes?: number | null
           match_kind?: string | null
+          match_status?: string | null
           meet_at?: string | null
           notes?: string | null
           series_id?: string | null
@@ -966,6 +968,7 @@ export type Database = {
           location?: string | null
           match_duration_minutes?: number | null
           match_kind?: string | null
+          match_status?: string | null
           meet_at?: string | null
           notes?: string | null
           series_id?: string | null

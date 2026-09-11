@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, CalendarCheck, ClipboardList, Dumbbell, Trophy, UserPlus } from "lucide-react";
 import { CoachOnly } from "@/components/CoachOnly";
+import { MonthCalendar } from "@/components/MonthCalendar";
 
 export const Route = createFileRoute("/_authenticated/planera")({
   head: () => ({
@@ -92,6 +93,8 @@ function PlanHubPage() {
           </li>
         ))}
       </ul>
+
+      <MonthCalendar />
     </main>
   );
 }
