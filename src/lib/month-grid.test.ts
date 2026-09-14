@@ -32,7 +32,9 @@ describe("gridRange", () => {
   it("täcker även grannmånadernas synliga dagar", () => {
     const range = gridRange({ year: 2026, month: 8 });
     const cells = monthGrid({ year: 2026, month: 8 });
-    expect(range.start.getTime()).toBe(cells[0]!.date.getTime());
-    expect(range.end.getTime()).toBeGreaterThan(cells[cells.length - 1]!.date.getTime());
+    expect(range.fromIso).toBe(cells[0]!.date.toISOString());
+    expect(new Date(range.toIso).getTime()).toBeGreaterThan(
+      cells[cells.length - 1]!.date.getTime(),
+    );
   });
 });
