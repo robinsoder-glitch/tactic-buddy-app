@@ -611,9 +611,11 @@ export async function addTeamPhoto(input: {
 }
 
 export async function deleteTeamPhoto(photo: { id: string; path: string }) {
+  // Filen tas bort först. Går det inte ligger bilden kvar i galleriet i stället
+  // för att försvinna ur listan medan filen finns kvar i lagringen.
+  await removeTeamMedia(photo.path);
   const { error } = await supabase.from("team_photos").delete().eq("id", photo.id);
   if (error) throw error;
-  await removeTeamMedia(photo.path);
 }
 
 /* ---------------- events ---------------- */
