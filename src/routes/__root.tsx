@@ -24,6 +24,38 @@ import { noteInternalNavigation } from "@/lib/back-navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { THEME_BOOT_SCRIPT, applyTheme, loadTheme } from "@/lib/theme";
 
+// Körs före appens kod. En gammal service worker i förhandsvisningen kan
+// servera blandade modulversioner och krascha React innan någon effekt hinner
+// köra, så den avregistreras och sidan laddas om en gång.
+const SW_CLEANUP_SCRIPT = `
+(() => {
+  try {
+    if (!("serviceWorker" in navigator)) return;
+    const host = location.hostname;
+    const isPreview =
+      host === "localhost" ||
+      host.endsWith(".lovableproject.com") ||
+      host.includes("-preview--") ||
+      host.endsWith("-dev.lovable.app");
+    if (!isPreview) return;
+    const reloadKey = "app_sw_cleanup_reload_at";
+    navigator.serviceWorker.getRegistrations().then(async (regs) => {
+      await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter((k) => k.startsWith("fr-")).map((k) => caches.delete(k)));
+      }
+      if (!navigator.serviceWorker.controller) return;
+      let last = 0;
+      try { last = Number(sessionStorage.getItem(reloadKey) || 0); } catch {}
+      if (Date.now() - last < 15000) return;
+      try { sessionStorage.setItem(reloadKey, String(Date.now())); } catch {}
+      location.reload();
+    }).catch(() => {});
+  } catch {}
+})();
+`;
+
 const MODULE_RECOVERY_SCRIPT = `
 (() => {
   const reloadKey = "app_preboot_chunk_reload_at";
