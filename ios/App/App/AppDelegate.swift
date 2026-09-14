@@ -13,9 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // Hantera deep links från systemet (t.ex. fotbollsrummet://auth?... efter Google-inloggning).
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        // CAPBridgeNotificationOpenURL handhas länken så att webbvyn kan läsa den via App-pluginet.
-        NotificationCenter.default.post(name: Notification.Name("CAPDeepLink"), object: url)
-        return true
+        // Skicka länken till Capacitor så att webbvyn kan läsa den via App-pluginet.
+        return CAPBridge.handleOpenUrl(url, options)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
