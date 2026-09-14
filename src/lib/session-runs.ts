@@ -147,7 +147,7 @@ export async function startRun(sessionId: string, eventId?: string | null): Prom
   // aldrig kan bli ett halvstartat pass om något går fel på vägen.
   const { data, error } = await supabase.rpc("start_session_run", {
     _session_id: sessionId,
-    _event_id: eventId ?? null,
+    ...(eventId ? { _event_id: eventId } : {}),
   });
   if (error) throw error;
   return data as unknown as SessionRun;
