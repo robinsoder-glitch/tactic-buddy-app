@@ -600,7 +600,11 @@ export async function addTeamPhoto(input: {
   const { error } = await supabase
     .from("team_photos")
     .insert({ team_id: input.teamId, path, caption: input.caption, created_by: input.userId });
-  if (error) throw error;
+  if (error) {
+    // Städa bort filen igen så det inte blir liggande bilder utan bildtext i galleriet.
+    await removeTeamMedia(path).catch(() => undefined);
+    throw error;
+  }
 }
 
 export async function deleteTeamPhoto(photo: { id: string; path: string }) {
