@@ -4,7 +4,7 @@
  * Version 1: endast läsning offline. Ingen kö skickar svar, meddelanden eller
  * närvaro i efterhand – det kräver ett eget beslut om konflikthantering.
  */
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL_CACHE = `fr-shell-${VERSION}`;
 const ASSET_CACHE = `fr-assets-${VERSION}`;
 const PAGE_CACHE = `fr-pages-${VERSION}`;
@@ -93,6 +93,21 @@ async function cacheFirstAsset(request) {
   return response;
 }
 
+async function networkFirstAsset(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(ASSET_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    throw error;
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -108,7 +123,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   const dest = request.destination;
-  if (dest === "style" || dest === "script" || dest === "font" || dest === "image") {
+  // JavaScript och CSS måste hämtas från samma driftsättning. Cache-first kan
+  // annars blanda gamla och nya modulversioner och skapa dubbla React-instanser.
+  if (dest === "style" || dest === "script") {
+    event.respondWith(networkFirstAsset(request));
+    return;
+  }
+  if (dest === "font" || dest === "image") {
     event.respondWith(cacheFirstAsset(request));
   }
 });

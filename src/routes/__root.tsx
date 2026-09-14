@@ -249,7 +249,26 @@ function RootComponent() {
   // Registrerar service workern så appen kan installeras och läsas offline.
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    if (window.location.hostname === "localhost") return;
+    const hostname = window.location.hostname;
+    const isPreview =
+      hostname === "localhost" ||
+      hostname.endsWith(".lovableproject.com") ||
+      hostname.includes("-preview--") ||
+      hostname.endsWith("-dev.lovable.app");
+    if (isPreview) {
+      // En service worker får inte styra utvecklings-/förhandsvisningen. Där
+      // behåller modul-URL:erna sina namn mellan uppdateringar, och en gammal
+      // cache kan då blanda olika React/router-byggen och krascha hooks.
+      void navigator.serviceWorker.getRegistrations().then(async (registrations) => {
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+        if (!("caches" in window)) return;
+        const cacheNames = await window.caches.keys();
+        await Promise.all(
+          cacheNames.filter((name) => name.startsWith("fr-")).map((name) => window.caches.delete(name)),
+        );
+      });
+      return;
+    }
     const timer = window.setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }, 1500);
