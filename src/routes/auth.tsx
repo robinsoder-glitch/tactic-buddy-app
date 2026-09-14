@@ -260,12 +260,31 @@ function AuthPage() {
 
   /** Returadressen följer med tillbaka hit efter inloggning i en annan tjänst. */
   function authReturnUrl() {
+    if (isNativeApp()) {
+      const base = nativeAuthReturnUrl();
+      return nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
+    }
     const base = `${window.location.origin}/auth`;
     return nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
   }
 
   async function handleGoogle() {
     if (mode === "signup" && role) storeSetup(setup);
+    if (isNativeApp()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: authReturnUrl(),
+          skipBrowserRedirect: true,
+        },
+      });
+      if (error) {
+        toast.error("Kunde inte förbereda Google-inloggningen");
+        return;
+      }
+      if (data?.url) await openExternalBrowser(data.url);
+      return;
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: authReturnUrl(),
     });
