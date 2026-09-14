@@ -2960,6 +2960,33 @@ export type Database = {
           name: string
         }[]
       }
+      finish_session_run: {
+        Args: {
+          _general_note?: string
+          _last_item_id?: string
+          _last_seconds?: number
+          _run_id: string
+        }
+        Returns: {
+          actual_seconds: number
+          id: string
+          item_id: string | null
+          kind: string
+          note: string | null
+          planned_minutes: number
+          resource_id: string | null
+          run_id: string
+          sort_order: number
+          status: string
+          title: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "session_run_items"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       gen_team_code: { Args: never; Returns: string }
       get_my_day_summary: { Args: never; Returns: Json }
       get_player_private: {
@@ -3190,6 +3217,32 @@ export type Database = {
       set_guardian_active: {
         Args: { _active: boolean; _link_id: string }
         Returns: undefined
+      }
+      start_session_run: {
+        Args: { _event_id?: string; _session_id: string }
+        Returns: {
+          adjust_seconds: number
+          coach_id: string
+          created_at: string
+          current_index: number
+          ended_at: string | null
+          event_id: string | null
+          general_note: string | null
+          id: string
+          paused_at: string | null
+          paused_seconds: number
+          session_id: string
+          started_at: string
+          status: string
+          team_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "session_runs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       team_role: {
         Args: { _team_id: string; _user_id: string }
