@@ -133,19 +133,34 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
 
   async function create() {
     if (!userId || !rows) return;
-    const pickedIndexes = rows.map((_, index) => index).filter((index) => chosen.has(index));
+    const pickedIndexes = rows
+      .map((_, index) => index)
+      .filter((index) => chosen.has(index) && status[index]?.kind !== "saved");
     if (pickedIndexes.length === 0) return;
     setSaving(true);
-    // Raderna sparas en i taget. Stannar det halvvägs behåller vi de rader som
-    // inte kom med, så tränaren kan spara resten utan att skapa dubbletter.
+    setError(null);
+    setStatus((current) => {
+      const next = { ...current };
+      for (const index of pickedIndexes) next[index] = { kind: "waiting" };
+      return next;
+    });
+
+    // Varje vald rad försöks för sig. Ett fel på en rad stoppar inte de övriga,
+    // och raden som sparats markeras så den inte kan sparas en gång till.
     const savedIndexes = new Set<number>();
-    const invalidIndexes = new Set<number>();
-    let failure: string | null = null;
+    const failedIndexes = new Set<number>();
+    let lastFailure: string | null = null;
+
     for (const index of pickedIndexes) {
       const row = rows[index]!;
+      setStatus((current) => ({ ...current, [index]: { kind: "saving" } }));
       const startsAt = toIsoStart(row);
       if (!startsAt) {
-        invalidIndexes.add(index);
+        failedIndexes.add(index);
+        setStatus((current) => ({
+          ...current,
+          [index]: { kind: "error", message: "Ogiltigt datum eller tid – rätta och spara igen." },
+        }));
         continue;
       }
       try {
@@ -161,16 +176,19 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
           notes: null,
         });
         savedIndexes.add(index);
+        setStatus((current) => ({ ...current, [index]: { kind: "saved" } }));
       } catch (cause) {
-        failure = cause instanceof Error ? cause.message : "Kunde inte spara matcherna.";
-        break;
+        const message = cause instanceof Error ? cause.message : "Kunde inte spara matchen.";
+        lastFailure = message;
+        failedIndexes.add(index);
+        setStatus((current) => ({ ...current, [index]: { kind: "error", message } }));
       }
     }
 
     if (savedIndexes.size > 0) await invalidateCalendar(queryClient);
     setSaving(false);
 
-    if (!failure && invalidIndexes.size === 0) {
+    if (failedIndexes.size === 0) {
       toast.success(`${savedIndexes.size} matcher lades till i kalendern.`);
       setOpen(false);
       reset();
@@ -178,30 +196,24 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       return;
     }
 
-    // Ta bort det som faktiskt sparades och låt resten ligga kvar i listan.
-    const remaining = rows.filter((_, index) => !savedIndexes.has(index));
-    const remainingChosen = new Set<number>();
-    let position = 0;
-    rows.forEach((_, index) => {
-      if (savedIndexes.has(index)) return;
-      if (chosen.has(index)) remainingChosen.add(position);
-      position += 1;
+    // Sparade rader ligger kvar med bock men avmarkeras, så ett nytt försök bara
+    // gäller de rader som misslyckades.
+    setChosen((current) => {
+      const next = new Set(current);
+      for (const index of savedIndexes) next.delete(index);
+      for (const index of failedIndexes) next.add(index);
+      return next;
     });
-    setRows(remaining);
-    setChosen(remainingChosen);
     setError(
       [
         savedIndexes.size > 0 ? `${savedIndexes.size} matcher sparades.` : null,
-        invalidIndexes.size > 0
-          ? `${invalidIndexes.size} rader har ogiltigt datum eller tid – rätta dem och spara igen.`
-          : null,
-        failure,
+        `${failedIndexes.size} matcher kunde inte sparas – se meddelandet vid varje rad.`,
       ]
         .filter(Boolean)
         .join(" "),
     );
     if (savedIndexes.size > 0) onCreated();
-    if (failure) toast.error(failure);
+    if (lastFailure) toast.error(lastFailure);
   }
 
   return (
