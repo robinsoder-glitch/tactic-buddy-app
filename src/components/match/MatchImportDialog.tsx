@@ -116,6 +116,8 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
     }
   }
 
+  const failedCount = Object.values(status).filter((value) => value.kind === "error").length;
+
   /** Sparade rader är låsta, övriga går att ändra. */
   function locked(index: number) {
     return saving || status[index]?.kind === "saved";
