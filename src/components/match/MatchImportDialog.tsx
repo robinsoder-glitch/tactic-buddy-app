@@ -22,7 +22,7 @@ import {
 } from "@/lib/match-import";
 import { saveEvent } from "@/lib/teams";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload } from "lucide-react";
+import { Check, Upload } from "lucide-react";
 
 type Props = {
   teamId: string;
