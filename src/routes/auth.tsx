@@ -99,6 +99,37 @@ function AuthPage() {
     });
   }, [navigate, nextPath]);
 
+  // I Capacitor-appen tar systemwebbläsaren över vid OAuth. När användaren
+  // kommer tillbaka via deep link (fotbollsrummet://auth#access_token=...) hämtar
+  // vi ut token och sätter sessionen.
+  useEffect(() => {
+    if (!isNativeApp()) return;
+    let unsub: (() => void) | undefined;
+    onAppUrlOpen(async ({ url }) => {
+      const parsed = new URL(url);
+      const hashParams = new URLSearchParams(parsed.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const deepNext = safeNextPath(parsed.searchParams.get("next") ?? undefined);
+      if (!accessToken) return;
+      try {
+        await closeExternalBrowser();
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken ?? "",
+        });
+        if (error) throw error;
+        await queryClient.invalidateQueries();
+        void navigate({ to: deepNext ?? nextPath ?? "/" });
+      } catch (e) {
+        toast.error(friendlyError(e, "Kunde inte slutföra inloggningen"));
+      }
+    }).then((unsubscribe) => {
+      unsub = unsubscribe;
+    });
+    return () => unsub?.();
+  }, [navigate, nextPath, queryClient]);
+
   function chooseRole(next: AccountRole) {
     setRole(next);
     setSetup((current) => ({ ...current, role: next }));
