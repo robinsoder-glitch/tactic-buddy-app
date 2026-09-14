@@ -297,7 +297,9 @@ function RootComponent() {
         if (!("caches" in window)) return;
         const cacheNames = await window.caches.keys();
         await Promise.all(
-          cacheNames.filter((name) => name.startsWith("fr-")).map((name) => window.caches.delete(name)),
+          cacheNames
+            .filter((name) => name.startsWith("fr-"))
+            .map((name) => window.caches.delete(name)),
         );
       });
       return;
