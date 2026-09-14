@@ -96,7 +96,13 @@ export function AppNav() {
 
   const signOut = async () => {
     setMenuOpen(false);
-    await supabase.auth.signOut();
+    // Misslyckas utloggningen är man fortfarande inloggad – säg det i klartext
+    // i stället för att skicka vidare som om allt gick bra.
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Kunde inte logga ut just nu. Försök igen.");
+      return;
+    }
     await router.navigate({ to: "/auth" });
   };
 
