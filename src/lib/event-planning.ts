@@ -173,3 +173,24 @@ export async function fetchEventsInRange(fromIso: string, toIso: string) {
     match_status: (row.match_status as string | null) ?? null,
   })) satisfies PlannableEvent[];
 }
+
+/**
+ * Väljer vilken kalenderaktivitet ett träningspass ska genomföras mot.
+ * Närmast kommande aktivitet vinner, annars den senast passerade inom ett dygn.
+ * Finns ingen rimlig aktivitet returneras null, så närvaron inte hamnar fel.
+ */
+export function pickRunEventLink(
+  links: SessionEventLink[],
+  nowMs: number = Date.now(),
+): SessionEventLink | null {
+  const dated = links.filter((link) => link.starts_at && !Number.isNaN(Date.parse(link.starts_at)));
+  if (dated.length === 0) return null;
+  const upcoming = dated
+    .filter((link) => Date.parse(link.starts_at) >= nowMs - 4 * 3600_000)
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  if (upcoming.length > 0) return upcoming[0]!;
+  const recent = dated
+    .filter((link) => nowMs - Date.parse(link.starts_at) <= 24 * 3600_000)
+    .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
+  return recent[0] ?? null;
+}
