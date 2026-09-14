@@ -100,6 +100,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       const fresh = withoutExisting(normalized, existing ?? []);
       setSkipped(normalized.length - fresh.length);
       setRows(fresh);
+      setStatus({});
       setChosen(new Set(fresh.map((_, index) => index)));
       if (fresh.length === 0) {
         setError(
