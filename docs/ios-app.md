@@ -12,12 +12,16 @@ Detta projekt innehåller en färdig iOS-app byggd med [Capacitor](https://capac
 
 ## Så här bygger och publicerar du appen
 
-### 1. Förbered ett Apple-konto
+### 1. Publicera webbversionen först
+
+Appen hämtar innehållet från den publicerade sajten. Se till att den senaste versionen är live innan du testar eller skickar in appen.
+
+### 2. Förbered ett Apple-konto
 
 - Skaffa [Apple Developer Program](https://developer.apple.com/programs), 99 USD/år.
 - Logga in på [App Store Connect](https://appstoreconnect.apple.com) och skapa en ny app med **Bundle ID** exakt: `se.fotbollsrummet.app`.
 
-### 2. Öppna projektet på en Mac
+### 3. Öppna projektet på en Mac
 
 ```bash
 cd ios/App
