@@ -364,13 +364,14 @@ function SessionBuilder() {
             >
               <Plus className="size-4" /> Lägg till del
             </Button>
-            <Link
-              to="/ovningsbank"
-              search={{ sessionId: id }}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary sm:w-auto"
+            <button
+              type="button"
+              onClick={() => void goToDrillBank()}
+              disabled={saveInfo.isPending}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary disabled:opacity-60 sm:w-auto"
             >
               <BookOpen className="size-4" aria-hidden /> Hämta från Träningsbanken
-            </Link>
+            </button>
           </div>
         </div>
 
