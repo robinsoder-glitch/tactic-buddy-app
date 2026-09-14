@@ -322,8 +322,13 @@ function RunSession() {
           anteckningar.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Button size="lg" onClick={() => begin.mutate()} disabled={begin.isPending}>
-            <Play className="mr-2 size-5" /> Starta träning
+          <Button
+            size="lg"
+            onClick={() => begin.mutate()}
+            disabled={begin.isPending || links.isPending}
+          >
+            <Play className="mr-2 size-5" />{" "}
+            {links.isPending ? "Hämtar kopplingar…" : "Starta träning"}
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link to="/traningspass/$id" params={{ id }}>
