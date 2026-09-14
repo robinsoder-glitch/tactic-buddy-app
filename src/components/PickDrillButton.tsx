@@ -70,6 +70,9 @@ export function PickDrillButton({
           minutes: Number(minutes) || defaultMinutes,
           note: null,
         });
+        // Passets innehåll måste hämtas om, annars ser tränaren en gammal lista.
+        await queryClient.invalidateQueries({ queryKey: ["coach-session-items", sessionId] });
+        await queryClient.invalidateQueries({ queryKey: ["coach-session-items"] });
         toast.success(`${title} lades till i passet.`);
         setDuplicate(false);
         navigate({ to: "/traningspass/$id", params: { id: sessionId } });
