@@ -40,6 +40,13 @@ async function readAsBase64(file: File): Promise<string> {
   return btoa(binary);
 }
 
+/** Status för en enskild rad i importlistan. */
+type RowStatus =
+  | { kind: "waiting" }
+  | { kind: "saving" }
+  | { kind: "saved" }
+  | { kind: "error"; message: string };
+
 export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props) {
   const parse = useServerFn(parseMatchSource);
   const queryClient = useQueryClient();
