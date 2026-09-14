@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { fetchCoachSession, fetchSessionItems } from "./coach-sessions";
+
 
 /** Ett pågående eller avslutat genomförande av ett träningspass. */
 export type SessionRun = {
