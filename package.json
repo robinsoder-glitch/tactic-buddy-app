@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test:e2e": "python3 e2e/onboarding-flow.py"
+    "test:e2e": "python3 e2e/onboarding-flow.py",
+    "cap:sync": "capacitor sync ios",
+    "cap:open": "capacitor open ios"
   },
   "overrides": {
     "rolldown": "1.2.1"
