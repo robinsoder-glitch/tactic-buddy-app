@@ -163,7 +163,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Fotbollsrummet – tränarens verktyg för hela laget" },
       {
         name: "description",
@@ -324,7 +324,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ChunkErrorBanner />
       <OfflineBanner />
-      <div className="min-h-dvh pb-[76px] md:pb-8 md:pt-16">
+      <div className="safe-area-shell min-h-dvh pb-[76px] md:pb-8 md:pt-16">
         <BackButton />
         <Outlet />
       </div>
