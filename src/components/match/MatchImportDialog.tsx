@@ -374,9 +374,25 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                         />
                       </div>
                     </div>
-                    {row.needsReview && (
+                    {row.needsReview && status[index]?.kind !== "saved" && (
                       <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
                         Kontrollera datum, tid och lagnamn.
+                      </p>
+                    )}
+                    {status[index]?.kind === "waiting" && (
+                      <p className="text-xs text-muted-foreground">Väntar…</p>
+                    )}
+                    {status[index]?.kind === "saving" && (
+                      <p className="text-xs text-muted-foreground">Sparar…</p>
+                    )}
+                    {status[index]?.kind === "saved" && (
+                      <p className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" /> Sparad i kalendern
+                      </p>
+                    )}
+                    {status[index]?.kind === "error" && (
+                      <p className="text-xs font-medium text-destructive">
+                        Kunde inte sparas: {(status[index] as { message: string }).message}
                       </p>
                     )}
                   </li>
@@ -391,7 +407,11 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                   onClick={() => void create()}
                   disabled={saving || chosen.size === 0}
                 >
-                  {saving ? "Sparar…" : `Skapa ${chosen.size} matcher`}
+                  {saving
+                    ? "Sparar…"
+                    : failedCount > 0
+                      ? `Försök igen med ${chosen.size} matcher`
+                      : `Skapa ${chosen.size} matcher`}
                 </Button>
               </div>
             </div>
