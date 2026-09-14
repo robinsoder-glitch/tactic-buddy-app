@@ -59,6 +59,7 @@ function SessionBuilder() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { confirm, confirmDialog } = useConfirm();
 
   const session = useQuery({
