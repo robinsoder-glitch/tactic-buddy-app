@@ -506,6 +506,11 @@ export function TacticEditor({ id }: { id: string }) {
         })),
       `Formation ${formation.label}`,
     );
+    // Plantypen byts efter att formationen lagts ut, så sparningen i bytet tar
+    // med de nya spelarna i stället för den gamla uppställningen.
+    if (pitchTarget !== tactic.data?.pitch_type) {
+      setTimeout(() => changePitch.mutate(pitchTarget), 0);
+    }
     toast.success(`Formation ${formation.label} placerad.`);
   }
 
