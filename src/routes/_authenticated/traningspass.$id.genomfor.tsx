@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchCoachSession, ITEM_KIND_LABELS, type ItemKind } from "@/lib/coach-sessions";
-import { fetchSessionLinks } from "@/lib/event-planning";
+import { fetchSessionLinks, pickRunEventLink } from "@/lib/event-planning";
 import { fetchTeamPlayers } from "@/lib/teams";
 import {
   addMinute,
@@ -206,10 +206,12 @@ function RunSession() {
       if (!run.data || !user) return;
       if (generalNote !== (run.data.general_note ?? ""))
         await patchRun(run.data.id, { general_note: generalNote });
-      await finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
+      return finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
     },
-    onSuccess: () => {
-      const done = runSummary(items.data ?? []);
+    onSuccess: (saved) => {
+      // Sammanfattningen räknas på momenten som de ser ut efter sparningen,
+      // annars saknas sista momentets tid.
+      const done = runSummary(saved ?? items.data ?? []);
       setFinishedSummary({ ...done, attendance: attendance.data?.length ?? 0 });
       setConfirmEnd(false);
       setSummaryOpen(true);
