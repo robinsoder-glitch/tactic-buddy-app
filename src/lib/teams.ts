@@ -115,7 +115,10 @@ export async function uploadTeamMedia(
 }
 
 export async function removeTeamMedia(path: string) {
-  await supabase.storage.from(TEAM_MEDIA_BUCKET).remove([path]);
+  // Lagringstjänsten svarar med fel i stället för att kasta – annars skulle en
+  // misslyckad radering se ut som att bilden togs bort.
+  const { error } = await supabase.storage.from(TEAM_MEDIA_BUCKET).remove([path]);
+  if (error) throw error;
 }
 
 /** Team media paths look like "<teamId>/...", older photos live in the personal bucket. */
