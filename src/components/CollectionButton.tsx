@@ -85,7 +85,14 @@ export function CollectionButton({ kind, resourceId, title }: Props) {
 
         <div className="space-y-2">
           {collections.isLoading && <p className="text-sm text-muted-foreground">Laddar…</p>}
-          {!collections.isLoading && (collections.data ?? []).length === 0 && (
+          {/* Ett fel får inte se ut som "inga samlingar" – då riskerar man att
+              skapa en ny samling som redan finns. */}
+          {(collections.isError || items.isError) && (
+            <p className="text-sm text-destructive">
+              Dina samlingar kunde inte hämtas just nu. Försök igen om en stund.
+            </p>
+          )}
+          {collections.isSuccess && (collections.data ?? []).length === 0 && (
             <p className="text-sm text-muted-foreground">
               Du har inga samlingar än. Skapa din första nedan.
             </p>
