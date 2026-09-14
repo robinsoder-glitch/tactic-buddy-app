@@ -102,8 +102,16 @@ function DrillPage() {
             </Link>
           </Button>
         ) : (
+          // Öppnad från ett träningspass? Behåll passet i länken hela vägen tillbaka.
           <Button asChild variant="ghost" size="icon" aria-label="Tillbaka till träningsbanken">
-            <Link to="/ovningsbank" search={{ eventId: pick.eventId, teamId: pick.teamId }}>
+            <Link
+              to="/ovningsbank"
+              search={{
+                eventId: pick.eventId,
+                teamId: pick.teamId,
+                sessionId: pick.sessionId,
+              }}
+            >
               <ArrowLeft className="size-5" />
             </Link>
           </Button>

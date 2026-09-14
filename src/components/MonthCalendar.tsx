@@ -5,10 +5,10 @@ import { ChevronLeft, ChevronRight, Dumbbell, MapPin, Trophy } from "lucide-reac
 import { fetchEventsInRange, type PlannableEvent } from "@/lib/event-planning";
 import {
   dayKey,
+  gridRange,
   groupByDay,
   monthGrid,
   monthLabel,
-  monthRange,
   shiftMonth,
   WEEKDAY_NAMES,
   type MonthCursor,
@@ -38,7 +38,21 @@ export function MonthCalendar() {
     month: today.getMonth(),
   });
   const [selected, setSelected] = useState<string>(dayKey(today));
-  const range = monthRange(cursor);
+  // Hela rutnätet hämtas, även grannmånadens synliga dagar.
+  const range = gridRange(cursor);
+
+  /** Byter månad och flyttar den valda dagen med, så listan hör ihop med rutnätet. */
+  function goToMonth(delta: number) {
+    const next = shiftMonth(cursor, delta);
+    setCursor(next);
+    if (next.year === today.getFullYear() && next.month === today.getMonth()) {
+      setSelected(dayKey(today));
+      return;
+    }
+    const dayOfMonth = Number(selected.split("-")[2] ?? 1);
+    const lastDay = new Date(next.year, next.month + 1, 0).getDate();
+    setSelected(dayKey(new Date(next.year, next.month, Math.min(dayOfMonth, lastDay))));
+  }
 
   const events = useQuery({
     queryKey: ["month-events", range.fromIso, range.toIso],
@@ -60,6 +74,10 @@ export function MonthCalendar() {
   const todayKey = dayKey(today);
   const selectedList = byDay.get(selected) ?? [];
 
+  // Statusen får inte påstås innan kallelserna hämtats – annars hinner
+  // "Planerad" synas för en match som redan har skickade kallelser.
+  const inviteStatusReady = matchIds.length === 0 || invited.isSuccess;
+
   function statusOf(event: PlannableEvent) {
     return matchStatus({
       override: event.match_status ?? null,
@@ -78,7 +96,7 @@ export function MonthCalendar() {
           <button
             type="button"
             aria-label="Föregående månad"
-            onClick={() => setCursor((current) => shiftMonth(current, -1))}
+            onClick={() => goToMonth(-1)}
             className="flex size-12 items-center justify-center rounded-xl border border-border hover:border-primary/50"
           >
             <ChevronLeft className="size-6" aria-hidden />
@@ -96,7 +114,7 @@ export function MonthCalendar() {
           <button
             type="button"
             aria-label="Nästa månad"
-            onClick={() => setCursor((current) => shiftMonth(current, 1))}
+            onClick={() => goToMonth(1)}
             className="flex size-12 items-center justify-center rounded-xl border border-border hover:border-primary/50"
           >
             <ChevronRight className="size-6" aria-hidden />
@@ -202,12 +220,18 @@ export function MonthCalendar() {
                       )}
                       {isMatch && (
                         <div className="mt-2">
-                          <MatchStatusControl
-                            eventId={event.id}
-                            teamId={event.team_id}
-                            status={statusOf(event)}
-                            size="sm"
-                          />
+                          {inviteStatusReady ? (
+                            <MatchStatusControl
+                              eventId={event.id}
+                              teamId={event.team_id}
+                              status={statusOf(event)}
+                              size="sm"
+                            />
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                              {invited.isError ? "Status okänd" : "Hämtar status…"}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>

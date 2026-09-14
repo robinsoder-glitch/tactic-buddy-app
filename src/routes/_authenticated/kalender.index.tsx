@@ -2,7 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Dumbbell, MapPin, Trophy } from "lucide-react";
 import { fetchUpcomingEvents } from "@/lib/event-planning";
-import { PlanStatusBadge, PlanStatusBadgePending } from "@/components/PlanStatusBadge";
+import {
+  PlanStatusBadge,
+  PlanStatusBadgePending,
+  PlanStatusBadgeUnknown,
+} from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
 import { fetchEventPlans, fetchEventResources, fetchSquads } from "@/lib/planning";
 import { fetchEventCoaches } from "@/lib/event-coaches";
@@ -84,8 +88,11 @@ function CalendarOverview() {
   // Statusen får bara visas när allt underlag finns – annars hinner ett
   // felaktigt "Ej klar" synas innan svaren kommer in.
   // Ett fel i något underlag ger okänd status – aldrig ett påstående om "Ej planerad".
-  const statusReady =
-    ids.length === 0 || [plans, resources, squads, coaches].every((query) => query.isSuccess);
+  const statusQueries = [plans, resources, squads, coaches];
+  const statusReady = ids.length === 0 || statusQueries.every((query) => query.isSuccess);
+  const statusFailed = statusQueries.some((query) => query.isError);
+  // Kallelserna avgör om en match räknas som "Kallelser skickade".
+  const inviteStatusReady = matchIds.length === 0 || invited.isSuccess;
 
   /** Samma statusregel som i Planera match och Planera träning. */
   function statusFor(event: { id: string; type?: string | null }) {
@@ -127,29 +134,38 @@ function CalendarOverview() {
               const style = EVENT_STYLES[event.type === "match" ? "match" : "training"];
               const Icon = style.icon;
               return (
-                <li key={event.id}>
-                  <Link
-                    to="/team/$teamId/event/$eventId"
-                    params={{ teamId: event.team_id, eventId: event.id }}
-                    className={`flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/50 ${style.card}`}
-                  >
-                    <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">
-                            {eventTitleLine(event) || eventTypeLabel(event)}
-                          </p>
-                          <p className="text-sm text-primary">{formatDateTime(event.starts_at)}</p>
-                        </div>
-                        <p className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                          {isCoach &&
-                            (statusReady ? (
-                              <PlanStatusBadge status={statusFor(event)} />
-                            ) : (
-                              <PlanStatusBadgePending />
-                            ))}
-                          {event.type === "match" && (
+                <li
+                  key={event.id}
+                  className={`flex gap-3 rounded-xl border border-border bg-card p-3 ${style.card}`}
+                >
+                  <Icon className={`mt-1 size-5 shrink-0 ${style.icon_color}`} aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+                      {/* Länken till aktiviteten och statusvalet är syskon, så
+                          båda går att nå med tangentbord och skärmläsare. */}
+                      <Link
+                        to="/team/$teamId/event/$eventId"
+                        params={{ teamId: event.team_id, eventId: event.id }}
+                        className="min-w-0 rounded-lg transition-colors hover:underline"
+                      >
+                        <span className="block truncate font-medium">
+                          {eventTitleLine(event) || eventTypeLabel(event)}
+                        </span>
+                        <span className="block text-sm text-primary">
+                          {formatDateTime(event.starts_at)}
+                        </span>
+                      </Link>
+                      <span className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                        {isCoach &&
+                          (statusReady ? (
+                            <PlanStatusBadge status={statusFor(event)} />
+                          ) : statusFailed ? (
+                            <PlanStatusBadgeUnknown />
+                          ) : (
+                            <PlanStatusBadgePending />
+                          ))}
+                        {event.type === "match" &&
+                          (inviteStatusReady ? (
                             <MatchStatusControl
                               eventId={event.id}
                               teamId={event.team_id}
@@ -160,26 +176,29 @@ function CalendarOverview() {
                               })}
                               size="sm"
                             />
-                          )}
-                          {isCancelled(event) && (
-                            <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
-                              Inställd
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                              {invited.isError ? "Status okänd" : "Hämtar status…"}
                             </span>
-                          )}
-                        </p>
-                      </div>
-                      {(event.team_name || event.location) && (
-                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                          {event.team_name && <span>{event.team_name}</span>}
-                          {event.location && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="size-3" /> {event.location}
-                            </span>
-                          )}
-                        </p>
-                      )}
+                          ))}
+                        {isCancelled(event) && (
+                          <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                            Inställd
+                          </span>
+                        )}
+                      </span>
                     </div>
-                  </Link>
+                    {(event.team_name || event.location) && (
+                      <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        {event.team_name && <span>{event.team_name}</span>}
+                        {event.location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="size-3" /> {event.location}
+                          </span>
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </li>
               );
             })}

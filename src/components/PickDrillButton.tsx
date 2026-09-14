@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +39,7 @@ export function PickDrillButton({
   const search = parsePickSearch(useSearch({ strict: false }) as Record<string, unknown>);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [duplicate, setDuplicate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [minutes, setMinutes] = useState(String(defaultMinutes));
@@ -70,6 +71,9 @@ export function PickDrillButton({
           minutes: Number(minutes) || defaultMinutes,
           note: null,
         });
+        // Passets innehåll måste hämtas om, annars ser tränaren en gammal lista.
+        await queryClient.invalidateQueries({ queryKey: ["coach-session-items", sessionId] });
+        await queryClient.invalidateQueries({ queryKey: ["coach-session-items"] });
         toast.success(`${title} lades till i passet.`);
         setDuplicate(false);
         navigate({ to: "/traningspass/$id", params: { id: sessionId } });

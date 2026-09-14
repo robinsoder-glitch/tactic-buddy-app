@@ -165,10 +165,24 @@ export function withoutExisting(
 
 /** Lokalt datum + tid till ISO, samma regel som formulären använder. */
 export function toIsoStart(match: { date: string; time: string }): string | null {
-  const [year, month, day] = match.date.split("-").map(Number);
-  const [hour, minute] = match.time.split(":").map(Number);
-  if (!year || !month || !day || Number.isNaN(hour) || Number.isNaN(minute)) return null;
+  // Tränaren kan ha redigerat fälten för hand, så formen kontrolleras strikt
+  // och datumet måste finnas på riktigt (inget 31 februari som glider vidare).
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(match.date)) return null;
+  if (!/^\d{2}:\d{2}$/.test(match.time)) return null;
+  const [year, month, day] = match.date.split("-").map(Number) as [number, number, number];
+  const [hour, minute] = match.time.split(":").map(Number) as [number, number];
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  if (hour > 23 || minute > 59) return null;
   const date = new Date(year, month - 1, day, hour, minute, 0, 0);
   if (Number.isNaN(date.getTime())) return null;
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute
+  ) {
+    return null;
+  }
   return date.toISOString();
 }

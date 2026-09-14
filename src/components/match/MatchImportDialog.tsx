@@ -75,11 +75,18 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       };
       const result = await parse({ data: payload });
       const normalized = normalizeImportedMatches(result.matches, { teamName });
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from("events")
         .select("starts_at")
         .eq("team_id", teamId)
         .eq("type", "match");
+      // Går dubblettkontrollen inte att göra stoppar vi – annars riskerar
+      // tränaren att lägga in samma matcher två gånger.
+      if (existingError) {
+        throw new Error(
+          "Kunde inte kontrollera vilka matcher som redan finns. Försök igen om en stund.",
+        );
+      }
       const fresh = withoutExisting(normalized, existing ?? []);
       setSkipped(normalized.length - fresh.length);
       setRows(fresh);
@@ -115,14 +122,22 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
 
   async function create() {
     if (!userId || !rows) return;
-    const picked = rows.filter((_, index) => chosen.has(index));
-    if (picked.length === 0) return;
+    const pickedIndexes = rows.map((_, index) => index).filter((index) => chosen.has(index));
+    if (pickedIndexes.length === 0) return;
     setSaving(true);
-    let created = 0;
-    try {
-      for (const row of picked) {
-        const startsAt = toIsoStart(row);
-        if (!startsAt) continue;
+    // Raderna sparas en i taget. Stannar det halvvägs behåller vi de rader som
+    // inte kom med, så tränaren kan spara resten utan att skapa dubbletter.
+    const savedIndexes = new Set<number>();
+    const invalidIndexes = new Set<number>();
+    let failure: string | null = null;
+    for (const index of pickedIndexes) {
+      const row = rows[index]!;
+      const startsAt = toIsoStart(row);
+      if (!startsAt) {
+        invalidIndexes.add(index);
+        continue;
+      }
+      try {
         await saveEvent({
           teamId,
           userId,
@@ -134,18 +149,48 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
           location: row.location || null,
           notes: null,
         });
-        created += 1;
+        savedIndexes.add(index);
+      } catch (cause) {
+        failure = cause instanceof Error ? cause.message : "Kunde inte spara matcherna.";
+        break;
       }
-      await invalidateCalendar(queryClient);
-      toast.success(`${created} matcher lades till i kalendern.`);
+    }
+
+    if (savedIndexes.size > 0) await invalidateCalendar(queryClient);
+    setSaving(false);
+
+    if (!failure && invalidIndexes.size === 0) {
+      toast.success(`${savedIndexes.size} matcher lades till i kalendern.`);
       setOpen(false);
       reset();
       onCreated();
-    } catch (cause) {
-      toast.error(cause instanceof Error ? cause.message : "Kunde inte spara matcherna.");
-    } finally {
-      setSaving(false);
+      return;
     }
+
+    // Ta bort det som faktiskt sparades och låt resten ligga kvar i listan.
+    const remaining = rows.filter((_, index) => !savedIndexes.has(index));
+    const remainingChosen = new Set<number>();
+    let position = 0;
+    rows.forEach((_, index) => {
+      if (savedIndexes.has(index)) return;
+      if (chosen.has(index)) remainingChosen.add(position);
+      position += 1;
+    });
+    setRows(remaining);
+    setChosen(remainingChosen);
+    setError(
+      [
+        savedIndexes.size > 0 ? `${savedIndexes.size} matcher sparades.` : null,
+        invalidIndexes.size > 0
+          ? `${invalidIndexes.size} rader har ogiltigt datum eller tid – rätta dem och spara igen.`
+          : null,
+        failure,
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+    if (savedIndexes.size > 0) onCreated();
+    if (failure) toast.error(failure);
   }
 
   return (
@@ -220,6 +265,11 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                   Sidor som kräver inloggning går inte att läsa in – ladda upp en PDF i stället.
                 </p>
               </div>
+              <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+                Filen eller sidans text skickas till en AI-tjänst som tolkar spelschemat. Ladda bara
+                upp spelscheman – inga personuppgifter om barn. Texten sparas inte hos oss, bara de
+                matcher du väljer att lägga till.
+              </p>
               {busy && <p className="text-sm text-muted-foreground">Läser schemat…</p>}
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
@@ -232,6 +282,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                 att tolka.
                 {skipped > 0 ? ` ${skipped} matcher hoppades över – de finns redan.` : ""}
               </p>
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <ul className="space-y-3">
                 {rows.map((row, index) => (
                   <li

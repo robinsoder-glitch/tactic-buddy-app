@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayKey, groupByDay, monthGrid, monthLabel, shiftMonth } from "./month-grid";
+import { dayKey, gridRange, groupByDay, monthGrid, monthLabel, shiftMonth } from "./month-grid";
 
 describe("månadskalender", () => {
   it("börjar rutnätet på måndag", () => {
@@ -25,5 +25,16 @@ describe("månadskalender", () => {
     const day = new Date(2026, 8, 12, 18, 0);
     const grouped = groupByDay([{ starts_at: day.toISOString() }]);
     expect(grouped.get(dayKey(day))?.length).toBe(1);
+  });
+});
+
+describe("gridRange", () => {
+  it("täcker även grannmånadernas synliga dagar", () => {
+    const range = gridRange({ year: 2026, month: 8 });
+    const cells = monthGrid({ year: 2026, month: 8 });
+    expect(range.fromIso).toBe(cells[0]!.date.toISOString());
+    expect(new Date(range.toIso).getTime()).toBeGreaterThan(
+      cells[cells.length - 1]!.date.getTime(),
+    );
   });
 });

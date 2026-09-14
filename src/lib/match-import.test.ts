@@ -72,3 +72,16 @@ describe("normalisering av inlästa matcher", () => {
     expect(iso).toBe(new Date(2026, 4, 9, 10, 0).toISOString());
   });
 });
+
+describe("toIsoStart validerar handredigerade fält", () => {
+  it("vägrar datum som inte finns", () => {
+    expect(toIsoStart({ date: "2026-02-31", time: "10:00" })).toBeNull();
+    expect(toIsoStart({ date: "2026-13-01", time: "10:00" })).toBeNull();
+  });
+
+  it("vägrar trasiga format och omöjliga tider", () => {
+    expect(toIsoStart({ date: "9/5-2026", time: "10:00" })).toBeNull();
+    expect(toIsoStart({ date: "2026-05-09", time: "25:00" })).toBeNull();
+    expect(toIsoStart({ date: "2026-05-09", time: "" })).toBeNull();
+  });
+});

@@ -52,6 +52,20 @@ export function monthRange(cursor: MonthCursor): { fromIso: string; toIso: strin
   return { fromIso: from.toISOString(), toIso: to.toISOString() };
 }
 
+/**
+ * Start och slut (exklusivt) för hela rutnätet, inklusive dagarna från
+ * grannmånaderna som syns först och sist. Då stämmer prickarna med det
+ * man faktiskt kan klicka på.
+ */
+export function gridRange(cursor: MonthCursor): { fromIso: string; toIso: string } {
+  const days = monthGrid(cursor);
+  const first = days[0]!.date;
+  const last = days[days.length - 1]!.date;
+  const from = new Date(first.getFullYear(), first.getMonth(), first.getDate(), 0, 0, 0, 0);
+  const to = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1, 0, 0, 0, 0);
+  return { fromIso: from.toISOString(), toIso: to.toISOString() };
+}
+
 /** Hela rutnätet: alltid hela veckor, måndag först. */
 export function monthGrid(cursor: MonthCursor): MonthDay[] {
   const first = new Date(cursor.year, cursor.month, 1);
