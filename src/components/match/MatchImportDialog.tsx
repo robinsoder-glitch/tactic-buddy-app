@@ -52,12 +52,15 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
   const [chosen, setChosen] = useState<Set<number>>(new Set());
   const [skipped, setSkipped] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  /** Kvittens per rad: vad som pågår, vad som sparats och vad som gick fel. */
+  const [status, setStatus] = useState<Record<number, RowStatus>>({});
 
   function reset() {
     setRows(null);
     setChosen(new Set());
     setSkipped(0);
     setError(null);
+    setStatus({});
     setUrl("");
     if (fileInput.current) fileInput.current.value = "";
   }
