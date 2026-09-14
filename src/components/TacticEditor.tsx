@@ -292,7 +292,7 @@ export function TacticEditor({ id }: { id: string }) {
     // Plantypen hämtar om taktiken efteråt – därför sparas pågående ändringar
     // först, annars skrivs de över av serverns version.
     mutationFn: async (pitchType: PitchType) => {
-      if (dirty || save.isPending) await save.mutateAsync();
+      await save.mutateAsync();
       await setTacticPitchType(id, pitchType);
     },
     onSuccess: () => {
