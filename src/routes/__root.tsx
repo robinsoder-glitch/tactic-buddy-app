@@ -204,6 +204,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="sv">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: SW_CLEANUP_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body>
