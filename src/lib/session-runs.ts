@@ -143,38 +143,14 @@ export async function fetchRunItems(runId: string): Promise<SessionRunItem[]> {
  * så att det aldrig kan finnas två aktiva genomföranden av samma pass.
  */
 export async function startRun(sessionId: string, eventId?: string | null): Promise<SessionRun> {
-  const existing = await fetchActiveRun(sessionId);
-  if (existing) return existing;
-
-  const [session, items] = await Promise.all([
-    fetchCoachSession(sessionId),
-    fetchSessionItems(sessionId),
-  ]);
-  if (!session) throw new Error("Träningspasset kunde inte hittas.");
-  if (items.length === 0)
-    throw new Error("Passet saknar innehåll. Lägg till minst en del innan du startar.");
-
-  const { data, error } = await supabase
-    .from("session_runs")
-    .insert({ session_id: sessionId, team_id: session.team_id, event_id: eventId ?? null })
-    .select(RUN_COLUMNS)
-    .single();
+  // Genomförandet och alla dess moment skapas i ett enda databasanrop, så det
+  // aldrig kan bli ett halvstartat pass om något går fel på vägen.
+  const { data, error } = await supabase.rpc("start_session_run", {
+    _session_id: sessionId,
+    _event_id: eventId ?? null,
+  });
   if (error) throw error;
-  const run = data as unknown as SessionRun;
-
-  const { error: itemError } = await supabase.from("session_run_items").insert(
-    items.map((item, index) => ({
-      run_id: run.id,
-      item_id: item.id,
-      kind: item.kind,
-      title: item.title,
-      resource_id: item.resource_id,
-      planned_minutes: item.minutes,
-      sort_order: index,
-    })),
-  );
-  if (itemError) throw itemError;
-  return run;
+  return data as unknown as SessionRun;
 }
 
 export async function patchRun(runId: string, patch: Partial<SessionRun>) {
