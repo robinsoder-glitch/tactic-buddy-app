@@ -319,7 +319,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                           göras efter att just den raden redan skickats. */}
                       <Checkbox
                         checked={chosen.has(index)}
-                        disabled={saving}
+                        disabled={locked(index)}
                         onCheckedChange={() => toggle(index)}
                         aria-label={`Ta med matchen ${row.date}`}
                       />
@@ -328,35 +328,35 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                           type="date"
                           value={row.date}
                           aria-label="Datum"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { date: event.target.value })}
                         />
                         <Input
                           type="time"
                           value={row.time}
                           aria-label="Tid"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { time: event.target.value })}
                         />
                         <Input
                           value={row.home_team}
                           aria-label="Hemmalag"
                           placeholder="Hemmalag"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { home_team: event.target.value })}
                         />
                         <Input
                           value={row.away_team}
                           aria-label="Bortalag"
                           placeholder="Bortalag"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { away_team: event.target.value })}
                         />
                         <Input
                           className="sm:col-span-2"
                           value={row.location}
                           aria-label="Plats"
-                          disabled={saving}
+                          disabled={locked(index)}
                           placeholder="Plats"
                           onChange={(event) => update(index, { location: event.target.value })}
                         />
