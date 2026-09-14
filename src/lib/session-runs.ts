@@ -1,6 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 
-
 /** Ett pågående eller avslutat genomförande av ett träningspass. */
 export type SessionRun = {
   id: string;

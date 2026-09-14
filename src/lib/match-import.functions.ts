@@ -87,7 +87,10 @@ export function assertPublicUrl(rawUrl: string): URL {
 
 /** Sant för adresser i privata eller lokala nät. */
 export function isPrivateAddress(address: string): boolean {
-  const value = address.trim().toLowerCase().replace(/^\[|\]$/g, "");
+  const value = address
+    .trim()
+    .toLowerCase()
+    .replace(/^\[|\]$/g, "");
   const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(value);
   if (ipv4) {
     const [a, b] = [Number(ipv4[1]), Number(ipv4[2])];
@@ -113,8 +116,8 @@ export function isPrivateAddress(address: string): boolean {
  * Saknas namnuppslag i körmiljön görs ingen extra kontroll.
  */
 async function assertPublicResolution(host: string): Promise<void> {
-  let lookup: ((hostname: string, options: { all: true }) => Promise<{ address: string }[]>) | null =
-    null;
+  let lookup:
+    ((hostname: string, options: { all: true }) => Promise<{ address: string }[]>) | null = null;
   try {
     ({ lookup } = (await import("node:dns/promises")) as unknown as {
       lookup: (hostname: string, options: { all: true }) => Promise<{ address: string }[]>;
