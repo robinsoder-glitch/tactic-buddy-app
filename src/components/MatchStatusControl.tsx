@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAccount } from "@/hooks/useAccount";
@@ -25,6 +25,13 @@ export function MatchStatusControl({ eventId, teamId, status, size = "md" }: Pro
   const queryClient = useQueryClient();
   const [current, setCurrent] = useState<MatchStatus>(status);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+
+  // Statusen räknas fram först när kallelserna hämtats. Visa alltid det
+  // senaste värdet utifrån – utom medan ett eget byte pågår.
+  useEffect(() => {
+    if (!busyRef.current) setCurrent(status);
+  }, [status]);
 
   const isCoach = memberships.some(
     (membership) =>
@@ -44,6 +51,7 @@ export function MatchStatusControl({ eventId, teamId, status, size = "md" }: Pro
     if (!isMatchStatus(next)) return;
     const previous = current;
     setCurrent(next);
+    busyRef.current = true;
     setBusy(true);
     try {
       await setMatchStatus(eventId, next);
@@ -54,6 +62,7 @@ export function MatchStatusControl({ eventId, teamId, status, size = "md" }: Pro
       setCurrent(previous);
       toast.error(error instanceof Error ? error.message : "Kunde inte ändra statusen.");
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }
