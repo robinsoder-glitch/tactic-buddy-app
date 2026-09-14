@@ -106,6 +106,28 @@ function SessionBuilder() {
       toast.error(error.message || "Det gick inte att spara träningspasset."),
   });
 
+  /**
+   * Titel, mål och anteckningar ligger bara lokalt tills de sparas. Därför
+   * sparas de innan man lämnar sidan för Träningsbanken – annars försvinner de.
+   */
+  async function goToDrillBank() {
+    const current = session.data;
+    const changed =
+      draft &&
+      current &&
+      (Object.keys(draft) as (keyof SessionDraft)[]).some(
+        (key) => (draft[key] ?? null) !== (current[key] ?? null),
+      );
+    if (changed) {
+      try {
+        await saveInfo.mutateAsync();
+      } catch {
+        return; // felet visas redan – stanna kvar så inget går förlorat
+      }
+    }
+    void navigate({ to: "/ovningsbank", search: { sessionId: id } });
+  }
+
   const setStatus = useMutation({
     mutationFn: (status: string) => updateCoachSession(id, { status }),
     onSuccess: (_data, status) => {
