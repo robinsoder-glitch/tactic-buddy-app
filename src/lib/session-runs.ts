@@ -279,17 +279,9 @@ export async function finishRun(input: {
     const seconds = currentItemSeconds(run, items, Date.now());
     await patchRunItem(current.id, { actual_seconds: Math.round(seconds), status: "done" });
   }
-  await patchRun(run.id, {
-    status: "done",
-    ended_at: new Date().toISOString(),
-    paused_at: null,
-  });
-  const { error } = await supabase
-    .from("coach_sessions")
-    .update({ status: "done" })
-    .eq("id", run.session_id);
-  if (error) throw error;
 
+  // Närvaron skrivs över till aktiviteten först. Går det inte avslutas passet
+  // inte heller, så tränaren kan försöka igen utan att närvaron tappas bort.
   if (run.event_id && run.team_id) {
     const attendance = await fetchRunAttendance(run.id);
     if (attendance.length > 0) {
@@ -308,6 +300,18 @@ export async function finishRun(input: {
       if (attendanceError) throw attendanceError;
     }
   }
+
+  const { error } = await supabase
+    .from("coach_sessions")
+    .update({ status: "done" })
+    .eq("id", run.session_id);
+  if (error) throw error;
+
+  await patchRun(run.id, {
+    status: "done",
+    ended_at: new Date().toISOString(),
+    paused_at: null,
+  });
 }
 
 /** Alla genomföranden som är kopplade till en aktivitet. */
