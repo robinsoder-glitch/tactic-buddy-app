@@ -22,7 +22,7 @@ import {
 } from "@/lib/match-import";
 import { saveEvent } from "@/lib/teams";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload } from "lucide-react";
+import { Check, Upload } from "lucide-react";
 
 type Props = {
   teamId: string;
@@ -40,6 +40,10 @@ async function readAsBase64(file: File): Promise<string> {
   return btoa(binary);
 }
 
+/** Status för en enskild rad i importlistan. */
+type RowStatus =
+  { kind: "waiting" } | { kind: "saving" } | { kind: "saved" } | { kind: "error"; message: string };
+
 export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props) {
   const parse = useServerFn(parseMatchSource);
   const queryClient = useQueryClient();
@@ -52,12 +56,15 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
   const [chosen, setChosen] = useState<Set<number>>(new Set());
   const [skipped, setSkipped] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  /** Kvittens per rad: vad som pågår, vad som sparats och vad som gick fel. */
+  const [status, setStatus] = useState<Record<number, RowStatus>>({});
 
   function reset() {
     setRows(null);
     setChosen(new Set());
     setSkipped(0);
     setError(null);
+    setStatus({});
     setUrl("");
     if (fileInput.current) fileInput.current.value = "";
   }
@@ -90,6 +97,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       const fresh = withoutExisting(normalized, existing ?? []);
       setSkipped(normalized.length - fresh.length);
       setRows(fresh);
+      setStatus({});
       setChosen(new Set(fresh.map((_, index) => index)));
       if (fresh.length === 0) {
         setError(
@@ -105,10 +113,24 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
     }
   }
 
+  const failedCount = Object.values(status).filter((value) => value.kind === "error").length;
+
+  /** Sparade rader är låsta, övriga går att ändra. */
+  function locked(index: number) {
+    return saving || status[index]?.kind === "saved";
+  }
+
   function update(index: number, patch: Partial<ImportedMatch>) {
     setRows((current) =>
       (current ?? []).map((row, position) => (position === index ? { ...row, ...patch } : row)),
     );
+    // En rättad rad ska inte fortsätta visa det gamla felet.
+    setStatus((current) => {
+      if (current[index]?.kind !== "error") return current;
+      const next = { ...current };
+      delete next[index];
+      return next;
+    });
   }
 
   function toggle(index: number) {
@@ -122,19 +144,34 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
 
   async function create() {
     if (!userId || !rows) return;
-    const pickedIndexes = rows.map((_, index) => index).filter((index) => chosen.has(index));
+    const pickedIndexes = rows
+      .map((_, index) => index)
+      .filter((index) => chosen.has(index) && status[index]?.kind !== "saved");
     if (pickedIndexes.length === 0) return;
     setSaving(true);
-    // Raderna sparas en i taget. Stannar det halvvägs behåller vi de rader som
-    // inte kom med, så tränaren kan spara resten utan att skapa dubbletter.
+    setError(null);
+    setStatus((current) => {
+      const next = { ...current };
+      for (const index of pickedIndexes) next[index] = { kind: "waiting" };
+      return next;
+    });
+
+    // Varje vald rad försöks för sig. Ett fel på en rad stoppar inte de övriga,
+    // och raden som sparats markeras så den inte kan sparas en gång till.
     const savedIndexes = new Set<number>();
-    const invalidIndexes = new Set<number>();
-    let failure: string | null = null;
+    const failedIndexes = new Set<number>();
+    let lastFailure: string | null = null;
+
     for (const index of pickedIndexes) {
       const row = rows[index]!;
+      setStatus((current) => ({ ...current, [index]: { kind: "saving" } }));
       const startsAt = toIsoStart(row);
       if (!startsAt) {
-        invalidIndexes.add(index);
+        failedIndexes.add(index);
+        setStatus((current) => ({
+          ...current,
+          [index]: { kind: "error", message: "Ogiltigt datum eller tid – rätta och spara igen." },
+        }));
         continue;
       }
       try {
@@ -150,16 +187,19 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
           notes: null,
         });
         savedIndexes.add(index);
+        setStatus((current) => ({ ...current, [index]: { kind: "saved" } }));
       } catch (cause) {
-        failure = cause instanceof Error ? cause.message : "Kunde inte spara matcherna.";
-        break;
+        const message = cause instanceof Error ? cause.message : "Kunde inte spara matchen.";
+        lastFailure = message;
+        failedIndexes.add(index);
+        setStatus((current) => ({ ...current, [index]: { kind: "error", message } }));
       }
     }
 
     if (savedIndexes.size > 0) await invalidateCalendar(queryClient);
     setSaving(false);
 
-    if (!failure && invalidIndexes.size === 0) {
+    if (failedIndexes.size === 0) {
       toast.success(`${savedIndexes.size} matcher lades till i kalendern.`);
       setOpen(false);
       reset();
@@ -167,30 +207,24 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       return;
     }
 
-    // Ta bort det som faktiskt sparades och låt resten ligga kvar i listan.
-    const remaining = rows.filter((_, index) => !savedIndexes.has(index));
-    const remainingChosen = new Set<number>();
-    let position = 0;
-    rows.forEach((_, index) => {
-      if (savedIndexes.has(index)) return;
-      if (chosen.has(index)) remainingChosen.add(position);
-      position += 1;
+    // Sparade rader ligger kvar med bock men avmarkeras, så ett nytt försök bara
+    // gäller de rader som misslyckades.
+    setChosen((current) => {
+      const next = new Set(current);
+      for (const index of savedIndexes) next.delete(index);
+      for (const index of failedIndexes) next.add(index);
+      return next;
     });
-    setRows(remaining);
-    setChosen(remainingChosen);
     setError(
       [
         savedIndexes.size > 0 ? `${savedIndexes.size} matcher sparades.` : null,
-        invalidIndexes.size > 0
-          ? `${invalidIndexes.size} rader har ogiltigt datum eller tid – rätta dem och spara igen.`
-          : null,
-        failure,
+        `${failedIndexes.size} matcher kunde inte sparas – se meddelandet vid varje rad.`,
       ]
         .filter(Boolean)
         .join(" "),
     );
     if (savedIndexes.size > 0) onCreated();
-    if (failure) toast.error(failure);
+    if (lastFailure) toast.error(lastFailure);
   }
 
   return (
@@ -296,7 +330,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                           göras efter att just den raden redan skickats. */}
                       <Checkbox
                         checked={chosen.has(index)}
-                        disabled={saving}
+                        disabled={locked(index)}
                         onCheckedChange={() => toggle(index)}
                         aria-label={`Ta med matchen ${row.date}`}
                       />
@@ -305,43 +339,59 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                           type="date"
                           value={row.date}
                           aria-label="Datum"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { date: event.target.value })}
                         />
                         <Input
                           type="time"
                           value={row.time}
                           aria-label="Tid"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { time: event.target.value })}
                         />
                         <Input
                           value={row.home_team}
                           aria-label="Hemmalag"
                           placeholder="Hemmalag"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { home_team: event.target.value })}
                         />
                         <Input
                           value={row.away_team}
                           aria-label="Bortalag"
                           placeholder="Bortalag"
-                          disabled={saving}
+                          disabled={locked(index)}
                           onChange={(event) => update(index, { away_team: event.target.value })}
                         />
                         <Input
                           className="sm:col-span-2"
                           value={row.location}
                           aria-label="Plats"
-                          disabled={saving}
+                          disabled={locked(index)}
                           placeholder="Plats"
                           onChange={(event) => update(index, { location: event.target.value })}
                         />
                       </div>
                     </div>
-                    {row.needsReview && (
+                    {row.needsReview && status[index]?.kind !== "saved" && (
                       <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
                         Kontrollera datum, tid och lagnamn.
+                      </p>
+                    )}
+                    {status[index]?.kind === "waiting" && (
+                      <p className="text-xs text-muted-foreground">Väntar…</p>
+                    )}
+                    {status[index]?.kind === "saving" && (
+                      <p className="text-xs text-muted-foreground">Sparar…</p>
+                    )}
+                    {status[index]?.kind === "saved" && (
+                      <p className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" /> Sparad i kalendern
+                      </p>
+                    )}
+                    {status[index]?.kind === "error" && (
+                      <p className="text-xs font-medium text-destructive">
+                        Kunde inte sparas: {(status[index] as { message: string }).message}
                       </p>
                     )}
                   </li>
@@ -356,7 +406,11 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                   onClick={() => void create()}
                   disabled={saving || chosen.size === 0}
                 >
-                  {saving ? "Sparar…" : `Skapa ${chosen.size} matcher`}
+                  {saving
+                    ? "Sparar…"
+                    : failedCount > 0
+                      ? `Försök igen med ${chosen.size} matcher`
+                      : `Skapa ${chosen.size} matcher`}
                 </Button>
               </div>
             </div>
