@@ -490,7 +490,6 @@ export function TacticEditor({ id }: { id: string }) {
     const ballPos = { x: Math.min(0.95, front.x + 0.05), y: Math.min(0.95, front.y + 0.05) };
 
     const pitchTarget = pitchForFormation(formation.players);
-    if (pitchTarget !== tactic.data?.pitch_type) changePitch.mutate(pitchTarget);
 
     commit(
       (prev) =>
