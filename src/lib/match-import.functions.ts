@@ -140,6 +140,7 @@ async function fetchPageText(rawUrl: string): Promise<string> {
   let url = assertPublicUrl(rawUrl);
   let response: Response | null = null;
   for (let hop = 0; hop < 4; hop += 1) {
+    await assertPublicResolution(url.hostname);
     response = await fetch(url.toString(), {
       redirect: "manual",
       headers: { "User-Agent": "Fotbollsrummet matchimport" },
