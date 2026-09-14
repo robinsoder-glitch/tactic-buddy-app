@@ -43,6 +43,19 @@ export function PlanStatusBadgePending({ className = "" }: { className?: string 
   );
 }
 
+/** Visas när underlaget inte kunde hämtas – vi påstår aldrig "ej planerad" då. */
+export function PlanStatusBadgeUnknown({ className = "" }: { className?: string }) {
+  return (
+    <span
+      data-status="unknown"
+      title="Planeringsunderlaget kunde inte hämtas just nu."
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground ${className}`}
+    >
+      Status okänd
+    </span>
+  );
+}
+
 /** Färgad markering till vänster i listorna. */
 export function planStatusBar(status: PlanStatus): string {
   return status === "done" ? "bg-emerald-500" : "bg-destructive";

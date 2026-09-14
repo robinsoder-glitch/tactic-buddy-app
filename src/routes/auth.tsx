@@ -248,14 +248,13 @@ function AuthPage() {
         </p>
       </section>
       <div className="order-1 w-full rounded-2xl border border-border bg-card p-6 shadow-xl lg:order-2">
-        {mode === "signup" && (
-          <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1 text-muted-foreground">
-            <Link to="/">
-              <ArrowLeft className="size-4" aria-hidden />
-              Tillbaka
-            </Link>
-          </Button>
-        )}
+        {/* Återvägen till startsidan ska alltid finnas, även vid inloggning. */}
+        <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1 text-muted-foreground">
+          <Link to="/">
+            <ArrowLeft className="size-4" aria-hidden />
+            Till startsidan
+          </Link>
+        </Button>
         <BrandLogo
           size={32}
           nameClassName="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary"

@@ -23,6 +23,7 @@ import { coachSummary, fetchEventCoaches } from "@/lib/event-coaches";
 import {
   PlanStatusBadge,
   PlanStatusBadgePending,
+  PlanStatusBadgeUnknown,
   planStatusBar,
 } from "@/components/PlanStatusBadge";
 import { planStatus } from "@/lib/plan-status";
@@ -165,6 +166,8 @@ function PlanTrainingPage() {
   // Statusen visas först när underlaget hämtats, annars hinner ett felaktigt
   // "Ej klar" blinka förbi.
   const statusReady = ids.length === 0 || [plans, resources].every((query) => query.isSuccess);
+  // Går underlaget inte att hämta säger vi "okänd" i stället för "ej klar".
+  const statusFailed = [plans, resources].some((query) => query.isError);
 
   /** Gemensam statusregel: klar när planen är sparad och innehåller minst en övning. */
   function statusFor(id: string) {
@@ -401,7 +404,13 @@ function PlanTrainingPage() {
                         )}
                       </span>
                     </span>
-                    {statusReady ? <PlanStatusBadge status={status} /> : <PlanStatusBadgePending />}
+                    {statusReady ? (
+                      <PlanStatusBadge status={status} />
+                    ) : statusFailed ? (
+                      <PlanStatusBadgeUnknown />
+                    ) : (
+                      <PlanStatusBadgePending />
+                    )}
                   </Link>
                 </li>
               );
@@ -485,6 +494,8 @@ function PlanTrainingPage() {
                 <div className="mt-2">
                   {statusReady ? (
                     <PlanStatusBadge status={statusFor(selected.id)} />
+                  ) : statusFailed ? (
+                    <PlanStatusBadgeUnknown />
                   ) : (
                     <PlanStatusBadgePending />
                   )}

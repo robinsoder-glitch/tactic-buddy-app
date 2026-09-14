@@ -51,8 +51,12 @@ const SCHEMA = {
   required: ["matches"],
 } as const;
 
-/** Hämtar en publik sida och gör om den till läsbar text. */
-async function fetchPageText(rawUrl: string): Promise<string> {
+/**
+ * Släpper bara igenom publika webbadresser. Interna namn, IP-adresser och
+ * inloggningsuppgifter i länken stoppas, så importen inte kan användas för att
+ * nå tjänster inne i vårt eget nät.
+ */
+export function assertPublicUrl(rawUrl: string): URL {
   let url: URL;
   try {
     url = new URL(rawUrl);
@@ -62,21 +66,50 @@ async function fetchPageText(rawUrl: string): Promise<string> {
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error("Bara vanliga webbadresser (http/https) går att läsa in.");
   }
-  const host = url.hostname.toLowerCase();
+  if (url.username || url.password) {
+    throw new Error("Länkar med inloggningsuppgifter går inte att läsa in.");
+  }
+  const host = url.hostname.toLowerCase().replace(/\.$/, "");
+  const blockedSuffix = [".local", ".internal", ".localhost", ".home.arpa"];
   if (
     host === "localhost" ||
-    host.endsWith(".local") ||
-    /^\d+\.\d+\.\d+\.\d+$/.test(host) ||
-    host === "[::1]"
+    !host.includes(".") ||
+    blockedSuffix.some((suffix) => host.endsWith(suffix)) ||
+    host.startsWith("[") || // IPv6-literal
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || // alla IPv4-literaler
+    /^\d+$/.test(host) ||
+    /^0x/i.test(host)
   ) {
     throw new Error("Den här adressen går inte att läsa in.");
   }
+  return url;
+}
 
-  const response = await fetch(url.toString(), {
-    redirect: "follow",
-    headers: { "User-Agent": "Fotbollsrummet matchimport" },
-    signal: AbortSignal.timeout(20_000),
-  });
+/** Hämtar en publik sida och gör om den till läsbar text. */
+async function fetchPageText(rawUrl: string): Promise<string> {
+  // Omdirigeringar följs manuellt så varje ny adress kontrolleras på nytt.
+  let url = assertPublicUrl(rawUrl);
+  let response: Response | null = null;
+  for (let hop = 0; hop < 4; hop += 1) {
+    response = await fetch(url.toString(), {
+      redirect: "manual",
+      headers: { "User-Agent": "Fotbollsrummet matchimport" },
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) break;
+      url = assertPublicUrl(new URL(location, url).toString());
+      continue;
+    }
+    break;
+  }
+  if (!response) {
+    throw new Error("Sidan gick inte att hämta. Ladda upp en PDF i stället.");
+  }
+  if (response.status >= 300 && response.status < 400) {
+    throw new Error("Sidan skickar vidare för många gånger. Ladda upp en PDF i stället.");
+  }
   if (!response.ok) {
     throw new Error(`Sidan svarade med fel (${response.status}). Ladda upp en PDF i stället.`);
   }
