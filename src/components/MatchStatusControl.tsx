@@ -62,6 +62,7 @@ export function MatchStatusControl({ eventId, teamId, status, size = "md" }: Pro
       setCurrent(previous);
       toast.error(error instanceof Error ? error.message : "Kunde inte ändra statusen.");
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }
