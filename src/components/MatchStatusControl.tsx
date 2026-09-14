@@ -51,6 +51,7 @@ export function MatchStatusControl({ eventId, teamId, status, size = "md" }: Pro
     if (!isMatchStatus(next)) return;
     const previous = current;
     setCurrent(next);
+    busyRef.current = true;
     setBusy(true);
     try {
       await setMatchStatus(eventId, next);
