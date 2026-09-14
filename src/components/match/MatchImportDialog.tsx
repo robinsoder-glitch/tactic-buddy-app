@@ -221,7 +221,9 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
             </DialogDescription>
           </DialogHeader>
 
-          {!rows && (
+          {/* Hittades inga nya matcher visas inläsningen igen med meddelandet,
+              så en ny fil eller länk kan väljas utan att stänga rutan. */}
+          {(!rows || rows.length === 0) && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="match-import-file">
