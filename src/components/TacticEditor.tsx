@@ -272,25 +272,34 @@ export function TacticEditor({ id }: { id: string }) {
 
   const isDraft = Boolean(tactic.data?.is_draft);
 
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Inte inloggad");
+      // Det som faktiskt skickas sparas undan. Hinner något ändras under
+      // sparningen får svaret inte släcka "Osparat".
+      const snapshot = framesRef.current;
+      await saveFrames(id, user.id, snapshot);
+      return snapshot;
+    },
+    onSuccess: (snapshot) => {
+      if (framesRef.current === snapshot) setDirty(false);
+      queryClient.invalidateQueries({ queryKey: ["tactics"] });
+    },
+    onError: () => toast.error("Kunde inte spara"),
+  });
+
   const changePitch = useMutation({
-    mutationFn: (pitchType: PitchType) => setTacticPitchType(id, pitchType),
+    // Plantypen hämtar om taktiken efteråt – därför sparas pågående ändringar
+    // först, annars skrivs de över av serverns version.
+    mutationFn: async (pitchType: PitchType) => {
+      await save.mutateAsync();
+      await setTacticPitchType(id, pitchType);
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["tactic", id] });
       void queryClient.invalidateQueries({ queryKey: ["tactics"] });
     },
     onError: () => toast.error("Det gick inte att byta plantyp."),
-  });
-
-  const save = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error("Inte inloggad");
-      await saveFrames(id, user.id, frames);
-    },
-    onSuccess: () => {
-      setDirty(false);
-      queryClient.invalidateQueries({ queryKey: ["tactics"] });
-    },
-    onError: () => toast.error("Kunde inte spara"),
   });
 
   /** Spara med eget namn – namnet ändras bara om användaren skrivit något nytt. */
@@ -481,7 +490,6 @@ export function TacticEditor({ id }: { id: string }) {
     const ballPos = { x: Math.min(0.95, front.x + 0.05), y: Math.min(0.95, front.y + 0.05) };
 
     const pitchTarget = pitchForFormation(formation.players);
-    if (pitchTarget !== tactic.data?.pitch_type) changePitch.mutate(pitchTarget);
 
     commit(
       (prev) =>
@@ -498,6 +506,11 @@ export function TacticEditor({ id }: { id: string }) {
         })),
       `Formation ${formation.label}`,
     );
+    // Plantypen byts efter att formationen lagts ut, så sparningen i bytet tar
+    // med de nya spelarna i stället för den gamla uppställningen.
+    if (pitchTarget !== tactic.data?.pitch_type) {
+      setTimeout(() => changePitch.mutate(pitchTarget), 0);
+    }
     toast.success(`Formation ${formation.label} placerad.`);
   }
 

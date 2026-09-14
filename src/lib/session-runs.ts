@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { fetchCoachSession, fetchSessionItems } from "./coach-sessions";
 
 /** Ett pågående eller avslutat genomförande av ett träningspass. */
 export type SessionRun = {
@@ -143,38 +142,14 @@ export async function fetchRunItems(runId: string): Promise<SessionRunItem[]> {
  * så att det aldrig kan finnas två aktiva genomföranden av samma pass.
  */
 export async function startRun(sessionId: string, eventId?: string | null): Promise<SessionRun> {
-  const existing = await fetchActiveRun(sessionId);
-  if (existing) return existing;
-
-  const [session, items] = await Promise.all([
-    fetchCoachSession(sessionId),
-    fetchSessionItems(sessionId),
-  ]);
-  if (!session) throw new Error("Träningspasset kunde inte hittas.");
-  if (items.length === 0)
-    throw new Error("Passet saknar innehåll. Lägg till minst en del innan du startar.");
-
-  const { data, error } = await supabase
-    .from("session_runs")
-    .insert({ session_id: sessionId, team_id: session.team_id, event_id: eventId ?? null })
-    .select(RUN_COLUMNS)
-    .single();
+  // Genomförandet och alla dess moment skapas i ett enda databasanrop, så det
+  // aldrig kan bli ett halvstartat pass om något går fel på vägen.
+  const { data, error } = await supabase.rpc("start_session_run", {
+    _session_id: sessionId,
+    ...(eventId ? { _event_id: eventId } : {}),
+  });
   if (error) throw error;
-  const run = data as unknown as SessionRun;
-
-  const { error: itemError } = await supabase.from("session_run_items").insert(
-    items.map((item, index) => ({
-      run_id: run.id,
-      item_id: item.id,
-      kind: item.kind,
-      title: item.title,
-      resource_id: item.resource_id,
-      planned_minutes: item.minutes,
-      sort_order: index,
-    })),
-  );
-  if (itemError) throw itemError;
-  return run;
+  return data as unknown as SessionRun;
 }
 
 export async function patchRun(runId: string, patch: Partial<SessionRun>) {
@@ -264,54 +239,31 @@ export async function setRunPlayerNote(runId: string, playerId: string, note: st
 }
 
 /**
- * Avslutar genomförandet: sparar tiden för det sista momentet, sätter sluttid
- * och markerar passet som genomfört. Närvaron speglas till lagets aktivitet
- * när passet är kopplat till en träning i kalendern.
+ * Avslutar genomförandet i ett enda databasanrop: sista momentets tid, närvaron
+ * till lagets aktivitet samt passets och genomförandets status sparas
+ * tillsammans. Returnerar momenten som de ser ut efteråt, så sammanfattningen
+ * visar rätt tid direkt.
  */
 export async function finishRun(input: {
   run: SessionRun;
   items: SessionRunItem[];
-  userId: string;
-}) {
-  const { run, items, userId } = input;
+  userId?: string;
+}): Promise<SessionRunItem[]> {
+  const { run, items } = input;
   const current = items[run.current_index];
-  if (current && current.status === "pending") {
-    const seconds = currentItemSeconds(run, items, Date.now());
-    await patchRunItem(current.id, { actual_seconds: Math.round(seconds), status: "done" });
-  }
+  const seconds =
+    current && current.status === "pending"
+      ? Math.round(currentItemSeconds(run, items, Date.now()))
+      : null;
 
-  // Närvaron skrivs över till aktiviteten först. Går det inte avslutas passet
-  // inte heller, så tränaren kan försöka igen utan att närvaron tappas bort.
-  if (run.event_id && run.team_id) {
-    const attendance = await fetchRunAttendance(run.id);
-    if (attendance.length > 0) {
-      const { error: attendanceError } = await supabase.from("event_attendance").upsert(
-        attendance.map((row) => ({
-          event_id: run.event_id as string,
-          team_id: run.team_id as string,
-          player_id: row.player_id,
-          status: row.status,
-          created_by: userId,
-          registered_by: userId,
-          updated_by: userId,
-        })),
-        { onConflict: "event_id,player_id" },
-      );
-      if (attendanceError) throw attendanceError;
-    }
-  }
-
-  const { error } = await supabase
-    .from("coach_sessions")
-    .update({ status: "done" })
-    .eq("id", run.session_id);
-  if (error) throw error;
-
-  await patchRun(run.id, {
-    status: "done",
-    ended_at: new Date().toISOString(),
-    paused_at: null,
+  const { data, error } = await supabase.rpc("finish_session_run", {
+    _run_id: run.id,
+    ...(current && current.status === "pending" && seconds !== null
+      ? { _last_item_id: current.id, _last_seconds: seconds }
+      : {}),
   });
+  if (error) throw error;
+  return (data ?? []) as unknown as SessionRunItem[];
 }
 
 /** Alla genomföranden som är kopplade till en aktivitet. */

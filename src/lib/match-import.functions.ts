@@ -85,12 +85,65 @@ export function assertPublicUrl(rawUrl: string): URL {
   return url;
 }
 
+/** Sant för adresser i privata eller lokala nät. */
+export function isPrivateAddress(address: string): boolean {
+  const value = address
+    .trim()
+    .toLowerCase()
+    .replace(/^\[|\]$/g, "");
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(value);
+  if (ipv4) {
+    const [a, b] = [Number(ipv4[1]), Number(ipv4[2])];
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 198 && (b === 18 || b === 19)) ||
+      a >= 224
+    );
+  }
+  if (value === "::" || value === "::1") return true;
+  if (value.startsWith("::ffff:")) return isPrivateAddress(value.slice(7));
+  return /^(fc|fd|fe8|fe9|fea|feb)/.test(value);
+}
+
+/**
+ * Slår upp värdnamnet och stoppar adresser som pekar in i ett privat nät.
+ * Saknas namnuppslag i körmiljön görs ingen extra kontroll.
+ */
+async function assertPublicResolution(host: string): Promise<void> {
+  let lookup:
+    ((hostname: string, options: { all: true }) => Promise<{ address: string }[]>) | null = null;
+  try {
+    ({ lookup } = (await import("node:dns/promises")) as unknown as {
+      lookup: (hostname: string, options: { all: true }) => Promise<{ address: string }[]>;
+    });
+  } catch {
+    return;
+  }
+  if (!lookup) return;
+  let records: { address: string }[];
+  try {
+    records = await lookup(host, { all: true });
+  } catch {
+    return;
+  }
+  if (records.some((record) => isPrivateAddress(record.address))) {
+    throw new Error("Den här adressen går inte att läsa in.");
+  }
+}
+
 /** Hämtar en publik sida och gör om den till läsbar text. */
 async function fetchPageText(rawUrl: string): Promise<string> {
   // Omdirigeringar följs manuellt så varje ny adress kontrolleras på nytt.
   let url = assertPublicUrl(rawUrl);
   let response: Response | null = null;
   for (let hop = 0; hop < 4; hop += 1) {
+    await assertPublicResolution(url.hostname);
     response = await fetch(url.toString(), {
       redirect: "manual",
       headers: { "User-Agent": "Fotbollsrummet matchimport" },

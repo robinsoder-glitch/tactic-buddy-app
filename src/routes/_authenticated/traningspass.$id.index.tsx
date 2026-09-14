@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -59,6 +59,7 @@ function SessionBuilder() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { confirm, confirmDialog } = useConfirm();
 
   const session = useQuery({
@@ -105,6 +106,28 @@ function SessionBuilder() {
     onError: (error: Error) =>
       toast.error(error.message || "Det gick inte att spara träningspasset."),
   });
+
+  /**
+   * Titel, mål och anteckningar ligger bara lokalt tills de sparas. Därför
+   * sparas de innan man lämnar sidan för Träningsbanken – annars försvinner de.
+   */
+  async function goToDrillBank() {
+    const current = session.data;
+    const changed =
+      draft &&
+      current &&
+      (Object.keys(draft) as (keyof SessionDraft)[]).some(
+        (key) => (draft[key] ?? null) !== (current[key] ?? null),
+      );
+    if (changed) {
+      try {
+        await saveInfo.mutateAsync();
+      } catch {
+        return; // felet visas redan – stanna kvar så inget går förlorat
+      }
+    }
+    void navigate({ to: "/ovningsbank", search: { sessionId: id } });
+  }
 
   const setStatus = useMutation({
     mutationFn: (status: string) => updateCoachSession(id, { status }),
@@ -341,13 +364,14 @@ function SessionBuilder() {
             >
               <Plus className="size-4" /> Lägg till del
             </Button>
-            <Link
-              to="/ovningsbank"
-              search={{ sessionId: id }}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary sm:w-auto"
+            <button
+              type="button"
+              onClick={() => void goToDrillBank()}
+              disabled={saveInfo.isPending}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-border px-3 text-sm hover:border-primary disabled:opacity-60 sm:w-auto"
             >
               <BookOpen className="size-4" aria-hidden /> Hämta från Träningsbanken
-            </Link>
+            </button>
           </div>
         </div>
 

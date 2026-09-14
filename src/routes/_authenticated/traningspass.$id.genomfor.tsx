@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchCoachSession, ITEM_KIND_LABELS, type ItemKind } from "@/lib/coach-sessions";
-import { fetchSessionLinks } from "@/lib/event-planning";
+import { fetchSessionLinks, pickRunEventLink } from "@/lib/event-planning";
 import { fetchTeamPlayers } from "@/lib/teams";
 import {
   addMinute,
@@ -144,7 +144,7 @@ function RunSession() {
   };
 
   const begin = useMutation({
-    mutationFn: () => startRun(id, links.data?.[0]?.event_id ?? null),
+    mutationFn: () => startRun(id, pickRunEventLink(links.data ?? [])?.event_id ?? null),
     onSuccess: () => {
       refresh();
       toast.success("Träningen är igång");
@@ -206,10 +206,12 @@ function RunSession() {
       if (!run.data || !user) return;
       if (generalNote !== (run.data.general_note ?? ""))
         await patchRun(run.data.id, { general_note: generalNote });
-      await finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
+      return finishRun({ run: run.data, items: items.data ?? [], userId: user.id });
     },
-    onSuccess: () => {
-      const done = runSummary(items.data ?? []);
+    onSuccess: (saved) => {
+      // Sammanfattningen räknas på momenten som de ser ut efter sparningen,
+      // annars saknas sista momentets tid.
+      const done = runSummary(saved ?? items.data ?? []);
       setFinishedSummary({ ...done, attendance: attendance.data?.length ?? 0 });
       setConfirmEnd(false);
       setSummaryOpen(true);
@@ -320,8 +322,13 @@ function RunSession() {
           anteckningar.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Button size="lg" onClick={() => begin.mutate()} disabled={begin.isPending}>
-            <Play className="mr-2 size-5" /> Starta träning
+          <Button
+            size="lg"
+            onClick={() => begin.mutate()}
+            disabled={begin.isPending || links.isPending}
+          >
+            <Play className="mr-2 size-5" />{" "}
+            {links.isPending ? "Hämtar kopplingar…" : "Starta träning"}
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link to="/traningspass/$id" params={{ id }}>

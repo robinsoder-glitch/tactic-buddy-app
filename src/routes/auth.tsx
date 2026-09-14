@@ -153,7 +153,7 @@ function AuthPage() {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: authReturnUrl(),
           // Hela registreringsunderlaget följer med kontot – fungerar även om
           // bekräftelselänken öppnas på en annan telefon eller dator.
           data: setupToMetadata(setup),
@@ -220,10 +220,16 @@ function AuthPage() {
     }
   }
 
+  /** Returadressen följer med tillbaka hit efter inloggning i en annan tjänst. */
+  function authReturnUrl() {
+    const base = `${window.location.origin}/auth`;
+    return nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
+  }
+
   async function handleGoogle() {
     if (mode === "signup" && role) storeSetup(setup);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: authReturnUrl(),
     });
     if (result.error) {
       toast.error("Kunde inte logga in med Google");
