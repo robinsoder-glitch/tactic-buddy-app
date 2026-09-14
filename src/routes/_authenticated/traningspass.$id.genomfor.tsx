@@ -144,7 +144,7 @@ function RunSession() {
   };
 
   const begin = useMutation({
-    mutationFn: () => startRun(id, links.data?.[0]?.event_id ?? null),
+    mutationFn: () => startRun(id, pickRunEventLink(links.data ?? [])?.event_id ?? null),
     onSuccess: () => {
       refresh();
       toast.success("Träningen är igång");
