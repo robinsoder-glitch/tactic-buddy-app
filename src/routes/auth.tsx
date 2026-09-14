@@ -28,6 +28,13 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
 import { safeNextPath } from "@/lib/invite-links";
 import { authModeFromSearch, authSearchForMode } from "@/lib/auth-mode";
+import {
+  closeExternalBrowser,
+  isNativeApp,
+  nativeAuthReturnUrl,
+  onAppUrlOpen,
+  openExternalBrowser,
+} from "@/lib/capacitor";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => ({
@@ -91,6 +98,37 @@ function AuthPage() {
       if (data.session) navigate({ to: nextPath ?? "/" });
     });
   }, [navigate, nextPath]);
+
+  // I Capacitor-appen tar systemwebbläsaren över vid OAuth. När användaren
+  // kommer tillbaka via deep link (fotbollsrummet://auth#access_token=...) hämtar
+  // vi ut token och sätter sessionen.
+  useEffect(() => {
+    if (!isNativeApp()) return;
+    let unsub: (() => void) | undefined;
+    onAppUrlOpen(async ({ url }) => {
+      const parsed = new URL(url);
+      const hashParams = new URLSearchParams(parsed.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const deepNext = safeNextPath(parsed.searchParams.get("next") ?? undefined);
+      if (!accessToken) return;
+      try {
+        await closeExternalBrowser();
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken ?? "",
+        });
+        if (error) throw error;
+        await queryClient.invalidateQueries();
+        void navigate({ to: deepNext ?? nextPath ?? "/" });
+      } catch (e) {
+        toast.error(friendlyError(e, "Kunde inte slutföra inloggningen"));
+      }
+    }).then((unsubscribe) => {
+      unsub = unsubscribe;
+    });
+    return () => unsub?.();
+  }, [navigate, nextPath, queryClient]);
 
   function chooseRole(next: AccountRole) {
     setRole(next);
@@ -222,12 +260,31 @@ function AuthPage() {
 
   /** Returadressen följer med tillbaka hit efter inloggning i en annan tjänst. */
   function authReturnUrl() {
+    if (isNativeApp()) {
+      const base = nativeAuthReturnUrl();
+      return nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
+    }
     const base = `${window.location.origin}/auth`;
     return nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
   }
 
   async function handleGoogle() {
     if (mode === "signup" && role) storeSetup(setup);
+    if (isNativeApp()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: authReturnUrl(),
+          skipBrowserRedirect: true,
+        },
+      });
+      if (error) {
+        toast.error("Kunde inte förbereda Google-inloggningen");
+        return;
+      }
+      if (data?.url) await openExternalBrowser(data.url);
+      return;
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: authReturnUrl(),
     });
