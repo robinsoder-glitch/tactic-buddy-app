@@ -116,10 +116,22 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
     }
   }
 
+  /** Sparade rader är låsta, övriga går att ändra. */
+  function locked(index: number) {
+    return saving || status[index]?.kind === "saved";
+  }
+
   function update(index: number, patch: Partial<ImportedMatch>) {
     setRows((current) =>
       (current ?? []).map((row, position) => (position === index ? { ...row, ...patch } : row)),
     );
+    // En rättad rad ska inte fortsätta visa det gamla felet.
+    setStatus((current) => {
+      if (current[index]?.kind !== "error") return current;
+      const next = { ...current };
+      delete next[index];
+      return next;
+    });
   }
 
   function toggle(index: number) {
