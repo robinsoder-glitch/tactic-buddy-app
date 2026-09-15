@@ -85,6 +85,30 @@ export function assertPublicUrl(rawUrl: string): URL {
   return url;
 }
 
+/** Expanderar en IPv6-adress till åtta hexgrupper. Null när formatet inte är IPv6. */
+function expandIpv6(value: string): number[] | null {
+  if (!value.includes(":")) return null;
+  const zone = value.split("%")[0] ?? value;
+  const halves = zone.split("::");
+  if (halves.length > 2) return null;
+  const parse = (part: string): number[] | null => {
+    if (!part) return [];
+    const out: number[] = [];
+    for (const group of part.split(":")) {
+      if (!/^[0-9a-f]{1,4}$/.test(group)) return null;
+      out.push(parseInt(group, 16));
+    }
+    return out;
+  };
+  const head = parse(halves[0] ?? "");
+  const tail = halves.length === 2 ? parse(halves[1] ?? "") : [];
+  if (!head || !tail) return null;
+  if (halves.length === 1) return head.length === 8 ? head : null;
+  const missing = 8 - head.length - tail.length;
+  if (missing < 0) return null;
+  return [...head, ...Array.from({ length: missing }, () => 0), ...tail];
+}
+
 /** Sant för adresser i privata eller lokala nät. */
 export function isPrivateAddress(address: string): boolean {
   const value = address
