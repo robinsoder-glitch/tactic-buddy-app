@@ -111,7 +111,7 @@ function SessionBuilder() {
    * Titel, mål och anteckningar ligger bara lokalt tills de sparas. Därför
    * sparas de innan man lämnar sidan för Träningsbanken – annars försvinner de.
    */
-  async function goToDrillBank() {
+  async function saveDraftBeforeLeaving(): Promise<boolean> {
     const current = session.data;
     const changed =
       draft &&
@@ -119,14 +119,24 @@ function SessionBuilder() {
       (Object.keys(draft) as (keyof SessionDraft)[]).some(
         (key) => (draft[key] ?? null) !== (current[key] ?? null),
       );
-    if (changed) {
-      try {
-        await saveInfo.mutateAsync();
-      } catch {
-        return; // felet visas redan – stanna kvar så inget går förlorat
-      }
+    if (!changed) return true;
+    try {
+      await saveInfo.mutateAsync();
+      return true;
+    } catch {
+      return false; // felet visas redan – stanna kvar så inget går förlorat
     }
+  }
+
+  async function goToDrillBank() {
+    if (!(await saveDraftBeforeLeaving())) return;
     void navigate({ to: "/ovningsbank", search: { sessionId: id } });
+  }
+
+  /** Visa/Genomför får samma spärr som Träningsbanken, så inget osparat tappas. */
+  async function goTo(to: "/traningspass/$id/visa" | "/traningspass/$id/genomfor") {
+    if (!(await saveDraftBeforeLeaving())) return;
+    void navigate({ to, params: { id } });
   }
 
   const setStatus = useMutation({
@@ -213,7 +223,11 @@ function SessionBuilder() {
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="space-y-3">
         <div className="flex items-start gap-2">
-          <BackIconButton fallback="/traningspass" label="Tillbaka till Mina träningar" />
+          <BackIconButton
+            fallback="/traningspass"
+            label="Tillbaka till Mina träningar"
+            beforeNavigate={saveDraftBeforeLeaving}
+          />
           <div className="min-w-0 flex-1">
             <p className="font-display text-xs tracking-[0.3em] text-primary">Bygg träningspass</p>
             <h1 className="font-display text-xl font-bold break-words sm:text-2xl">
@@ -222,15 +236,24 @@ function SessionBuilder() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
-          <Button asChild variant="outline" className="min-h-11 w-full sm:w-auto">
-            <Link to="/traningspass/$id/visa" params={{ id }} aria-label="Visa träningspass">
-              Visa träningspass
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full sm:w-auto"
+            aria-label="Visa träningspass"
+            disabled={saveInfo.isPending}
+            onClick={() => void goTo("/traningspass/$id/visa")}
+          >
+            Visa träningspass
           </Button>
-          <Button asChild className="min-h-11 w-full sm:w-auto">
-            <Link to="/traningspass/$id/genomfor" params={{ id }} aria-label="Genomför träningen">
-              Genomför träning
-            </Link>
+          <Button
+            type="button"
+            className="min-h-11 w-full sm:w-auto"
+            aria-label="Genomför träningen"
+            disabled={saveInfo.isPending}
+            onClick={() => void goTo("/traningspass/$id/genomfor")}
+          >
+            Genomför träning
           </Button>
         </div>
       </header>
