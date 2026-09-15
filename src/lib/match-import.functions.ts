@@ -180,7 +180,10 @@ async function assertPublicResolution(host: string): Promise<void> {
   try {
     records = await lookup(host, { all: true });
   } catch {
-    return;
+    throw new Error("Den här adressen går inte att läsa in.");
+  }
+  if (records.length === 0) {
+    throw new Error("Den här adressen går inte att läsa in.");
   }
   if (records.some((record) => isPrivateAddress(record.address))) {
     throw new Error("Den här adressen går inte att läsa in.");
