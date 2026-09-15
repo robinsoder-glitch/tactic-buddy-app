@@ -325,10 +325,14 @@ function RunSession() {
           <Button
             size="lg"
             onClick={() => begin.mutate()}
-            disabled={begin.isPending || links.isPending}
+            disabled={begin.isPending || links.isPending || links.isError}
           >
             <Play className="mr-2 size-5" />{" "}
-            {links.isPending ? "Hämtar kopplingar…" : "Starta träning"}
+            {links.isPending
+              ? "Hämtar kopplingar…"
+              : links.isError
+                ? "Kopplingar kunde inte hämtas"
+                : "Starta träning"}
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link to="/traningspass/$id" params={{ id }}>
