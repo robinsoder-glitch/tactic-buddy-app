@@ -46,13 +46,25 @@ export function BackLink({ fallback, children = "Tillbaka", className }: BackLin
 export function BackIconButton({
   fallback,
   label = "Tillbaka",
+  beforeNavigate,
 }: {
   fallback: string;
   label?: string;
+  /** Körs före navigeringen. Returnerar false för att stanna kvar på sidan. */
+  beforeNavigate?: () => Promise<boolean>;
 }) {
   const goBack = useSmartBack(fallback);
+  const handleClick = () => {
+    if (!beforeNavigate) {
+      goBack();
+      return;
+    }
+    void beforeNavigate().then((ok) => {
+      if (ok) goBack();
+    });
+  };
   return (
-    <Button type="button" variant="ghost" size="icon" aria-label={label} onClick={goBack}>
+    <Button type="button" variant="ghost" size="icon" aria-label={label} onClick={handleClick}>
       <ArrowLeft className="size-5" />
     </Button>
   );
