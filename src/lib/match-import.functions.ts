@@ -130,9 +130,35 @@ export function isPrivateAddress(address: string): boolean {
       a >= 224
     );
   }
-  if (value === "::" || value === "::1") return true;
-  if (value.startsWith("::ffff:")) return isPrivateAddress(value.slice(7));
-  return /^(fc|fd|fe8|fe9|fea|feb)/.test(value);
+  if (value.includes(".") && value.includes(":")) {
+    // Blandform, t.ex. ::ffff:127.0.0.1
+    const last = value.slice(value.lastIndexOf(":") + 1);
+    if (isPrivateAddress(last)) return true;
+  }
+  const groups = expandIpv6(value);
+  if (!groups) return false;
+  const [g0, g1, g2, g3, g4, g5, g6, g7] = groups as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  const leadingZero = g0 === 0 && g1 === 0 && g2 === 0 && g3 === 0 && g4 === 0;
+  // ::, ::1 och fullt utskriven loopback
+  if (leadingZero && g5 === 0 && g6 === 0 && (g7 === 0 || g7 === 1)) return true;
+  // IPv4-mappade och IPv4-kompatibla adresser, även i hexform
+  if (leadingZero && (g5 === 0xffff || g5 === 0)) {
+    const ipv4Text = [g6 >> 8, g6 & 0xff, g7 >> 8, g7 & 0xff].join(".");
+    return isPrivateAddress(ipv4Text);
+  }
+  // Unika lokala adresser (fc00::/7) och länklokala (fe80::/10)
+  if ((g0 & 0xfe00) === 0xfc00) return true;
+  if ((g0 & 0xffc0) === 0xfe80) return true;
+  return false;
 }
 
 /**
