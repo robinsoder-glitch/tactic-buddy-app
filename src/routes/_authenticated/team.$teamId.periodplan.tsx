@@ -236,7 +236,13 @@ function PeriodPlan() {
 
       <section className="rounded-xl border border-border bg-card p-4">
         <h3 className="font-display text-lg font-semibold">Lagets perioder</h3>
-        {list.length === 0 ? (
+        {periods.isError ? (
+          <p className="mt-2 text-sm text-destructive">
+            Perioderna kunde inte hämtas. Ladda om sidan och försök igen.
+          </p>
+        ) : periods.isPending ? (
+          <p className="mt-2 text-sm text-muted-foreground">Hämtar perioder…</p>
+        ) : list.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
             Ingen period är skapad ännu. Börja med ett tema för de närmaste fyra till sex veckorna.
           </p>

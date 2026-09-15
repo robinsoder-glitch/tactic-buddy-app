@@ -99,6 +99,7 @@ export type SessionEventLink = {
   type: "training" | "match";
   title: string | null;
   team_id: string;
+  cancelled_at: string | null;
 };
 
 /** Hämtar vilka kalenderaktiviteter ett träningspass är kopplat till. */
@@ -106,13 +107,20 @@ export async function fetchSessionLinks(sessionIds: string[]): Promise<SessionEv
   if (sessionIds.length === 0) return [];
   const { data, error } = await supabase
     .from("event_resources")
-    .select("id, event_id, resource_id, team_id, events(starts_at, type, title)")
+    .select("id, event_id, resource_id, team_id, events(starts_at, type, title, cancelled_at)")
     .eq("kind", "session")
     .in("resource_id", sessionIds);
   if (error) throw error;
   return (data ?? []).map((row) => {
     const event = (
-      row as unknown as { events: { starts_at: string; type: string; title: string | null } | null }
+      row as unknown as {
+        events: {
+          starts_at: string;
+          type: string;
+          title: string | null;
+          cancelled_at: string | null;
+        } | null;
+      }
     ).events;
     return {
       id: row.id as string,
@@ -122,6 +130,7 @@ export async function fetchSessionLinks(sessionIds: string[]): Promise<SessionEv
       starts_at: event?.starts_at ?? "",
       type: (event?.type as "training" | "match") ?? "training",
       title: event?.title ?? null,
+      cancelled_at: event?.cancelled_at ?? null,
     };
   });
 }
@@ -183,7 +192,9 @@ export function pickRunEventLink(
   links: SessionEventLink[],
   nowMs: number = Date.now(),
 ): SessionEventLink | null {
-  const dated = links.filter((link) => link.starts_at && !Number.isNaN(Date.parse(link.starts_at)));
+  const dated = links.filter(
+    (link) => !link.cancelled_at && link.starts_at && !Number.isNaN(Date.parse(link.starts_at)),
+  );
   if (dated.length === 0) return null;
   const upcoming = dated
     .filter((link) => Date.parse(link.starts_at) >= nowMs - 4 * 3600_000)

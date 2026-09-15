@@ -82,8 +82,16 @@ function StatsPage() {
     URL.revokeObjectURL(url);
   }
 
+  const loadFailed = events.isError || players.isError || attendance.isError;
+
   return (
     <section className="mt-4">
+      {loadFailed && (
+        <p className="mb-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          Statistiken kunde inte hämtas, så siffrorna nedan är ofullständiga. Ladda om sidan och
+          försök igen.
+        </p>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="font-display text-xl font-bold">Statistik</h2>

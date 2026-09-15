@@ -242,6 +242,9 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
       <Dialog
         open={open}
         onOpenChange={(next) => {
+          // Rutan går inte att stänga mitt i en sparning – annars vet man inte
+          // vilka matcher som hann sparas.
+          if (!next && saving) return;
           setOpen(next);
           if (!next) reset();
         }}

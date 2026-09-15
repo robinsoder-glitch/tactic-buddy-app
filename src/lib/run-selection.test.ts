@@ -4,9 +4,10 @@ import { isPrivateAddress } from "./match-import.functions";
 
 const now = Date.parse("2026-09-14T12:00:00.000Z");
 
-function link(id: string, startsAt: string): SessionEventLink {
+function link(id: string, startsAt: string, cancelledAt: string | null = null): SessionEventLink {
   return {
     id,
+    cancelled_at: cancelledAt,
     event_id: `ev-${id}`,
     session_id: "s1",
     starts_at: startsAt,
@@ -64,5 +65,15 @@ describe("privata nätverksadresser", () => {
     for (const address of ["8.8.8.8", "172.32.0.1", "93.184.216.34", "2606:2800:220::1"]) {
       expect(isPrivateAddress(address)).toBe(false);
     }
+  });
+});
+
+describe("inställda aktiviteter", () => {
+  it("väljs inte som koppling", () => {
+    const picked = pickRunEventLink(
+      [link("instald", "2026-09-14T17:00:00.000Z", "2026-09-13T08:00:00.000Z")],
+      now,
+    );
+    expect(picked).toBeNull();
   });
 });

@@ -85,6 +85,30 @@ export function assertPublicUrl(rawUrl: string): URL {
   return url;
 }
 
+/** Expanderar en IPv6-adress till åtta hexgrupper. Null när formatet inte är IPv6. */
+function expandIpv6(value: string): number[] | null {
+  if (!value.includes(":")) return null;
+  const zone = value.split("%")[0] ?? value;
+  const halves = zone.split("::");
+  if (halves.length > 2) return null;
+  const parse = (part: string): number[] | null => {
+    if (!part) return [];
+    const out: number[] = [];
+    for (const group of part.split(":")) {
+      if (!/^[0-9a-f]{1,4}$/.test(group)) return null;
+      out.push(parseInt(group, 16));
+    }
+    return out;
+  };
+  const head = parse(halves[0] ?? "");
+  const tail = halves.length === 2 ? parse(halves[1] ?? "") : [];
+  if (!head || !tail) return null;
+  if (halves.length === 1) return head.length === 8 ? head : null;
+  const missing = 8 - head.length - tail.length;
+  if (missing < 0) return null;
+  return [...head, ...Array.from({ length: missing }, () => 0), ...tail];
+}
+
 /** Sant för adresser i privata eller lokala nät. */
 export function isPrivateAddress(address: string): boolean {
   const value = address
@@ -106,9 +130,35 @@ export function isPrivateAddress(address: string): boolean {
       a >= 224
     );
   }
-  if (value === "::" || value === "::1") return true;
-  if (value.startsWith("::ffff:")) return isPrivateAddress(value.slice(7));
-  return /^(fc|fd|fe8|fe9|fea|feb)/.test(value);
+  if (value.includes(".") && value.includes(":")) {
+    // Blandform, t.ex. ::ffff:127.0.0.1
+    const last = value.slice(value.lastIndexOf(":") + 1);
+    if (isPrivateAddress(last)) return true;
+  }
+  const groups = expandIpv6(value);
+  if (!groups) return false;
+  const [g0, g1, g2, g3, g4, g5, g6, g7] = groups as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  const leadingZero = g0 === 0 && g1 === 0 && g2 === 0 && g3 === 0 && g4 === 0;
+  // ::, ::1 och fullt utskriven loopback
+  if (leadingZero && g5 === 0 && g6 === 0 && (g7 === 0 || g7 === 1)) return true;
+  // IPv4-mappade och IPv4-kompatibla adresser, även i hexform
+  if (leadingZero && (g5 === 0xffff || g5 === 0)) {
+    const ipv4Text = [g6 >> 8, g6 & 0xff, g7 >> 8, g7 & 0xff].join(".");
+    return isPrivateAddress(ipv4Text);
+  }
+  // Unika lokala adresser (fc00::/7) och länklokala (fe80::/10)
+  if ((g0 & 0xfe00) === 0xfc00) return true;
+  if ((g0 & 0xffc0) === 0xfe80) return true;
+  return false;
 }
 
 /**
@@ -130,7 +180,10 @@ async function assertPublicResolution(host: string): Promise<void> {
   try {
     records = await lookup(host, { all: true });
   } catch {
-    return;
+    throw new Error("Den här adressen går inte att läsa in.");
+  }
+  if (records.length === 0) {
+    throw new Error("Den här adressen går inte att läsa in.");
   }
   if (records.some((record) => isPrivateAddress(record.address))) {
     throw new Error("Den här adressen går inte att läsa in.");

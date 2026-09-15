@@ -45,6 +45,8 @@ function PhotosPage() {
   const remove = useMutation({
     mutationFn: (photo: { id: string; path: string }) => deleteTeamPhoto(photo),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["team-photos", teamId] }),
+    onError: (error: Error) =>
+      toast.error(error.message || "Bilden kunde inte tas bort. Försök igen."),
   });
 
   return (
@@ -80,7 +82,15 @@ function PhotosPage() {
         </div>
       )}
 
-      {photos.data?.length === 0 && (
+      {photos.isError && (
+        <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          Bilderna kunde inte hämtas. Ladda om sidan och försök igen.
+        </p>
+      )}
+
+      {photos.isPending && <p className="mt-4 text-sm text-muted-foreground">Hämtar bilder…</p>}
+
+      {photos.isSuccess && photos.data.length === 0 && (
         <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           Inga bilder än.
         </p>
