@@ -242,7 +242,12 @@ export function TacticEditor({ id }: { id: string }) {
   const dragSession = useRef(false);
   framesRef.current = frames;
 
+  const dirtyRef = useRef(false);
+  dirtyRef.current = dirty;
+
   useEffect(() => {
+    // En omhämtning får aldrig skriva över egna osparade ändringar.
+    if (dirtyRef.current) return;
     if (tactic.data) {
       setFrames(
         // Äldre taktiker sparade vägen i källsekvensen – normaliseras till målsekvensen vid läsning.
