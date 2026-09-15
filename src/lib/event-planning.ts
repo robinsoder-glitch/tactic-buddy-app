@@ -193,8 +193,7 @@ export function pickRunEventLink(
   nowMs: number = Date.now(),
 ): SessionEventLink | null {
   const dated = links.filter(
-    (link) =>
-      !link.cancelled_at && link.starts_at && !Number.isNaN(Date.parse(link.starts_at)),
+    (link) => !link.cancelled_at && link.starts_at && !Number.isNaN(Date.parse(link.starts_at)),
   );
   if (dated.length === 0) return null;
   const upcoming = dated

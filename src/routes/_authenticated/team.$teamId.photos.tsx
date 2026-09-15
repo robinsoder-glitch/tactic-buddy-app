@@ -88,9 +88,7 @@ function PhotosPage() {
         </p>
       )}
 
-      {photos.isPending && (
-        <p className="mt-4 text-sm text-muted-foreground">Hämtar bilder…</p>
-      )}
+      {photos.isPending && <p className="mt-4 text-sm text-muted-foreground">Hämtar bilder…</p>}
 
       {photos.isSuccess && photos.data.length === 0 && (
         <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
