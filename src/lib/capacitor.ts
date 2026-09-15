@@ -33,9 +33,7 @@ export async function closeExternalBrowser(): Promise<void> {
 }
 
 /** Lyssnar efter deep links in i appen (t.ex. fotbollsrummet://auth?...). */
-export async function onAppUrlOpen(
-  handler: (data: { url: string }) => void,
-): Promise<() => void> {
+export async function onAppUrlOpen(handler: (data: { url: string }) => void): Promise<() => void> {
   const App = await getAppModule();
   const listener = await App.App.addListener("appUrlOpen", handler);
   return () => listener.remove();
