@@ -11,6 +11,9 @@ import {
   fetchPlayerStats,
   savePlayerStat,
   statTotals,
+  statFieldsForAge,
+  isYoungPlayer,
+  type StatField,
   type PlayerStatInput,
 } from "@/lib/player-stats";
 import { Button } from "@/components/ui/button";
@@ -82,6 +85,7 @@ function PlayerPage() {
     onError: () => toast.error("Kunde inte radera raden"),
   });
 
+  const fields = statFieldsForAge(ageOf(player?.birth_date));
   const age = player?.birth_date
     ? Math.floor((Date.now() - new Date(player.birth_date).getTime()) / 31557600000)
     : null;
@@ -230,7 +234,7 @@ function PlayerPage() {
               <th scope="col" className="px-3 py-2">
                 Serie/Cup
               </th>
-              {FIELDS.map(([key, short, long]) => (
+              {fields.map((key) => (
                 <th key={String(key)} scope="col" className="px-2 py-2 text-center" title={long}>
                   {short}
                 </th>
@@ -258,7 +262,7 @@ function PlayerPage() {
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-border/60 last:border-0">
                 <td className="px-3 py-2 font-medium">{row.competition}</td>
-                {FIELDS.map(([key]) => (
+                {fields.map((key) => (
                   <td key={String(key)} className="px-2 py-2 text-center tabular-nums">
                     {row[key] as number}
                   </td>
@@ -293,7 +297,7 @@ function PlayerPage() {
             {rows.length > 0 && (
               <tr className="bg-secondary/40 font-semibold">
                 <td className="px-3 py-2">Totalt</td>
-                {FIELDS.map(([key]) => (
+                {fields.map((key) => (
                   <td key={String(key)} className="px-2 py-2 text-center tabular-nums">
                     {totals[key as keyof typeof totals]}
                   </td>
@@ -329,7 +333,7 @@ function PlayerPage() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {FIELDS.map(([key, , long]) => (
+                  {fields.map((key) => (
                     <div key={String(key)} className="space-y-1.5">
                       <Label htmlFor={`stat-${String(key)}`}>{long}</Label>
                       <Input
