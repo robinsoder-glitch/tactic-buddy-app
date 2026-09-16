@@ -16,7 +16,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
-import { updateProfile, leaveTeam, deleteOwnTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { useServerFn } from "@tanstack/react-start";
+import { updateProfile, leaveTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { deleteTeamWithMembers } from "@/lib/team-delete.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
 import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
@@ -55,6 +67,8 @@ function SettingsPage() {
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [teamBusy, setTeamBusy] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+  const deleteTeam = useServerFn(deleteTeamWithMembers);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
   const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
@@ -142,17 +156,16 @@ function SettingsPage() {
   }
 
   async function removeTeam(teamId: string, teamName: string) {
-    if (
-      !window.confirm(
-        `Radera ${teamName} med alla aktiviteter, kallelser, spelare och bilder? Det går inte att ångra.`,
-      )
-    )
-      return;
     setTeamBusy(teamId);
     try {
-      await deleteOwnTeam(teamId);
+      const result = await deleteTeam({ data: { teamId } });
       await refreshTeams();
-      toast.success(`${teamName} är raderat.`);
+      setPendingDelete(null);
+      toast.success(
+        result.deleted_accounts > 0
+          ? `${teamName} är raderat. ${result.deleted_accounts} spelar- och föräldrakonton togs bort.`
+          : `${teamName} är raderat.`,
+      );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
     } finally {
@@ -415,7 +428,7 @@ function SettingsPage() {
                       variant="destructive"
                       size="sm"
                       disabled={teamBusy === group.team_id}
-                      onClick={() => removeTeam(group.team_id, teamName)}
+                      onClick={() => setPendingDelete({ id: group.team_id, name: teamName })}
                     >
                       <Trash2 className="size-4" /> Radera laget
                     </Button>
@@ -448,6 +461,36 @@ function SettingsPage() {
           </Link>
         )}
       </section>
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && teamBusy === null) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Vill du verkligen radera laget?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete?.name} raderas med alla aktiviteter, kallelser, närvaro, bilder och
+              spelare. Spelarnas och föräldrarnas konton tas bort helt om de inte är med i något
+              annat lag. Det går inte att ångra.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={teamBusy !== null}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={teamBusy !== null}
+              onClick={(event) => {
+                event.preventDefault();
+                if (pendingDelete) void removeTeam(pendingDelete.id, pendingDelete.name);
+              }}
+            >
+              Ja, radera laget
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
