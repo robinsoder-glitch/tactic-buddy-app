@@ -10,12 +10,13 @@ import {
   Palette,
   Shield,
   SlidersHorizontal,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
-import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { updateProfile, leaveTeam, deleteOwnTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
 import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
@@ -53,6 +54,7 @@ function SettingsPage() {
   const [birth, setBirth] = useState("");
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [teamBusy, setTeamBusy] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
   const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
@@ -110,6 +112,52 @@ function SettingsPage() {
     });
     if (error) toast.error(error.message);
     else toast.success("Vi har mailat en länk för att byta lösenord.");
+  }
+
+  async function refreshTeams() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["memberships"] }),
+      queryClient.invalidateQueries({ queryKey: ["my-memberships"] }),
+      queryClient.invalidateQueries({ queryKey: ["teams"] }),
+    ]);
+  }
+
+  async function leave(teamId: string, teamName: string) {
+    if (
+      !window.confirm(
+        `Vill du lämna ${teamName}? Lagets ledare får ett meddelande och du försvinner ur truppen.`,
+      )
+    )
+      return;
+    setTeamBusy(teamId);
+    try {
+      await leaveTeam(teamId);
+      await refreshTeams();
+      toast.success(`Du har lämnat ${teamName}. Lagets ledare är informerade.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte lämna laget");
+    } finally {
+      setTeamBusy(null);
+    }
+  }
+
+  async function removeTeam(teamId: string, teamName: string) {
+    if (
+      !window.confirm(
+        `Radera ${teamName} med alla aktiviteter, kallelser, spelare och bilder? Det går inte att ångra.`,
+      )
+    )
+      return;
+    setTeamBusy(teamId);
+    try {
+      await deleteOwnTeam(teamId);
+      await refreshTeams();
+      toast.success(`${teamName} är raderat.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
+    } finally {
+      setTeamBusy(null);
+    }
   }
 
   const phoneProblem = phoneError(phone);
@@ -326,34 +374,66 @@ function SettingsPage() {
         {approvedTeams.length === 0 && (
           <p className="text-sm text-muted-foreground">Du är inte med i något lag ännu.</p>
         )}
-        {approvedTeams.map((group) => (
-          <Link
-            key={group.team_id}
-            to="/team/$teamId"
-            params={{ teamId: group.team_id }}
-            className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2 text-sm"
-          >
-            <span className="truncate">
-              {group.team?.name ?? "Lag"}
-              {group.team?.gender && (
-                <span className="text-muted-foreground">
-                  {" "}
-                  · {TEAM_GENDER_LABELS[group.team.gender]}
+        {approvedTeams.map((group) => {
+          const isOwner = Boolean(userId && group.team?.created_by === userId);
+          const teamName = group.team?.name ?? "laget";
+          return (
+            <div key={group.team_id} className="rounded-xl border border-border px-3 py-2">
+              <Link
+                to="/team/$teamId"
+                params={{ teamId: group.team_id }}
+                className="flex items-center justify-between gap-2 text-sm"
+              >
+                <span className="truncate">
+                  {group.team?.name ?? "Lag"}
+                  {group.team?.gender && (
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {TEAM_GENDER_LABELS[group.team.gender]}
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-            <span className="flex shrink-0 flex-wrap justify-end gap-1">
-              {membershipRoleLabels(group.roles).map((label) => (
-                <span
-                  key={label}
-                  className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-                >
-                  {label}
+                <span className="flex shrink-0 flex-wrap justify-end gap-1">
+                  {membershipRoleLabels(group.roles).map((label) => (
+                    <span
+                      key={label}
+                      className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                    >
+                      {label}
+                    </span>
+                  ))}
                 </span>
-              ))}
-            </span>
-          </Link>
-        ))}
+              </Link>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {isOwner ? (
+                  <>
+                    <p className="w-full text-xs text-muted-foreground">
+                      Du har skapat laget. Då kan du inte lämna det – lämna över till en annan
+                      ledare eller radera laget.
+                    </p>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={teamBusy === group.team_id}
+                      onClick={() => removeTeam(group.team_id, teamName)}
+                    >
+                      <Trash2 className="size-4" /> Radera laget
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={teamBusy === group.team_id}
+                    onClick={() => leave(group.team_id, teamName)}
+                  >
+                    <LogOut className="size-4" /> Lämna laget
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
         {isCoach && (
           <Link to="/teams" className="text-sm text-primary underline-offset-4 hover:underline">
             Hantera lag

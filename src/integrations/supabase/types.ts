@@ -2953,6 +2953,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_own_team: { Args: { _team_id: string }; Returns: Json }
       find_team_by_code: {
         Args: { _code: string }
         Returns: {
@@ -3087,6 +3088,7 @@ export type Database = {
           team_name: string
         }[]
       }
+      leave_team: { Args: { _team_id: string }; Returns: Json }
       link_guardian: {
         Args: {
           _guardian_user_id: string

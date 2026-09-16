@@ -279,7 +279,9 @@ export async function fetchMyMemberships() {
   if (!uid) return [];
   const { data, error } = await supabase
     .from("team_members")
-    .select("id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender)")
+    .select(
+      "id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender, created_by)",
+    )
     .eq("user_id", uid)
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -293,7 +295,13 @@ export async function fetchMyMemberships() {
     ),
     team: (
       row as unknown as {
-        teams: { id: string; name: string; age_group: string | null; gender: string } | null;
+        teams: {
+          id: string;
+          name: string;
+          age_group: string | null;
+          gender: string;
+          created_by?: string | null;
+        } | null;
       }
     ).teams,
   }));
@@ -980,6 +988,28 @@ export async function setTeamArchived(teamId: string, archived: boolean) {
 export async function deleteTeam(teamId: string) {
   const { error } = await supabase.from("teams").delete().eq("id", teamId);
   if (error) throw error;
+}
+
+/**
+ * Spelare, vårdnadshavare och ledare lämnar laget själva. Spelarkortet
+ * avaktiveras och lagets ledare får en notis, så ingen ligger kvar i truppen.
+ */
+export async function leaveTeam(teamId: string) {
+  const { data, error } = await supabase.rpc("leave_team", { _team_id: teamId });
+  if (error) throw new Error(error.message);
+  return (data ?? {}) as {
+    team_name?: string;
+    cleared_players?: number;
+    cleared_guardian_links?: number;
+    notified_leaders?: number;
+  };
+}
+
+/** Bara tränaren som skapade laget kan radera det med allt innehåll. */
+export async function deleteOwnTeam(teamId: string) {
+  const { data, error } = await supabase.rpc("delete_own_team", { _team_id: teamId });
+  if (error) throw new Error(error.message);
+  return (data ?? {}) as { team_name?: string };
 }
 
 /** Generate a fresh join code so an old, spread code stops working. */
