@@ -85,3 +85,32 @@ export const emptyStat = (playerId: string, teamId: string): PlayerStatInput => 
   red_cards: 0,
   points: 0,
 });
+
+/**
+ * Åldersgräns för individuell statistik. Yngre spelare ska bara se hur många
+ * matcher och träningar de varit med på – inga mål, assist, kort eller poäng.
+ */
+export const INDIVIDUAL_STATS_MIN_AGE = 12;
+
+export type StatField = "matches" | "goals" | "assists" | "yellow_cards" | "red_cards" | "points";
+
+const YOUNG_FIELDS: StatField[] = ["matches"];
+const ALL_FIELDS: StatField[] = [
+  "matches",
+  "goals",
+  "assists",
+  "yellow_cards",
+  "red_cards",
+  "points",
+];
+
+/** Sant när spelaren är yngre än gränsen. Okänd ålder räknas som yngre. */
+export function isYoungPlayer(age: number | null | undefined): boolean {
+  if (age == null || Number.isNaN(age)) return true;
+  return age < INDIVIDUAL_STATS_MIN_AGE;
+}
+
+/** Vilka statistikfält som ska visas och gå att fylla i för spelarens ålder. */
+export function statFieldsForAge(age: number | null | undefined): StatField[] {
+  return isYoungPlayer(age) ? YOUNG_FIELDS : ALL_FIELDS;
+}
