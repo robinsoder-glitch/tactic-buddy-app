@@ -174,6 +174,27 @@ function PlanTrainingPage() {
     );
   }
 
+  /** Hämtar kort instruktion och utrustning för en övningsrad. */
+  function detailsFor(
+    kind: string,
+    resourceId: string,
+  ): { instruction: string | null; equipment: string | null } {
+    if (kind === "drill") {
+      const own = (ownDrills.data ?? []).find((row) => row.id === resourceId);
+      if (own) {
+        return { instruction: own.instruction, equipment: own.equipment };
+      }
+      const bank = (drills.data ?? []).find((row) => row.id === resourceId);
+      if (bank) {
+        return {
+          instruction: null,
+          equipment: bank.data.equipment?.length ? bank.data.equipment.join(", ") : null,
+        };
+      }
+    }
+    return { instruction: null, equipment: null };
+  }
+
   // Statusen visas först när underlaget hämtats, annars hinner ett felaktigt
   // "Ej klar" blinka förbi.
   const statusReady = ids.length === 0 || [plans, resources].every((query) => query.isSuccess);
@@ -205,19 +226,28 @@ function PlanTrainingPage() {
       return;
     }
     if (resources.isLoading || plan.isLoading) return;
-    const initial: TrainingDraft = {
-      eventId,
-      notes: plan.data?.notes ?? "",
-      items: publishedRows.map((row) => ({
-        key: row.id,
-        kind:
-          row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
-        resourceId: row.resource_id,
-        title: titleFor(row.kind, row.resource_id),
-        minutes: row.minutes,
-        note: row.note,
-      })),
-    };
+      const initial: TrainingDraft = {
+        eventId,
+        notes: plan.data?.notes ?? "",
+        items: publishedRows.map((row) => {
+          const details = detailsFor(row.kind, row.resource_id);
+          return {
+            key: row.id,
+            kind:
+              row.kind === "session"
+                ? "session"
+                : row.kind === "goalkeeper"
+                  ? "goalkeeper"
+                  : "drill",
+            resourceId: row.resource_id,
+            title: titleFor(row.kind, row.resource_id),
+            minutes: row.minutes,
+            note: row.note,
+            instruction: details.instruction,
+            equipment: details.equipment,
+          };
+        }),
+      };
     setDraft(initial);
     // Utkastet läggs direkt i sessionStorage så att redan sparade övningar finns
     // kvar när användaren hämtar en ny övning i Träningsbanken.
@@ -295,6 +325,8 @@ function PlanTrainingPage() {
           title: created.title,
           minutes: created.minutes,
           note: created.coach_focus ? `Fokus: ${created.coach_focus}` : null,
+          instruction: created.instruction,
+          equipment: created.equipment,
         }),
       );
       queryClient.invalidateQueries({ queryKey: ["coach-drills"] });
@@ -577,6 +609,14 @@ function PlanTrainingPage() {
                               {index + 1}. {item.title}
                               {item.minutes ? ` – ${item.minutes} min` : ""}
                             </p>
+                            {item.instruction && (
+                              <p className="text-sm text-foreground">{item.instruction}</p>
+                            )}
+                            {item.equipment && (
+                              <p className="text-xs text-muted-foreground">
+                                Utrustning: {item.equipment}
+                              </p>
+                            )}
                             {item.note && (
                               <p className="text-xs text-muted-foreground">{item.note}</p>
                             )}

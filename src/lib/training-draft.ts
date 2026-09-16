@@ -13,6 +13,10 @@ export type DraftItem = {
   title: string;
   minutes: number | null;
   note: string | null;
+  /** Kort instruktion, särskilt för egna övningar. */
+  instruction?: string | null;
+  /** Utrustning som behövs, särskilt för egna övningar. */
+  equipment?: string | null;
 };
 
 export type TrainingDraft = {
@@ -78,6 +82,16 @@ export function draftPayload(draft: TrainingDraft) {
     minutes: item.minutes,
     note: item.note,
   }));
+}
+
+/** Hjälp som tar bort interna visningsfält innan sparning. */
+export function draftPayloadItem(item: DraftItem) {
+  return {
+    kind: item.kind,
+    resource_id: item.resourceId,
+    minutes: item.minutes,
+    note: item.note,
+  };
 }
 
 const PREFIX = "traningsutkast:";
