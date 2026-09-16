@@ -44,7 +44,7 @@ describe("godkänna ansökan", () => {
   });
 
   it("låter tränaren välja kort i truppvyn", () => {
-    const squad = read("src/routes/_authenticated/team.$teamId.index.tsx");
+    const squad = read("src/routes/_authenticated/team.$teamId.trupp.tsx");
     expect(squad).toContain("needsPlayerCard(member.role)");
     expect(squad).toContain("playerOptionLabel(player)");
     expect(squad).toContain("approve.mutate({ id: member.id, playerId: null })");
