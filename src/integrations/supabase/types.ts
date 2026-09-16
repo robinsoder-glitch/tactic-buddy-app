@@ -1671,6 +1671,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_goalkeeper: boolean
+          left_at: string | null
           member_user_id: string | null
           name: string
           number: number | null
@@ -1695,6 +1696,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_goalkeeper?: boolean
+          left_at?: string | null
           member_user_id?: string | null
           name: string
           number?: number | null
@@ -1719,6 +1721,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_goalkeeper?: boolean
+          left_at?: string | null
           member_user_id?: string | null
           name?: string
           number?: number | null
