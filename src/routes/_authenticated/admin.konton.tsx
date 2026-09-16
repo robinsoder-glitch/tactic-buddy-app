@@ -17,8 +17,10 @@ function AdminAccounts() {
   const queryClient = useQueryClient();
   const load = useServerFn(listAccounts);
   const grant = useServerFn(setAdminRole);
-  const remove = useServerFn(deleteAccount);
+  const remove = useServerFn(deleteAccounts);
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<string[] | null>(null);
 
   const accounts = useQuery({
     queryKey: ["admin-accounts"],
