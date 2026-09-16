@@ -112,6 +112,8 @@ function SettingsPage() {
     else toast.success("Vi har mailat en länk för att byta lösenord.");
   }
 
+  const phoneProblem = phoneError(phone);
+
   const approvedTeams = groupMembershipsByTeam(
     memberships.filter((item) => item.status === "approved"),
   );
