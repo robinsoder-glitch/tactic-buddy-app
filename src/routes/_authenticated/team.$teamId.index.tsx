@@ -288,6 +288,16 @@ function SquadPage() {
         )}
       </div>
 
+      {isCoach && (
+        <Link
+          to="/team/$teamId/lamnade"
+          params={{ teamId }}
+          className="mt-2 inline-block text-sm text-primary underline"
+        >
+          Spelare som lämnat laget
+        </Link>
+      )}
+
       <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {players.data?.length === 0 && (
           <li className="p-6 text-center text-sm text-muted-foreground">

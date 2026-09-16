@@ -62,6 +62,7 @@ import { Route as AuthenticatedAdminLagTeamIdRouteImport } from './routes/_authe
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
+import { Route as AuthenticatedTeamTeamIdLamnadeRouteImport } from './routes/_authenticated/team.$teamId.lamnade'
 import { Route as AuthenticatedTeamTeamIdLeadersRouteImport } from './routes/_authenticated/team.$teamId.leaders'
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
 import { Route as AuthenticatedTeamTeamIdNarvaroRouteImport } from './routes/_authenticated/team.$teamId.narvaro'
@@ -371,6 +372,12 @@ const AuthenticatedTeamTeamIdCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdLamnadeRoute =
+  AuthenticatedTeamTeamIdLamnadeRouteImport.update({
+    id: '/lamnade',
+    path: '/lamnade',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdLeadersRoute =
   AuthenticatedTeamTeamIdLeadersRouteImport.update({
     id: '/leaders',
@@ -501,6 +508,7 @@ export interface FileRoutesByFullPath {
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/narvaro': typeof AuthenticatedTeamTeamIdNarvaroRoute
@@ -564,6 +572,7 @@ export interface FileRoutesByTo {
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/team/$teamId/narvaro': typeof AuthenticatedTeamTeamIdNarvaroRoute
@@ -633,6 +642,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/_authenticated/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
   '/_authenticated/team/$teamId/narvaro': typeof AuthenticatedTeamTeamIdNarvaroRoute
@@ -702,6 +712,7 @@ export interface FileRouteTypes {
     | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/lamnade'
     | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/narvaro'
@@ -765,6 +776,7 @@ export interface FileRouteTypes {
     | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/lamnade'
     | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
     | '/team/$teamId/narvaro'
@@ -833,6 +845,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/lag/$teamId'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
+    | '/_authenticated/team/$teamId/lamnade'
     | '/_authenticated/team/$teamId/leaders'
     | '/_authenticated/team/$teamId/matches'
     | '/_authenticated/team/$teamId/narvaro'
@@ -1233,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdCalendarRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/lamnade': {
+      id: '/_authenticated/team/$teamId/lamnade'
+      path: '/lamnade'
+      fullPath: '/team/$teamId/lamnade'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdLamnadeRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/leaders': {
       id: '/_authenticated/team/$teamId/leaders'
       path: '/leaders'
@@ -1366,6 +1386,7 @@ const AuthenticatedKalenderRouteWithChildren =
 interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
   AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
+  AuthenticatedTeamTeamIdLamnadeRoute: typeof AuthenticatedTeamTeamIdLamnadeRoute
   AuthenticatedTeamTeamIdLeadersRoute: typeof AuthenticatedTeamTeamIdLeadersRoute
   AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
   AuthenticatedTeamTeamIdNarvaroRoute: typeof AuthenticatedTeamTeamIdNarvaroRoute
@@ -1383,6 +1404,7 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
   {
     AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
     AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
+    AuthenticatedTeamTeamIdLamnadeRoute: AuthenticatedTeamTeamIdLamnadeRoute,
     AuthenticatedTeamTeamIdLeadersRoute: AuthenticatedTeamTeamIdLeadersRoute,
     AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
     AuthenticatedTeamTeamIdNarvaroRoute: AuthenticatedTeamTeamIdNarvaroRoute,
