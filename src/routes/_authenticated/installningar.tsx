@@ -54,6 +54,7 @@ function SettingsPage() {
   const [birth, setBirth] = useState("");
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [teamBusy, setTeamBusy] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
   const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
