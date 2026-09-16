@@ -354,7 +354,23 @@ export type TeamLeaderContact = {
   email: string | null;
   phone: string | null;
   is_owner: boolean;
+  /** Lagroll: club_admin, head_coach eller coach. */
+  role: string | null;
 };
+
+/** Svensk etikett för ledarens ansvar i laget. */
+export function leaderRoleLabel(leader: Pick<TeamLeaderContact, "role" | "is_owner">): string {
+  switch (leader.role) {
+    case "club_admin":
+      return "Lagledare";
+    case "head_coach":
+      return "Huvudtränare";
+    case "coach":
+      return "Tränare";
+    default:
+      return leader.is_owner ? "Lagägare" : "Ledare";
+  }
+}
 
 /** Ledarnas namn och kontaktuppgifter – tillgängligt för lagets godkända medlemmar. */
 export async function fetchTeamLeaderContacts(teamId: string): Promise<TeamLeaderContact[]> {
