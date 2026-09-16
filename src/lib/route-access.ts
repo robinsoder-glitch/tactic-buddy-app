@@ -67,6 +67,14 @@ export const COACH_ONLY_RPCS = [
   "create_team",
 ] as const;
 
+/** Sidor som spelare och vårdnadshavare alltid kan öppna. */
+export const PLAYER_HOME_LINKS = [
+  { to: "/" as const, label: "Idag" },
+  { to: "/kalender" as const, label: "Kalender" },
+  { to: "/kallelser" as const, label: "Mina kallelser" },
+  { to: "/spelarkunskap" as const, label: "Kunskap" },
+];
+
 export type AccountKind = "coach" | "admin" | "player" | "guardian";
 
 /** Enkel regel som speglar CoachOnly: bara tränare och admin släpps in. */

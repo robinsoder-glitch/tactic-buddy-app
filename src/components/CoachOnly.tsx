@@ -3,14 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
-
-/** Sidor som spelare och vårdnadshavare alltid kan öppna. */
-export const PLAYER_HOME_LINKS = [
-  { to: "/" as const, label: "Idag" },
-  { to: "/kalender" as const, label: "Kalender" },
-  { to: "/kallelser" as const, label: "Mina kallelser" },
-  { to: "/spelarkunskap" as const, label: "Kunskap" },
-];
+import { PLAYER_HOME_LINKS } from "@/lib/route-access";
 
 /**
  * Spärr för sidor som bara tränare (och admin) ska nå. Menyn döljer redan
@@ -30,8 +23,8 @@ export function CoachOnly({ children }: { children: ReactNode }) {
         <h1 className="mt-3 font-display text-2xl font-bold">Bara för tränare</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Den här sidan är till för lagets ledare, till exempel träningspass, planering och
-          taktiktavlan. Ditt konto är ett spelar- eller vårdnadshavarkonto, så innehållet visas
-          inte här.
+          taktiktavlan. Ditt konto är ett spelar- eller vårdnadshavarkonto, så innehållet visas inte
+          här.
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
           Hör av dig till en ledare i laget om du tror att du borde ha tränarbehörighet.
