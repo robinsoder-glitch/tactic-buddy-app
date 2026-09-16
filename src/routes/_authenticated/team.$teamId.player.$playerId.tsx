@@ -85,10 +85,12 @@ function PlayerPage() {
     onError: () => toast.error("Kunde inte radera raden"),
   });
 
-  const fields = statFieldsForAge(ageOf(player?.birth_date));
   const age = player?.birth_date
     ? Math.floor((Date.now() - new Date(player.birth_date).getTime()) / 31557600000)
     : null;
+  // Yngre spelare ska bara se antal matcher – inga mål, assist, kort eller poäng.
+  const fields = statFieldsForAge(age);
+  const youngPlayer = isYoungPlayer(age);
 
   return (
     <section>
@@ -235,8 +237,13 @@ function PlayerPage() {
                 Serie/Cup
               </th>
               {fields.map((key) => (
-                <th key={String(key)} scope="col" className="px-2 py-2 text-center" title={long}>
-                  {short}
+                <th
+                  key={String(key)}
+                  scope="col"
+                  className="px-2 py-2 text-center"
+                  title={FIELD_LABELS[key][1]}
+                >
+                  {FIELD_LABELS[key][0]}
                 </th>
               ))}
               {isCoach && <th scope="col" className="px-2 py-2" />}
