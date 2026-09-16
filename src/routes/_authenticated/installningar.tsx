@@ -428,7 +428,7 @@ function SettingsPage() {
                       variant="destructive"
                       size="sm"
                       disabled={teamBusy === group.team_id}
-                      onClick={() => removeTeam(group.team_id, teamName)}
+                      onClick={() => setPendingDelete({ id: group.team_id, name: teamName })}
                     >
                       <Trash2 className="size-4" /> Radera laget
                     </Button>
