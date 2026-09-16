@@ -462,6 +462,36 @@ function SettingsPage() {
         )}
       </section>
 
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && teamBusy === null) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Vill du verkligen radera laget?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete?.name} raderas med alla aktiviteter, kallelser, närvaro, bilder och
+              spelare. Spelarnas och föräldrarnas konton tas bort helt om de inte är med i något
+              annat lag. Det går inte att ångra.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={teamBusy !== null}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={teamBusy !== null}
+              onClick={(event) => {
+                event.preventDefault();
+                if (pendingDelete) void removeTeam(pendingDelete.id, pendingDelete.name);
+              }}
+            >
+              Ja, radera laget
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <Lock className="size-4 text-primary" /> Integritet
