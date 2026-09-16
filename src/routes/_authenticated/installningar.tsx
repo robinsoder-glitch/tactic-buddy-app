@@ -142,17 +142,16 @@ function SettingsPage() {
   }
 
   async function removeTeam(teamId: string, teamName: string) {
-    if (
-      !window.confirm(
-        `Radera ${teamName} med alla aktiviteter, kallelser, spelare och bilder? Det går inte att ångra.`,
-      )
-    )
-      return;
     setTeamBusy(teamId);
     try {
-      await deleteOwnTeam(teamId);
+      const result = await deleteTeam({ data: { teamId } });
       await refreshTeams();
-      toast.success(`${teamName} är raderat.`);
+      setPendingDelete(null);
+      toast.success(
+        result.deleted_accounts > 0
+          ? `${teamName} är raderat. ${result.deleted_accounts} spelar- och föräldrakonton togs bort.`
+          : `${teamName} är raderat.`,
+      );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
     } finally {
