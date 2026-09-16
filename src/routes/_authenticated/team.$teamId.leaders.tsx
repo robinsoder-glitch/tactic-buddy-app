@@ -160,6 +160,15 @@ function LeadersPage() {
     }
   }
 
+  async function copyText(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} är kopierat.`);
+    } catch {
+      toast.error(`Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`);
+    }
+  }
+
   if (!isCoach) {
     return (
       <section className="space-y-3">
