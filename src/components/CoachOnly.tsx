@@ -1,35 +1,31 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Lock } from "lucide-react";
-import { useTeamRole } from "@/hooks/useTeamRole";
+import { Button } from "@/components/ui/button";
+import { useAccount } from "@/hooks/useAccount";
 
 /**
- * Sidor som bara lagets ledare ska se. Spelare och vårdnadshavare möts av en
- * vänlig förklaring i stället för lagets statistik, periodplan eller bilder.
+ * Spärr för sidor som bara tränare (och admin) ska nå. Menyn döljer redan
+ * länkarna – det här stoppar även den som skriver in adressen direkt.
  */
-export function CoachOnly({ teamId, children }: { teamId: string; children: ReactNode }) {
-  const { isCoach, loading } = useTeamRole(teamId);
+export function CoachOnly({ children }: { children: ReactNode }) {
+  const { isCoach, isAdmin, loading } = useAccount();
 
   if (loading) {
-    return <p className="py-8 text-center text-sm text-muted-foreground">Hämtar…</p>;
+    return <p className="mx-auto max-w-md px-4 py-16 text-center text-muted-foreground">Laddar…</p>;
   }
 
-  if (!isCoach) {
+  if (!isCoach && !isAdmin) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-6 text-center">
-        <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
-        <h2 className="mt-3 font-display text-lg font-bold">Den här sidan är för lagets ledare</h2>
+      <main className="mx-auto max-w-md px-4 py-16 text-center">
+        <h1 className="font-display text-2xl font-bold">Bara för tränare</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Du ser din egen statistik på din spelarsida.
+          Den här sidan är till för lagets ledare. Som spelare eller vårdnadshavare hittar du
+          kalender, kallelser och ditt lag i menyn.
         </p>
-        <Link
-          to="/team/$teamId"
-          params={{ teamId }}
-          className="mt-4 inline-block text-sm text-primary underline-offset-4 hover:underline"
-        >
-          Till laget
-        </Link>
-      </section>
+        <Button asChild variant="secondary" className="mt-4">
+          <Link to="/">Till startsidan</Link>
+        </Button>
+      </main>
     );
   }
 
