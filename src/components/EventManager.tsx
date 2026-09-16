@@ -68,6 +68,15 @@ const MATCH_KINDS = [
   "Intern lagmatch",
 ];
 
+const NOTE_SUGGESTIONS = [
+  "Glöm inte benskydd",
+  "Glöm inte vattenflaska",
+  "Glöm inte boll",
+  "Glöm inte varm tröja",
+  "Glöm inte ombyte",
+  "Glöm inte något att äta efter träningen",
+];
+
 const REPEATS = [
   { value: "none", label: "Ingen" },
   { value: "weekly", label: "Varje vecka" },
@@ -540,6 +549,24 @@ export function EventManager({
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
               />
+              <div className="flex flex-wrap gap-1.5">
+                {NOTE_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() =>
+                      setNotes((prev) =>
+                        prev.trim()
+                          ? `${prev.trim().replace(/[.\s]+$/, "")}. ${suggestion}`
+                          : suggestion,
+                      )
+                    }
+                    className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </div>
           </form>
           <DialogFooter>
