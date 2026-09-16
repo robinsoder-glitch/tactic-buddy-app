@@ -517,11 +517,16 @@ const EMPTY_PRIVATE = {
   allergy_note: null,
 } as const;
 
+/**
+ * Truppen visar bara spelare som är kvar i laget. Den som lämnat laget
+ * avaktiveras och hittas i stället via fetchLeftTeamPlayers.
+ */
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
     .select("id, name, number, gender, photo_path, is_goalkeeper, is_active")
     .eq("team_id", teamId)
+    .eq("is_active", true)
     .order("name");
   if (error) throw error;
 
@@ -557,6 +562,34 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
         photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
       } as TeamPlayer;
     }),
+  );
+}
+
+export type LeftTeamPlayer = {
+  id: string;
+  name: string;
+  number: number | null;
+  left_at: string | null;
+  photoUrl: string | null;
+};
+
+/** Spelare som lämnat laget – ledaren ska kunna följa upp dem. */
+export async function fetchLeftTeamPlayers(teamId: string): Promise<LeftTeamPlayer[]> {
+  const { data, error } = await supabase
+    .from("players")
+    .select("id, name, number, photo_path, left_at")
+    .eq("team_id", teamId)
+    .eq("is_active", false)
+    .order("left_at", { ascending: false, nullsFirst: false });
+  if (error) throw error;
+  return Promise.all(
+    (data ?? []).map(async (row) => ({
+      id: row.id as string,
+      name: row.name as string,
+      number: (row.number as number | null) ?? null,
+      left_at: (row.left_at as string | null) ?? null,
+      photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
+    })),
   );
 }
 
