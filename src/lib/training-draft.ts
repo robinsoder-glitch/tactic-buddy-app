@@ -13,6 +13,10 @@ export type DraftItem = {
   title: string;
   minutes: number | null;
   note: string | null;
+  /** Kort instruktion, särskilt för egna övningar. */
+  instruction?: string | null;
+  /** Utrustning som behövs, särskilt för egna övningar. */
+  equipment?: string | null;
 };
 
 export type TrainingDraft = {
