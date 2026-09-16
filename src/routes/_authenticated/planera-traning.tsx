@@ -609,6 +609,14 @@ function PlanTrainingPage() {
                               {index + 1}. {item.title}
                               {item.minutes ? ` – ${item.minutes} min` : ""}
                             </p>
+                            {item.instruction && (
+                              <p className="text-sm text-foreground">{item.instruction}</p>
+                            )}
+                            {item.equipment && (
+                              <p className="text-xs text-muted-foreground">
+                                Utrustning: {item.equipment}
+                              </p>
+                            )}
                             {item.note && (
                               <p className="text-xs text-muted-foreground">{item.note}</p>
                             )}
