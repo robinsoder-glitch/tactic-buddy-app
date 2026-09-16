@@ -73,7 +73,17 @@ function AdminAccounts() {
         placeholder="Sök på namn, e-post eller lag"
         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
       />
-      <p className="text-xs text-muted-foreground">{rows.length} konton</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{rows.length} konton</p>
+        <button
+          type="button"
+          disabled={selected.size === 0}
+          onClick={() => setPendingIds([...selected])}
+          className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
+        >
+          Radera valda konton ({selected.size})
+        </button>
+      </div>
 
       <ul className="space-y-3">
         {rows.map((account) => {
@@ -81,7 +91,24 @@ function AdminAccounts() {
           return (
             <li key={account.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="flex min-w-0 gap-3">
+                  {account.id !== userId && (
+                    <input
+                      type="checkbox"
+                      className="mt-1 size-5 shrink-0"
+                      aria-label={`Välj ${account.email ?? account.id}`}
+                      checked={selected.has(account.id)}
+                      onChange={() =>
+                        setSelected((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(account.id)) next.delete(account.id);
+                          else next.add(account.id);
+                          return next;
+                        })
+                      }
+                    />
+                  )}
+                  <div className="min-w-0">
                   <p className="font-display text-lg font-semibold">
                     {account.displayName ?? "Utan namn"}
                   </p>
