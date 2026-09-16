@@ -54,7 +54,7 @@ describe("regelbok för 5 mot 5", () => {
     expect(text).toContain("tre perioder");
     expect(text).toContain("sidlinjespark");
     expect(text).toContain("retreatlinje");
-    expect(text).not.toContain("inkast");
+    expect(text).toContain("sidlinjespark i stället för inkast");
     expect(text).toContain("ingen offside");
     expect(text).toContain("ingen straffspark");
   });
