@@ -388,13 +388,12 @@ export function EventManager({
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <Label htmlFor="e-time">Från</Label>
-                <Input
+                <TimeField
                   id="e-time"
                   name="start"
-                  type="time"
                   value={schedule.start}
-                  aria-invalid={Boolean(visibleErrors.start)}
-                  onChange={(event) => updateSchedule("start", event.target.value)}
+                  invalid={Boolean(visibleErrors.start)}
+                  onChange={(value) => updateSchedule("start", value)}
                 />
                 {visibleErrors.start && (
                   <p className="text-sm text-destructive">{visibleErrors.start}</p>
@@ -402,13 +401,12 @@ export function EventManager({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="e-end">Till (frivillig)</Label>
-                <Input
+                <TimeField
                   id="e-end"
                   name="end"
-                  type="time"
                   value={schedule.end}
-                  aria-invalid={Boolean(visibleErrors.end)}
-                  onChange={(event) => updateSchedule("end", event.target.value)}
+                  invalid={Boolean(visibleErrors.end)}
+                  onChange={(value) => updateSchedule("end", value)}
                 />
                 {visibleErrors.end && (
                   <p className="text-sm text-destructive">{visibleErrors.end}</p>
@@ -420,13 +418,12 @@ export function EventManager({
               <>
                 <div className="space-y-1.5">
                   <Label htmlFor="e-meet">Samling (frivillig)</Label>
-                  <Input
+                  <TimeField
                     id="e-meet"
                     name="meet"
-                    type="time"
                     value={schedule.meet}
-                    aria-invalid={Boolean(visibleErrors.meet)}
-                    onChange={(event) => updateSchedule("meet", event.target.value)}
+                    invalid={Boolean(visibleErrors.meet)}
+                    onChange={(value) => updateSchedule("meet", value)}
                   />
                   {visibleErrors.meet && (
                     <p className="text-sm text-destructive">{visibleErrors.meet}</p>
