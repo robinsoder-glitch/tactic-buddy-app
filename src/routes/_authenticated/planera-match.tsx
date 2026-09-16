@@ -10,6 +10,7 @@ import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { TimeField } from "@/components/TimeField";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -804,34 +805,19 @@ function MatchPlanner({
                   <label className="text-sm font-medium" htmlFor="mp-start">
                     Matchstart
                   </label>
-                  <Input
-                    id="mp-start"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
+                  <TimeField id="mp-start" value={startTime} onChange={setStartTime} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium" htmlFor="mp-meet">
                     Samlingstid
                   </label>
-                  <Input
-                    id="mp-meet"
-                    type="time"
-                    value={meetTime}
-                    onChange={(e) => setMeetTime(e.target.value)}
-                  />
+                  <TimeField id="mp-meet" value={meetTime} onChange={setMeetTime} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium" htmlFor="mp-end">
                     Beräknad sluttid
                   </label>
-                  <Input
-                    id="mp-end"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
+                  <TimeField id="mp-end" value={endTime} onChange={setEndTime} />
                 </div>
               </div>
               <div className="space-y-1.5">

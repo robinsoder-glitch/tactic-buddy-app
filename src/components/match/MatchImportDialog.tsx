@@ -5,6 +5,7 @@ import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimeField } from "@/components/TimeField";
 import {
   Dialog,
   DialogContent,
@@ -345,12 +346,10 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                           disabled={locked(index)}
                           onChange={(event) => update(index, { date: event.target.value })}
                         />
-                        <Input
-                          type="time"
+                        <TimeField
                           value={row.time}
-                          aria-label="Tid"
                           disabled={locked(index)}
-                          onChange={(event) => update(index, { time: event.target.value })}
+                          onChange={(value) => update(index, { time: value })}
                         />
                         <Input
                           value={row.home_team}
