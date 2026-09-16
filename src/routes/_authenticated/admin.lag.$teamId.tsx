@@ -297,7 +297,7 @@ function AdminTeamDetail() {
                 <button
                   type="button"
                   className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
-                  onClick={() => removeMember.mutate(member.id)}
+                  onClick={() => setDialog({ kind: "member", id: member.id })}
                 >
                   Ta bort
                 </button>
