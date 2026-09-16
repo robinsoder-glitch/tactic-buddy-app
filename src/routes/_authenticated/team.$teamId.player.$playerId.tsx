@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, Plus, Trash2, UserRound } from "lucide-react";
+import { ArrowLeft, Copy, Crown, Mail, Pencil, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { fetchTeamPlayers, GENDER_LABELS } from "@/lib/teams";
+import { fetchTeamLeaderContacts, fetchTeamPlayers, GENDER_LABELS } from "@/lib/teams";
 import {
   deletePlayerStat,
   emptyStat,
@@ -51,6 +51,7 @@ function PlayerPage() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
   const [editing, setEditing] = useState<PlayerStatInput | null>(null);
+  const [openLeader, setOpenLeader] = useState<string | null>(null);
 
   const players = useQuery({
     queryKey: ["team-players", teamId],
@@ -59,6 +60,11 @@ function PlayerPage() {
   const stats = useQuery({
     queryKey: ["player-stats", playerId],
     queryFn: () => fetchPlayerStats(playerId),
+  });
+  const leaderContacts = useQuery({
+    queryKey: ["team-leader-contacts", teamId],
+    queryFn: () => fetchTeamLeaderContacts(teamId),
+    enabled: !isCoach,
   });
 
   const player = players.data?.find((item) => item.id === playerId) ?? null;
@@ -91,6 +97,15 @@ function PlayerPage() {
   // Yngre spelare ska bara se antal matcher – inga mål, assist, kort eller poäng.
   const fields = statFieldsForAge(age);
   const youngPlayer = isYoungPlayer(age);
+
+  async function copyText(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} är kopierat.`);
+    } catch {
+      toast.error(`Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`);
+    }
+  }
 
   return (
     <section>
@@ -154,6 +169,102 @@ function PlayerPage() {
           )}
         </dl>
       </div>
+
+      {!isCoach && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <h3 className="font-display text-lg font-bold">Lagets ledare</h3>
+          {leaderContacts.isPending && (
+            <p className="mt-2 text-sm text-muted-foreground">Hämtar ledare…</p>
+          )}
+          {leaderContacts.isError && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Ledarna kunde inte hämtas. Ladda om sidan och försök igen.
+            </p>
+          )}
+          {leaderContacts.data?.length === 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">Inga ledare i laget ännu.</p>
+          )}
+          <div className="mt-2 space-y-2">
+            {leaderContacts.data?.map((leader) => (
+              <div key={leader.user_id} className="rounded-lg border border-border p-3">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 text-left"
+                  onClick={() =>
+                    setOpenLeader((current) => (current === leader.user_id ? null : leader.user_id))
+                  }
+                  aria-expanded={openLeader === leader.user_id}
+                >
+                  {leader.is_owner ? (
+                    <Crown className="size-5 shrink-0 text-primary" aria-hidden />
+                  ) : (
+                    <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden />
+                  )}
+                  <span className="text-sm font-medium underline-offset-2 hover:underline">
+                    {leader.display_name?.trim() || "Ledare"}
+                    {leader.is_owner && <span className="text-muted-foreground"> · lagägare</span>}
+                  </span>
+                </button>
+                {openLeader === leader.user_id && (
+                  <div className="mt-2 space-y-1 border-t border-border pt-2 text-sm">
+                    {leader.email ? (
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`mailto:${leader.email}`}
+                          className="flex flex-1 items-center gap-2 text-primary hover:underline"
+                        >
+                          <Mail className="size-4" aria-hidden /> {leader.email}
+                        </a>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-7"
+                          aria-label={`Kopiera e-post till ${leader.display_name ?? "ledaren"}`}
+                          onClick={() => copyText(leader.email!, "E-post")}
+                        >
+                          <Copy className="size-4" aria-hidden />
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <Mail className="size-4" aria-hidden /> E-post: Ej ifyllt
+                      </p>
+                    )}
+                    {leader.phone ? (
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`tel:${leader.phone}`}
+                          className="flex flex-1 items-center gap-2 text-primary hover:underline"
+                        >
+                          <Phone className="size-4" aria-hidden /> {leader.phone}
+                        </a>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-7"
+                          aria-label={`Kopiera telefonnummer till ${leader.display_name ?? "ledaren"}`}
+                          onClick={() => copyText(leader.phone!, "Telefonnummer")}
+                        >
+                          <Copy className="size-4" aria-hidden />
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <Phone className="size-4" aria-hidden /> Telefon: Ej ifyllt
+                      </p>
+                    )}
+                    {!leader.email && !leader.phone && (
+                      <p className="text-muted-foreground">
+                        Ledaren har inte fyllt i några kontaktuppgifter ännu.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {isCoach && (
         <div className="mt-4 rounded-xl border border-border bg-card p-4">
