@@ -1748,6 +1748,7 @@ export type Database = {
           guardian_for_name: string | null
           id: string
           is_adult_confirmed: boolean
+          phone: string | null
         }
         Insert: {
           account_kind?: string | null
@@ -1758,6 +1759,7 @@ export type Database = {
           guardian_for_name?: string | null
           id: string
           is_adult_confirmed?: boolean
+          phone?: string | null
         }
         Update: {
           account_kind?: string | null
@@ -1768,6 +1770,7 @@ export type Database = {
           guardian_for_name?: string | null
           id?: string
           is_adult_confirmed?: boolean
+          phone?: string | null
         }
         Relationships: []
       }
@@ -3011,6 +3014,16 @@ export type Database = {
         Returns: {
           coach_join_code: string
           join_code: string
+        }[]
+      }
+      get_team_leaders: {
+        Args: { _team_id: string }
+        Returns: {
+          display_name: string
+          email: string
+          is_owner: boolean
+          phone: string
+          user_id: string
         }[]
       }
       get_team_players_private: {
