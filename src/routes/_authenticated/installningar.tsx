@@ -16,7 +16,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
-import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { updateProfile, leaveTeam, deleteOwnTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
 import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
