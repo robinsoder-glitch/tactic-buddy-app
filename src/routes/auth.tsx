@@ -142,10 +142,29 @@ function AuthPage() {
 
   async function handleSignIn(event: React.FormEvent) {
     event.preventDefault();
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      toast.error("Fyll i e-postadressen.");
+      return;
+    }
     setBusy(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const { exists } = await checkEmailExists({ data: { email: trimmedEmail } });
+      if (!exists) {
+        toast.error("Det finns inget konto med den här e-postadressen.");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password });
+      if (error) {
+        if (/invalid login credentials|invalid_credentials/i.test(error.message)) {
+          toast.error("Fel lösenord. Försök igen.");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
       // Har kontot skapats med lagkod men inte hunnit kopplas – gör klart det nu.
       // Underlaget tillämpas bara när det hör till just det här kontot.
       let result = null;
