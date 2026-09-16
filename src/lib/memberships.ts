@@ -5,7 +5,14 @@ export type MembershipLike = {
   team_id: string;
   role: MembershipRole;
   status: "pending" | "approved";
-  team?: { id: string; name: string; age_group: string | null; gender: string } | null;
+  team?: {
+    id: string;
+    name: string;
+    age_group: string | null;
+    gender: string;
+    /** Tränaren som skapade laget – bara den får radera laget. */
+    created_by?: string | null;
+  } | null;
 };
 
 export const MEMBERSHIP_ROLE_LABELS: Record<MembershipRole, string> = {
