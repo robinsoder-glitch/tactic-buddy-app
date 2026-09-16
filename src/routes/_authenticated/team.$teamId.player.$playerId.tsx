@@ -60,6 +60,11 @@ function PlayerPage() {
     queryKey: ["player-stats", playerId],
     queryFn: () => fetchPlayerStats(playerId),
   });
+  const leaderContacts = useQuery({
+    queryKey: ["team-leader-contacts", teamId],
+    queryFn: () => fetchTeamLeaderContacts(teamId),
+    enabled: !isCoach,
+  });
 
   const player = players.data?.find((item) => item.id === playerId) ?? null;
   const rows = stats.data ?? [];
