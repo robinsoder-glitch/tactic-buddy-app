@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TacticEditor } from "@/components/TacticEditor";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/tactic/$id")({
   head: () => ({
