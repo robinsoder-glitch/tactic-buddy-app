@@ -11,6 +11,9 @@ import {
   fetchPlayerStats,
   savePlayerStat,
   statTotals,
+  statFieldsForAge,
+  isYoungPlayer,
+  type StatField,
   type PlayerStatInput,
 } from "@/lib/player-stats";
 import { Button } from "@/components/ui/button";
@@ -33,14 +36,14 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playe
   component: PlayerPage,
 });
 
-const FIELDS: [keyof PlayerStatInput, string, string][] = [
-  ["matches", "M", "Matcher"],
-  ["goals", "M\u00e5l", "M\u00e5l"],
-  ["assists", "A", "Assist"],
-  ["yellow_cards", "GK", "Gula kort"],
-  ["red_cards", "RK", "R\u00f6da kort"],
-  ["points", "P", "Po\u00e4ng"],
-];
+const FIELD_LABELS: Record<StatField, [string, string]> = {
+  matches: ["M", "Matcher"],
+  goals: ["M\u00e5l", "M\u00e5l"],
+  assists: ["A", "Assist"],
+  yellow_cards: ["GK", "Gula kort"],
+  red_cards: ["RK", "R\u00f6da kort"],
+  points: ["P", "Po\u00e4ng"],
+};
 
 function PlayerPage() {
   const { teamId, playerId } = useParams({ from: "/_authenticated/team/$teamId/player/$playerId" });
@@ -85,6 +88,9 @@ function PlayerPage() {
   const age = player?.birth_date
     ? Math.floor((Date.now() - new Date(player.birth_date).getTime()) / 31557600000)
     : null;
+  // Yngre spelare ska bara se antal matcher – inga mål, assist, kort eller poäng.
+  const fields = statFieldsForAge(age);
+  const youngPlayer = isYoungPlayer(age);
 
   return (
     <section>
@@ -230,9 +236,14 @@ function PlayerPage() {
               <th scope="col" className="px-3 py-2">
                 Serie/Cup
               </th>
-              {FIELDS.map(([key, short, long]) => (
-                <th key={String(key)} scope="col" className="px-2 py-2 text-center" title={long}>
-                  {short}
+              {fields.map((key) => (
+                <th
+                  key={String(key)}
+                  scope="col"
+                  className="px-2 py-2 text-center"
+                  title={FIELD_LABELS[key][1]}
+                >
+                  {FIELD_LABELS[key][0]}
                 </th>
               ))}
               {isCoach && <th scope="col" className="px-2 py-2" />}
@@ -241,14 +252,20 @@ function PlayerPage() {
           <tbody>
             {stats.isLoading && (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
+                <td
+                  colSpan={fields.length + 2}
+                  className="px-3 py-6 text-center text-muted-foreground"
+                >
                   Laddar…
                 </td>
               </tr>
             )}
             {!stats.isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
+                <td
+                  colSpan={fields.length + 2}
+                  className="px-3 py-6 text-center text-muted-foreground"
+                >
                   {isCoach
                     ? "Ingen statistik ifylld än."
                     : "Tränaren har inte fyllt i någon statistik än."}
@@ -258,7 +275,7 @@ function PlayerPage() {
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-border/60 last:border-0">
                 <td className="px-3 py-2 font-medium">{row.competition}</td>
-                {FIELDS.map(([key]) => (
+                {fields.map((key) => (
                   <td key={String(key)} className="px-2 py-2 text-center tabular-nums">
                     {row[key] as number}
                   </td>
@@ -293,7 +310,7 @@ function PlayerPage() {
             {rows.length > 0 && (
               <tr className="bg-secondary/40 font-semibold">
                 <td className="px-3 py-2">Totalt</td>
-                {FIELDS.map(([key]) => (
+                {fields.map((key) => (
                   <td key={String(key)} className="px-2 py-2 text-center tabular-nums">
                     {totals[key as keyof typeof totals]}
                   </td>
@@ -305,7 +322,9 @@ function PlayerPage() {
         </table>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        M = matcher, A = assist, GK = gula kort, RK = röda kort, P = poäng.
+        {youngPlayer
+          ? "M = matcher. För spelare under 12 år visas bara antal matcher och träningar – inga mål, assist, kort eller poäng."
+          : "M = matcher, A = assist, GK = gula kort, RK = röda kort, P = poäng."}
       </p>
 
       {isCoach && (
@@ -329,9 +348,9 @@ function PlayerPage() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {FIELDS.map(([key, , long]) => (
+                  {fields.map((key) => (
                     <div key={String(key)} className="space-y-1.5">
-                      <Label htmlFor={`stat-${String(key)}`}>{long}</Label>
+                      <Label htmlFor={`stat-${String(key)}`}>{FIELD_LABELS[key][1]}</Label>
                       <Input
                         id={`stat-${String(key)}`}
                         inputMode="numeric"
