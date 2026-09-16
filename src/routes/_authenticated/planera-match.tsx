@@ -10,6 +10,7 @@ import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { TimeField } from "@/components/TimeField";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

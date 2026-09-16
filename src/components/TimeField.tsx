@@ -20,6 +20,7 @@ export function TimeField({
   id,
   name,
   invalid,
+  disabled,
   className,
 }: {
   value: string;
@@ -27,6 +28,7 @@ export function TimeField({
   id?: string;
   name?: string;
   invalid?: boolean;
+  disabled?: boolean;
   className?: string;
 }) {
   const { hour, minute } = split(value);

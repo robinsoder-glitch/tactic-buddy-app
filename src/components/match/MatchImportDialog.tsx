@@ -5,6 +5,7 @@ import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimeField } from "@/components/TimeField";
 import {
   Dialog,
   DialogContent,
