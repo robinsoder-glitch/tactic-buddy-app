@@ -162,6 +162,7 @@ export async function updateProfile(input: {
   avatar_path?: string | null;
   guardian_for_name?: string | null;
   account_kind?: AccountKindValue | null;
+  phone?: string | null;
 }) {
   const { id, ...raw } = input;
   const rest = Object.fromEntries(
@@ -175,7 +176,7 @@ export async function fetchProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name, account_kind",
+      "id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name, account_kind, phone",
     )
     .eq("id", userId)
     .maybeSingle();
