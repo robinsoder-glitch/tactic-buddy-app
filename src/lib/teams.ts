@@ -295,7 +295,13 @@ export async function fetchMyMemberships() {
     ),
     team: (
       row as unknown as {
-        teams: { id: string; name: string; age_group: string | null; gender: string } | null;
+        teams: {
+          id: string;
+          name: string;
+          age_group: string | null;
+          gender: string;
+          created_by?: string | null;
+        } | null;
       }
     ).teams,
   }));
