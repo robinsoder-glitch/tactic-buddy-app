@@ -50,6 +50,7 @@ function SettingsPage() {
 
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
+  const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
   const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
@@ -59,7 +60,8 @@ function SettingsPage() {
   useEffect(() => {
     setName(profile?.display_name ?? "");
     setBirth(profile?.birth_date ?? "");
-  }, [profile?.display_name, profile?.birth_date]);
+    setPhone((profile as { phone?: string | null } | null)?.phone ?? "");
+  }, [profile?.display_name, profile?.birth_date, profile]);
 
   function patchPrefs(patch: Partial<AppPrefs>) {
     const next = { ...prefs, ...patch };
@@ -81,6 +83,7 @@ function SettingsPage() {
         id: userId,
         display_name: name.trim() || null,
         birth_date: birth || null,
+        phone: phone.trim() || null,
       });
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profilen sparad");
@@ -128,6 +131,19 @@ function SettingsPage() {
             value={birth}
             onChange={(event) => setBirth(event.target.value)}
           />
+        </div>
+        <div>
+          <Label htmlFor="phone">Telefonnummer (valfritt)</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="070-123 45 67"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Syns för lagets medlemmar om du är ledare, så föräldrar kan nå dig.
+          </p>
         </div>
         <Button onClick={saveProfile} disabled={savingProfile}>
           Spara profil

@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy, Crown, Mail, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
+import { Copy, Crown, Mail, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   INVITE_STATE_LABELS,
   addTeamInvite,
   fetchTeam,
   fetchTeamInvites,
+  fetchTeamLeaderContacts,
   fetchTeamMembers,
   inviteLink,
   inviteState,
@@ -67,6 +68,7 @@ function LeadersPage() {
   const [recipientLabel, setRecipientLabel] = useState("");
   const [lastLink, setLastLink] = useState<string | null>(null);
   const [lastQr, setLastQr] = useState<string | null>(null);
+  const [openLeader, setOpenLeader] = useState<string | null>(null);
 
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
   const members = useQuery({
@@ -77,6 +79,11 @@ function LeadersPage() {
     queryKey: ["team-invites", teamId],
     queryFn: () => fetchTeamInvites(teamId),
     enabled: isCoach,
+  });
+  const leaderContacts = useQuery({
+    queryKey: ["team-leader-contacts", teamId],
+    queryFn: () => fetchTeamLeaderContacts(teamId),
+    enabled: !isCoach,
   });
 
   const refresh = () => {
@@ -157,25 +164,60 @@ function LeadersPage() {
     return (
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Ledare</h2>
-        {leaders.length === 0 && (
-          <p className="text-sm text-muted-foreground">Inga ytterligare ledare i laget ännu.</p>
+        {leaderContacts.isPending && (
+          <p className="text-sm text-muted-foreground">Hämtar ledare…</p>
         )}
-        {leaders.map((leader) => (
-          <div
-            key={leader.id}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
-          >
-            {leader.user_id === ownerId ? (
-              <Crown className="size-5 text-primary" aria-hidden />
-            ) : (
-              <ShieldCheck className="size-5 text-primary" aria-hidden />
-            )}
-            <span className="text-sm">
-              {leader.displayName ?? "Ledare"}
-              {leader.user_id === ownerId && (
-                <span className="text-muted-foreground"> · lagägare</span>
+        {leaderContacts.isError && (
+          <p className="text-sm text-muted-foreground">
+            Ledarna kunde inte hämtas. Ladda om sidan och försök igen.
+          </p>
+        )}
+        {leaderContacts.data?.length === 0 && (
+          <p className="text-sm text-muted-foreground">Inga ledare i laget ännu.</p>
+        )}
+        {leaderContacts.data?.map((leader) => (
+          <div key={leader.user_id} className="rounded-xl border border-border bg-card p-3">
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 text-left"
+              onClick={() =>
+                setOpenLeader((current) => (current === leader.user_id ? null : leader.user_id))
+              }
+              aria-expanded={openLeader === leader.user_id}
+            >
+              {leader.is_owner ? (
+                <Crown className="size-5 shrink-0 text-primary" aria-hidden />
+              ) : (
+                <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden />
               )}
-            </span>
+              <span className="text-sm font-medium underline-offset-2 hover:underline">
+                {leader.display_name?.trim() || "Ledare"}
+                {leader.is_owner && <span className="text-muted-foreground"> · lagägare</span>}
+              </span>
+            </button>
+            {openLeader === leader.user_id && (
+              <div className="mt-2 space-y-1 border-t border-border pt-2 text-sm">
+                {leader.email && (
+                  <a
+                    href={`mailto:${leader.email}`}
+                    className="flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Mail className="size-4" aria-hidden /> {leader.email}
+                  </a>
+                )}
+                {leader.phone && (
+                  <a
+                    href={`tel:${leader.phone}`}
+                    className="flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Phone className="size-4" aria-hidden /> {leader.phone}
+                  </a>
+                )}
+                {!leader.email && !leader.phone && (
+                  <p className="text-muted-foreground">Inga kontaktuppgifter är ifyllda ännu.</p>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </section>

@@ -162,6 +162,7 @@ export async function updateProfile(input: {
   avatar_path?: string | null;
   guardian_for_name?: string | null;
   account_kind?: AccountKindValue | null;
+  phone?: string | null;
 }) {
   const { id, ...raw } = input;
   const rest = Object.fromEntries(
@@ -175,7 +176,7 @@ export async function fetchProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name, account_kind",
+      "id, display_name, birth_date, avatar_path, is_adult_confirmed, guardian_for_name, account_kind, phone",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -345,6 +346,21 @@ export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
     displayName: names.get(row.user_id)?.name ?? null,
     guardianForName: names.get(row.user_id)?.child ?? null,
   }));
+}
+
+export type TeamLeaderContact = {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+  phone: string | null;
+  is_owner: boolean;
+};
+
+/** Ledarnas namn och kontaktuppgifter – tillgängligt för lagets godkända medlemmar. */
+export async function fetchTeamLeaderContacts(teamId: string): Promise<TeamLeaderContact[]> {
+  const { data, error } = await supabase.rpc("get_team_leaders", { _team_id: teamId });
+  if (error) throw error;
+  return (data ?? []) as TeamLeaderContact[];
 }
 
 export type TeamCodeMatch = {
