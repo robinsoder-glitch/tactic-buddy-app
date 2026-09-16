@@ -66,15 +66,18 @@ export function PlayerAccountLink({
         Kopplat konto ser sina egna kallelser och kan svara själv.
       </p>
 
-      <p className="mt-2 text-sm">
-        {current ? (
-          <>
-            Kopplat till <span className="font-medium">{currentName ?? "ett konto i laget"}</span>.
-          </>
-        ) : (
-          "Inget konto är kopplat ännu."
-        )}
-      </p>
+      {current ? (
+        <p className="mt-2 text-sm">
+          Kopplat till <span className="font-medium">{currentName ?? "ett konto i laget"}</span>.
+        </p>
+      ) : (
+        <p className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <span>
+            Inget spelarkonto är kopplat. Spelaren kan inte se eller svara på sina kallelser.
+          </span>
+        </p>
+      )}
 
       {canEdit && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
