@@ -39,13 +39,13 @@ import {
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
 
-export const Route = createFileRoute("/_authenticated/team/$teamId/")({
+export const Route = createFileRoute("/_authenticated/team/$teamId/trupp")({
   component: SquadPage,
 });
 
 function SquadPage() {
   const { confirm, confirmDialog } = useConfirm();
-  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/" });
+  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/trupp" });
   const { isCoach, userId } = useTeamRole(teamId);
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
