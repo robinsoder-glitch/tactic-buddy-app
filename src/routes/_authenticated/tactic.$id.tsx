@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TacticEditor } from "@/components/TacticEditor";
+import { CoachOnly } from "@/components/CoachOnly";
 
 export const Route = createFileRoute("/_authenticated/tactic/$id")({
   head: () => ({
@@ -19,7 +20,11 @@ export const Route = createFileRoute("/_authenticated/tactic/$id")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: TacticRoutePage,
+  component: () => (
+    <CoachOnly>
+      <TacticRoutePage />
+    </CoachOnly>
+  ),
   errorComponent: ({ reset }) => (
     <div role="alert" className="mx-auto max-w-md p-8 text-center">
       <h1 className="text-lg font-semibold">Taktiken kunde inte öppnas</h1>
