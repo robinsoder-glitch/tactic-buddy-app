@@ -84,6 +84,16 @@ export function draftPayload(draft: TrainingDraft) {
   }));
 }
 
+/** Hjälp som tar bort interna visningsfält innan sparning. */
+export function draftPayloadItem(item: DraftItem) {
+  return {
+    kind: item.kind,
+    resource_id: item.resourceId,
+    minutes: item.minutes,
+    note: item.note,
+  };
+}
+
 const PREFIX = "traningsutkast:";
 
 export function loadDraft(eventId: string): TrainingDraft | null {
