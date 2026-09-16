@@ -114,7 +114,14 @@ export function GuardianLinks({
             >
               <option value="">Välj konto…</option>
               {(members.data ?? [])
-                .filter((member) => member.status === "approved" && !linked.has(member.user_id))
+                .filter(
+                  (member) =>
+                    member.status === "approved" &&
+                    // Bara konton som gått med med lagkod kan vara vårdnadshavare –
+                    // aldrig lagets ledare (eller du själv som tränare).
+                    !isLeaderRole(member.role) &&
+                    !linked.has(member.user_id),
+                )
                 .map((member) => (
                   <option key={member.id} value={member.user_id}>
                     {member.displayName ?? "Medlem"}
