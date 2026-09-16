@@ -38,9 +38,13 @@ function AdminAccounts() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (input: { userId: string }) => remove({ data: input }),
-    onSuccess: () => {
-      toast.success("Kontot raderades.");
+    mutationFn: (userIds: string[]) => remove({ data: { userIds } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.deleted === 1 ? "Kontot raderades." : `${result.deleted} konton raderades.`,
+      );
+      setSelected(new Set());
+      setPendingIds(null);
       queryClient.invalidateQueries({ queryKey: ["admin-accounts"] });
     },
     onError: (error) => toast.error(friendlyError(error)),
