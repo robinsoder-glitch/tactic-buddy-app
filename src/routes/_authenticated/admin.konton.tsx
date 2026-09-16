@@ -128,13 +128,7 @@ function AdminAccounts() {
                     type="button"
                     className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
                     disabled={deleteMutation.isPending}
-                    onClick={() => {
-                      const answer = window.prompt(
-                        `Skriv RADERA för att permanent ta bort ${account.email ?? "kontot"}.`,
-                      );
-                      if (answer?.trim().toUpperCase() === "RADERA")
-                        deleteMutation.mutate({ userId: account.id });
-                    }}
+                    onClick={() => setPendingIds([account.id])}
                   >
                     Radera konto
                   </button>
@@ -144,6 +138,22 @@ function AdminAccounts() {
           );
         })}
       </ul>
+
+      <ConfirmDeleteDialog
+        open={pendingIds !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingIds(null);
+        }}
+        title={
+          (pendingIds?.length ?? 0) > 1 ? `Radera ${pendingIds?.length} konton?` : "Radera kontot?"
+        }
+        description="Inloggning och profil tas bort permanent. Lagen finns kvar."
+        confirmLabel="Ja, radera"
+        pending={deleteMutation.isPending}
+        onConfirm={() => {
+          if (pendingIds) deleteMutation.mutate(pendingIds);
+        }}
+      />
     </section>
   );
 }
