@@ -116,12 +116,12 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <label className="text-sm">
             Starttid
-            <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+            <TimeField value={startTime} onChange={setStartTime} invalid={Boolean(errors.start)} />
             {errors.start && <span className="text-xs text-destructive">{errors.start}</span>}
           </label>
           <label className="text-sm">
             Sluttid
-            <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+            <TimeField value={endTime} onChange={setEndTime} invalid={Boolean(errors.end)} />
             {errors.end && <span className="text-xs text-destructive">{errors.end}</span>}
           </label>
         </div>
@@ -129,7 +129,7 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
         {event.type === "match" && (
           <label className="text-sm">
             Samlingstid
-            <Input type="time" value={meetTime} onChange={(e) => setMeetTime(e.target.value)} />
+            <TimeField value={meetTime} onChange={setMeetTime} invalid={Boolean(errors.meet)} />
             {errors.meet && <span className="text-xs text-destructive">{errors.meet}</span>}
           </label>
         )}
