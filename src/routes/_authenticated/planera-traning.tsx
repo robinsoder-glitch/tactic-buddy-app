@@ -325,6 +325,8 @@ function PlanTrainingPage() {
           title: created.title,
           minutes: created.minutes,
           note: created.coach_focus ? `Fokus: ${created.coach_focus}` : null,
+          instruction: created.instruction,
+          equipment: created.equipment,
         }),
       );
       queryClient.invalidateQueries({ queryKey: ["coach-drills"] });
