@@ -30,8 +30,8 @@ export function CoachOnly({ children }: { children: ReactNode }) {
         <h1 className="mt-3 font-display text-2xl font-bold">Bara för tränare</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Den här sidan är till för lagets ledare, till exempel träningspass, planering och
-          taktiktavlan. Ditt konto är ett spelar- eller vårdnadshavarkonto, så innehållet visas
-          inte här.
+          taktiktavlan. Ditt konto är ett spelar- eller vårdnadshavarkonto, så innehållet visas inte
+          här.
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
           Hör av dig till en ledare i laget om du tror att du borde ha tränarbehörighet.
