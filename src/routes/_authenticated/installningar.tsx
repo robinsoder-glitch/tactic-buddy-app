@@ -113,6 +113,51 @@ function SettingsPage() {
     else toast.success("Vi har mailat en länk för att byta lösenord.");
   }
 
+  async function refreshTeams() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["my-memberships"] }),
+      queryClient.invalidateQueries({ queryKey: ["teams"] }),
+    ]);
+  }
+
+  async function leave(teamId: string, teamName: string) {
+    if (
+      !window.confirm(
+        `Vill du lämna ${teamName}? Lagets ledare får ett meddelande och du försvinner ur truppen.`,
+      )
+    )
+      return;
+    setTeamBusy(teamId);
+    try {
+      await leaveTeam(teamId);
+      await refreshTeams();
+      toast.success(`Du har lämnat ${teamName}. Lagets ledare är informerade.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte lämna laget");
+    } finally {
+      setTeamBusy(null);
+    }
+  }
+
+  async function removeTeam(teamId: string, teamName: string) {
+    if (
+      !window.confirm(
+        `Radera ${teamName} med alla aktiviteter, kallelser, spelare och bilder? Det går inte att ångra.`,
+      )
+    )
+      return;
+    setTeamBusy(teamId);
+    try {
+      await deleteOwnTeam(teamId);
+      await refreshTeams();
+      toast.success(`${teamName} är raderat.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kunde inte radera laget");
+    } finally {
+      setTeamBusy(null);
+    }
+  }
+
   const phoneProblem = phoneError(phone);
 
   const approvedTeams = groupMembershipsByTeam(
