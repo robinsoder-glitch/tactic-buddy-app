@@ -68,6 +68,15 @@ const MATCH_KINDS = [
   "Intern lagmatch",
 ];
 
+const NOTE_SUGGESTIONS = [
+  "Glöm inte benskydd",
+  "Glöm inte vattenflaska",
+  "Glöm inte boll",
+  "Glöm inte varm tröja",
+  "Glöm inte ombyte",
+  "Glöm inte något att äta efter träningen",
+];
+
 const REPEATS = [
   { value: "none", label: "Ingen" },
   { value: "weekly", label: "Varje vecka" },
