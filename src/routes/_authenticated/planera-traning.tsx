@@ -695,7 +695,7 @@ function PlanTrainingPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="own-instruction">Kort instruktion</Label>
+              <Label htmlFor="own-instruction">Kort instruktion (valfritt)</Label>
               <Textarea
                 id="own-instruction"
                 rows={2}
@@ -706,7 +706,7 @@ function PlanTrainingPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="own-purpose">Syfte</Label>
+              <Label htmlFor="own-purpose">Syfte (valfritt)</Label>
               <Input
                 id="own-purpose"
                 value={form.purpose}
@@ -724,6 +724,21 @@ function PlanTrainingPage() {
                   setForm((state) => ({ ...state, equipment: event.target.value }))
                 }
               />
+              <div className="flex flex-wrap gap-2 pt-1">
+                {EQUIPMENT_SUGGESTIONS.map((item) => (
+                  <Button
+                    key={item}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setForm((state) => ({ ...state, equipment: addEquipment(state.equipment, item) }))
+                    }
+                  >
+                    {item}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="own-focus">Tränarens fokus (valfritt)</Label>
