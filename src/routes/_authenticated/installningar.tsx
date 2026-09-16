@@ -146,12 +146,22 @@ function SettingsPage() {
           <Input
             id="phone"
             type="tel"
+            inputMode="tel"
+            maxLength={30}
+            autoComplete="tel"
             value={phone}
+            aria-invalid={phoneProblem ? true : undefined}
+            aria-describedby="phone-hint"
             onChange={(event) => setPhone(event.target.value)}
+            onBlur={() => setPhone((current) => formatPhone(current) || current)}
             placeholder="070-123 45 67"
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            Syns för lagets medlemmar om du är ledare, så föräldrar kan nå dig.
+          <p
+            id="phone-hint"
+            className={`mt-1 text-xs ${phoneProblem ? "text-destructive" : "text-muted-foreground"}`}
+          >
+            {phoneProblem ??
+              "Syns för lagets medlemmar om du är ledare, så föräldrar kan nå dig. Skriv t.ex. 070-123 45 67."}
           </p>
         </div>
         <Button onClick={saveProfile} disabled={savingProfile}>
