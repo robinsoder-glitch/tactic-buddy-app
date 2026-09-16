@@ -259,12 +259,7 @@ function AdminTeamDetail() {
           <button
             type="button"
             className="min-h-11 rounded-lg border border-destructive px-4 text-sm font-semibold text-destructive hover:bg-destructive/10"
-            onClick={() => {
-              const answer = window.prompt(
-                `Skriv lagets namn (${team.name}) för att radera det permanent.`,
-              );
-              if (answer?.trim() === team.name) dropTeam.mutate();
-            }}
+            onClick={() => setDialog({ kind: "team" })}
           >
             Radera lag
           </button>
