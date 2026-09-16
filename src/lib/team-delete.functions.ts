@@ -9,7 +9,9 @@ import { z } from "zod";
  */
 export const deleteTeamWithMembers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { teamId: string }) => z.object({ teamId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { teamId: string }) =>
+    z.object({ teamId: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
