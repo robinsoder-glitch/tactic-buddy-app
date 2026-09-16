@@ -178,7 +178,10 @@ async function purgePlayers(db: AdminDb, playerIds: string[]) {
   ] as const) {
     await db.from(table).delete().in("player_id", playerIds);
   }
-  await db.from("team_invites").update({ target_player_id: null }).in("target_player_id", playerIds);
+  await db
+    .from("team_invites")
+    .update({ target_player_id: null })
+    .in("target_player_id", playerIds);
   const { error } = await db.from("players").delete().in("id", playerIds);
   if (error) throw new Error(error.message);
 }
