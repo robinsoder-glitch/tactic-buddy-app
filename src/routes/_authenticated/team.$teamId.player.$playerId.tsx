@@ -51,6 +51,7 @@ function PlayerPage() {
   const queryClient = useQueryClient();
   const { confirm, confirmDialog } = useConfirm();
   const [editing, setEditing] = useState<PlayerStatInput | null>(null);
+  const [openLeader, setOpenLeader] = useState<string | null>(null);
 
   const players = useQuery({
     queryKey: ["team-players", teamId],
