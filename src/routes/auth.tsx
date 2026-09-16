@@ -24,6 +24,7 @@ import {
 } from "@/lib/account-setup";
 import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 import { friendlyError } from "@/lib/user-errors";
+import { checkEmailExists } from "@/lib/auth.functions";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
 import { safeNextPath } from "@/lib/invite-links";
