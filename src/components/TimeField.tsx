@@ -32,9 +32,8 @@ export function TimeField({
   className?: string;
 }) {
   const { hour, minute } = split(value);
-  const minutes = minute && !BASE_MINUTES.includes(minute)
-    ? [...BASE_MINUTES, minute].sort()
-    : BASE_MINUTES;
+  const minutes =
+    minute && !BASE_MINUTES.includes(minute) ? [...BASE_MINUTES, minute].sort() : BASE_MINUTES;
 
   const selectClass = cn(
     "h-11 w-full rounded-lg border bg-background px-2 text-sm disabled:opacity-60",
