@@ -182,7 +182,7 @@ function SettingsPage() {
         </div>
       </section>
 
-      <NotificationSettingsCard userId={userId} />
+      {isCoach ? <NotificationSettingsCard userId={userId} /> : null}
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
