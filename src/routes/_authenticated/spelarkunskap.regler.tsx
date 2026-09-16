@@ -25,6 +25,12 @@ export const Route = createFileRoute("/_authenticated/spelarkunskap/regler")({
 });
 
 function PlayerRulesPage() {
+  const teams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
+  // Spelar laget 5 mot 5 gäller femmannareglerna – tre perioder, ingen
+  // offside, ingen straff och sidlinjespark i stället för inkast.
+  const format = (teams.data ?? []).map((team) => team.game_format).find(Boolean) ?? null;
+  const { chapters, formatLabel } = rulebookForFormat(format);
+
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
