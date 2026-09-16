@@ -347,6 +347,21 @@ export async function fetchTeamMembers(teamId: string): Promise<TeamMember[]> {
   }));
 }
 
+export type TeamLeaderContact = {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+  phone: string | null;
+  is_owner: boolean;
+};
+
+/** Ledarnas namn och kontaktuppgifter – tillgängligt för lagets godkända medlemmar. */
+export async function fetchTeamLeaderContacts(teamId: string): Promise<TeamLeaderContact[]> {
+  const { data, error } = await supabase.rpc("get_team_leaders", { _team_id: teamId });
+  if (error) throw error;
+  return (data ?? []) as TeamLeaderContact[];
+}
+
 export type TeamCodeMatch = {
   id: string;
   name: string;
