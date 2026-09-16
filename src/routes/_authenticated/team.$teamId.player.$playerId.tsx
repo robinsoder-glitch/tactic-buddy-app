@@ -98,6 +98,15 @@ function PlayerPage() {
   const fields = statFieldsForAge(age);
   const youngPlayer = isYoungPlayer(age);
 
+  async function copyText(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} är kopierat.`);
+    } catch {
+      toast.error(`Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`);
+    }
+  }
+
   return (
     <section>
       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
