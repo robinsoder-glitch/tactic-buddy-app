@@ -16,7 +16,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { useAccount } from "@/hooks/useAccount";
-import { updateProfile, leaveTeam, deleteOwnTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { useServerFn } from "@tanstack/react-start";
+import { updateProfile, leaveTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
+import { deleteTeamWithMembers } from "@/lib/team-delete.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
 import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
