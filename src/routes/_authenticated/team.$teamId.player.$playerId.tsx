@@ -33,14 +33,14 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playe
   component: PlayerPage,
 });
 
-const FIELDS: [keyof PlayerStatInput, string, string][] = [
-  ["matches", "M", "Matcher"],
-  ["goals", "M\u00e5l", "M\u00e5l"],
-  ["assists", "A", "Assist"],
-  ["yellow_cards", "GK", "Gula kort"],
-  ["red_cards", "RK", "R\u00f6da kort"],
-  ["points", "P", "Po\u00e4ng"],
-];
+const FIELD_LABELS: Record<StatField, [string, string]> = {
+  matches: ["M", "Matcher"],
+  goals: ["M\u00e5l", "M\u00e5l"],
+  assists: ["A", "Assist"],
+  yellow_cards: ["GK", "Gula kort"],
+  red_cards: ["RK", "R\u00f6da kort"],
+  points: ["P", "Po\u00e4ng"],
+};
 
 function PlayerPage() {
   const { teamId, playerId } = useParams({ from: "/_authenticated/team/$teamId/player/$playerId" });
