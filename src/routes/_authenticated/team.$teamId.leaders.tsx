@@ -166,7 +166,9 @@ function LeadersPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} är kopierat.`);
     } catch {
-      toast.error(`Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`);
+      toast.error(
+        `Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`,
+      );
     }
   }
 

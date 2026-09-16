@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Copy, Crown, Mail, Pencil, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  Copy,
+  Crown,
+  Mail,
+  Pencil,
+  Phone,
+  Plus,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
@@ -108,7 +119,9 @@ function PlayerPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} är kopierat.`);
     } catch {
-      toast.error(`Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`);
+      toast.error(
+        `Kunde inte kopiera ${label.toLowerCase()}. Försök markera och kopiera manuellt.`,
+      );
     }
   }
 
