@@ -59,6 +59,7 @@ import { Route as AuthenticatedTraningspassIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedTraningspassIdRouteImport } from './routes/_authenticated/traningspass.$id'
 import { Route as AuthenticatedAdminLagIndexRouteImport } from './routes/_authenticated/admin.lag.index'
 import { Route as AuthenticatedAdminLagTeamIdRouteImport } from './routes/_authenticated/admin.lag.$teamId'
+import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
 import { Route as AuthenticatedTeamTeamIdLamnadeRouteImport } from './routes/_authenticated/team.$teamId.lamnade'
@@ -354,6 +355,12 @@ const AuthenticatedAdminLagTeamIdRoute =
     path: '/lag/$teamId',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedTeamTeamIdIndexRoute =
+  AuthenticatedTeamTeamIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdAboutRoute =
   AuthenticatedTeamTeamIdAboutRouteImport.update({
     id: '/about',
@@ -521,6 +528,7 @@ export interface FileRoutesByFullPath {
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
+  '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
@@ -562,7 +570,6 @@ export interface FileRoutesByTo {
   '/tactic/$id': typeof AuthenticatedTacticIdRoute
   '/taktikbank/$cardId': typeof AuthenticatedTaktikbankCardIdRoute
   '/taktikbank/regler': typeof AuthenticatedTaktikbankReglerRoute
-  '/team/$teamId': typeof AuthenticatedTeamTeamIdRouteWithChildren
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/kalender': typeof AuthenticatedKalenderIndexRoute
   '/kunskapsbank': typeof AuthenticatedKunskapsbankIndexRoute
@@ -586,6 +593,7 @@ export interface FileRoutesByTo {
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/admin/lag': typeof AuthenticatedAdminLagIndexRoute
+  '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
   '/traningspass/$id': typeof AuthenticatedTraningspassIdIndexRoute
   '/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
@@ -656,6 +664,7 @@ export interface FileRoutesById {
   '/_authenticated/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/_authenticated/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
   '/_authenticated/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
+  '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
   '/_authenticated/traningspass/$id/': typeof AuthenticatedTraningspassIdIndexRoute
   '/_authenticated/team/$teamId/event/$eventId': typeof AuthenticatedTeamTeamIdEventEventIdRoute
   '/_authenticated/team/$teamId/player/$playerId': typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
@@ -726,6 +735,7 @@ export interface FileRouteTypes {
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
     | '/admin/lag/'
+    | '/team/$teamId/'
     | '/traningspass/$id/'
     | '/team/$teamId/event/$eventId'
     | '/team/$teamId/player/$playerId'
@@ -767,7 +777,6 @@ export interface FileRouteTypes {
     | '/tactic/$id'
     | '/taktikbank/$cardId'
     | '/taktikbank/regler'
-    | '/team/$teamId'
     | '/admin'
     | '/kalender'
     | '/kunskapsbank'
@@ -791,6 +800,7 @@ export interface FileRouteTypes {
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
     | '/admin/lag'
+    | '/team/$teamId'
     | '/traningspass/$id'
     | '/team/$teamId/event/$eventId'
     | '/team/$teamId/player/$playerId'
@@ -860,6 +870,7 @@ export interface FileRouteTypes {
     | '/_authenticated/traningspass/$id/genomfor'
     | '/_authenticated/traningspass/$id/visa'
     | '/_authenticated/admin/lag/'
+    | '/_authenticated/team/$teamId/'
     | '/_authenticated/traningspass/$id/'
     | '/_authenticated/team/$teamId/event/$eventId'
     | '/_authenticated/team/$teamId/player/$playerId'
@@ -1227,6 +1238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLagTeamIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/team/$teamId/': {
+      id: '/_authenticated/team/$teamId/'
+      path: '/'
+      fullPath: '/team/$teamId/'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdIndexRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/about': {
       id: '/_authenticated/team/$teamId/about'
       path: '/about'
@@ -1398,6 +1416,7 @@ interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdTrainingRoute: typeof AuthenticatedTeamTeamIdTrainingRoute
   AuthenticatedTeamTeamIdTranarsnackRoute: typeof AuthenticatedTeamTeamIdTranarsnackRoute
   AuthenticatedTeamTeamIdTruppRoute: typeof AuthenticatedTeamTeamIdTruppRoute
+  AuthenticatedTeamTeamIdIndexRoute: typeof AuthenticatedTeamTeamIdIndexRoute
   AuthenticatedTeamTeamIdEventEventIdRoute: typeof AuthenticatedTeamTeamIdEventEventIdRoute
   AuthenticatedTeamTeamIdPlayerPlayerIdRoute: typeof AuthenticatedTeamTeamIdPlayerPlayerIdRoute
 }
@@ -1419,6 +1438,7 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
     AuthenticatedTeamTeamIdTranarsnackRoute:
       AuthenticatedTeamTeamIdTranarsnackRoute,
     AuthenticatedTeamTeamIdTruppRoute: AuthenticatedTeamTeamIdTruppRoute,
+    AuthenticatedTeamTeamIdIndexRoute: AuthenticatedTeamTeamIdIndexRoute,
     AuthenticatedTeamTeamIdEventEventIdRoute:
       AuthenticatedTeamTeamIdEventEventIdRoute,
     AuthenticatedTeamTeamIdPlayerPlayerIdRoute:
