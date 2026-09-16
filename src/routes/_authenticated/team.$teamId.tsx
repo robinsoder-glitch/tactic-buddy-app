@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/team/$teamId")({
 /** Exakt fem flikar i laget. */
 const TABS = [
   { to: "/team/$teamId/about", label: "Översikt", icon: Info, exact: false },
-  { to: "/team/$teamId", label: "Trupp", icon: Users, exact: true },
+  { to: "/team/$teamId/trupp", label: "Trupp", icon: Users, exact: false },
   { to: "/team/$teamId/calendar", label: "Aktiviteter", icon: CalendarDays, exact: false },
   { to: "/team/$teamId/narvaro", label: "Uppföljning", icon: CalendarCheck, exact: false },
   { to: "/team/$teamId/leaders", label: "Laginställningar", icon: ShieldCheck, exact: false },
