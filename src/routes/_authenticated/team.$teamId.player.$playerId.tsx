@@ -252,14 +252,20 @@ function PlayerPage() {
           <tbody>
             {stats.isLoading && (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
+                <td
+                  colSpan={fields.length + 2}
+                  className="px-3 py-6 text-center text-muted-foreground"
+                >
                   Laddar…
                 </td>
               </tr>
             )}
             {!stats.isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
+                <td
+                  colSpan={fields.length + 2}
+                  className="px-3 py-6 text-center text-muted-foreground"
+                >
                   {isCoach
                     ? "Ingen statistik ifylld än."
                     : "Tränaren har inte fyllt i någon statistik än."}
