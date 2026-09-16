@@ -124,7 +124,12 @@ function SessionBuilder() {
       await saveInfo.mutateAsync();
       return true;
     } catch {
-      return false; // felet visas redan – stanna kvar så inget går förlorat
+      // Felet visas redan. Låt tränaren välja: stanna och rätta, eller gå
+      // vidare ändå – annars går det inte att lämna sidan vid dålig täckning.
+      if (typeof window === "undefined") return false;
+      return window.confirm(
+        "Ändringarna kunde inte sparas. Vill du lämna sidan ändå? Det du skrivit går då förlorat.",
+      );
     }
   }
 
