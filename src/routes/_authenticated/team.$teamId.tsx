@@ -119,7 +119,7 @@ function TeamLayout() {
       </header>
 
       <nav className="mt-5 -mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
-        {TABS.map((tab) => (
+        {TABS.filter((tab) => isCoachRole || tab.to !== "/team/$teamId/narvaro").map((tab) => (
           <Link
             key={tab.to}
             to={tab.to}
@@ -135,19 +135,23 @@ function TeamLayout() {
         ))}
       </nav>
 
-      <nav aria-label="Fler lagsidor" className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-        {SUB_LINKS.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            params={{ teamId }}
-            className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline data-[status=active]:text-primary"
-          >
-            <link.icon className="size-3.5" aria-hidden />
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      {/* Statistik, periodplan och bilder är ledarnas sidor – spelare och
+          vårdnadshavare ser i stället sin egen statistik på spelarsidan. */}
+      {isCoachRole && (
+        <nav aria-label="Fler lagsidor" className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+          {SUB_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              params={{ teamId }}
+              className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline data-[status=active]:text-primary"
+            >
+              <link.icon className="size-3.5" aria-hidden />
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       <div className="mt-5">
         <Outlet />

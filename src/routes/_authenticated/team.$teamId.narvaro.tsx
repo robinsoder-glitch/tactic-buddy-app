@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { TeamCoachOnly } from "@/components/TeamCoachOnly";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CalendarCheck, ChevronRight, ListChecks, Users } from "lucide-react";
@@ -60,8 +61,17 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/narvaro")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AttendancePage,
+  component: AttendancePageGuarded,
 });
+
+function AttendancePageGuarded() {
+  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/narvaro" });
+  return (
+    <TeamCoachOnly teamId={teamId}>
+      <AttendancePage />
+    </TeamCoachOnly>
+  );
+}
 
 function AttendancePage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/narvaro" });

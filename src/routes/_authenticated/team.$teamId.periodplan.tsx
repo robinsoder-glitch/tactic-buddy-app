@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { TeamCoachOnly } from "@/components/TeamCoachOnly";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/periodplan")(
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PeriodPlan,
+  component: PeriodPlanGuarded,
 });
 
 const emptyForm = {
@@ -55,6 +56,15 @@ const emptyForm = {
   sub2: "",
   goal: "",
 };
+
+function PeriodPlanGuarded() {
+  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/periodplan" });
+  return (
+    <TeamCoachOnly teamId={teamId}>
+      <PeriodPlan />
+    </TeamCoachOnly>
+  );
+}
 
 function PeriodPlan() {
   const { teamId } = Route.useParams();

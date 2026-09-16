@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { fetchMyTeams } from "@/lib/teams";
 import { BackIconButton } from "@/components/BackLink";
 import { PlayerKnowledgeTabs } from "@/components/PlayerKnowledgeTabs";
-import { PLAYER_RULEBOOK } from "@/lib/player-rules";
+import { rulebookForFormat } from "@/lib/player-rules";
 
 export const Route = createFileRoute("/_authenticated/spelarkunskap/regler")({
   head: () => ({
@@ -25,6 +27,12 @@ export const Route = createFileRoute("/_authenticated/spelarkunskap/regler")({
 });
 
 function PlayerRulesPage() {
+  const teams = useQuery({ queryKey: ["teams"], queryFn: fetchMyTeams });
+  // Spelar laget 5 mot 5 gäller femmannareglerna – tre perioder, ingen
+  // offside, ingen straff och sidlinjespark i stället för inkast.
+  const format = (teams.data ?? []).map((team) => team.game_format).find(Boolean) ?? null;
+  const { chapters, formatLabel } = rulebookForFormat(format);
+
   return (
     <main className="mx-auto max-w-3xl px-4 pb-32 pt-6">
       <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
@@ -38,14 +46,15 @@ function PlayerRulesPage() {
       <PlayerKnowledgeTabs active="rules" />
 
       <p className="mt-4 max-w-[36ch] text-base leading-relaxed sm:max-w-[60ch] sm:text-lg">
-        Fotbollsrummets lilla regelbok – sex kapitel om hur en match fungerar, skrivna för er som
-        spelar. Läs ett kapitel i taget, och fråga tränaren om du undrar något.
+        {formatLabel
+          ? `Fotbollsrummets lilla regelbok för ${formatLabel} – sex kapitel om hur er match fungerar, skrivna för er som spelar. Läs ett kapitel i taget, och fråga tränaren om du undrar något.`
+          : "Fotbollsrummets lilla regelbok – sex kapitel om hur en match fungerar, skrivna för er som spelar. Läs ett kapitel i taget, och fråga tränaren om du undrar något."}
       </p>
 
       <nav aria-label="Innehåll" className="mt-6 rounded-2xl border border-border bg-card p-4">
         <p className="font-display text-base font-bold tracking-wide">Innehåll</p>
         <ol className="mt-2 space-y-1">
-          {PLAYER_RULEBOOK.map((chapter) => (
+          {chapters.map((chapter) => (
             <li key={chapter.number}>
               <a
                 href={`#kapitel-${chapter.number}`}
@@ -59,7 +68,7 @@ function PlayerRulesPage() {
       </nav>
 
       <div className="mt-8 space-y-10">
-        {PLAYER_RULEBOOK.map((chapter) => (
+        {chapters.map((chapter) => (
           <section
             key={chapter.number}
             id={`kapitel-${chapter.number}`}
