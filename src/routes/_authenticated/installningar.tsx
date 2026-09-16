@@ -55,6 +55,8 @@ function SettingsPage() {
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [teamBusy, setTeamBusy] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+  const deleteTeam = useServerFn(deleteTeamWithMembers);
   const [prefs, setPrefs] = useState<AppPrefs>(DEFAULT_PREFS);
   const [theme, setTheme] = useState<ThemeChoice>(DEFAULT_THEME);
 
