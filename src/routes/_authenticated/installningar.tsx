@@ -61,7 +61,7 @@ function SettingsPage() {
   useEffect(() => {
     setName(profile?.display_name ?? "");
     setBirth(profile?.birth_date ?? "");
-    setPhone((profile as { phone?: string | null } | null)?.phone ?? "");
+    setPhone(formatPhone((profile as { phone?: string | null } | null)?.phone ?? ""));
   }, [profile?.display_name, profile?.birth_date, profile]);
 
   function patchPrefs(patch: Partial<AppPrefs>) {
