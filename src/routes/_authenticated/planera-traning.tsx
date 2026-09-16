@@ -174,6 +174,27 @@ function PlanTrainingPage() {
     );
   }
 
+  /** Hämtar kort instruktion och utrustning för en övningsrad. */
+  function detailsFor(
+    kind: string,
+    resourceId: string,
+  ): { instruction: string | null; equipment: string | null } {
+    if (kind === "drill") {
+      const own = (ownDrills.data ?? []).find((row) => row.id === resourceId);
+      if (own) {
+        return { instruction: own.instruction, equipment: own.equipment };
+      }
+      const bank = (drills.data ?? []).find((row) => row.id === resourceId);
+      if (bank) {
+        return {
+          instruction: null,
+          equipment: bank.data.equipment?.length ? bank.data.equipment.join(", ") : null,
+        };
+      }
+    }
+    return { instruction: null, equipment: null };
+  }
+
   // Statusen visas först när underlaget hämtats, annars hinner ett felaktigt
   // "Ej klar" blinka förbi.
   const statusReady = ids.length === 0 || [plans, resources].every((query) => query.isSuccess);
