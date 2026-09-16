@@ -10,6 +10,7 @@ import {
   Palette,
   Shield,
   SlidersHorizontal,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
