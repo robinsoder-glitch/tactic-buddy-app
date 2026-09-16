@@ -202,7 +202,11 @@ function PlayerPage() {
                   )}
                   <span className="text-sm font-medium underline-offset-2 hover:underline">
                     {leader.display_name?.trim() || "Ledare"}
-                    {leader.is_owner && <span className="text-muted-foreground"> · lagägare</span>}
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {leaderRoleLabel(leader)}
+                      {leader.is_owner ? " · lagägare" : ""}
+                    </span>
                   </span>
                 </button>
                 {openLeader === leader.user_id && (
