@@ -279,7 +279,9 @@ export async function fetchMyMemberships() {
   if (!uid) return [];
   const { data, error } = await supabase
     .from("team_members")
-    .select("id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender)")
+    .select(
+      "id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender, created_by)",
+    )
     .eq("user_id", uid)
     .order("created_at", { ascending: false });
   if (error) throw error;
