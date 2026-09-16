@@ -78,14 +78,22 @@ function SettingsPage() {
       toast.error(dateError);
       return;
     }
+    // Telefonnumret sparas i ett enda format så att tel:-länkar alltid fungerar.
+    const numberError = phoneError(phone);
+    if (numberError) {
+      toast.error(numberError);
+      return;
+    }
+    const normalizedPhone = normalizePhone(phone);
     setSavingProfile(true);
     try {
       await updateProfile({
         id: userId,
         display_name: name.trim() || null,
         birth_date: birth || null,
-        phone: phone.trim() || null,
+        phone: normalizedPhone,
       });
+      setPhone(formatPhone(normalizedPhone));
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profilen sparad");
     } catch (error) {
