@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { EventResources } from "@/components/EventResources";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { TimeField } from "@/components/TimeField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
