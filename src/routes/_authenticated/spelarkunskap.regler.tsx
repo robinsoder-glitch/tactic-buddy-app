@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchMyTeams } from "@/lib/teams";
 import { BackIconButton } from "@/components/BackLink";
 import { PlayerKnowledgeTabs } from "@/components/PlayerKnowledgeTabs";
-import { PLAYER_RULEBOOK, rulebookForFormat } from "@/lib/player-rules";
+import { rulebookForFormat } from "@/lib/player-rules";
 
 export const Route = createFileRoute("/_authenticated/spelarkunskap/regler")({
   head: () => ({
