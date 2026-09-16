@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy, Crown, Mail, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
+import { Copy, Crown, Mail, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   INVITE_STATE_LABELS,
   addTeamInvite,
   fetchTeam,
   fetchTeamInvites,
+  fetchTeamLeaderContacts,
   fetchTeamMembers,
   inviteLink,
   inviteState,
@@ -67,6 +68,7 @@ function LeadersPage() {
   const [recipientLabel, setRecipientLabel] = useState("");
   const [lastLink, setLastLink] = useState<string | null>(null);
   const [lastQr, setLastQr] = useState<string | null>(null);
+  const [openLeader, setOpenLeader] = useState<string | null>(null);
 
   const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
   const members = useQuery({
@@ -77,6 +79,11 @@ function LeadersPage() {
     queryKey: ["team-invites", teamId],
     queryFn: () => fetchTeamInvites(teamId),
     enabled: isCoach,
+  });
+  const leaderContacts = useQuery({
+    queryKey: ["team-leader-contacts", teamId],
+    queryFn: () => fetchTeamLeaderContacts(teamId),
+    enabled: !isCoach,
   });
 
   const refresh = () => {
