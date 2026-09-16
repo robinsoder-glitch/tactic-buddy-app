@@ -1,31 +1,35 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { useAccount } from "@/hooks/useAccount";
+import { Lock } from "lucide-react";
+import { useTeamRole } from "@/hooks/useTeamRole";
 
 /**
- * Spärr för sidor som bara tränare (och admin) ska nå. Menyn döljer redan
- * länkarna – det här stoppar även den som skriver in adressen direkt.
+ * Sidor som bara lagets ledare ska se. Spelare och vårdnadshavare möts av en
+ * vänlig förklaring i stället för lagets statistik, periodplan eller bilder.
  */
-export function CoachOnly({ children }: { children: ReactNode }) {
-  const { isCoach, isAdmin, loading } = useAccount();
+export function CoachOnly({ teamId, children }: { teamId: string; children: ReactNode }) {
+  const { isCoach, loading } = useTeamRole(teamId);
 
   if (loading) {
-    return <p className="mx-auto max-w-md px-4 py-16 text-center text-muted-foreground">Laddar…</p>;
+    return <p className="py-8 text-center text-sm text-muted-foreground">Hämtar…</p>;
   }
 
-  if (!isCoach && !isAdmin) {
+  if (!isCoach) {
     return (
-      <main className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="font-display text-2xl font-bold">Bara för tränare</h1>
+      <section className="rounded-2xl border border-border bg-card p-6 text-center">
+        <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
+        <h2 className="mt-3 font-display text-lg font-bold">Den här sidan är för lagets ledare</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Den här sidan är till för lagets ledare. Som spelare eller vårdnadshavare hittar du
-          kalender, kallelser och ditt lag i menyn.
+          Du ser din egen statistik på din spelarsida.
         </p>
-        <Button asChild variant="secondary" className="mt-4">
-          <Link to="/">Till startsidan</Link>
-        </Button>
-      </main>
+        <Link
+          to="/team/$teamId"
+          params={{ teamId }}
+          className="mt-4 inline-block text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Till laget
+        </Link>
+      </section>
     );
   }
 
