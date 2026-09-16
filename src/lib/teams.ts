@@ -982,6 +982,28 @@ export async function deleteTeam(teamId: string) {
   if (error) throw error;
 }
 
+/**
+ * Spelare, vårdnadshavare och ledare lämnar laget själva. Spelarkortet
+ * avaktiveras och lagets ledare får en notis, så ingen ligger kvar i truppen.
+ */
+export async function leaveTeam(teamId: string) {
+  const { data, error } = await supabase.rpc("leave_team", { _team_id: teamId });
+  if (error) throw new Error(error.message);
+  return (data ?? {}) as {
+    team_name?: string;
+    cleared_players?: number;
+    cleared_guardian_links?: number;
+    notified_leaders?: number;
+  };
+}
+
+/** Bara tränaren som skapade laget kan radera det med allt innehåll. */
+export async function deleteOwnTeam(teamId: string) {
+  const { data, error } = await supabase.rpc("delete_own_team", { _team_id: teamId });
+  if (error) throw new Error(error.message);
+  return (data ?? {}) as { team_name?: string };
+}
+
 /** Generate a fresh join code so an old, spread code stops working. */
 export async function regenerateJoinCode(teamId: string): Promise<string> {
   return rotateTeamCode(teamId, "player");
