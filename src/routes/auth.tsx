@@ -155,7 +155,10 @@ function AuthPage() {
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password,
+      });
       if (error) {
         if (/invalid login credentials|invalid_credentials/i.test(error.message)) {
           toast.error("Fel lösenord. Försök igen.");

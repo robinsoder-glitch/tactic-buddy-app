@@ -9,7 +9,12 @@ import { z } from "zod";
 export const checkEmailExists = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
     z
-      .object({ email: z.string().email().transform((v) => v.trim().toLowerCase()) })
+      .object({
+        email: z
+          .string()
+          .email()
+          .transform((v) => v.trim().toLowerCase()),
+      })
       .parse(data),
   )
   .handler(async ({ data }): Promise<{ exists: boolean }> => {
