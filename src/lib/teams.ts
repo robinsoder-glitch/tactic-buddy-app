@@ -517,11 +517,16 @@ const EMPTY_PRIVATE = {
   allergy_note: null,
 } as const;
 
+/**
+ * Truppen visar bara spelare som är kvar i laget. Den som lämnat laget
+ * avaktiveras och hittas i stället via fetchLeftTeamPlayers.
+ */
 export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   const { data, error } = await supabase
     .from("players")
     .select("id, name, number, gender, photo_path, is_goalkeeper, is_active")
     .eq("team_id", teamId)
+    .eq("is_active", true)
     .order("name");
   if (error) throw error;
 
