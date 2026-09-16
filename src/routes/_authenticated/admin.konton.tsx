@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listAccounts, setAdminRole, deleteAccount } from "@/lib/admin.functions";
+import { listAccounts, setAdminRole, deleteAccounts } from "@/lib/admin.functions";
+import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { useAccount } from "@/hooks/useAccount";
 import { friendlyError } from "@/lib/user-errors";
 
