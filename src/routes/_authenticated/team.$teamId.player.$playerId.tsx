@@ -4,7 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Crown, Mail, Pencil, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { fetchTeamLeaderContacts, fetchTeamPlayers, GENDER_LABELS } from "@/lib/teams";
+import {
+  fetchTeamLeaderContacts,
+  fetchTeamPlayers,
+  GENDER_LABELS,
+  leaderRoleLabel,
+} from "@/lib/teams";
 import {
   deletePlayerStat,
   emptyStat,
@@ -202,7 +207,11 @@ function PlayerPage() {
                   )}
                   <span className="text-sm font-medium underline-offset-2 hover:underline">
                     {leader.display_name?.trim() || "Ledare"}
-                    {leader.is_owner && <span className="text-muted-foreground"> · lagägare</span>}
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {leaderRoleLabel(leader)}
+                      {leader.is_owner ? " · lagägare" : ""}
+                    </span>
                   </span>
                 </button>
                 {openLeader === leader.user_id && (

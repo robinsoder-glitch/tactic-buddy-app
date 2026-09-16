@@ -3023,6 +3023,7 @@ export type Database = {
           email: string
           is_owner: boolean
           phone: string
+          role: string
           user_id: string
         }[]
       }
