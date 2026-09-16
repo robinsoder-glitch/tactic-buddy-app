@@ -7,7 +7,8 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllClubs, fetchTeamAdminDetail } from "@/lib/admin-data";
 import { fetchTeamCodes } from "@/lib/teams";
-import { deleteTeam } from "@/lib/admin.functions";
+import { deletePlayers, deleteTeam } from "@/lib/admin.functions";
+import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/lag/$teamId")({
