@@ -250,7 +250,8 @@ export const PLAYER_RULEBOOK_5V5: RuleChapter[] = [
   {
     number: 5,
     title: "Retreatlinjen – i stället för offside",
-    intro: "Offside finns inte i 5 mot 5. I stället finns retreatlinjen som gör att ni får spela i gång bollen lugnt.",
+    intro:
+      "Offside finns inte i 5 mot 5. I stället finns retreatlinjen som gör att ni får spela i gång bollen lugnt.",
     rules: [
       {
         number: 1,
