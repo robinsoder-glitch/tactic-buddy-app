@@ -45,6 +45,7 @@ export const PLAYER_ROUTES = [
   "installningar.tsx",
   "teams.tsx",
   "team.$teamId.index.tsx",
+  "team.$teamId.trupp.tsx",
   "team.$teamId.calendar.tsx",
   "team.$teamId.matches.tsx",
   "team.$teamId.leaders.tsx",

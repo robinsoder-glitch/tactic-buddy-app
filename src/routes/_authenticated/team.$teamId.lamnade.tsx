@@ -44,7 +44,7 @@ function LeftPlayersPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-24 pt-4">
       <Link
-        to="/team/$teamId"
+        to="/team/$teamId/trupp"
         params={{ teamId }}
         className="inline-flex items-center gap-1 text-sm text-primary"
       >
