@@ -160,6 +160,75 @@ export const deleteAccount = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+type AdminDb = Awaited<ReturnType<typeof admin>>;
+
+/** Tar bort alla rader som hänger på spelarkorten innan korten raderas. */
+async function purgePlayers(db: AdminDb, playerIds: string[]) {
+  if (!playerIds.length) return;
+  for (const table of [
+    "event_attendance",
+    "event_invitations",
+    "event_squad",
+    "player_observations",
+    "player_focus_areas",
+    "player_stats",
+    "player_guardians",
+    "session_run_attendance",
+    "session_run_player_notes",
+  ] as const) {
+    await db.from(table).delete().in("player_id", playerIds);
+  }
+  await db
+    .from("team_invites")
+    .update({ target_player_id: null })
+    .in("target_player_id", playerIds);
+  const { error } = await db.from("players").delete().in("id", playerIds);
+  if (error) throw new Error(error.message);
+}
+
+/** Raderar ett lag med allt innehåll. */
+async function purgeTeam(db: AdminDb, teamId: string) {
+  const { data: team } = await db.from("teams").select("name").eq("id", teamId).maybeSingle();
+  const { data: events } = await db.from("events").select("id").eq("team_id", teamId);
+  const eventIds = (events ?? []).map((e) => e.id);
+
+  if (eventIds.length) {
+    for (const table of [
+      "event_attendance",
+      "event_coaches",
+      "event_invitations",
+      "event_plans",
+      "event_resources",
+      "event_squad",
+      "match_lineups",
+      "match_shares",
+    ] as const) {
+      await db.from(table).delete().in("event_id", eventIds);
+    }
+  }
+
+  for (const table of [
+    "player_observations",
+    "player_focus_areas",
+    "player_stats",
+    "team_chat_messages",
+    "team_photos",
+    "team_invites",
+    "team_periods",
+    "coach_sessions",
+    "team_members",
+  ] as const) {
+    await db.from(table).delete().eq("team_id", teamId);
+  }
+  await db.from("events").delete().eq("team_id", teamId);
+  await db.from("players").delete().eq("team_id", teamId);
+  await db.from("tactics").update({ team_id: null }).eq("team_id", teamId);
+
+  const { error } = await db.from("teams").delete().eq("id", teamId);
+  if (error) throw new Error(error.message);
+  return team?.name ?? null;
+}
+
 /** Raderar ett lag med allt innehåll. */
 export const deleteTeam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -167,50 +236,90 @@ export const deleteTeam = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as AdminContext);
     const db = await admin();
-
-    const { data: team } = await db
-      .from("teams")
-      .select("name")
-      .eq("id", data.teamId)
-      .maybeSingle();
-    const { data: events } = await db.from("events").select("id").eq("team_id", data.teamId);
-    const eventIds = (events ?? []).map((e) => e.id);
-
-    if (eventIds.length) {
-      for (const table of [
-        "event_attendance",
-        "event_coaches",
-        "event_invitations",
-        "event_plans",
-        "event_resources",
-        "event_squad",
-        "match_lineups",
-        "match_shares",
-      ] as const) {
-        await db.from(table).delete().in("event_id", eventIds);
-      }
-    }
-
-    for (const table of [
-      "player_observations",
-      "player_focus_areas",
-      "player_stats",
-      "team_chat_messages",
-      "team_photos",
-      "team_invites",
-      "team_periods",
-      "coach_sessions",
-      "team_members",
-    ] as const) {
-      await db.from(table).delete().eq("team_id", data.teamId);
-    }
-    await db.from("events").delete().eq("team_id", data.teamId);
-    await db.from("players").delete().eq("team_id", data.teamId);
-    await db.from("tactics").update({ team_id: null }).eq("team_id", data.teamId);
-
-    const { error } = await db.from("teams").delete().eq("id", data.teamId);
-    if (error) throw new Error(error.message);
-
-    await log(context.userId, "delete_team", "team", data.teamId, { name: team?.name ?? null });
+    const name = await purgeTeam(db, data.teamId);
+    await log(context.userId, "delete_team", "team", data.teamId, { name });
     return { ok: true as const };
+  });
+
+/** Raderar flera lag på en gång. */
+export const deleteTeams = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ teamIds: z.array(z.string().uuid()).min(1).max(100) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as AdminContext);
+    const db = await admin();
+    for (const teamId of data.teamIds) {
+      const name = await purgeTeam(db, teamId);
+      await log(context.userId, "delete_team", "team", teamId, { name });
+    }
+    return { ok: true as const, deleted: data.teamIds.length };
+  });
+
+/** Raderar flera klubbar med alla deras lag och allt laginnehåll. */
+export const deleteClubs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ clubIds: z.array(z.string().uuid()).min(1).max(100) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as AdminContext);
+    const db = await admin();
+
+    const { data: teams } = await db.from("teams").select("id").in("club_id", data.clubIds);
+    let deletedTeams = 0;
+    for (const team of teams ?? []) {
+      const name = await purgeTeam(db, team.id);
+      deletedTeams += 1;
+      await log(context.userId, "delete_team", "team", team.id, { name });
+    }
+
+    const { error } = await db.from("clubs").delete().in("id", data.clubIds);
+    if (error) throw new Error(error.message);
+    for (const clubId of data.clubIds) {
+      await log(context.userId, "delete_club", "club", clubId, { teams: deletedTeams });
+    }
+    return { ok: true as const, deletedClubs: data.clubIds.length, deletedTeams };
+  });
+
+/** Raderar flera spelarkort på en gång. */
+export const deletePlayers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ playerIds: z.array(z.string().uuid()).min(1).max(200) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as AdminContext);
+    const db = await admin();
+    await purgePlayers(db, data.playerIds);
+    for (const playerId of data.playerIds) {
+      await log(context.userId, "delete_player", "player", playerId);
+    }
+    return { ok: true as const, deleted: data.playerIds.length };
+  });
+
+/** Raderar flera konton på en gång. */
+export const deleteAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ userIds: z.array(z.string().uuid()).min(1).max(100) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as AdminContext);
+    const db = await admin();
+    let deleted = 0;
+    for (const userId of data.userIds) {
+      if (userId === context.userId) continue;
+      await db.from("team_members").delete().eq("user_id", userId);
+      await db.from("user_roles").delete().eq("user_id", userId);
+      await db.from("player_guardians").delete().eq("guardian_user_id", userId);
+      await db.from("players").update({ member_user_id: null }).eq("member_user_id", userId);
+      await db.from("app_notifications").delete().eq("user_id", userId);
+      const { error } = await db.auth.admin.deleteUser(userId);
+      if (error) throw new Error(error.message);
+      await log(context.userId, "delete_account", "user", userId);
+      deleted += 1;
+    }
+    return { ok: true as const, deleted };
   });

@@ -7,7 +7,8 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllClubs, fetchTeamAdminDetail } from "@/lib/admin-data";
 import { fetchTeamCodes } from "@/lib/teams";
-import { deleteTeam } from "@/lib/admin.functions";
+import { deletePlayers, deleteTeam } from "@/lib/admin.functions";
+import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/lag/$teamId")({
@@ -29,6 +30,11 @@ function AdminTeamDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const removeTeam = useServerFn(deleteTeam);
+  const removePlayersFn = useServerFn(deletePlayers);
+  const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
+  const [dialog, setDialog] = useState<
+    null | { kind: "team" } | { kind: "players"; ids: string[] } | { kind: "member"; id: string }
+  >(null);
 
   const detail = useQuery({
     queryKey: ["admin-team", teamId],
@@ -102,6 +108,7 @@ function AdminTeamDetail() {
     },
     onSuccess: () => {
       toast.success("Medlemmen togs bort.");
+      setDialog(null);
       refresh();
     },
     onError: (error) => toast.error(friendlyError(error)),
@@ -119,13 +126,14 @@ function AdminTeamDetail() {
     onError: (error) => toast.error(friendlyError(error)),
   });
 
-  const removePlayer = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("players").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Spelaren togs bort.");
+  const removePlayers = useMutation({
+    mutationFn: (ids: string[]) => removePlayersFn({ data: { playerIds: ids } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.deleted === 1 ? "Spelaren togs bort." : `${result.deleted} spelare togs bort.`,
+      );
+      setSelectedPlayers(new Set());
+      setDialog(null);
       refresh();
     },
     onError: (error) => toast.error(friendlyError(error)),
@@ -252,12 +260,7 @@ function AdminTeamDetail() {
           <button
             type="button"
             className="min-h-11 rounded-lg border border-destructive px-4 text-sm font-semibold text-destructive hover:bg-destructive/10"
-            onClick={() => {
-              const answer = window.prompt(
-                `Skriv lagets namn (${team.name}) för att radera det permanent.`,
-              );
-              if (answer?.trim() === team.name) dropTeam.mutate();
-            }}
+            onClick={() => setDialog({ kind: "team" })}
           >
             Radera lag
           </button>
@@ -295,7 +298,7 @@ function AdminTeamDetail() {
                 <button
                   type="button"
                   className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
-                  onClick={() => removeMember.mutate(member.id)}
+                  onClick={() => setDialog({ kind: "member", id: member.id })}
                 >
                   Ta bort
                 </button>
@@ -309,20 +312,46 @@ function AdminTeamDetail() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
-        <h2 className="font-display text-2xl font-bold">Trupp</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-2xl font-bold">Trupp</h2>
+          <button
+            type="button"
+            disabled={selectedPlayers.size === 0}
+            onClick={() => setDialog({ kind: "players", ids: [...selectedPlayers] })}
+            className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
+          >
+            Radera valda spelare ({selectedPlayers.size})
+          </button>
+        </div>
         <ul className="mt-3 space-y-2">
           {(detail.data?.players ?? []).map((player) => (
             <li
               key={player.id}
               className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
             >
-              <span className="font-semibold">
-                {player.number != null ? `#${player.number} ` : ""}
-                {player.name}
-                {!player.is_active && (
-                  <span className="ml-2 text-xs text-muted-foreground">(inaktiv)</span>
-                )}
-              </span>
+              <label className="flex items-center gap-3 font-semibold">
+                <input
+                  type="checkbox"
+                  className="size-5"
+                  checked={selectedPlayers.has(player.id)}
+                  aria-label={`Välj ${player.name}`}
+                  onChange={() =>
+                    setSelectedPlayers((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(player.id)) next.delete(player.id);
+                      else next.add(player.id);
+                      return next;
+                    })
+                  }
+                />
+                <span>
+                  {player.number != null ? `#${player.number} ` : ""}
+                  {player.name}
+                  {!player.is_active && (
+                    <span className="ml-2 text-xs text-muted-foreground">(inaktiv)</span>
+                  )}
+                </span>
+              </label>
               <span className="flex gap-2">
                 <button
                   type="button"
@@ -336,10 +365,7 @@ function AdminTeamDetail() {
                 <button
                   type="button"
                   className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
-                  onClick={() => {
-                    if (window.confirm(`Ta bort ${player.name} ur truppen?`))
-                      removePlayer.mutate(player.id);
-                  }}
+                  onClick={() => setDialog({ kind: "players", ids: [player.id] })}
                 >
                   Ta bort
                 </button>
@@ -359,6 +385,46 @@ function AdminTeamDetail() {
       >
         Öppna laget i vanliga vyn
       </Link>
+
+      <ConfirmDeleteDialog
+        open={dialog?.kind === "team"}
+        onOpenChange={(open) => setDialog(open ? { kind: "team" } : null)}
+        title="Radera laget?"
+        description={`${team.name} raderas med alla aktiviteter, kallelser, närvaro, spelarkort och bilder.`}
+        confirmLabel="Ja, radera laget"
+        pending={dropTeam.isPending}
+        onConfirm={() => dropTeam.mutate()}
+      />
+      <ConfirmDeleteDialog
+        open={dialog?.kind === "players"}
+        onOpenChange={(open) => {
+          if (!open) setDialog(null);
+        }}
+        title={
+          dialog?.kind === "players" && dialog.ids.length > 1
+            ? `Radera ${dialog.ids.length} spelare?`
+            : "Radera spelaren?"
+        }
+        description="Spelarkorten tas bort med närvaro, kallelser, statistik och uppföljning."
+        confirmLabel="Ja, radera"
+        pending={removePlayers.isPending}
+        onConfirm={() => {
+          if (dialog?.kind === "players") removePlayers.mutate(dialog.ids);
+        }}
+      />
+      <ConfirmDeleteDialog
+        open={dialog?.kind === "member"}
+        onOpenChange={(open) => {
+          if (!open) setDialog(null);
+        }}
+        title="Ta bort medlemmen?"
+        description="Personen tappar tillgången till laget. Kontot finns kvar."
+        confirmLabel="Ja, ta bort"
+        pending={removeMember.isPending}
+        onConfirm={() => {
+          if (dialog?.kind === "member") removeMember.mutate(dialog.id);
+        }}
+      />
     </section>
   );
 }

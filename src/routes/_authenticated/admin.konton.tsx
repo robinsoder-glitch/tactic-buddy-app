@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listAccounts, setAdminRole, deleteAccount } from "@/lib/admin.functions";
+import { listAccounts, setAdminRole, deleteAccounts } from "@/lib/admin.functions";
+import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { useAccount } from "@/hooks/useAccount";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -16,8 +17,10 @@ function AdminAccounts() {
   const queryClient = useQueryClient();
   const load = useServerFn(listAccounts);
   const grant = useServerFn(setAdminRole);
-  const remove = useServerFn(deleteAccount);
+  const remove = useServerFn(deleteAccounts);
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<string[] | null>(null);
 
   const accounts = useQuery({
     queryKey: ["admin-accounts"],
@@ -35,9 +38,13 @@ function AdminAccounts() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (input: { userId: string }) => remove({ data: input }),
-    onSuccess: () => {
-      toast.success("Kontot raderades.");
+    mutationFn: (userIds: string[]) => remove({ data: { userIds } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.deleted === 1 ? "Kontot raderades." : `${result.deleted} konton raderades.`,
+      );
+      setSelected(new Set());
+      setPendingIds(null);
       queryClient.invalidateQueries({ queryKey: ["admin-accounts"] });
     },
     onError: (error) => toast.error(friendlyError(error)),
@@ -66,7 +73,17 @@ function AdminAccounts() {
         placeholder="Sök på namn, e-post eller lag"
         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
       />
-      <p className="text-xs text-muted-foreground">{rows.length} konton</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{rows.length} konton</p>
+        <button
+          type="button"
+          disabled={selected.size === 0}
+          onClick={() => setPendingIds([...selected])}
+          className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
+        >
+          Radera valda konton ({selected.size})
+        </button>
+      </div>
 
       <ul className="space-y-3">
         {rows.map((account) => {
@@ -74,18 +91,36 @@ function AdminAccounts() {
           return (
             <li key={account.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-display text-lg font-semibold">
-                    {account.displayName ?? "Utan namn"}
-                  </p>
-                  <p className="break-all text-sm text-muted-foreground">{account.email}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Skapat {new Date(account.createdAt).toLocaleDateString("sv-SE")} ·{" "}
-                    {account.lastSignInAt
-                      ? `senast inloggad ${new Date(account.lastSignInAt).toLocaleDateString("sv-SE")}`
-                      : "aldrig inloggad"}{" "}
-                    · {account.confirmed ? "bekräftad" : "ej bekräftad"}
-                  </p>
+                <div className="flex min-w-0 gap-3">
+                  {account.id !== userId && (
+                    <input
+                      type="checkbox"
+                      className="mt-1 size-5 shrink-0"
+                      aria-label={`Välj ${account.email ?? account.id}`}
+                      checked={selected.has(account.id)}
+                      onChange={() =>
+                        setSelected((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(account.id)) next.delete(account.id);
+                          else next.add(account.id);
+                          return next;
+                        })
+                      }
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-display text-lg font-semibold">
+                      {account.displayName ?? "Utan namn"}
+                    </p>
+                    <p className="break-all text-sm text-muted-foreground">{account.email}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Skapat {new Date(account.createdAt).toLocaleDateString("sv-SE")} ·{" "}
+                      {account.lastSignInAt
+                        ? `senast inloggad ${new Date(account.lastSignInAt).toLocaleDateString("sv-SE")}`
+                        : "aldrig inloggad"}{" "}
+                      · {account.confirmed ? "bekräftad" : "ej bekräftad"}
+                    </p>
+                  </div>
                 </div>
                 {isAdmin && (
                   <span className="rounded-md bg-primary px-2 py-1 text-xs font-bold text-primary-foreground">
@@ -121,13 +156,7 @@ function AdminAccounts() {
                     type="button"
                     className="min-h-11 rounded-lg border border-destructive px-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
                     disabled={deleteMutation.isPending}
-                    onClick={() => {
-                      const answer = window.prompt(
-                        `Skriv RADERA för att permanent ta bort ${account.email ?? "kontot"}.`,
-                      );
-                      if (answer?.trim().toUpperCase() === "RADERA")
-                        deleteMutation.mutate({ userId: account.id });
-                    }}
+                    onClick={() => setPendingIds([account.id])}
                   >
                     Radera konto
                   </button>
@@ -137,6 +166,22 @@ function AdminAccounts() {
           );
         })}
       </ul>
+
+      <ConfirmDeleteDialog
+        open={pendingIds !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingIds(null);
+        }}
+        title={
+          (pendingIds?.length ?? 0) > 1 ? `Radera ${pendingIds?.length} konton?` : "Radera kontot?"
+        }
+        description="Inloggning och profil tas bort permanent. Lagen finns kvar."
+        confirmLabel="Ja, radera"
+        pending={deleteMutation.isPending}
+        onConfirm={() => {
+          if (pendingIds) deleteMutation.mutate(pendingIds);
+        }}
+      />
     </section>
   );
 }
