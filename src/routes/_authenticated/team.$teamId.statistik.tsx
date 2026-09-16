@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { TeamCoachOnly } from "@/components/TeamCoachOnly";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Download } from "lucide-react";
@@ -31,8 +32,17 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/statistik")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: StatsPage,
+  component: StatsPageGuarded,
 });
+
+function StatsPageGuarded() {
+  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/statistik" });
+  return (
+    <TeamCoachOnly teamId={teamId}>
+      <StatsPage />
+    </TeamCoachOnly>
+  );
+}
 
 function StatsPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/statistik" });

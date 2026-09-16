@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TeamCoachOnly } from "@/components/TeamCoachOnly";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,8 +12,17 @@ import { Label } from "@/components/ui/label";
 import { useConfirm } from "@/components/ConfirmDelete";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/photos")({
-  component: PhotosPage,
+  component: PhotosPageGuarded,
 });
+
+function PhotosPageGuarded() {
+  const { teamId } = useParams({ from: "/_authenticated/team/$teamId/photos" });
+  return (
+    <TeamCoachOnly teamId={teamId}>
+      <PhotosPage />
+    </TeamCoachOnly>
+  );
+}
 
 function PhotosPage() {
   const { confirm, confirmDialog } = useConfirm();
