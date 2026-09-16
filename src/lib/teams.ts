@@ -565,6 +565,34 @@ export async function fetchTeamPlayers(teamId: string): Promise<TeamPlayer[]> {
   );
 }
 
+export type LeftTeamPlayer = {
+  id: string;
+  name: string;
+  number: number | null;
+  left_at: string | null;
+  photoUrl: string | null;
+};
+
+/** Spelare som lämnat laget – ledaren ska kunna följa upp dem. */
+export async function fetchLeftTeamPlayers(teamId: string): Promise<LeftTeamPlayer[]> {
+  const { data, error } = await supabase
+    .from("players")
+    .select("id, name, number, photo_path, left_at")
+    .eq("team_id", teamId)
+    .eq("is_active", false)
+    .order("left_at", { ascending: false, nullsFirst: false });
+  if (error) throw error;
+  return Promise.all(
+    (data ?? []).map(async (row) => ({
+      id: row.id as string,
+      name: row.name as string,
+      number: (row.number as number | null) ?? null,
+      left_at: (row.left_at as string | null) ?? null,
+      photoUrl: await signTeamOrLegacy(row.photo_path, teamId),
+    })),
+  );
+}
+
 export async function saveTeamPlayer(input: {
   id?: string | undefined;
   teamId: string;
