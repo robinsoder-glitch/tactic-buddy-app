@@ -108,6 +108,7 @@ function AdminTeamDetail() {
     },
     onSuccess: () => {
       toast.success("Medlemmen togs bort.");
+      setDialog(null);
       refresh();
     },
     onError: (error) => toast.error(friendlyError(error)),
