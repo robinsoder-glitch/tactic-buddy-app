@@ -743,7 +743,10 @@ function PlanTrainingPage() {
                     size="sm"
                     variant="outline"
                     onClick={() =>
-                      setForm((state) => ({ ...state, equipment: addEquipment(state.equipment, item) }))
+                      setForm((state) => ({
+                        ...state,
+                        equipment: addEquipment(state.equipment, item),
+                      }))
                     }
                   >
                     {item}
