@@ -87,9 +87,13 @@ describe("behörighet: databasfunktioner kontrollerar rollen", () => {
     .map((f) => readFileSync(join(process.cwd(), "supabase/migrations", f), "utf8"));
 
   it.each(COACH_ONLY_RPCS)("%s finns och gör en behörighetskontroll", (fn) => {
-    const defs = migrations.filter((sql) => sql.includes(`FUNCTION public.${fn}(`));
-    expect(defs.length).toBeGreaterThan(0);
-    const latest = defs[defs.length - 1] as string;
+    const bodies = migrations.flatMap((sql) => {
+      const parts = sql.split(new RegExp(`FUNCTION public\\.${fn}\\s*\\(`)).slice(1);
+      // Bara riktiga definitioner, inte GRANT/REVOKE-rader.
+      return parts.filter((part) => part.includes("$function$") || part.includes("BEGIN"));
+    });
+    expect(bodies.length).toBeGreaterThan(0);
+    const latest = bodies[bodies.length - 1] as string;
     expect(latest).toMatch(/is_team_coach|can_manage_attendance|is_platform_admin|account_kind/);
   });
 });
