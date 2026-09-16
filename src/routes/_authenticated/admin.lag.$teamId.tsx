@@ -30,6 +30,11 @@ function AdminTeamDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const removeTeam = useServerFn(deleteTeam);
+  const removePlayersFn = useServerFn(deletePlayers);
+  const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
+  const [dialog, setDialog] = useState<
+    null | { kind: "team" } | { kind: "players"; ids: string[] } | { kind: "member"; id: string }
+  >(null);
 
   const detail = useQuery({
     queryKey: ["admin-team", teamId],
