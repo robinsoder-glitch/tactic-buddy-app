@@ -116,6 +116,7 @@ function SettingsPage() {
 
   async function refreshTeams() {
     await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["memberships"] }),
       queryClient.invalidateQueries({ queryKey: ["my-memberships"] }),
       queryClient.invalidateQueries({ queryKey: ["teams"] }),
     ]);
