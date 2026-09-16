@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { fetchPlayerGuardians, linkGuardian, setGuardianActive } from "@/lib/guardians";
 import { fetchTeamMembers } from "@/lib/teams";
+import { isLeaderRole } from "@/lib/team-roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
