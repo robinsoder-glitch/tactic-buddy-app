@@ -207,24 +207,46 @@ function LeadersPage() {
             {openLeader === leader.user_id && (
               <div className="mt-2 space-y-1 border-t border-border pt-2 text-sm">
                 {leader.email ? (
-                  <a
-                    href={`mailto:${leader.email}`}
-                    className="flex items-center gap-2 text-primary hover:underline"
-                  >
-                    <Mail className="size-4" aria-hidden /> {leader.email}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`mailto:${leader.email}`}
+                      className="flex flex-1 items-center gap-2 text-primary hover:underline"
+                    >
+                      <Mail className="size-4" aria-hidden /> {leader.email}
+                    </a>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-7"
+                      aria-label={`Kopiera e-post till ${leader.display_name ?? "ledaren"}`}
+                      onClick={() => copyText(leader.email!, "E-post")}
+                    >
+                      <Copy className="size-4" aria-hidden />
+                    </Button>
+                  </div>
                 ) : (
                   <p className="flex items-center gap-2 text-muted-foreground">
                     <Mail className="size-4" aria-hidden /> E-post: Ej ifyllt
                   </p>
                 )}
                 {leader.phone ? (
-                  <a
-                    href={`tel:${leader.phone}`}
-                    className="flex items-center gap-2 text-primary hover:underline"
-                  >
-                    <Phone className="size-4" aria-hidden /> {leader.phone}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`tel:${leader.phone}`}
+                      className="flex flex-1 items-center gap-2 text-primary hover:underline"
+                    >
+                      <Phone className="size-4" aria-hidden /> {leader.phone}
+                    </a>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-7"
+                      aria-label={`Kopiera telefonnummer till ${leader.display_name ?? "ledaren"}`}
+                      onClick={() => copyText(leader.phone!, "Telefonnummer")}
+                    >
+                      <Copy className="size-4" aria-hidden />
+                    </Button>
+                  </div>
                 ) : (
                   <p className="flex items-center gap-2 text-muted-foreground">
                     <Phone className="size-4" aria-hidden /> Telefon: Ej ifyllt
