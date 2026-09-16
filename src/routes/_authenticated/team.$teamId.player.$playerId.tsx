@@ -316,7 +316,9 @@ function PlayerPage() {
         </table>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        M = matcher, A = assist, GK = gula kort, RK = röda kort, P = poäng.
+        {youngPlayer
+          ? "M = matcher. För spelare under 12 år visas bara antal matcher och träningar – inga mål, assist, kort eller poäng."
+          : "M = matcher, A = assist, GK = gula kort, RK = röda kort, P = poäng."}
       </p>
 
       {isCoach && (
@@ -342,7 +344,7 @@ function PlayerPage() {
                 <div className="grid grid-cols-2 gap-3">
                   {fields.map((key) => (
                     <div key={String(key)} className="space-y-1.5">
-                      <Label htmlFor={`stat-${String(key)}`}>{long}</Label>
+                      <Label htmlFor={`stat-${String(key)}`}>{FIELD_LABELS[key][1]}</Label>
                       <Input
                         id={`stat-${String(key)}`}
                         inputMode="numeric"
