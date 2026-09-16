@@ -551,7 +551,7 @@ function PlanTrainingPage() {
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <ul className="space-y-2">
                     {(draft?.items.length ?? 0) === 0 && (
-                      <li className="text-sm text-muted-foreground">
+                      <li className="rounded-lg border border-dashed border-destructive/30 bg-destructive/5 p-4 text-base font-semibold text-destructive">
                         Inga övningar tillagda ännu.
                       </li>
                     )}

@@ -81,7 +81,7 @@ export function EventCoaches({ eventId, teamId, userId, canEdit }: Props) {
       {coaches.isLoading && <p className="mt-3 text-sm text-muted-foreground">Hämtar ansvariga…</p>}
       <ul className="mt-3 space-y-2">
         {!coaches.isLoading && (coaches.data ?? []).length === 0 && (
-          <li className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+          <li className="rounded-lg border border-dashed border-destructive/30 bg-destructive/5 p-4 text-base font-semibold text-destructive">
             Ingen ansvarig tränare är utsedd ännu.
           </li>
         )}
