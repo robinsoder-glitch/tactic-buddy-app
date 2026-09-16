@@ -109,17 +109,18 @@ function AdminAccounts() {
                     />
                   )}
                   <div className="min-w-0">
-                  <p className="font-display text-lg font-semibold">
-                    {account.displayName ?? "Utan namn"}
-                  </p>
-                  <p className="break-all text-sm text-muted-foreground">{account.email}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Skapat {new Date(account.createdAt).toLocaleDateString("sv-SE")} ·{" "}
-                    {account.lastSignInAt
-                      ? `senast inloggad ${new Date(account.lastSignInAt).toLocaleDateString("sv-SE")}`
-                      : "aldrig inloggad"}{" "}
-                    · {account.confirmed ? "bekräftad" : "ej bekräftad"}
-                  </p>
+                    <p className="font-display text-lg font-semibold">
+                      {account.displayName ?? "Utan namn"}
+                    </p>
+                    <p className="break-all text-sm text-muted-foreground">{account.email}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Skapat {new Date(account.createdAt).toLocaleDateString("sv-SE")} ·{" "}
+                      {account.lastSignInAt
+                        ? `senast inloggad ${new Date(account.lastSignInAt).toLocaleDateString("sv-SE")}`
+                        : "aldrig inloggad"}{" "}
+                      · {account.confirmed ? "bekräftad" : "ej bekräftad"}
+                    </p>
+                  </div>
                 </div>
                 {isAdmin && (
                   <span className="rounded-md bg-primary px-2 py-1 text-xs font-bold text-primary-foreground">
