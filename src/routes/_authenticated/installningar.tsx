@@ -18,6 +18,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
+import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
 import { DEFAULT_THEME, THEME_LABELS, loadTheme, saveTheme, type ThemeChoice } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ function SettingsPage() {
   useEffect(() => {
     setName(profile?.display_name ?? "");
     setBirth(profile?.birth_date ?? "");
-    setPhone((profile as { phone?: string | null } | null)?.phone ?? "");
+    setPhone(formatPhone((profile as { phone?: string | null } | null)?.phone ?? ""));
   }, [profile?.display_name, profile?.birth_date, profile]);
 
   function patchPrefs(patch: Partial<AppPrefs>) {
@@ -77,14 +78,22 @@ function SettingsPage() {
       toast.error(dateError);
       return;
     }
+    // Telefonnumret sparas i ett enda format så att tel:-länkar alltid fungerar.
+    const numberError = phoneError(phone);
+    if (numberError) {
+      toast.error(numberError);
+      return;
+    }
+    const normalizedPhone = normalizePhone(phone);
     setSavingProfile(true);
     try {
       await updateProfile({
         id: userId,
         display_name: name.trim() || null,
         birth_date: birth || null,
-        phone: phone.trim() || null,
+        phone: normalizedPhone,
       });
+      setPhone(formatPhone(normalizedPhone));
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profilen sparad");
     } catch (error) {
@@ -102,6 +111,8 @@ function SettingsPage() {
     if (error) toast.error(error.message);
     else toast.success("Vi har mailat en länk för att byta lösenord.");
   }
+
+  const phoneProblem = phoneError(phone);
 
   const approvedTeams = groupMembershipsByTeam(
     memberships.filter((item) => item.status === "approved"),
@@ -137,12 +148,22 @@ function SettingsPage() {
           <Input
             id="phone"
             type="tel"
+            inputMode="tel"
+            maxLength={30}
+            autoComplete="tel"
             value={phone}
+            aria-invalid={phoneProblem ? true : undefined}
+            aria-describedby="phone-hint"
             onChange={(event) => setPhone(event.target.value)}
+            onBlur={() => setPhone((current) => formatPhone(current) || current)}
             placeholder="070-123 45 67"
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            Syns för lagets medlemmar om du är ledare, så föräldrar kan nå dig.
+          <p
+            id="phone-hint"
+            className={`mt-1 text-xs ${phoneProblem ? "text-destructive" : "text-muted-foreground"}`}
+          >
+            {phoneProblem ??
+              "Syns för lagets medlemmar om du är ledare, så föräldrar kan nå dig. Skriv t.ex. 070-123 45 67."}
           </p>
         </div>
         <Button onClick={saveProfile} disabled={savingProfile}>
