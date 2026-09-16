@@ -4,7 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Crown, Mail, Pencil, Phone, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { useTeamRole } from "@/hooks/useTeamRole";
-import { fetchTeamLeaderContacts, fetchTeamPlayers, GENDER_LABELS } from "@/lib/teams";
+import {
+  fetchTeamLeaderContacts,
+  fetchTeamPlayers,
+  GENDER_LABELS,
+  leaderRoleLabel,
+} from "@/lib/teams";
 import {
   deletePlayerStat,
   emptyStat,
