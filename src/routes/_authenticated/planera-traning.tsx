@@ -56,6 +56,17 @@ import { eventTitleLine } from "@/lib/event-labels";
 import { CoachOnly } from "@/components/CoachOnly";
 import { isLeaderRole } from "@/lib/team-roles";
 
+const EQUIPMENT_SUGGESTIONS = ["Koner", "Mål"] as const;
+
+function addEquipment(current: string, item: string) {
+  const parts = current
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.some((part) => part.toLowerCase() === item.toLowerCase())) return current;
+  return [...parts, item].join(", ");
+}
+
 type Search = {
   eventId?: string | undefined;
   mode?: "edit" | undefined;
