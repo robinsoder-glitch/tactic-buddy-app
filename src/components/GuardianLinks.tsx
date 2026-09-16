@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { fetchPlayerGuardians, linkGuardian, setGuardianActive } from "@/lib/guardians";
 import { fetchTeamMembers } from "@/lib/teams";
+import { isLeaderRole } from "@/lib/team-roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -114,7 +115,14 @@ export function GuardianLinks({
             >
               <option value="">Välj konto…</option>
               {(members.data ?? [])
-                .filter((member) => member.status === "approved" && !linked.has(member.user_id))
+                .filter(
+                  (member) =>
+                    member.status === "approved" &&
+                    // Bara konton som gått med med lagkod kan vara vårdnadshavare –
+                    // aldrig lagets ledare (eller du själv som tränare).
+                    !isLeaderRole(member.role) &&
+                    !linked.has(member.user_id),
+                )
                 .map((member) => (
                   <option key={member.id} value={member.user_id}>
                     {member.displayName ?? "Medlem"}
