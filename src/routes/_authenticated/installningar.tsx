@@ -18,6 +18,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { updateProfile, TEAM_GENDER_LABELS } from "@/lib/teams";
 import { groupMembershipsByTeam, membershipRoleLabels } from "@/lib/memberships";
 import { birthDateError } from "@/lib/account-setup";
+import { formatPhone, normalizePhone, phoneError } from "@/lib/phone";
 import { DEFAULT_PREFS, loadPrefs, savePrefs, type AppPrefs } from "@/lib/prefs";
 import { DEFAULT_THEME, THEME_LABELS, loadTheme, saveTheme, type ThemeChoice } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
