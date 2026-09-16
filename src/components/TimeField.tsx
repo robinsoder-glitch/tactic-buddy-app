@@ -37,7 +37,7 @@ export function TimeField({
     : BASE_MINUTES;
 
   const selectClass = cn(
-    "h-11 w-full rounded-lg border bg-background px-2 text-sm",
+    "h-11 w-full rounded-lg border bg-background px-2 text-sm disabled:opacity-60",
     invalid ? "border-destructive" : "border-border",
   );
 
@@ -56,6 +56,7 @@ export function TimeField({
         name={name ? `${name}-hour` : undefined}
         aria-label="Timme"
         className={selectClass}
+        disabled={disabled}
         value={hour}
         onChange={(event) => emit(event.target.value, minute)}
       >
@@ -73,6 +74,7 @@ export function TimeField({
         name={name ? `${name}-minute` : undefined}
         aria-label="Minut"
         className={selectClass}
+        disabled={disabled}
         value={minute}
         onChange={(event) => emit(hour, event.target.value)}
       >
