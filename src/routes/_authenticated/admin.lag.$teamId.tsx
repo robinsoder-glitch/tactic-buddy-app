@@ -125,13 +125,14 @@ function AdminTeamDetail() {
     onError: (error) => toast.error(friendlyError(error)),
   });
 
-  const removePlayer = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("players").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Spelaren togs bort.");
+  const removePlayers = useMutation({
+    mutationFn: (ids: string[]) => removePlayersFn({ data: { playerIds: ids } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.deleted === 1 ? "Spelaren togs bort." : `${result.deleted} spelare togs bort.`,
+      );
+      setSelectedPlayers(new Set());
+      setDialog(null);
       refresh();
     },
     onError: (error) => toast.error(friendlyError(error)),
