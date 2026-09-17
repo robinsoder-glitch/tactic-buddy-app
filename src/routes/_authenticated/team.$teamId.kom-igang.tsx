@@ -182,7 +182,7 @@ function StartPage() {
   const addAndApprove = useMutation({
     mutationFn: async ({ memberId, playerName }: { memberId: string; playerName: string }) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      const player = await saveTeamPlayer({
+      const playerId = await saveTeamPlayer({
         teamId,
         userId,
         name: playerName.trim(),
@@ -192,7 +192,8 @@ function StartPage() {
         is_goalkeeper: false,
         photo_path: null,
       });
-      await approveTeamJoinRequest(memberId, player.id);
+      await approveTeamJoinRequest(memberId, playerId);
+
     },
     onSuccess: async () => {
       toast.success("Godkänd och kopplad till truppen.");
