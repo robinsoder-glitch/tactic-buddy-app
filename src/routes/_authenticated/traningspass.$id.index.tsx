@@ -31,6 +31,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TrainingFocusSelector } from "@/components/TrainingFocusSelector";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { focusAreasWithLegacy } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/")({
   head: () => ({
@@ -312,14 +315,23 @@ function SessionBuilder() {
                 />
               </div>
             </div>
+            <TrainingFocusSelector
+              value={draft.focus_areas}
+              onChange={(focus_areas) => set({ focus_areas })}
+            />
             <div className="space-y-1">
-              <Label htmlFor="edit-goal">Målsättning</Label>
+              <Label htmlFor="edit-goal">Vad ska spelarna kunna efter passet?</Label>
               <Textarea
                 id="edit-goal"
                 rows={2}
                 value={draft.goal ?? ""}
                 onChange={(event) => set({ goal: event.target.value || null })}
               />
+              {!draft.goal?.trim() && (
+                <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive">
+                  Skriv ett tydligt resultat för att färdigplanera träningen.
+                </p>
+              )}
             </div>
             <div className="space-y-1">
               <Label htmlFor="edit-notes">Tränarens anteckningar</Label>
@@ -496,6 +508,7 @@ function SessionBuilder() {
                   />
                 </div>
               </div>
+              <ExerciseGuide guide={item.details} compact />
             </li>
           ))}
         </ol>

@@ -14,6 +14,9 @@ import {
 } from "@/lib/coach-sessions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { TrainingFocusSummary } from "@/components/TrainingFocusSelector";
+import { focusAreasWithLegacy } from "@/lib/training-outcomes";
 
 function sessionDate(value: string | null) {
   if (!value) return "Datum ej valt";
@@ -47,6 +50,9 @@ function SessionPresentation({
             <p className="mt-1 text-lg">{session.goal}</p>
           </div>
         )}
+        <div className="mt-3">
+          <TrainingFocusSummary areas={focusAreasWithLegacy(session.focus_areas, session.theme)} />
+        </div>
       </div>
 
       {items.length === 0 ? (
@@ -78,6 +84,7 @@ function SessionPresentation({
                     {item.note && (
                       <p className="mt-3 whitespace-pre-wrap text-base sm:text-lg">{item.note}</p>
                     )}
+                    <ExerciseGuide guide={item.details} />
                   </div>
                 </div>
               </li>

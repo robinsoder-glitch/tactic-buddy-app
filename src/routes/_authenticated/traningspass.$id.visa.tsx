@@ -13,6 +13,9 @@ import {
 } from "@/lib/coach-sessions";
 import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { TrainingFocusSummary } from "@/components/TrainingFocusSelector";
+import { focusAreasWithLegacy } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/visa")({
   head: () => ({
@@ -137,6 +140,9 @@ function SessionView() {
             .filter(Boolean)
             .join(" · ")}
         </p>
+        <div className="mt-3">
+          <TrainingFocusSummary areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)} />
+        </div>
         {session.data.goal && (
           <p className="mt-3 rounded-lg border border-border bg-card p-3 text-sm">
             <span className="font-semibold">Målsättning: </span>
@@ -169,6 +175,7 @@ function SessionView() {
                 {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Egen aktivitet"}
               </p>
               {item.note && <p className="mt-2 text-sm">{item.note}</p>}
+              <ExerciseGuide guide={item.details} />
               <SourceLink item={item} />
             </li>
           );
