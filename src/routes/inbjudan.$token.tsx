@@ -152,9 +152,24 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
   // Trasiga länkar ska synas i statistiken, inte bara hos familjen.
   const linkBroken = preview.isSuccess && !preview.data;
+  const problemKind: InviteProblemKind | null = preview.isError
+    ? isNetworkProblem(preview.error)
+      ? "network"
+      : "invalid"
+    : linkBroken
+      ? "not-found"
+      : null;
   useEffect(() => {
     if (linkBroken) void trackFlowEvent("invite_link_invalid", { teamCode: code });
   }, [linkBroken, code]);
+  useEffect(() => {
+    if (preview.isError) {
+      void trackFlowEvent("invite_link_invalid", {
+        teamCode: code,
+        details: { reason: isNetworkProblem(preview.error) ? "network" : "error" },
+      });
+    }
+  }, [preview.isError, preview.error, code]);
 
   async function join() {
     if (!childName.trim()) {
