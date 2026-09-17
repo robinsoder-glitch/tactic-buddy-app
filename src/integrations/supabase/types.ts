@@ -3148,6 +3148,16 @@ export type Database = {
         }
         Returns: Json
       }
+      preview_team_by_code: {
+        Args: { _code: string }
+        Returns: {
+          age_group: string
+          club_name: string
+          guardian_only: boolean
+          join_role: string
+          name: string
+        }[]
+      }
       preview_team_invite: {
         Args: { _token: string }
         Returns: {
