@@ -26,6 +26,14 @@ import {
   teamCodeFromToken,
 } from "@/lib/invite-links";
 import { friendlyError } from "@/lib/user-errors";
+import { InviteProblemCard } from "@/components/InviteProblemCard";
+import {
+  type InviteProblemKind,
+  inviteProblemInfo,
+  isNetworkProblem,
+  problemFromPreviewState,
+  tokenProblem,
+} from "@/lib/invite-problem";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { familyFlowSteps } from "@/lib/invite-flow";
 import { trackFlowEvent } from "@/lib/flow-tracking";
@@ -51,7 +59,31 @@ export const Route = createFileRoute("/inbjudan/$token")({
 function InvitePage() {
   const { token } = useParams({ from: "/inbjudan/$token" });
   const teamCode = teamCodeFromToken(token);
+  // Trasig adress syns direkt – vi behöver inte fråga servern för att se det.
+  const broken = tokenProblem(token);
+  if (!teamCode && broken) return <BrokenInviteLink kind={broken} />;
   return teamCode ? <TeamCodeInvite token={token} code={teamCode} /> : <PersonalInvite />;
+}
+
+function InviteShell({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <main className="mx-auto max-w-md px-4 py-16 text-center">
+      <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
+      <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
+      {children}
+    </main>
+  );
+}
+
+function BrokenInviteLink({ kind }: { kind: InviteProblemKind }) {
+  useEffect(() => {
+    void trackFlowEvent("invite_link_invalid", { details: { reason: kind } });
+  }, [kind]);
+  return (
+    <InviteShell title="Inbjudan till laget">
+      <InviteProblemCard info={inviteProblemInfo(kind)} />
+    </InviteShell>
+  );
 }
 
 /** Lagets gemensamma inbjudan – en länk till alla familjer i laget. */
@@ -120,9 +152,24 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
   // Trasiga länkar ska synas i statistiken, inte bara hos familjen.
   const linkBroken = preview.isSuccess && !preview.data;
+  const problemKind: InviteProblemKind | null = preview.isError
+    ? isNetworkProblem(preview.error)
+      ? "network"
+      : "invalid"
+    : linkBroken
+      ? "not-found"
+      : null;
   useEffect(() => {
     if (linkBroken) void trackFlowEvent("invite_link_invalid", { teamCode: code });
   }, [linkBroken, code]);
+  useEffect(() => {
+    if (preview.isError) {
+      void trackFlowEvent("invite_link_invalid", {
+        teamCode: code,
+        details: { reason: isNetworkProblem(preview.error) ? "network" : "error" },
+      });
+    }
+  }, [preview.isError, preview.error, code]);
 
   async function join() {
     if (!childName.trim()) {
@@ -166,34 +213,43 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
   return (
     <main className="mx-auto max-w-md px-4 py-16 text-center">
       <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
-      <h1 className="mt-4 text-2xl font-semibold">Inbjudan till {teamName}</h1>
+      <h1 className="mt-4 text-2xl font-semibold">
+        {problemKind ? "Inbjudan till laget" : `Inbjudan till ${teamName}`}
+      </h1>
 
-      <div className="mt-4 rounded-xl border bg-card p-4 text-left">
-        <p className="text-lg font-semibold">{teamName}</p>
-        {preview.data?.club_name && (
-          <p className="text-sm text-muted-foreground">{preview.data.club_name}</p>
-        )}
-        {preview.data?.age_group && (
-          <p className="text-sm text-muted-foreground">{preview.data.age_group}</p>
-        )}
-        <p className="mt-2 text-sm text-muted-foreground">
-          {preview.data?.guardian_only === false
-            ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
-            : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
-        </p>
-      </div>
+      {!problemKind && (
+        <>
+          <div className="mt-4 rounded-xl border bg-card p-4 text-left">
+            <p className="text-lg font-semibold">{teamName}</p>
+            {preview.data?.club_name && (
+              <p className="text-sm text-muted-foreground">{preview.data.club_name}</p>
+            )}
+            {preview.data?.age_group && (
+              <p className="text-sm text-muted-foreground">{preview.data.age_group}</p>
+            )}
+            <p className="mt-2 text-sm text-muted-foreground">
+              {preview.data?.guardian_only === false
+                ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
+                : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
+            </p>
+          </div>
 
-      <div className="mt-4">
-        <FlowDiagram steps={flow} />
-      </div>
-
-      {preview.isSuccess && !preview.data && (
-        <p className="mt-4 text-sm text-destructive">
-          Länken hör inte till något lag längre. Be tränaren skicka en ny länk.
-        </p>
+          <div className="mt-4">
+            <FlowDiagram steps={flow} />
+          </div>
+        </>
       )}
 
-      {signedIn === false && (
+      {problemKind && (
+        <InviteProblemCard
+          info={inviteProblemInfo(problemKind)}
+          onRetry={() => void preview.refetch()}
+          retrying={preview.isFetching}
+          attempts={preview.errorUpdateCount}
+        />
+      )}
+
+      {!problemKind && signedIn === false && (
         <>
           <p className="mt-4 text-sm text-muted-foreground">
             Skapa ett konto, så kopplar tränaren ditt konto till ditt barn.
@@ -221,7 +277,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         </>
       )}
 
-      {signedIn && (
+      {!problemKind && signedIn && (
         <div className="mt-6 grid gap-3 text-left">
           {status ? (
             <div className="rounded-xl border border-primary/40 bg-primary/10 p-4">
@@ -326,9 +382,12 @@ function PersonalInvite() {
       {preview.isLoading && <p className="mt-4 text-sm text-muted-foreground">Hämtar inbjudan…</p>}
 
       {preview.isError && (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Kunde inte hämta inbjudan just nu. Försök igen om en stund.
-        </p>
+        <InviteProblemCard
+          info={inviteProblemInfo(isNetworkProblem(preview.error) ? "network" : "invalid")}
+          onRetry={() => void preview.refetch()}
+          retrying={preview.isFetching}
+          attempts={preview.errorUpdateCount}
+        />
       )}
 
       {preview.isSuccess && (
@@ -349,7 +408,16 @@ function PersonalInvite() {
             </div>
           )}
 
-          <p className="mt-4 text-sm text-muted-foreground">{INVITE_PREVIEW_MESSAGES[state]}</p>
+          {canAccept ? (
+            <p className="mt-4 text-sm text-muted-foreground">{INVITE_PREVIEW_MESSAGES[state]}</p>
+          ) : (
+            <InviteProblemCard
+              info={inviteProblemInfo(problemFromPreviewState(state) ?? "invalid")}
+              onRetry={() => void preview.refetch()}
+              retrying={preview.isFetching}
+              attempts={preview.errorUpdateCount}
+            />
+          )}
 
           {canAccept && signedIn === false && (
             <div className="mt-6 grid gap-2">
