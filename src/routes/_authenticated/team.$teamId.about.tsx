@@ -192,6 +192,12 @@ function AboutPage() {
     <section className="space-y-4">
       <h2 className="font-display text-2xl font-bold">Om laget</h2>
 
+      <Button asChild variant="secondary">
+        <Link to="/team/$teamId/kom-igang" params={{ teamId }}>
+          Kom igång med laget i tre steg
+        </Link>
+      </Button>
+
       <div className="rounded-xl border border-border bg-card p-4">
         <p className="font-display text-lg font-bold">Bjud in familjerna</p>
         <p className="mt-1 text-sm text-muted-foreground">
