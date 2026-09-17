@@ -69,8 +69,14 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     } catch {
       /* privat läge – länken fungerar ändå så länge fliken är kvar */
     }
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-  }, [token]);
+    supabase.auth.getSession().then(({ data }) => {
+      const active = !!data.session;
+      setSignedIn(active);
+      // Så vi ser hur många som öppnar länken och hur många som redan är inloggade.
+      void trackFlowEvent("invite_opened", { teamCode: code });
+      if (active) void trackFlowEvent("invite_signed_in", { teamCode: code });
+    });
+  }, [token, code]);
 
   // Lagets namn syns redan innan man loggar in – annars ser länken ut som skräppost.
   const preview = useQuery({
