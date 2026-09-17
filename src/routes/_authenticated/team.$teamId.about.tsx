@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GAME_FORMATS } from "@/lib/game-format";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
