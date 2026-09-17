@@ -246,3 +246,9 @@
 - [x] Rätta de 20 färdiga taktikkorten (text mot verkligheten) och testa hur de syns i taktikritaren
 
 - [x] Onboarding: halvfärdiga konton styrs till kontotyp även via direktlänk, återvänder till önskad sida och har utloggning. Automatiskt E2E-test: `bun run test:e2e` (e2e/onboarding-flow.py).
+
+## Helkontroll 17 september 2026
+- [ ] Kör automatiska tester och kvalitetskontroller
+- [ ] Klicktesta publika och inloggade huvudflöden
+- [ ] Kontrollera mobilvy och behörigheter
+- [ ] Rätta och verifiera upptäckta fel
