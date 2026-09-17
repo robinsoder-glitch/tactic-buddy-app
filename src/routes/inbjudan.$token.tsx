@@ -161,6 +161,10 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         </p>
       </div>
 
+      <div className="mt-4">
+        <FlowDiagram steps={flow} />
+      </div>
+
       {preview.isSuccess && !preview.data && (
         <p className="mt-4 text-sm text-destructive">
           Länken hör inte till något lag längre. Be tränaren skicka en ny länk.
