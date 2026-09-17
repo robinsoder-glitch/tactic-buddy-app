@@ -4,8 +4,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { acceptTeamInvite, previewTeamInvite } from "@/lib/teams";
+import {
+  acceptTeamInvite,
+  findTeamByCode,
+  joinTeamWithCode,
+  previewTeamInvite,
+  updateProfile,
+} from "@/lib/teams";
 import {
   canAcceptInvite,
   INVITE_PREVIEW_MESSAGES,
@@ -13,6 +21,7 @@ import {
   inviteExpiryText,
   inviteRoleLabel,
   PENDING_INVITE_KEY,
+  teamCodeFromToken,
 } from "@/lib/invite-links";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -22,10 +31,10 @@ export const Route = createFileRoute("/inbjudan/$token")({
       { title: "Inbjudan till lag – Fotbollsrummet" },
       {
         name: "description",
-        content: "Din personliga inbjudan till ett lag i Fotbollsrummet.",
+        content: "Din inbjudan till ett lag i Fotbollsrummet.",
       },
       { property: "og:title", content: "Inbjudan till lag – Fotbollsrummet" },
-      { property: "og:description", content: "Din personliga inbjudan till laget." },
+      { property: "og:description", content: "Gå med i laget i Fotbollsrummet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
@@ -35,6 +44,121 @@ export const Route = createFileRoute("/inbjudan/$token")({
 });
 
 function InvitePage() {
+  const { token } = useParams({ from: "/inbjudan/$token" });
+  const teamCode = teamCodeFromToken(token);
+  return teamCode ? <TeamCodeInvite token={token} code={teamCode} /> : <PersonalInvite />;
+}
+
+/** Lagets gemensamma inbjudan – en länk till alla familjer i laget. */
+function TeamCodeInvite({ token, code }: { token: string; code: string }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [childName, setChildName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(PENDING_INVITE_KEY, token);
+    } catch {
+      /* privat läge – länken fungerar ändå så länge fliken är kvar */
+    }
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+  }, [token]);
+
+  const team = useQuery({
+    queryKey: ["team-by-code", code],
+    queryFn: () => findTeamByCode(code),
+    enabled: signedIn === true,
+  });
+
+  async function join() {
+    if (!childName.trim()) {
+      toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await updateProfile({ guardian_for_name: childName.trim(), account_kind: "guardian" });
+      const result = await joinTeamWithCode(code, "guardian");
+      try {
+        window.localStorage.removeItem(PENDING_INVITE_KEY);
+      } catch {
+        /* inget att rensa */
+      }
+      await queryClient.invalidateQueries();
+      toast.success(
+        result.status === "approved"
+          ? `Du är med i ${result.teamName}.`
+          : `Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`,
+      );
+      navigate({ to: "/team/$teamId", params: { teamId: result.teamId } });
+    } catch (caught) {
+      toast.error(friendlyError(caught, "Kunde inte gå med i laget"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="mx-auto max-w-md px-4 py-16 text-center">
+      <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
+      <h1 className="mt-4 text-2xl font-semibold">Inbjudan till laget</h1>
+
+      {signedIn === false && (
+        <>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Skapa ett konto som vårdnadshavare, så kopplar tränaren ditt konto till ditt barn.
+          </p>
+          <div className="mt-6 grid gap-2">
+            <Button asChild>
+              <Link to="/auth" search={inviteAuthSearch(token, "signup")}>
+                Skapa konto och gå med
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/auth" search={inviteAuthSearch(token, "signin")}>
+                Jag har redan ett konto
+              </Link>
+            </Button>
+          </div>
+        </>
+      )}
+
+      {signedIn && (
+        <div className="mt-6 grid gap-3 text-left">
+          <div className="rounded-xl border bg-card p-4">
+            <p className="text-lg font-semibold">{team.data?.name ?? "Laget"}</p>
+            {team.data?.club_name && (
+              <p className="text-sm text-muted-foreground">{team.data.club_name}</p>
+            )}
+            {team.data?.age_group && (
+              <p className="text-sm text-muted-foreground">{team.data.age_group}</p>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="child-name">Barnets namn</Label>
+            <Input
+              id="child-name"
+              value={childName}
+              onChange={(event) => setChildName(event.target.value)}
+              placeholder="Förnamn och efternamn"
+            />
+            <p className="text-xs text-muted-foreground">
+              Tränaren kopplar ditt konto till rätt spelare i truppen.
+            </p>
+          </div>
+          <Button onClick={join} disabled={busy}>
+            {busy ? "Skickar…" : "Gå med som vårdnadshavare"}
+          </Button>
+        </div>
+      )}
+    </main>
+  );
+}
+
+/** Personlig engångslänk, används framför allt för nya ledare. */
+function PersonalInvite() {
   const { token } = useParams({ from: "/inbjudan/$token" });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
