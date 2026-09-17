@@ -194,12 +194,20 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
           </p>
           <div className="mt-6 grid gap-2">
             <Button asChild>
-              <Link to="/auth" search={inviteAuthSearch(token, "signup")}>
+              <Link
+                to="/auth"
+                search={inviteAuthSearch(token, "signup")}
+                onClick={() => void trackFlowEvent("invite_signup_clicked", { teamCode: code })}
+              >
                 Skapa konto och gå med
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/auth" search={inviteAuthSearch(token, "signin")}>
+              <Link
+                to="/auth"
+                search={inviteAuthSearch(token, "signin")}
+                onClick={() => void trackFlowEvent("invite_signin_clicked", { teamCode: code })}
+              >
                 Jag har redan ett konto
               </Link>
             </Button>
