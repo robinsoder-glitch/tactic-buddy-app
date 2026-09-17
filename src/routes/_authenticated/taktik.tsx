@@ -7,6 +7,7 @@ import { TacticEditor } from "@/components/TacticEditor";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useTeamPreset } from "@/hooks/useTeamPreset";
 import { deleteAllTactics, deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
