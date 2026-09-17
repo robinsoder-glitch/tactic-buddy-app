@@ -854,7 +854,7 @@ function PlanTrainingPage() {
                   rows={key === "area" || key === "players" || key === "safety" ? 2 : 3}
                   placeholder={placeholder}
                   value={form[key as keyof typeof form] as string}
-                  onChange={(event) => setForm((state) => ({ ...state, [key]: event.target.value }))}
+                  onChange={(event) => setForm((state) => ({ ...state, [key as string]: event.target.value }))}
                 />
               </div>
             ))}
