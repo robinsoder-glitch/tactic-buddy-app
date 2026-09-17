@@ -266,11 +266,16 @@ function StartPage() {
         <p className="mt-2 text-xs text-muted-foreground">
           Lagkod: <span className="font-mono">{codes.data?.join_code ?? "······"}</span>
         </p>
-        {families.length > 0 && (
+        {families.length > 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
             {families.length} {families.length === 1 ? "familj har" : "familjer har"} använt länken.
           </p>
+        ) : (
+          <p className="mt-2 text-sm font-semibold text-destructive">
+            Ingen familj har använt länken ännu. Dela den i lagchatten eller via SMS.
+          </p>
         )}
+
       </StepCard>
 
       <StepCard
