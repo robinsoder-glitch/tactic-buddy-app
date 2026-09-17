@@ -6,9 +6,9 @@
 - [x] Verifiera båda raderingsflödena som administratör
 
 ## Resultatbaserad träningsplanering 2026-09-17
-- [ ] Färdiga val för träningsfokus och tydlig målsättning
-- [ ] Full övningsguide för bankövningar och egna övningar
-- [ ] Samma guide i visning, genomförande, kalenderplanering och Truppen
+- [x] Färdiga val för träningsfokus och tydlig målsättning
+- [x] Full övningsguide för bankövningar och egna övningar
+- [x] Samma guide i visning, genomförande, kalenderplanering och Truppen
 - [ ] Bakåtkompatibilitet och tester
 
 ## Etapp 1: Säkerhet, integritet och städning
