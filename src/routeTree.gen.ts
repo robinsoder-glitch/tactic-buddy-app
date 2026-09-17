@@ -34,6 +34,7 @@ import { Route as DeladMatchTokenRouteImport } from './routes/delad-match.$token
 import { Route as InbjudanTokenRouteImport } from './routes/inbjudan.$token'
 import { Route as TShareIdRouteImport } from './routes/t.$shareId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminFlodeRouteImport } from './routes/_authenticated/admin.flode'
 import { Route as AuthenticatedAdminInnehallRouteImport } from './routes/_authenticated/admin.innehall'
 import { Route as AuthenticatedAdminKontonRouteImport } from './routes/_authenticated/admin.konton'
 import { Route as AuthenticatedAdminLoggRouteImport } from './routes/_authenticated/admin.logg'
@@ -208,6 +209,11 @@ const TShareIdRoute = TShareIdRouteImport.update({
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminFlodeRoute = AuthenticatedAdminFlodeRouteImport.update({
+  id: '/flode',
+  path: '/flode',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminInnehallRoute =
@@ -502,6 +508,7 @@ export interface FileRoutesByFullPath {
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/flode': typeof AuthenticatedAdminFlodeRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
@@ -571,6 +578,7 @@ export interface FileRoutesByTo {
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/admin/flode': typeof AuthenticatedAdminFlodeRoute
   '/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/admin/logg': typeof AuthenticatedAdminLoggRoute
@@ -642,6 +650,7 @@ export interface FileRoutesById {
   '/delad-match/$token': typeof DeladMatchTokenRoute
   '/inbjudan/$token': typeof InbjudanTokenRoute
   '/t/$shareId': typeof TShareIdRoute
+  '/_authenticated/admin/flode': typeof AuthenticatedAdminFlodeRoute
   '/_authenticated/admin/innehall': typeof AuthenticatedAdminInnehallRoute
   '/_authenticated/admin/konton': typeof AuthenticatedAdminKontonRoute
   '/_authenticated/admin/logg': typeof AuthenticatedAdminLoggRoute
@@ -715,6 +724,7 @@ export interface FileRouteTypes {
     | '/delad-match/$token'
     | '/inbjudan/$token'
     | '/t/$shareId'
+    | '/admin/flode'
     | '/admin/innehall'
     | '/admin/konton'
     | '/admin/logg'
@@ -784,6 +794,7 @@ export interface FileRouteTypes {
     | '/delad-match/$token'
     | '/inbjudan/$token'
     | '/t/$shareId'
+    | '/admin/flode'
     | '/admin/innehall'
     | '/admin/konton'
     | '/admin/logg'
@@ -854,6 +865,7 @@ export interface FileRouteTypes {
     | '/delad-match/$token'
     | '/inbjudan/$token'
     | '/t/$shareId'
+    | '/_authenticated/admin/flode'
     | '/_authenticated/admin/innehall'
     | '/_authenticated/admin/konton'
     | '/_authenticated/admin/logg'
@@ -1088,6 +1100,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/flode': {
+      id: '/_authenticated/admin/flode'
+      path: '/flode'
+      fullPath: '/admin/flode'
+      preLoaderRoute: typeof AuthenticatedAdminFlodeRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/innehall': {
@@ -1409,6 +1428,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminFlodeRoute: typeof AuthenticatedAdminFlodeRoute
   AuthenticatedAdminInnehallRoute: typeof AuthenticatedAdminInnehallRoute
   AuthenticatedAdminKontonRoute: typeof AuthenticatedAdminKontonRoute
   AuthenticatedAdminLoggRoute: typeof AuthenticatedAdminLoggRoute
@@ -1418,6 +1438,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminFlodeRoute: AuthenticatedAdminFlodeRoute,
   AuthenticatedAdminInnehallRoute: AuthenticatedAdminInnehallRoute,
   AuthenticatedAdminKontonRoute: AuthenticatedAdminKontonRoute,
   AuthenticatedAdminLoggRoute: AuthenticatedAdminLoggRoute,
