@@ -226,28 +226,23 @@ function PlanTrainingPage() {
       return;
     }
     if (resources.isLoading || plan.isLoading) return;
-      const initial: TrainingDraft = {
-        eventId,
-        notes: plan.data?.notes ?? "",
-        items: publishedRows.map((row) => {
-          const details = detailsFor(row.kind, row.resource_id);
-          return {
-            key: row.id,
-            kind:
-              row.kind === "session"
-                ? "session"
-                : row.kind === "goalkeeper"
-                  ? "goalkeeper"
-                  : "drill",
-            resourceId: row.resource_id,
-            title: titleFor(row.kind, row.resource_id),
-            minutes: row.minutes,
-            note: row.note,
-            instruction: details.instruction,
-            equipment: details.equipment,
-          };
-        }),
-      };
+    const initial: TrainingDraft = {
+      eventId,
+      notes: plan.data?.notes ?? "",
+      items: publishedRows.map((row) => {
+        const details = detailsFor(row.kind, row.resource_id);
+        return {
+          key: row.id,
+          kind: row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
+          resourceId: row.resource_id,
+          title: titleFor(row.kind, row.resource_id),
+          minutes: row.minutes,
+          note: row.note,
+          instruction: details.instruction,
+          equipment: details.equipment,
+        };
+      }),
+    };
     setDraft(initial);
     // Utkastet läggs direkt i sessionStorage så att redan sparade övningar finns
     // kvar när användaren hämtar en ny övning i Träningsbanken.
