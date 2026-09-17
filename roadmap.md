@@ -3,7 +3,7 @@
 ## Adminradering 2026-09-17
 - [x] Rätta radering av klubbar och deras laginnehåll
 - [x] Rätta radering av konton med skapade aktiviteter och historik
-- [ ] Verifiera båda raderingsflödena som administratör
+- [x] Verifiera båda raderingsflödena som administratör
 
 ## Etapp 1: Säkerhet, integritet och städning
 - [x] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
