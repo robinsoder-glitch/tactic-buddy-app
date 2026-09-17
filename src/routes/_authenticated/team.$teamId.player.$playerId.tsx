@@ -16,11 +16,13 @@ import {
 import { toast } from "sonner";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
+  fetchTeam,
   fetchTeamLeaderContacts,
   fetchTeamPlayers,
   GENDER_LABELS,
   leaderRoleLabel,
 } from "@/lib/teams";
+import { isGuardianOnlyTeam } from "@/lib/team-age";
 import {
   deletePlayerStat,
   emptyStat,
@@ -73,6 +75,8 @@ function PlayerPage() {
     queryKey: ["team-players", teamId],
     queryFn: () => fetchTeamPlayers(teamId),
   });
+  const team = useQuery({ queryKey: ["team", teamId], queryFn: () => fetchTeam(teamId) });
+  const guardianOnly = isGuardianOnlyTeam(team.data);
   const stats = useQuery({
     queryKey: ["player-stats", playerId],
     queryFn: () => fetchPlayerStats(playerId),
@@ -348,8 +352,16 @@ function PlayerPage() {
         </div>
       )}
 
-      <PlayerAccountLink playerId={playerId} teamId={teamId} canEdit={isCoach} />
-      <GuardianLinks playerId={playerId} teamId={teamId} userId={userId} canEdit={isCoach} />
+      {!guardianOnly && (
+        <PlayerAccountLink playerId={playerId} teamId={teamId} canEdit={isCoach} />
+      )}
+      <GuardianLinks
+        playerId={playerId}
+        teamId={teamId}
+        userId={userId}
+        canEdit={isCoach}
+        guardianOnly={guardianOnly}
+      />
       <PlayerDevelopment teamId={teamId} playerId={playerId} canEdit={isCoach} />
 
       <div className="mt-6 flex items-center justify-between">

@@ -2839,6 +2839,7 @@ export type Database = {
           created_by: string
           game_format: string | null
           gender: string
+          guardian_only: boolean | null
           home_ground: string | null
           id: string
           join_code: string
@@ -2856,6 +2857,7 @@ export type Database = {
           created_by: string
           game_format?: string | null
           gender?: string
+          guardian_only?: boolean | null
           home_ground?: string | null
           id?: string
           join_code?: string
@@ -2873,6 +2875,7 @@ export type Database = {
           created_by?: string
           game_format?: string | null
           gender?: string
+          guardian_only?: boolean | null
           home_ground?: string | null
           id?: string
           join_code?: string
@@ -2983,6 +2986,7 @@ export type Database = {
         Returns: {
           age_group: string
           club_name: string
+          guardian_only: boolean
           id: string
           join_role: string
           name: string
@@ -3296,6 +3300,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      team_guardian_only: { Args: { _team_id: string }; Returns: boolean }
       team_role: {
         Args: { _team_id: string; _user_id: string }
         Returns: string

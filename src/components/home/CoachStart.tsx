@@ -43,7 +43,7 @@ export function CoachStart({ userId }: { userId: string }) {
     },
     onSuccess: async (id) => {
       await queryClient.invalidateQueries();
-      navigate({ to: "/team/$teamId", params: { teamId: id } });
+      navigate({ to: "/team/$teamId/kom-igang", params: { teamId: id } });
     },
     onError: (error) => toast.error(friendlyError(error, "Kunde inte skapa laget")),
   });

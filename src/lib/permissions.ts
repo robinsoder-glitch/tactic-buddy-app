@@ -8,7 +8,7 @@ export type TeamRoleName = "owner" | "coach" | "player" | "member";
 
 export const TEAM_ROLE_LABELS: Record<TeamRoleName, string> = {
   owner: "Lagägare",
-  coach: "Ledare",
+  coach: "Tränare",
   player: "Spelare",
   member: "Medlem/vårdnadshavare",
 };

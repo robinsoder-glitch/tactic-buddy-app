@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GAME_FORMATS } from "@/lib/game-format";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -19,6 +19,8 @@ import {
   uploadTeamMedia,
 } from "@/lib/teams";
 import { friendlyError } from "@/lib/user-errors";
+import { buildTeamInviteUrl } from "@/lib/invite-links";
+import { guardianOnlyExplanation, isGuardianOnlyTeam } from "@/lib/team-age";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,6 +80,29 @@ function AboutPage() {
   async function copyCode(code: string | undefined) {
     await navigator.clipboard.writeText(code ?? "");
     toast.success("Kod kopierad");
+  }
+
+  const inviteUrl =
+    codes.data?.join_code && typeof window !== "undefined"
+      ? buildTeamInviteUrl(window.location.origin, codes.data.join_code)
+      : "";
+  const guardianOnly = isGuardianOnlyTeam(team.data);
+
+  async function copyInviteLink() {
+    await navigator.clipboard.writeText(inviteUrl);
+    toast.success("Inbjudningslänken är kopierad");
+  }
+
+  async function saveGuardianOnly(value: boolean) {
+    try {
+      await updateTeam(teamId, { guardian_only: value });
+      await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+      toast.success(
+        value ? "Laget har nu bara vårdnadshavarkonton." : "Laget kan ha spelarkonton igen.",
+      );
+    } catch (error) {
+      toast.error(friendlyError(error, "Kunde inte spara inställningen"));
+    }
   }
 
   async function toggleArchive() {
@@ -167,10 +192,46 @@ function AboutPage() {
     <section className="space-y-4">
       <h2 className="font-display text-2xl font-bold">Om laget</h2>
 
+      <Button asChild variant="secondary">
+        <Link to="/team/$teamId/kom-igang" params={{ teamId }}>
+          Kom igång med laget i tre steg
+        </Link>
+      </Button>
+
+      <div className="rounded-xl border border-border bg-card p-4">
+        <p className="font-display text-lg font-bold">Bjud in familjerna</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Dela den här länken i lagchatten eller via SMS. Den som klickar skapar konto, skriver
+          barnets namn och hamnar hos dig för godkännande.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <code className="max-w-full truncate rounded-md bg-muted px-2 py-1 text-xs">
+            {inviteUrl || "Hämtar länk…"}
+          </code>
+          <Button size="sm" variant="secondary" disabled={!inviteUrl} onClick={copyInviteLink}>
+            <Copy className="size-4" aria-hidden /> Kopiera länk
+          </Button>
+        </div>
+        <label className="mt-3 flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1 size-4"
+            checked={guardianOnly}
+            onChange={(event) => saveGuardianOnly(event.target.checked)}
+          />
+          <span>
+            Bara vårdnadshavarkonton i det här laget
+            <span className="block text-xs text-muted-foreground">
+              {guardianOnlyExplanation(guardianOnly)}
+            </span>
+          </span>
+        </label>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs tracking-wide text-muted-foreground">
-            Lagkod för spelare och föräldrar
+            Lagkod för spelare och vårdnadshavare
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="font-mono text-2xl tracking-widest">

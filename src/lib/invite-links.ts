@@ -62,6 +62,26 @@ export function inviteExpiryText(expiresAt: string | null | undefined): string {
   return date.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" });
 }
 
+/**
+ * Lagets gemensamma inbjudan. Samma länk kan delas till alla familjer i laget
+ * och bygger på lagkoden i stället för en personlig engångslänk.
+ */
+export function teamCodeToken(code: string): string {
+  return `kod-${code.trim().toUpperCase()}`;
+}
+
+/** Plockar ut lagkoden ur en länk av typen /inbjudan/kod-ABC123. */
+export function teamCodeFromToken(token: string | null | undefined): string | null {
+  if (!token) return null;
+  const match = token.trim().match(/^kod-([A-Za-z0-9]{6})$/);
+  return match?.[1] ? match[1].toUpperCase() : null;
+}
+
+/** Full adress till lagets gemensamma inbjudan. */
+export function buildTeamInviteUrl(origin: string, code: string): string {
+  return buildInviteUrl(origin.replace(/\/$/, ""), teamCodeToken(code));
+}
+
 /** Var ansökan kom ifrån, skrivet så en tränare förstår. */
 export function joinSourceLabel(value: string | null | undefined): string {
   if (value === "coach_code") return "tränarkod";
