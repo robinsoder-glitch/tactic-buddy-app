@@ -79,9 +79,9 @@ function OnboardingPage() {
   // i stället för att visa "Välj kontotyp" igen.
   useEffect(() => {
     if (!busy && account.accountReady && !account.needsOnboarding) {
-      navigate({ to: search.next ?? "/", replace: true });
+      navigate({ to: "/", replace: true });
     }
-  }, [busy, account.accountReady, account.needsOnboarding, navigate, search.next]);
+  }, [busy, account.accountReady, account.needsOnboarding, navigate]);
 
   function chooseRole(next: AccountRole) {
     setRole(next);
