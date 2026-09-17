@@ -1006,6 +1006,50 @@ export type Database = {
           },
         ]
       }
+      invite_flow_events: {
+        Row: {
+          created_at: string
+          details: Json
+          event: string
+          id: string
+          path: string | null
+          role: string | null
+          team_code: string | null
+          team_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          event: string
+          id?: string
+          path?: string | null
+          role?: string | null
+          team_code?: string | null
+          team_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          event?: string
+          id?: string
+          path?: string | null
+          role?: string | null
+          team_code?: string | null
+          team_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_flow_events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kb_articles: {
         Row: {
           age_max: number | null

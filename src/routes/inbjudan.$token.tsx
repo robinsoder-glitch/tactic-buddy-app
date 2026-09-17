@@ -28,6 +28,7 @@ import {
 import { friendlyError } from "@/lib/user-errors";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { familyFlowSteps } from "@/lib/invite-flow";
+import { trackFlowEvent } from "@/lib/flow-tracking";
 
 export const Route = createFileRoute("/inbjudan/$token")({
   head: () => ({
@@ -69,8 +70,14 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     } catch {
       /* privat läge – länken fungerar ändå så länge fliken är kvar */
     }
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-  }, [token]);
+    supabase.auth.getSession().then(({ data }) => {
+      const active = !!data.session;
+      setSignedIn(active);
+      // Så vi ser hur många som öppnar länken och hur många som redan är inloggade.
+      void trackFlowEvent("invite_opened", { teamCode: code });
+      if (active) void trackFlowEvent("invite_signed_in", { teamCode: code });
+    });
+  }, [token, code]);
 
   // Lagets namn syns redan innan man loggar in – annars ser länken ut som skräppost.
   const preview = useQuery({
@@ -111,12 +118,19 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     guardianOnly: preview.data?.guardian_only !== false,
   });
 
+  // Trasiga länkar ska synas i statistiken, inte bara hos familjen.
+  const linkBroken = preview.isSuccess && !preview.data;
+  useEffect(() => {
+    if (linkBroken) void trackFlowEvent("invite_link_invalid", { teamCode: code });
+  }, [linkBroken, code]);
+
   async function join() {
     if (!childName.trim()) {
       toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
       return;
     }
     setBusy(true);
+    void trackFlowEvent("invite_join_submitted", { teamCode: code, role: "guardian" });
     try {
       const { data: auth } = await supabase.auth.getUser();
       if (auth.user) {
@@ -134,7 +148,15 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
       }
       await queryClient.invalidateQueries();
       setSent(result.status);
+      void trackFlowEvent(
+        result.status === "approved" ? "invite_join_approved" : "invite_join_pending",
+        { teamCode: code, teamId: result.teamId ?? null, role: "guardian" },
+      );
     } catch (caught) {
+      void trackFlowEvent("invite_join_failed", {
+        teamCode: code,
+        details: { message: friendlyError(caught, "Kunde inte gå med i laget") },
+      });
       toast.error(friendlyError(caught, "Kunde inte gå med i laget"));
     } finally {
       setBusy(false);
@@ -178,12 +200,20 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
           </p>
           <div className="mt-6 grid gap-2">
             <Button asChild>
-              <Link to="/auth" search={inviteAuthSearch(token, "signup")}>
+              <Link
+                to="/auth"
+                search={inviteAuthSearch(token, "signup")}
+                onClick={() => void trackFlowEvent("invite_signup_clicked", { teamCode: code })}
+              >
                 Skapa konto och gå med
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/auth" search={inviteAuthSearch(token, "signin")}>
+              <Link
+                to="/auth"
+                search={inviteAuthSearch(token, "signin")}
+                onClick={() => void trackFlowEvent("invite_signin_clicked", { teamCode: code })}
+              >
                 Jag har redan ett konto
               </Link>
             </Button>

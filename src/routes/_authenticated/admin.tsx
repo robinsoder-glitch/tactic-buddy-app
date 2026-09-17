@@ -25,6 +25,7 @@ const TABS = [
   { to: "/admin/konton", label: "Konton", exact: false },
   { to: "/admin/lag", label: "Lag & klubbar", exact: false },
   { to: "/admin/innehall", label: "Innehåll", exact: false },
+  { to: "/admin/flode", label: "Inbjudningsflödet", exact: false },
   { to: "/admin/logg", label: "Logg", exact: false },
 ] as const;
 

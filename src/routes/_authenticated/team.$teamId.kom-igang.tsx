@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ import {
 import { friendlyError } from "@/lib/user-errors";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { coachFlowSteps } from "@/lib/invite-flow";
+import { trackFlowEvent } from "@/lib/flow-tracking";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
   head: () => ({
@@ -145,6 +146,11 @@ function StartPage() {
   const done = startStepsDone(progress);
   const active = nextStartStep(progress);
 
+  useEffect(() => {
+    if (isCoach) void trackFlowEvent("coach_start_opened", { teamId, role: "coach" });
+  }, [isCoach, teamId]);
+
+
   const addPlayer = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error("Du måste vara inloggad.");
@@ -161,6 +167,7 @@ function StartPage() {
       });
     },
     onSuccess: async () => {
+      void trackFlowEvent("coach_player_added", { teamId, role: "coach" });
       setName("");
       setNumber("");
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -172,6 +179,7 @@ function StartPage() {
     mutationFn: ({ memberId, playerId }: { memberId: string; playerId: string | null }) =>
       approveTeamJoinRequest(memberId, playerId),
     onSuccess: async () => {
+      void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
       toast.success("Godkänd och kopplad.");
       await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -197,6 +205,7 @@ function StartPage() {
       await approveTeamJoinRequest(memberId, playerId);
     },
     onSuccess: async () => {
+      void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
       toast.success("Godkänd och kopplad till truppen.");
       await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -282,6 +291,7 @@ function StartPage() {
             disabled={!inviteUrl}
             onClick={async () => {
               const ok = await copyText(inviteUrl);
+              if (ok) void trackFlowEvent("coach_invite_copied", { teamId, role: "coach" });
               toast[ok ? "success" : "error"](
                 ok
                   ? "Inbjudningslänken är kopierad"
