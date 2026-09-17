@@ -243,7 +243,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         />
       )}
 
-      {signedIn === false && (
+      {!problemKind && signedIn === false && (
         <>
           <p className="mt-4 text-sm text-muted-foreground">
             Skapa ett konto, så kopplar tränaren ditt konto till ditt barn.
