@@ -146,6 +146,11 @@ function StartPage() {
   const done = startStepsDone(progress);
   const active = nextStartStep(progress);
 
+  useEffect(() => {
+    if (isCoach) void trackFlowEvent("coach_start_opened", { teamId, role: "coach" });
+  }, [isCoach, teamId]);
+
+
   const addPlayer = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error("Du måste vara inloggad.");
