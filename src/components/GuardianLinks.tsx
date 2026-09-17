@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
 import { fetchPlayerGuardians, linkGuardian, setGuardianActive } from "@/lib/guardians";
 import { fetchTeamMembers } from "@/lib/teams";
 import { isLeaderRole } from "@/lib/team-roles";
@@ -64,6 +65,7 @@ export function GuardianLinks({
   });
 
   const rows = links.data ?? [];
+  const hasActiveGuardian = rows.some((row) => row.is_active);
   const linked = new Set(rows.map((row) => row.guardian_user_id));
 
   return (
@@ -73,9 +75,17 @@ export function GuardianLinks({
         Kopplade vårdnadshavare kan se och svara på spelarens kallelser.
       </p>
 
-      {rows.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">Inga konton är kopplade ännu.</p>
-      ) : (
+      {!hasActiveGuardian && (
+        <p className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <span>
+            Ingen vårdnadshavare är kopplad. Ingen vårdnadshavare kan se eller svara på spelarens
+            kallelser.
+          </span>
+        </p>
+      )}
+
+      {rows.length > 0 && (
         <ul className="mt-3 space-y-2 text-sm">
           {rows.map((row) => (
             <li
