@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   assignPlayerToSlot,
   defaultSlots,
+  formationOptions,
   lineupStarters,
   moveSlotToBench,
   removePlayerFromLineup,
   sortPlayersByResponse,
+  slotsForFormation,
   syncLineupWithSquad,
   validateMatchPlan,
   validateMeetBeforeStart,
@@ -29,6 +31,20 @@ describe("defaultSlots", () => {
       expect(s.y).toBeGreaterThanOrEqual(0);
       expect(s.y).toBeLessThanOrEqual(1);
     }
+  });
+
+  it("erbjuder diamant och fyrkant för 5 mot 5", () => {
+    expect(formationOptions("5v5").map((formation) => formation.id)).toEqual([
+      "5v5-1-2-1",
+      "5v5-2-2",
+    ]);
+    const square = slotsForFormation("5v5-2-2");
+    expect(square.slice(1).map(({ x, y }) => [x, y])).toEqual([
+      [0.3, 0.3],
+      [0.3, 0.7],
+      [0.68, 0.3],
+      [0.68, 0.7],
+    ]);
   });
 });
 

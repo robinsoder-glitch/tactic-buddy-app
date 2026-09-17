@@ -46,11 +46,13 @@ import {
   FORMAT_PLAYERS,
   createMatchShare,
   defaultSlots,
+  formationOptions,
   fetchLineup,
   fetchMatchShare,
   lineupStarters,
   revokeMatchShare,
   saveMatchPlanFull,
+  slotsForFormation,
   sortPlayersByResponse,
   syncLineupWithSquad,
   validateMatchPlan,
@@ -259,6 +261,7 @@ function MatchPlanner({
   const [coachIds, setCoachIds] = useState<string[]>([]);
   const [playerIds, setPlayerIds] = useState<string[]>([]);
   const [format, setFormat] = useState("7v7");
+  const [formationId, setFormationId] = useState("7v7-2-3-1");
   const [slots, setSlots] = useState<LineupSlot[]>([]);
   const [bench, setBench] = useState<string[]>([]);
   const [tacticId, setTacticId] = useState<string | null>(null);
@@ -373,11 +376,17 @@ function MatchPlanner({
           setBench(synced.bench);
           setTacticId(lineup.tactic_id);
           const match = lineup.formation.match(/^(\d+v\d+)/);
-          setFormat(match?.[1] ?? "7v7");
+          const savedFormat = match?.[1] ?? "7v7";
+          setFormat(savedFormat);
+          const savedFormation = formationOptions(savedFormat).find((item) =>
+            lineup.formation.includes(item.id),
+          );
+          setFormationId(savedFormation?.id ?? formationOptions(savedFormat)[0]?.id ?? "");
         } else {
           // Utan sparad uppställning följer planeringen lagets spelform.
           const teamFormat = t.game_format && FORMAT_LABELS[t.game_format] ? t.game_format : "7v7";
           setFormat(teamFormat);
+          setFormationId(formationOptions(teamFormat)[0]?.id ?? "");
           const def = defaultSlots(teamFormat);
           setSlots(def);
           setBench(activeSquad);
@@ -399,7 +408,9 @@ function MatchPlanner({
 
   function changeFormat(next: string) {
     setFormat(next);
-    const def = defaultSlots(next);
+    const nextFormation = formationOptions(next)[0];
+    setFormationId(nextFormation?.id ?? "");
+    const def = nextFormation ? slotsForFormation(nextFormation.id) : defaultSlots(next);
     // Behåll spelare på första positionerna i samma ordning som tidigare.
     const current = lineupStarters(slots);
     const placed = def.map((s, i) => ({ ...s, player_id: current[i] ?? null }));
@@ -407,6 +418,19 @@ function MatchPlanner({
     const synced = syncLineupWithSquad(placed, playerIds);
     setSlots(synced.slots);
     setBench([...new Set([...synced.bench, ...leftovers.filter((id) => playerIds.includes(id))])]);
+  }
+
+  function changeFormation(nextFormationId: string) {
+    setFormationId(nextFormationId);
+    const nextSlots = slotsForFormation(nextFormationId);
+    const current = lineupStarters(slots);
+    const placed = nextSlots.map((slot, index) => ({
+      ...slot,
+      player_id: current[index] ?? null,
+    }));
+    const synced = syncLineupWithSquad(placed, playerIds);
+    setSlots(synced.slots);
+    setBench(synced.bench);
   }
 
   function togglePlayer(id: string) {
@@ -549,7 +573,7 @@ function MatchPlanner({
         notes: meetInfo,
         playerIds,
         coachIds,
-        formation: `${format} (${FORMAT_LABELS[format]})`,
+        formation: formationId || `${format} (${FORMAT_LABELS[format]})`,
         slots,
         bench,
         tacticId,
@@ -991,6 +1015,34 @@ function MatchPlanner({
                   </Button>
                 ))}
               </div>
+              {formationOptions(format).length > 1 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Välj uppställning</p>
+                  <div
+                    className="grid grid-cols-2 gap-2"
+                    role="radiogroup"
+                    aria-label="Uppställning"
+                  >
+                    {formationOptions(format).map((formation) => {
+                      const label = formation.id === "5v5-1-2-1" ? "Diamant" : "Fyrkant";
+                      return (
+                        <Button
+                          key={formation.id}
+                          type="button"
+                          variant={formationId === formation.id ? "default" : "outline"}
+                          className="h-auto flex-col py-3"
+                          onClick={() => changeFormation(formation.id)}
+                        >
+                          <span>{label}</span>
+                          <span className="text-xs font-normal opacity-80">
+                            {formation.id === "5v5-1-2-1" ? "1–2–1" : "2–2"}
+                          </span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">
                 Startspelare: {starters.length}/{required}
               </p>
@@ -1064,6 +1116,12 @@ function MatchPlanner({
                   <dt className="text-muted-foreground">Spelform</dt>
                   <dd>{FORMAT_LABELS[format]}</dd>
                 </div>
+                {format === "5v5" && (
+                  <div>
+                    <dt className="text-muted-foreground">Uppställning</dt>
+                    <dd>{formationId === "5v5-2-2" ? "Fyrkant (2–2)" : "Diamant (1–2–1)"}</dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-muted-foreground">Startspelare</dt>
                   <dd>
