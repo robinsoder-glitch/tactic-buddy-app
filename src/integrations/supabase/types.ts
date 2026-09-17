@@ -771,6 +771,8 @@ export type Database = {
           created_at: string
           created_by: string
           event_id: string
+          focus_areas: string[]
+          goal: string | null
           notes: string | null
           planning_done: boolean
           team_id: string
@@ -780,6 +782,8 @@ export type Database = {
           created_at?: string
           created_by: string
           event_id: string
+          focus_areas?: string[]
+          goal?: string | null
           notes?: string | null
           planning_done?: boolean
           team_id: string
@@ -789,6 +793,8 @@ export type Database = {
           created_at?: string
           created_by?: string
           event_id?: string
+          focus_areas?: string[]
+          goal?: string | null
           notes?: string | null
           planning_done?: boolean
           team_id?: string
@@ -3222,6 +3228,17 @@ export type Database = {
       save_training_plan: {
         Args: {
           _event_id: string
+          _items: Json
+          _notes: string
+          _team_id: string
+        }
+        Returns: undefined
+      }
+      save_training_plan_v2: {
+        Args: {
+          _event_id: string
+          _focus_areas: string[]
+          _goal: string
           _items: Json
           _notes: string
           _team_id: string
