@@ -4,7 +4,7 @@ import { findTeamByCode, joinTeamWithCode, updateProfile } from "./teams";
 export type AccountRole = "coach" | "player";
 /** Kontotyp så som den lagras: vårdnadshavare är en egen typ, inte en spelare. */
 export type AccountKind = "coach" | "player" | "guardian";
-/** Två kodtyper: spelarkod för spelare/vårdnadshavare, tränarkod för tränare. */
+/** Två kodtyper: lagkod för spelare/vårdnadshavare, tränarkod för tränare. */
 export type CodeKind = "coach" | "player";
 
 export const TEAM_CODE_LENGTH = 6;
@@ -34,9 +34,9 @@ export const SETUP_ERRORS = {
   codeExpired: "Koden gäller inte längre. Be din tränare om lagets aktuella kod.",
   codeLookupFailed:
     "Koden kunde inte kontrolleras just nu. Det är ett tekniskt fel – försök igen om en stund.",
-  codeNeedsCoach: "Den koden är en spelarkod. Som tränare behöver du lagets tränarkod.",
+  codeNeedsCoach: "Den koden är lagets lagkod. Som tränare behöver du lagets tränarkod.",
   codeNeedsPlayer:
-    "Den koden är en tränarkod. Som spelare eller vårdnadshavare behöver du lagets spelarkod.",
+    "Den koden är en tränarkod. Som spelare eller vårdnadshavare behöver du lagets lagkod.",
   emailTaken: "Det finns redan ett konto med den e-postadressen. Logga in i stället.",
   weakPassword: "Lösenordet måste vara minst 6 tecken.",
 } as const;
@@ -137,7 +137,7 @@ export function validateSetup(
   return null;
 }
 
-/** Vilken roll en kod ger – spelarkoden ger aldrig tränarbehörighet. */
+/** Vilken roll en kod ger – lagkoden ger aldrig tränarbehörighet. */
 export function roleFromCodeMatch(match: { join_role: string } | null): AccountRole | null {
   if (!match) return null;
   return match.join_role === "coach" ? "coach" : "player";
