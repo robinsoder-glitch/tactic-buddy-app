@@ -104,9 +104,9 @@ const ALL_FIELDS: StatField[] = [
   "points",
 ];
 
-/** Sant när spelaren är yngre än gränsen. Okänd ålder räknas som yngre. */
+/** Sant endast när spelaren har en känd ålder under gränsen. */
 export function isYoungPlayer(age: number | null | undefined): boolean {
-  if (age == null || Number.isNaN(age)) return true;
+  if (age == null || Number.isNaN(age)) return false;
   return age < INDIVIDUAL_STATS_MIN_AGE;
 }
 
