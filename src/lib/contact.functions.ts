@@ -69,6 +69,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
     });
 
     // En spärrad mottagare ska inte se ut som ett fel för avsändaren – mejlet
-    // är då stoppat på vår sida och vi svarar ändå i appen vid behov.
-    return { sent: true, ...(!result.sent ? {} : {}) };
+    // är då stoppat på vår sida och vi följer upp det därifrån.
+    void result;
+    return { sent: true };
   });

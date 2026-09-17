@@ -130,6 +130,22 @@ export function Landing() {
           ))}
         </ul>
       </section>
+
+      <footer className="mt-16 border-t border-border pt-6 pb-2">
+        <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
+          <p>
+            Frågor eller funderingar?{" "}
+            <a
+              href="mailto:info@fotbollsrummet.app"
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Kontakta oss
+            </a>{" "}
+            – vi svarar så snabbt vi kan.
+          </p>
+          <p>Inloggad? Du kan även skicka meddelanden direkt under Inställningar.</p>
+        </div>
+      </footer>
     </main>
   );
 }
