@@ -248,7 +248,7 @@
 - [x] Onboarding: halvfärdiga konton styrs till kontotyp även via direktlänk, återvänder till önskad sida och har utloggning. Automatiskt E2E-test: `bun run test:e2e` (e2e/onboarding-flow.py).
 
 ## Helkontroll 17 september 2026
-- [ ] Kör automatiska tester och kvalitetskontroller
-- [ ] Klicktesta publika och inloggade huvudflöden
-- [ ] Kontrollera mobilvy och behörigheter
-- [ ] Rätta och verifiera upptäckta fel
+- [x] Kör automatiska tester och kvalitetskontroller
+- [x] Klicktesta publika och inloggade huvudflöden
+- [x] Kontrollera mobilvy och behörigheter
+- [x] Rätta och verifiera upptäckta fel
