@@ -5,6 +5,12 @@
 - [x] Rätta radering av konton med skapade aktiviteter och historik
 - [x] Verifiera båda raderingsflödena som administratör
 
+## Resultatbaserad träningsplanering 2026-09-17
+- [ ] Färdiga val för träningsfokus och tydlig målsättning
+- [ ] Full övningsguide för bankövningar och egna övningar
+- [ ] Samma guide i visning, genomförande, kalenderplanering och Truppen
+- [ ] Bakåtkompatibilitet och tester
+
 ## Etapp 1: Säkerhet, integritet och städning
 - [x] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
 - [x] Lagets skapare syns som ägare/ledare
