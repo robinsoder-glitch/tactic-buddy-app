@@ -271,7 +271,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         </>
       )}
 
-      {signedIn && (
+      {!problemKind && signedIn && (
         <div className="mt-6 grid gap-3 text-left">
           {status ? (
             <div className="rounded-xl border border-primary/40 bg-primary/10 p-4">
