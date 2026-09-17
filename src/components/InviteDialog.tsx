@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { sendInvitationEmails } from "@/lib/invitation-email.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -146,9 +148,11 @@ export function InviteDialog({
     }),
   );
 
+  const sendEmails = useServerFn(sendInvitationEmails);
+
   const save = useMutation({
-    mutationFn: () =>
-      saveInvitationPlan({
+    mutationFn: async () => {
+      const result = await saveInvitationPlan({
         eventId,
         hasExisting,
         newPlayerIds: selected,
@@ -156,7 +160,15 @@ export function InviteDialog({
         respondBy: respondBy || null,
         notify: hasExisting && notify,
         operationId: operationId.current,
-      }),
+      });
+      // Mejlet är en kopia av kallelsen i appen. Misslyckas det får kallelsen ändå stå kvar.
+      try {
+        await sendEmails({ data: { eventId } });
+      } catch (error) {
+        console.error("Kunde inte skicka mejlkallelser", error);
+      }
+      return result;
+    },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
       queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
