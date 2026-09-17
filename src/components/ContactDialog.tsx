@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { MailQuestion, Send } from "lucide-react";
@@ -18,7 +18,7 @@ import { sendContactMessage } from "@/lib/contact.functions";
 import { CONTACT_MESSAGE_MAX, CONTACT_SUBJECT_MAX, contactMessageSchema } from "@/lib/contact";
 
 interface ContactDialogProps {
-  trigger: React.ReactNode;
+  trigger: ReactNode;
 }
 
 /**
