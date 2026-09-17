@@ -9,7 +9,7 @@
 - [x] Färdiga val för träningsfokus och tydlig målsättning
 - [x] Full övningsguide för bankövningar och egna övningar
 - [x] Samma guide i visning, genomförande, kalenderplanering och Truppen
-- [ ] Bakåtkompatibilitet och tester
+- [x] Bakåtkompatibilitet och tester
 
 ## Etapp 1: Säkerhet, integritet och städning
 - [x] Arkivera/radera lag (stark bekräftelse) + radera testlaget "TEST – fullständig kontroll"
