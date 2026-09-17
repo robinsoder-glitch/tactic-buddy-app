@@ -72,6 +72,24 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     enabled: signedIn === true,
   });
 
+  // Har kontot redan ansökt (t.ex. med koden vid registreringen) ska vi inte
+  // fråga om barnets namn en gång till.
+  const membership = useQuery({
+    queryKey: ["invite-membership", team.data?.id],
+    enabled: signedIn === true && !!team.data?.id,
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user || !team.data) return null;
+      const { data } = await supabase
+        .from("team_members")
+        .select("status")
+        .eq("team_id", team.data.id)
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
+      return data?.status ?? null;
+    },
+  });
+
   async function join() {
     if (!childName.trim()) {
       toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
@@ -143,21 +161,40 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
               <p className="text-sm text-muted-foreground">{team.data.age_group}</p>
             )}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="child-name">Barnets namn</Label>
-            <Input
-              id="child-name"
-              value={childName}
-              onChange={(event) => setChildName(event.target.value)}
-              placeholder="Förnamn och efternamn"
-            />
-            <p className="text-xs text-muted-foreground">
-              Tränaren kopplar ditt konto till rätt spelare i truppen.
-            </p>
-          </div>
-          <Button onClick={join} disabled={busy}>
-            {busy ? "Skickar…" : "Gå med som vårdnadshavare"}
-          </Button>
+          {membership.data ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {membership.data === "approved"
+                  ? "Du är redan med i laget."
+                  : "Din ansökan är skickad. Tränaren godkänner dig inom kort."}
+              </p>
+              {team.data?.id && (
+                <Button asChild>
+                  <Link to="/team/$teamId" params={{ teamId: team.data.id }}>
+                    Till laget
+                  </Link>
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="child-name">Barnets namn</Label>
+                <Input
+                  id="child-name"
+                  value={childName}
+                  onChange={(event) => setChildName(event.target.value)}
+                  placeholder="Förnamn och efternamn"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Tränaren kopplar ditt konto till rätt spelare i truppen.
+                </p>
+              </div>
+              <Button onClick={join} disabled={busy}>
+                {busy ? "Skickar…" : "Gå med som vårdnadshavare"}
+              </Button>
+            </>
+          )}
         </div>
       )}
     </main>

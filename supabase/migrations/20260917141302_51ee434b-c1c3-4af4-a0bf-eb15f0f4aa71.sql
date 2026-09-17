@@ -1,0 +1,1 @@
+GRANT SELECT (guardian_only), UPDATE (guardian_only) ON public.teams TO authenticated;

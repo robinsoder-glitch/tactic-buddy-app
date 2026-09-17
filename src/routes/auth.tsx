@@ -27,7 +27,7 @@ import { friendlyError } from "@/lib/user-errors";
 import { checkEmailExists } from "@/lib/auth.functions";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
-import { safeNextPath } from "@/lib/invite-links";
+import { safeNextPath, teamCodeFromToken } from "@/lib/invite-links";
 import { authModeFromSearch, authSearchForMode } from "@/lib/auth-mode";
 import {
   closeExternalBrowser,
@@ -87,7 +87,14 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [setup, setSetup] = useState<AccountSetup>({ role: "coach", name: "" });
+  // Kommer familjen från lagets inbjudningslänk är lagkoden redan känd –
+  // då slipper de skriva in den en gång till.
+  const invitedCode = teamCodeFromToken(nextPath?.split("/inbjudan/")[1] ?? null);
+  const [setup, setSetup] = useState<AccountSetup>({
+    role: "coach",
+    name: "",
+    ...(invitedCode ? { code: invitedCode } : {}),
+  });
   const [codeStatus, setCodeStatus] = useState<CodeStatus>({
     required: false,
     ready: true,
