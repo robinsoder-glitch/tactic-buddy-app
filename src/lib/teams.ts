@@ -11,6 +11,8 @@ export type Team = {
   age_group: string | null;
   /** Spelform laget spelar, t.ex. 5v5. Styr planstorleken på taktiktavlan. */
   game_format: string | null;
+  /** Null = härleds från åldersgruppen. Sant = laget har bara vårdnadshavarkonton. */
+  guardian_only: boolean | null;
   gender: string;
   about: string | null;
   home_ground: string | null;
@@ -190,7 +192,7 @@ export async function fetchMyTeams(): Promise<Team[]> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, game_format, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, guardian_only, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -208,7 +210,7 @@ export async function fetchTeam(id: string): Promise<Team> {
   const { data, error } = await supabase
     .from("teams")
     .select(
-      "id, name, age_group, game_format, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
+      "id, name, age_group, game_format, guardian_only, gender, about, home_ground, photo_path, club_id, created_by, archived_at, clubs(id, name)",
     )
     .eq("id", id)
     .single();
@@ -263,7 +265,7 @@ export async function updateTeam(
   patch: Partial<
     Pick<
       Team,
-      "name" | "age_group" | "game_format" | "gender" | "about" | "home_ground" | "photo_path"
+      "name" | "age_group" | "game_format" | "guardian_only" | "gender" | "about" | "home_ground" | "photo_path"
     >
   >,
 ) {
@@ -394,6 +396,8 @@ export type TeamCodeMatch = {
   club_name: string | null;
   /** "coach" när koden är lagets tränarkod, annars "player". */
   join_role: "coach" | "player";
+  /** Sant när laget bara tar emot vårdnadshavarkonton. */
+  guardian_only?: boolean | null;
 };
 
 export async function findTeamByCode(code: string): Promise<TeamCodeMatch | null> {
