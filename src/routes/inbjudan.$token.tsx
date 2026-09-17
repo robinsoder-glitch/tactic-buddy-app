@@ -213,26 +213,32 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
   return (
     <main className="mx-auto max-w-md px-4 py-16 text-center">
       <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
-      <h1 className="mt-4 text-2xl font-semibold">Inbjudan till {teamName}</h1>
+      <h1 className="mt-4 text-2xl font-semibold">
+        {problemKind ? "Inbjudan till laget" : `Inbjudan till ${teamName}`}
+      </h1>
 
-      <div className="mt-4 rounded-xl border bg-card p-4 text-left">
-        <p className="text-lg font-semibold">{teamName}</p>
-        {preview.data?.club_name && (
-          <p className="text-sm text-muted-foreground">{preview.data.club_name}</p>
-        )}
-        {preview.data?.age_group && (
-          <p className="text-sm text-muted-foreground">{preview.data.age_group}</p>
-        )}
-        <p className="mt-2 text-sm text-muted-foreground">
-          {preview.data?.guardian_only === false
-            ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
-            : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
-        </p>
-      </div>
+      {!problemKind && (
+        <>
+          <div className="mt-4 rounded-xl border bg-card p-4 text-left">
+            <p className="text-lg font-semibold">{teamName}</p>
+            {preview.data?.club_name && (
+              <p className="text-sm text-muted-foreground">{preview.data.club_name}</p>
+            )}
+            {preview.data?.age_group && (
+              <p className="text-sm text-muted-foreground">{preview.data.age_group}</p>
+            )}
+            <p className="mt-2 text-sm text-muted-foreground">
+              {preview.data?.guardian_only === false
+                ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
+                : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
+            </p>
+          </div>
 
-      <div className="mt-4">
-        <FlowDiagram steps={flow} />
-      </div>
+          <div className="mt-4">
+            <FlowDiagram steps={flow} />
+          </div>
+        </>
+      )}
 
       {problemKind && (
         <InviteProblemCard
