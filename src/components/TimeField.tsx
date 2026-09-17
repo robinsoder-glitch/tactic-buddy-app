@@ -71,6 +71,11 @@ export function TimeField({
 
   return (
     <div className={cn("space-y-1", className)}>
+      {/* Dolt fält med hela tiden så formulär som läser FormData får rätt värde
+          (listorna heter annars bara "start-hour" och "start-minute"). */}
+      {name ? (
+        <input type="hidden" name={name} value={hour && minute ? `${hour}:${minute}` : ""} />
+      ) : null}
       <div className="flex items-center gap-2">
         <select
           id={id}
