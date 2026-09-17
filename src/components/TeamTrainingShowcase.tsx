@@ -185,7 +185,7 @@ export function TeamTrainingShowcase({ teamId }: { teamId: string }) {
       </ul>
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto sm:max-w-4xl">
+        <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto bg-background p-4 sm:max-w-4xl sm:p-6">
           <DialogHeader className="pr-8">
             <DialogTitle className="font-display text-2xl sm:text-3xl">
               {selected?.title ?? "Träningspass"}
