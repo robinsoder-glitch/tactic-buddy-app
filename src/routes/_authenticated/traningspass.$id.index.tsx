@@ -81,8 +81,8 @@ function SessionBuilder() {
 
   useEffect(() => {
     if (session.data && !draft) {
-      const { title, session_date, age_group, game_format, theme, goal, notes } = session.data;
-      setDraft({ title, session_date, age_group, game_format, theme, goal, notes });
+      const { title, session_date, age_group, game_format, theme, focus_areas, goal, notes } = session.data;
+      setDraft({ title, session_date, age_group, game_format, theme, focus_areas, goal, notes });
     }
   }, [session.data, draft]);
 

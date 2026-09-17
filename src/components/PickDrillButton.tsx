@@ -16,6 +16,7 @@ import { addSessionItem, fetchSessionItems } from "@/lib/coach-sessions";
 import { useAuth } from "@/hooks/useAuth";
 import { addPickToDraft, parsePickSearch } from "@/lib/training-pick";
 import { formatDateTime } from "@/lib/teams";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 type Props = {
   kind: "drill" | "goalkeeper";
@@ -23,6 +24,7 @@ type Props = {
   title: string;
   defaultMinutes?: number;
   size?: "sm" | "default";
+  details?: ExerciseGuideData;
 };
 
 /**
@@ -35,6 +37,7 @@ export function PickDrillButton({
   title,
   defaultMinutes = 10,
   size = "sm",
+  details,
 }: Props) {
   const search = parsePickSearch(useSearch({ strict: false }) as Record<string, unknown>);
   const navigate = useNavigate();
@@ -70,6 +73,7 @@ export function PickDrillButton({
           resource_id: resourceId,
           minutes: Number(minutes) || defaultMinutes,
           note: null,
+          details,
         });
         // Passets innehåll måste hämtas om, annars ser tränaren en gammal lista.
         await queryClient.invalidateQueries({ queryKey: ["coach-session-items", sessionId] });
@@ -138,6 +142,7 @@ export function PickDrillButton({
         title={title}
         defaultMinutes={defaultMinutes}
         size={size}
+        details={details}
       />
     );
   }
@@ -152,7 +157,7 @@ export function PickDrillButton({
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes },
+      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes, details },
       { allowDuplicate },
     );
     if (!added) {

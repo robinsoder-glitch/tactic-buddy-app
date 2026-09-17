@@ -87,6 +87,7 @@ describe("lagets träningspass i truppen", () => {
     age_group: null,
     game_format: null,
     theme: null,
+    focus_areas: [],
     goal: null,
     notes: null,
     status: "draft",

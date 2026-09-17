@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { isLeaderRole } from "@/lib/team-roles";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 
@@ -38,12 +39,14 @@ export function AddToTrainingButton({
   title,
   defaultMinutes = 10,
   size = "default",
+  details,
 }: {
   kind: PlanKind & ItemKind;
   resourceId: string;
   title: string;
   defaultMinutes?: number;
   size?: "default" | "sm";
+  details?: ExerciseGuideData;
 }) {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -109,6 +112,7 @@ export function AddToTrainingButton({
           resourceId,
           minutes: Number(minutes) || null,
           note,
+          details,
         });
         return;
       }
@@ -125,6 +129,7 @@ export function AddToTrainingButton({
         resource_id: resourceId,
         minutes: Number(minutes) || defaultMinutes,
         note: note.trim() || null,
+        details,
       });
     },
     onSuccess: () => {

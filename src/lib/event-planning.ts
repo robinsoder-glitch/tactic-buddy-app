@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 /** Allt innehåll i banken kan kopplas till en aktivitet i kalendern. */
 export type PlanKind = "tactic" | "drill" | "session" | "goalkeeper" | "article";
@@ -61,6 +62,7 @@ export async function addResourceToEvent(input: {
   resourceId: string;
   minutes: number | null;
   note?: string | null;
+  details?: ExerciseGuideData;
 }) {
   const { error } = await supabase.from("event_resources").upsert(
     {
@@ -71,6 +73,7 @@ export async function addResourceToEvent(input: {
       resource_id: input.resourceId,
       minutes: input.minutes,
       note: input.note?.trim() || null,
+      details: input.details ?? {},
     },
     { onConflict: "event_id,kind,resource_id" },
   );
