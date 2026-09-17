@@ -62,6 +62,7 @@ import { Route as AuthenticatedAdminLagTeamIdRouteImport } from './routes/_authe
 import { Route as AuthenticatedTeamTeamIdIndexRouteImport } from './routes/_authenticated/team.$teamId.index'
 import { Route as AuthenticatedTeamTeamIdAboutRouteImport } from './routes/_authenticated/team.$teamId.about'
 import { Route as AuthenticatedTeamTeamIdCalendarRouteImport } from './routes/_authenticated/team.$teamId.calendar'
+import { Route as AuthenticatedTeamTeamIdKomIgangRouteImport } from './routes/_authenticated/team.$teamId.kom-igang'
 import { Route as AuthenticatedTeamTeamIdLamnadeRouteImport } from './routes/_authenticated/team.$teamId.lamnade'
 import { Route as AuthenticatedTeamTeamIdLeadersRouteImport } from './routes/_authenticated/team.$teamId.leaders'
 import { Route as AuthenticatedTeamTeamIdMatchesRouteImport } from './routes/_authenticated/team.$teamId.matches'
@@ -374,6 +375,12 @@ const AuthenticatedTeamTeamIdCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedTeamTeamIdRoute,
   } as any)
+const AuthenticatedTeamTeamIdKomIgangRoute =
+  AuthenticatedTeamTeamIdKomIgangRouteImport.update({
+    id: '/kom-igang',
+    path: '/kom-igang',
+    getParentRoute: () => AuthenticatedTeamTeamIdRoute,
+  } as any)
 const AuthenticatedTeamTeamIdLamnadeRoute =
   AuthenticatedTeamTeamIdLamnadeRouteImport.update({
     id: '/lamnade',
@@ -522,6 +529,7 @@ export interface FileRoutesByFullPath {
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/kom-igang': typeof AuthenticatedTeamTeamIdKomIgangRoute
   '/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
@@ -588,6 +596,7 @@ export interface FileRoutesByTo {
   '/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/team/$teamId/kom-igang': typeof AuthenticatedTeamTeamIdKomIgangRoute
   '/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
@@ -660,6 +669,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/lag/$teamId': typeof AuthenticatedAdminLagTeamIdRoute
   '/_authenticated/team/$teamId/about': typeof AuthenticatedTeamTeamIdAboutRoute
   '/_authenticated/team/$teamId/calendar': typeof AuthenticatedTeamTeamIdCalendarRoute
+  '/_authenticated/team/$teamId/kom-igang': typeof AuthenticatedTeamTeamIdKomIgangRoute
   '/_authenticated/team/$teamId/lamnade': typeof AuthenticatedTeamTeamIdLamnadeRoute
   '/_authenticated/team/$teamId/leaders': typeof AuthenticatedTeamTeamIdLeadersRoute
   '/_authenticated/team/$teamId/matches': typeof AuthenticatedTeamTeamIdMatchesRoute
@@ -732,6 +742,7 @@ export interface FileRouteTypes {
     | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/kom-igang'
     | '/team/$teamId/lamnade'
     | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
@@ -798,6 +809,7 @@ export interface FileRouteTypes {
     | '/admin/lag/$teamId'
     | '/team/$teamId/about'
     | '/team/$teamId/calendar'
+    | '/team/$teamId/kom-igang'
     | '/team/$teamId/lamnade'
     | '/team/$teamId/leaders'
     | '/team/$teamId/matches'
@@ -869,6 +881,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/lag/$teamId'
     | '/_authenticated/team/$teamId/about'
     | '/_authenticated/team/$teamId/calendar'
+    | '/_authenticated/team/$teamId/kom-igang'
     | '/_authenticated/team/$teamId/lamnade'
     | '/_authenticated/team/$teamId/leaders'
     | '/_authenticated/team/$teamId/matches'
@@ -1273,6 +1286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamTeamIdCalendarRouteImport
       parentRoute: typeof AuthenticatedTeamTeamIdRoute
     }
+    '/_authenticated/team/$teamId/kom-igang': {
+      id: '/_authenticated/team/$teamId/kom-igang'
+      path: '/kom-igang'
+      fullPath: '/team/$teamId/kom-igang'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdKomIgangRouteImport
+      parentRoute: typeof AuthenticatedTeamTeamIdRoute
+    }
     '/_authenticated/team/$teamId/lamnade': {
       id: '/_authenticated/team/$teamId/lamnade'
       path: '/lamnade'
@@ -1427,6 +1447,7 @@ const AuthenticatedKalenderRouteWithChildren =
 interface AuthenticatedTeamTeamIdRouteChildren {
   AuthenticatedTeamTeamIdAboutRoute: typeof AuthenticatedTeamTeamIdAboutRoute
   AuthenticatedTeamTeamIdCalendarRoute: typeof AuthenticatedTeamTeamIdCalendarRoute
+  AuthenticatedTeamTeamIdKomIgangRoute: typeof AuthenticatedTeamTeamIdKomIgangRoute
   AuthenticatedTeamTeamIdLamnadeRoute: typeof AuthenticatedTeamTeamIdLamnadeRoute
   AuthenticatedTeamTeamIdLeadersRoute: typeof AuthenticatedTeamTeamIdLeadersRoute
   AuthenticatedTeamTeamIdMatchesRoute: typeof AuthenticatedTeamTeamIdMatchesRoute
@@ -1446,6 +1467,7 @@ const AuthenticatedTeamTeamIdRouteChildren: AuthenticatedTeamTeamIdRouteChildren
   {
     AuthenticatedTeamTeamIdAboutRoute: AuthenticatedTeamTeamIdAboutRoute,
     AuthenticatedTeamTeamIdCalendarRoute: AuthenticatedTeamTeamIdCalendarRoute,
+    AuthenticatedTeamTeamIdKomIgangRoute: AuthenticatedTeamTeamIdKomIgangRoute,
     AuthenticatedTeamTeamIdLamnadeRoute: AuthenticatedTeamTeamIdLamnadeRoute,
     AuthenticatedTeamTeamIdLeadersRoute: AuthenticatedTeamTeamIdLeadersRoute,
     AuthenticatedTeamTeamIdMatchesRoute: AuthenticatedTeamTeamIdMatchesRoute,
