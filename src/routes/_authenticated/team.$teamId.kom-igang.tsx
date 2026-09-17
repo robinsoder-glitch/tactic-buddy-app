@@ -15,7 +15,8 @@ import {
   fetchTeamPlayers,
   saveTeamPlayer,
 } from "@/lib/teams";
-import { buildTeamInviteUrl } from "@/lib/invite-links";
+import { buildTeamInviteUrl, shareOrigin } from "@/lib/invite-links";
+import { copyText } from "@/lib/copy-text";
 import { isGuardianOnlyTeam } from "@/lib/team-age";
 import { friendlyError } from "@/lib/user-errors";
 
@@ -64,10 +65,9 @@ function StartPage() {
   const guardianOnly = isGuardianOnlyTeam(team.data);
   const squad = players.data ?? [];
   const pending = (members.data ?? []).filter((member) => member.status === "pending");
-  const inviteUrl =
-    codes.data?.join_code && typeof window !== "undefined"
-      ? buildTeamInviteUrl(window.location.origin, codes.data.join_code)
-      : "";
+  const inviteUrl = codes.data?.join_code
+    ? buildTeamInviteUrl(shareOrigin(), codes.data.join_code)
+    : "";
 
   const addPlayer = useMutation({
     mutationFn: async () => {
