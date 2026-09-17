@@ -55,6 +55,8 @@ import { formatDateTime } from "@/lib/teams";
 import { eventTitleLine } from "@/lib/event-labels";
 import { CoachOnly } from "@/components/CoachOnly";
 import { isLeaderRole } from "@/lib/team-roles";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { drillGuide, lines, type ExerciseGuideData } from "@/lib/training-outcomes";
 
 const EQUIPMENT_SUGGESTIONS = ["Koner", "Mål"] as const;
 
@@ -241,6 +243,7 @@ function PlanTrainingPage() {
           note: row.note,
           instruction: details.instruction,
           equipment: details.equipment,
+          details: row.details,
         };
       }),
     };
@@ -289,6 +292,15 @@ function PlanTrainingPage() {
     purpose: "",
     equipment: "",
     focus: "",
+    area: "",
+    players: "",
+    organisation: "",
+    execution: "",
+    questions: "",
+    simplify: "",
+    challenge: "",
+    successSigns: "",
+    safety: "",
     library: false,
   });
   const [formError, setFormError] = useState<string | null>(null);
@@ -308,6 +320,7 @@ function PlanTrainingPage() {
           coachFocus: form.focus,
           inLibrary: form.library,
           teamId: selected.team_id,
+          guide: ownGuide,
         },
         user.id,
       );
@@ -323,6 +336,7 @@ function PlanTrainingPage() {
           note: created.coach_focus ? `Fokus: ${created.coach_focus}` : null,
           instruction: created.instruction,
           equipment: created.equipment,
+          details: created.guide,
         }),
       );
       queryClient.invalidateQueries({ queryKey: ["coach-drills"] });
@@ -335,6 +349,15 @@ function PlanTrainingPage() {
         purpose: "",
         equipment: "",
         focus: "",
+        area: "",
+        players: "",
+        organisation: "",
+        execution: "",
+        questions: "",
+        simplify: "",
+        challenge: "",
+        successSigns: "",
+        safety: "",
         library: false,
       });
       toast.success("Övningen lades till i träningen.");
@@ -358,6 +381,20 @@ function PlanTrainingPage() {
   }
 
   const highlight = search.markera ?? null;
+  const ownGuide: ExerciseGuideData = {
+    purpose: form.purpose.trim() || undefined,
+    area: form.area.trim() || undefined,
+    players: form.players.trim() || undefined,
+    equipment: form.equipment.trim() ? form.equipment.split(",").map((item) => item.trim()).filter(Boolean) : undefined,
+    organisation: lines(form.organisation),
+    execution: lines(form.execution || form.instruction),
+    coachingPoints: lines(form.focus),
+    coachQuestions: lines(form.questions),
+    simplify: lines(form.simplify),
+    challenge: lines(form.challenge),
+    successSigns: lines(form.successSigns),
+    safety: form.safety.trim() || undefined,
+  };
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
@@ -616,6 +653,7 @@ function PlanTrainingPage() {
                             {item.note && (
                               <p className="text-xs text-muted-foreground">{item.note}</p>
                             )}
+                            <ExerciseGuide guide={item.details ?? null} compact />
                           </div>
                           <span className="flex shrink-0 gap-1">
                             <Button
@@ -798,6 +836,33 @@ function PlanTrainingPage() {
                 onChange={(event) => setForm((state) => ({ ...state, focus: event.target.value }))}
               />
             </div>
+            {[
+              ["area", "Yta (valfritt)", "T.ex. 20 × 15 meter"],
+              ["players", "Antal spelare (valfritt)", "T.ex. 8–12"],
+              ["organisation", "Uppställning – koner och mål (valfritt)", "En punkt per rad"],
+              ["execution", "Genomförande steg för steg (valfritt)", "Ett steg per rad"],
+              ["questions", "Frågor till spelarna (valfritt)", "En fråga per rad"],
+              ["simplify", "Förenkla (valfritt)", "En anpassning per rad"],
+              ["challenge", "Försvåra (valfritt)", "En anpassning per rad"],
+              ["successSigns", "Tecken på att övningen fungerar (valfritt)", "Ett tecken per rad"],
+              ["safety", "Säkerhet (valfritt)", "Vad behöver tränaren tänka på?"],
+            ].map(([key, label, placeholder]) => (
+              <div key={key} className="space-y-1">
+                <Label htmlFor={`own-${key}`}>{label}</Label>
+                <Textarea
+                  id={`own-${key}`}
+                  rows={key === "area" || key === "players" || key === "safety" ? 2 : 3}
+                  placeholder={placeholder}
+                  value={form[key as keyof typeof form] as string}
+                  onChange={(event) => setForm((state) => ({ ...state, [key]: event.target.value }))}
+                />
+              </div>
+            ))}
+            <section className="rounded-lg border border-border p-3">
+              <h3 className="font-semibold">Förhandsgranskning</h3>
+              <ExerciseGuide guide={ownGuide} />
+              {!Object.values(ownGuide).some(Boolean) && <p className="mt-2 text-sm text-muted-foreground">Fyll i valfria detaljer för att se guiden.</p>}
+            </section>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

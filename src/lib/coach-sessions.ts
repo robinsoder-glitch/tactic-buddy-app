@@ -306,6 +306,7 @@ export function templateItems(template: TrainingSessionCard): NewItem[] {
     resource_id: block.drillId ?? null,
     minutes: block.minutes ?? 10,
     note: null,
+    details: {},
   }));
 }
 
