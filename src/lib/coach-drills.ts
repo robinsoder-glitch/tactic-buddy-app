@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 /** En övning som tränaren skapat själv, direkt i en träningsplanering. */
 export type CoachDrill = {
@@ -12,6 +13,7 @@ export type CoachDrill = {
   equipment: string | null;
   coach_focus: string | null;
   in_library: boolean;
+  guide: ExerciseGuideData;
 };
 
 export type CoachDrillInput = {
@@ -23,6 +25,7 @@ export type CoachDrillInput = {
   coachFocus?: string | null;
   inLibrary?: boolean;
   teamId?: string | null;
+  guide?: ExerciseGuideData;
 };
 
 /** Enkel validering som används av både formuläret och testerna. */
@@ -40,7 +43,7 @@ export async function fetchCoachDrills(): Promise<CoachDrill[]> {
   const { data, error } = await supabase
     .from("coach_drills")
     .select(
-      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library",
+      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library, guide",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -63,9 +66,10 @@ export async function createCoachDrill(
       equipment: input.equipment?.trim() || null,
       coach_focus: input.coachFocus?.trim() || null,
       in_library: Boolean(input.inLibrary),
+      guide: input.guide ?? {},
     })
     .select(
-      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library",
+      "id, user_id, team_id, title, minutes, instruction, purpose, equipment, coach_focus, in_library, guide",
     )
     .single();
   if (error) throw error;

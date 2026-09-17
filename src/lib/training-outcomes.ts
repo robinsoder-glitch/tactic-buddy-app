@@ -16,18 +16,18 @@ export const TRAINING_FOCUS_AREAS = [
 export type TrainingFocusArea = (typeof TRAINING_FOCUS_AREAS)[number];
 
 export type ExerciseGuideData = {
-  purpose?: string;
-  area?: string;
-  players?: string;
-  equipment?: string[];
-  organisation?: string[];
-  execution?: string[];
-  coachingPoints?: string[];
-  coachQuestions?: string[];
-  simplify?: string[];
-  challenge?: string[];
-  successSigns?: string[];
-  safety?: string;
+  purpose?: string | undefined;
+  area?: string | undefined;
+  players?: string | undefined;
+  equipment?: string[] | undefined;
+  organisation?: string[] | undefined;
+  execution?: string[] | undefined;
+  coachingPoints?: string[] | undefined;
+  coachQuestions?: string[] | undefined;
+  simplify?: string[] | undefined;
+  challenge?: string[] | undefined;
+  successSigns?: string[] | undefined;
+  safety?: string | undefined;
 };
 
 export function toggleFocus(areas: string[], area: string): string[] {
@@ -68,8 +68,6 @@ export function goalkeeperGuide(card: GoalkeeperCard): ExerciseGuideData {
     purpose: card.data.purpose ?? card.purpose ?? undefined,
     execution: card.data.steps,
     coachingPoints: card.data.childCues,
-    coachQuestions: card.data.coachQuestions,
-    successSigns: card.data.successSigns,
   };
 }
 

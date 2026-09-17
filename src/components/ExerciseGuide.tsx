@@ -1,7 +1,7 @@
 import type { ExerciseGuideData } from "@/lib/training-outcomes";
 import { guideHasContent } from "@/lib/training-outcomes";
 
-function GuideList({ title, items }: { title: string; items?: string[] }) {
+function GuideList({ title, items }: { title: string; items: string[] | undefined }) {
   if (!items?.length) return null;
   return (
     <section>

@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { TrainingSessionCard } from "./taktikbank";
+import type { ExerciseGuideData } from "./training-outcomes";
 
 /** Typer av delar som kan ingå i ett personligt träningspass. */
 export const ITEM_KINDS = [
@@ -40,6 +41,7 @@ export type CoachSession = {
   age_group: string | null;
   game_format: string | null;
   theme: string | null;
+  focus_areas: string[];
   goal: string | null;
   notes: string | null;
   status: string;
@@ -61,6 +63,7 @@ export type CoachSessionItem = {
   minutes: number;
   note: string | null;
   sort_order: number;
+  details: ExerciseGuideData;
 };
 
 export type SessionDraft = {
@@ -69,6 +72,7 @@ export type SessionDraft = {
   age_group: string | null;
   game_format: string | null;
   theme: string | null;
+  focus_areas: string[];
   goal: string | null;
   notes: string | null;
   team_id?: string | null;
@@ -80,14 +84,15 @@ export const emptyDraft: SessionDraft = {
   age_group: null,
   game_format: null,
   theme: null,
+  focus_areas: [],
   goal: null,
   notes: null,
   team_id: null,
 };
 
 const SESSION_COLUMNS =
-  "id, user_id, title, session_date, age_group, game_format, theme, goal, notes, status, template_id, team_id, is_template, visibility, source_session_id, created_at, updated_at";
-const ITEM_COLUMNS = "id, session_id, kind, title, resource_id, minutes, note, sort_order";
+  "id, user_id, title, session_date, age_group, game_format, theme, focus_areas, goal, notes, status, template_id, team_id, is_template, visibility, source_session_id, created_at, updated_at";
+const ITEM_COLUMNS = "id, session_id, kind, title, resource_id, minutes, note, sort_order, details";
 
 export async function fetchCoachSessions(): Promise<CoachSession[]> {
   const { data, error } = await supabase
@@ -174,6 +179,7 @@ export async function createCoachSession(
       age_group: draft.age_group,
       game_format: draft.game_format,
       theme: draft.theme,
+      focus_areas: draft.focus_areas,
       goal: draft.goal,
       notes: draft.notes,
       status: "draft",
@@ -205,6 +211,7 @@ export type NewItem = {
   resource_id?: string | null;
   minutes?: number;
   note?: string | null;
+  details?: ExerciseGuideData;
 };
 
 export async function addSessionItem(sessionId: string, userId: string, item: NewItem) {
@@ -217,6 +224,7 @@ export async function addSessionItem(sessionId: string, userId: string, item: Ne
     resource_id: item.resource_id ?? null,
     minutes: Math.max(0, Math.round(item.minutes ?? 10)),
     note: item.note ?? null,
+    details: item.details ?? {},
     sort_order: nextSortOrder(existing),
   });
   if (error) throw error;
@@ -311,6 +319,7 @@ export async function createFromTemplate(
       ...emptyDraft,
       title: template.title,
       theme: template.data.theme ?? template.theme ?? null,
+      focus_areas: template.data.theme ? [template.data.theme] : [],
       goal: template.data.coachLimit ?? null,
     },
     userId,
@@ -327,6 +336,7 @@ export async function createFromTemplate(
         resource_id: item.resource_id ?? null,
         minutes: item.minutes ?? 10,
         note: item.note ?? null,
+        details: item.details ?? {},
         sort_order: index,
       })),
     );
@@ -348,6 +358,7 @@ export async function duplicateCoachSession(
       age_group: session.age_group,
       game_format: session.game_format,
       theme: session.theme,
+      focus_areas: session.focus_areas,
       goal: session.goal,
       notes: session.notes,
       team_id: session.team_id,
@@ -365,6 +376,7 @@ export async function duplicateCoachSession(
         resource_id: item.resource_id,
         minutes: item.minutes,
         note: item.note,
+        details: item.details,
         sort_order: index,
       })),
     );
