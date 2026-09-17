@@ -376,9 +376,12 @@ function PersonalInvite() {
       {preview.isLoading && <p className="mt-4 text-sm text-muted-foreground">Hämtar inbjudan…</p>}
 
       {preview.isError && (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Kunde inte hämta inbjudan just nu. Försök igen om en stund.
-        </p>
+        <InviteProblemCard
+          info={inviteProblemInfo(isNetworkProblem(preview.error) ? "network" : "invalid")}
+          onRetry={() => void preview.refetch()}
+          retrying={preview.isFetching}
+          attempts={preview.errorUpdateCount}
+        />
       )}
 
       {preview.isSuccess && (
