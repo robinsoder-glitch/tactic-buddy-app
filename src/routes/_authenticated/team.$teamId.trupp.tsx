@@ -45,7 +45,10 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/trupp")({
   head: () => ({
     meta: [
       { title: "Trupp och övningar – Fotbollsrummet" },
-      { name: "description", content: "Se lagets spelare och visa träningsövningar inför träningen." },
+      {
+        name: "description",
+        content: "Se lagets spelare och visa träningsövningar inför träningen.",
+      },
       { property: "og:title", content: "Trupp och övningar – Fotbollsrummet" },
       { property: "og:description", content: "Lagets trupp och träningsövningar på samma sida." },
       { property: "og:type", content: "website" },
@@ -324,68 +327,74 @@ function SquadPage() {
           )}
 
           <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-        {players.data?.length === 0 && (
-          <li className="p-6 text-center text-sm text-muted-foreground">
-            Inga spelare i truppen än.
-          </li>
-        )}
-        {players.data?.map((player) => (
-          <li key={player.id} className="flex items-center gap-3 p-3">
-            <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary">
-              {player.photoUrl ? (
-                <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
-              ) : (
-                <UserRound className="size-5 text-muted-foreground" />
-              )}
-            </div>
-            <Link
-              to="/team/$teamId/player/$playerId"
-              params={{ teamId, playerId: player.id }}
-              className="min-w-0 flex-1 text-left"
-            >
-              <p className="truncate font-medium">
-                {player.number != null && (
-                  <span className="mr-2 text-primary">#{player.number}</span>
+            {players.data?.length === 0 && (
+              <li className="p-6 text-center text-sm text-muted-foreground">
+                Inga spelare i truppen än.
+              </li>
+            )}
+            {players.data?.map((player) => (
+              <li key={player.id} className="flex items-center gap-3 p-3">
+                <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary">
+                  {player.photoUrl ? (
+                    <img
+                      src={player.photoUrl}
+                      alt={player.name}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <UserRound className="size-5 text-muted-foreground" />
+                  )}
+                </div>
+                <Link
+                  to="/team/$teamId/player/$playerId"
+                  params={{ teamId, playerId: player.id }}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <p className="truncate font-medium">
+                    {player.number != null && (
+                      <span className="mr-2 text-primary">#{player.number}</span>
+                    )}
+                    {player.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {[
+                      player.is_goalkeeper ? "Målvakt" : null,
+                      player.gender && player.gender !== "none"
+                        ? GENDER_LABELS[player.gender]
+                        : null,
+                      birthLabel(player.birth_date),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </Link>
+                {isCoach && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Redigera spelare"
+                    onClick={() => openEdit(player)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
                 )}
-                {player.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {[
-                  player.is_goalkeeper ? "Målvakt" : null,
-                  player.gender && player.gender !== "none" ? GENDER_LABELS[player.gender] : null,
-                  birthLabel(player.birth_date),
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </Link>
-            {isCoach && (
-              <Button
-                size="icon"
-                variant="ghost"
-                aria-label="Redigera spelare"
-                onClick={() => openEdit(player)}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            )}
-            {isCoach && (
-              <Button
-                size="icon"
-                variant="ghost"
-                aria-label="Radera spelare"
-                onClick={() => {
-                  void confirm({
-                    title: "Radera spelare",
-                    description: `${player.name} tas bort från lagets trupp permanent.`,
-                  }).then((ok) => ok && remove.mutate(player.id));
-                }}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            )}
-          </li>
-        ))}
+                {isCoach && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Radera spelare"
+                    onClick={() => {
+                      void confirm({
+                        title: "Radera spelare",
+                        description: `${player.name} tas bort från lagets trupp permanent.`,
+                      }).then((ok) => ok && remove.mutate(player.id));
+                    }}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
+              </li>
+            ))}
           </ul>
         </TabsContent>
 

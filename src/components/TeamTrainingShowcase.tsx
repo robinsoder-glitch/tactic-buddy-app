@@ -13,12 +13,7 @@ import {
   type ItemKind,
 } from "@/lib/coach-sessions";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function sessionDate(value: string | null) {
   if (!value) return "Datum ej valt";
@@ -31,13 +26,21 @@ function sessionDate(value: string | null) {
   });
 }
 
-function SessionPresentation({ session, items }: { session: CoachSession; items: CoachSessionItem[] }) {
+function SessionPresentation({
+  session,
+  items,
+}: {
+  session: CoachSession;
+  items: CoachSessionItem[];
+}) {
   let elapsed = 0;
   return (
     <div className="space-y-5">
       <div>
         <p className="text-sm font-medium text-primary">{sessionDate(session.session_date)}</p>
-        {session.theme && <p className="mt-1 text-lg text-muted-foreground">Tema: {session.theme}</p>}
+        {session.theme && (
+          <p className="mt-1 text-lg text-muted-foreground">Tema: {session.theme}</p>
+        )}
         {session.goal && (
           <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
             <p className="text-sm font-semibold text-primary">Dagens mål</p>
@@ -69,9 +72,12 @@ function SessionPresentation({ session, items }: { session: CoachSession; items:
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Aktivitet"} · {item.minutes} minuter
+                      {ITEM_KIND_LABELS[item.kind as ItemKind] ?? "Aktivitet"} · {item.minutes}{" "}
+                      minuter
                     </p>
-                    {item.note && <p className="mt-3 whitespace-pre-wrap text-base sm:text-lg">{item.note}</p>}
+                    {item.note && (
+                      <p className="mt-3 whitespace-pre-wrap text-base sm:text-lg">{item.note}</p>
+                    )}
                   </div>
                 </div>
               </li>
@@ -107,7 +113,9 @@ export function TeamTrainingShowcase({ teamId }: { teamId: string }) {
   }, [selectedId, sessions]);
 
   if (sessionsQuery.isLoading || itemQuery.isLoading) {
-    return <p className="py-10 text-center text-sm text-muted-foreground">Hämtar lagets övningar…</p>;
+    return (
+      <p className="py-10 text-center text-sm text-muted-foreground">Hämtar lagets övningar…</p>
+    );
   }
 
   if (sessionsQuery.isError || itemQuery.isError) {
