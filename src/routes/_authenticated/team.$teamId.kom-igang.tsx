@@ -71,8 +71,7 @@ function StepCard({
       }`}
     >
       <p className="font-display text-lg font-bold">
-        Steg {step} · {title}{" "}
-        {done && <Check className="inline size-5 text-primary" aria-hidden />}
+        Steg {step} · {title} {done && <Check className="inline size-5 text-primary" aria-hidden />}
       </p>
       {children}
     </div>
@@ -274,7 +273,12 @@ function StartPage() {
         )}
       </StepCard>
 
-      <StepCard step={3} title="Godkänn familjerna" done={done.approve} active={active === "approve"}>
+      <StepCard
+        step={3}
+        title="Godkänn familjerna"
+        done={done.approve}
+        active={active === "approve"}
+      >
         {pending.length === 0 ? (
           <p className="mt-1 text-sm text-muted-foreground">
             {done.approve
@@ -367,10 +371,7 @@ function StartPage() {
                   </span>
                 </span>
                 <Button asChild size="sm" variant="secondary">
-                  <Link
-                    to="/team/$teamId/event/$eventId"
-                    params={{ teamId, eventId: event.id }}
-                  >
+                  <Link to="/team/$teamId/event/$eventId" params={{ teamId, eventId: event.id }}>
                     Öppna
                   </Link>
                 </Button>
