@@ -51,11 +51,13 @@ function InvitePage() {
 
 /** Lagets gemensamma inbjudan – en länk till alla familjer i laget. */
 function TeamCodeInvite({ token, code }: { token: string; code: string }) {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [childName, setChildName] = useState("");
   const [busy, setBusy] = useState(false);
+  // Sätts när ansökan just skickats, så familjen får ett tydligt besked
+  // i stället för att slussas in på en tom lagsida.
+  const [sent, setSent] = useState<"pending" | "approved" | null>(null);
 
   useEffect(() => {
     try {
@@ -65,6 +67,12 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     }
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
   }, [token]);
+
+  // Lagets namn syns redan innan man loggar in – annars ser länken ut som skräppost.
+  const preview = useQuery({
+    queryKey: ["code-preview", code],
+    queryFn: () => previewTeamByCode(code),
+  });
 
   const team = useQuery({
     queryKey: ["team-by-code", code],
@@ -90,6 +98,9 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     },
   });
 
+  const teamName = preview.data?.name ?? team.data?.name ?? "Laget";
+  const status = sent ?? membership.data ?? null;
+
   async function join() {
     if (!childName.trim()) {
       toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
@@ -112,12 +123,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         /* inget att rensa */
       }
       await queryClient.invalidateQueries();
-      toast.success(
-        result.status === "approved"
-          ? `Du är med i ${result.teamName}.`
-          : `Ansökan skickad till ${result.teamName}. Tränaren godkänner dig inom kort.`,
-      );
-      navigate({ to: "/team/$teamId", params: { teamId: result.teamId } });
+      setSent(result.status);
     } catch (caught) {
       toast.error(friendlyError(caught, "Kunde inte gå med i laget"));
     } finally {
@@ -128,12 +134,33 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
   return (
     <main className="mx-auto max-w-md px-4 py-16 text-center">
       <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
-      <h1 className="mt-4 text-2xl font-semibold">Inbjudan till laget</h1>
+      <h1 className="mt-4 text-2xl font-semibold">Inbjudan till {teamName}</h1>
+
+      <div className="mt-4 rounded-xl border bg-card p-4 text-left">
+        <p className="text-lg font-semibold">{teamName}</p>
+        {preview.data?.club_name && (
+          <p className="text-sm text-muted-foreground">{preview.data.club_name}</p>
+        )}
+        {preview.data?.age_group && (
+          <p className="text-sm text-muted-foreground">{preview.data.age_group}</p>
+        )}
+        <p className="mt-2 text-sm text-muted-foreground">
+          {preview.data?.guardian_only === false
+            ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
+            : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
+        </p>
+      </div>
+
+      {preview.isSuccess && !preview.data && (
+        <p className="mt-4 text-sm text-destructive">
+          Länken hör inte till något lag längre. Be tränaren skicka en ny länk.
+        </p>
+      )}
 
       {signedIn === false && (
         <>
           <p className="mt-4 text-sm text-muted-foreground">
-            Skapa ett konto som vårdnadshavare, så kopplar tränaren ditt konto till ditt barn.
+            Skapa ett konto, så kopplar tränaren ditt konto till ditt barn.
           </p>
           <div className="mt-6 grid gap-2">
             <Button asChild>
@@ -152,30 +179,26 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
       {signedIn && (
         <div className="mt-6 grid gap-3 text-left">
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-lg font-semibold">{team.data?.name ?? "Laget"}</p>
-            {team.data?.club_name && (
-              <p className="text-sm text-muted-foreground">{team.data.club_name}</p>
-            )}
-            {team.data?.age_group && (
-              <p className="text-sm text-muted-foreground">{team.data.age_group}</p>
-            )}
-          </div>
-          {membership.data ? (
-            <>
-              <p className="text-sm text-muted-foreground">
-                {membership.data === "approved"
-                  ? "Du är redan med i laget."
-                  : "Din ansökan är skickad. Tränaren godkänner dig inom kort."}
+          {status ? (
+            <div className="rounded-xl border border-primary/40 bg-primary/10 p-4">
+              <p className="font-semibold">
+                {status === "approved"
+                  ? `Du är med i ${teamName}.`
+                  : `Din ansökan är skickad till ${teamName}.`}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {status === "approved"
+                  ? "Du ser lagets kalender och kallelser direkt."
+                  : "Tränaren godkänner dig och kopplar kontot till ditt barn. Du får en notis när det är klart – du behöver inte göra något mer."}
               </p>
               {team.data?.id && (
-                <Button asChild>
+                <Button asChild className="mt-3">
                   <Link to="/team/$teamId" params={{ teamId: team.data.id }}>
                     Till laget
                   </Link>
                 </Button>
               )}
-            </>
+            </div>
           ) : (
             <>
               <div className="space-y-1.5">
@@ -200,6 +223,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     </main>
   );
 }
+
 
 /** Personlig engångslänk, används framför allt för nya ledare. */
 function PersonalInvite() {
