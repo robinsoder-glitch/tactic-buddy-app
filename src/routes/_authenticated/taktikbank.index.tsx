@@ -46,6 +46,8 @@ export const Route = createFileRoute("/_authenticated/taktikbank/")({
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
+  const preset = useTeamPreset();
+  const presetApplied = useRef(false);
   const queryClient = useQueryClient();
 
   const [query, setQuery] = useState("");
