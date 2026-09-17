@@ -31,6 +31,7 @@ import {
 import { friendlyError } from "@/lib/user-errors";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { coachFlowSteps } from "@/lib/invite-flow";
+import { trackFlowEvent } from "@/lib/flow-tracking";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
   head: () => ({
