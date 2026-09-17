@@ -124,6 +124,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
       return;
     }
     setBusy(true);
+    void trackFlowEvent("invite_join_submitted", { teamCode: code, role: "guardian" });
     try {
       const { data: auth } = await supabase.auth.getUser();
       if (auth.user) {
