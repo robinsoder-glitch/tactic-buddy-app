@@ -1013,19 +1013,37 @@ function MatchPlanner({
           {step === 3 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Formation och avbytare</h2>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
-                {Object.keys(FORMAT_PLAYERS).map((f) => (
-                  <Button
-                    key={f}
+              {/* Spelformen laget valdes med är förvald – den behöver bara ändras
+                  i undantagsfall, t.ex. vid en cup med annan spelform. */}
+              {!showFormatPicker && team?.game_format && format === team.game_format ? (
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="rounded-full bg-secondary px-3 py-1 font-medium">
+                    {FORMAT_LABELS[format] ?? format}
+                  </span>
+                  <span className="text-muted-foreground">förvalt från laget</span>
+                  <button
                     type="button"
-                    variant={format === f ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => changeFormat(f)}
+                    onClick={() => setShowFormatPicker(true)}
+                    className="text-xs text-primary underline-offset-4 hover:underline"
                   >
-                    {FORMAT_LABELS[f]}
-                  </Button>
-                ))}
-              </div>
+                    Byt spelform
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
+                  {Object.keys(FORMAT_PLAYERS).map((f) => (
+                    <Button
+                      key={f}
+                      type="button"
+                      variant={format === f ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => changeFormat(f)}
+                    >
+                      {FORMAT_LABELS[f]}
+                    </Button>
+                  ))}
+                </div>
+              )}
               {formationOptions(format).length > 1 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Välj uppställning</p>
