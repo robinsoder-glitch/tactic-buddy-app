@@ -26,6 +26,14 @@ import {
   teamCodeFromToken,
 } from "@/lib/invite-links";
 import { friendlyError } from "@/lib/user-errors";
+import { InviteProblemCard } from "@/components/InviteProblemCard";
+import {
+  type InviteProblemKind,
+  inviteProblemInfo,
+  isNetworkProblem,
+  problemFromPreviewState,
+  tokenProblem,
+} from "@/lib/invite-problem";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { familyFlowSteps } from "@/lib/invite-flow";
 import { trackFlowEvent } from "@/lib/flow-tracking";
