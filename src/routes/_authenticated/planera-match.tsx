@@ -262,6 +262,7 @@ function MatchPlanner({
   const [playerIds, setPlayerIds] = useState<string[]>([]);
   const [format, setFormat] = useState("7v7");
   const [formationId, setFormationId] = useState("7v7-2-3-1");
+  const [showFormatPicker, setShowFormatPicker] = useState(false);
   const [slots, setSlots] = useState<LineupSlot[]>([]);
   const [bench, setBench] = useState<string[]>([]);
   const [tacticId, setTacticId] = useState<string | null>(null);
