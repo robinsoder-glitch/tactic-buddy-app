@@ -51,7 +51,31 @@ export const Route = createFileRoute("/inbjudan/$token")({
 function InvitePage() {
   const { token } = useParams({ from: "/inbjudan/$token" });
   const teamCode = teamCodeFromToken(token);
+  // Trasig adress syns direkt – vi behöver inte fråga servern för att se det.
+  const broken = tokenProblem(token);
+  if (!teamCode && broken) return <BrokenInviteLink kind={broken} />;
   return teamCode ? <TeamCodeInvite token={token} code={teamCode} /> : <PersonalInvite />;
+}
+
+function InviteShell({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <main className="mx-auto max-w-md px-4 py-16 text-center">
+      <ShieldCheck className="mx-auto size-9 text-primary" aria-hidden />
+      <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
+      {children}
+    </main>
+  );
+}
+
+function BrokenInviteLink({ kind }: { kind: InviteProblemKind }) {
+  useEffect(() => {
+    void trackFlowEvent("invite_link_invalid", { details: { reason: kind } });
+  }, [kind]);
+  return (
+    <InviteShell title="Inbjudan till laget">
+      <InviteProblemCard info={inviteProblemInfo(kind)} />
+    </InviteShell>
+  );
 }
 
 /** Lagets gemensamma inbjudan – en länk till alla familjer i laget. */
