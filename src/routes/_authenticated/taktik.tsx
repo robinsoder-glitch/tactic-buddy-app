@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authenticated/taktik")({
 
 function TacticPage() {
   const { user } = useAuth();
+  const preset = useTeamPreset();
   const queryClient = useQueryClient();
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -57,7 +58,8 @@ function TacticPage() {
   useEffect(() => {
     if (!user || blankId) return;
     let cancelled = false;
-    openBlankTactic(user.id)
+    // Planen och formationerna följer lagets spelform direkt.
+    openBlankTactic(user.id, "Tom tavla", preset.pitchType ?? "full")
       .then((id) => {
         if (!cancelled) setBlankId(id);
       })
@@ -67,7 +69,7 @@ function TacticPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, blankId]);
+  }, [user, blankId, preset.pitchType]);
 
   const activeId = openId ?? blankId;
 
