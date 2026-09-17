@@ -11,9 +11,11 @@ import {
   acceptTeamInvite,
   findTeamByCode,
   joinTeamWithCode,
+  previewTeamByCode,
   previewTeamInvite,
   updateProfile,
 } from "@/lib/teams";
+
 import {
   canAcceptInvite,
   INVITE_PREVIEW_MESSAGES,
