@@ -402,7 +402,16 @@ function PersonalInvite() {
             </div>
           )}
 
-          <p className="mt-4 text-sm text-muted-foreground">{INVITE_PREVIEW_MESSAGES[state]}</p>
+          {canAccept ? (
+            <p className="mt-4 text-sm text-muted-foreground">{INVITE_PREVIEW_MESSAGES[state]}</p>
+          ) : (
+            <InviteProblemCard
+              info={inviteProblemInfo(problemFromPreviewState(state) ?? "invalid")}
+              onRetry={() => void preview.refetch()}
+              retrying={preview.isFetching}
+              attempts={preview.errorUpdateCount}
+            />
+          )}
 
           {canAccept && signedIn === false && (
             <div className="mt-6 grid gap-2">
