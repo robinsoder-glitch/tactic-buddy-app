@@ -77,6 +77,21 @@ export function teamCodeFromToken(token: string | null | undefined): string | nu
   return match?.[1] ? match[1].toUpperCase() : null;
 }
 
+/** Den publika adressen familjerna ska få, även när tränaren sitter i förhandsvisningen. */
+export const PUBLIC_APP_ORIGIN = "https://fotbollsrummet.app";
+
+export function shareOrigin(host?: string): string {
+  const hostname =
+    host ?? (typeof window !== "undefined" ? window.location.hostname : "") ?? "";
+  const internal =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".lovableproject.com") ||
+    hostname.endsWith(".lovable.app");
+  if (internal || !hostname) return PUBLIC_APP_ORIGIN;
+  return typeof window !== "undefined" ? window.location.origin : PUBLIC_APP_ORIGIN;
+}
+
 /** Full adress till lagets gemensamma inbjudan. */
 export function buildTeamInviteUrl(origin: string, code: string): string {
   return buildInviteUrl(origin.replace(/\/$/, ""), teamCodeToken(code));
