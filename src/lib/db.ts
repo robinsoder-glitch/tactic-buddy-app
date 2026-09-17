@@ -176,7 +176,7 @@ export async function openBlankTactic(
     }
   }
 
-  return createTactic(userId, name, "full", null, { draft: true });
+  return createTactic(userId, name, pitchType, null, { draft: true });
 }
 
 /** Sant när rutan innehåller något användaren skulle sakna. */
