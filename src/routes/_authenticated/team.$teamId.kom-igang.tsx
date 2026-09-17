@@ -307,7 +307,7 @@ function StartPage() {
                       setPick((prev) => ({ ...prev, [member.id]: event.target.value }))
                     }
                   >
-                    <option value="">Välj spelare i truppen…</option>
+                    <option value="">Koppla till spelare senare</option>
                     {squad.map((player) => (
                       <option key={player.id} value={player.id}>
                         {player.number != null ? `#${player.number} ` : ""}
@@ -317,17 +317,45 @@ function StartPage() {
                   </select>
                   <Button
                     size="sm"
-                    disabled={!pick[member.id] || approve.isPending}
+                    disabled={approve.isPending}
                     onClick={() =>
                       approve.mutate({
                         memberId: member.id,
-                        playerId: pick[member.id] ?? null,
+                        playerId: pick[member.id] || null,
                       })
                     }
                   >
                     Godkänn
                   </Button>
+                  {/* Står barnet inte i truppen ännu slipper tränaren byta sida för att lägga in det. */}
+                  {member.guardianForName &&
+                    !squad.some(
+                      (player) =>
+                        player.name.trim().toLowerCase() ===
+                        member.guardianForName?.trim().toLowerCase(),
+                    ) && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={approve.isPending || addAndApprove.isPending}
+                        onClick={() =>
+                          addAndApprove.mutate({
+                            memberId: member.id,
+                            playerName: member.guardianForName as string,
+                          })
+                        }
+                      >
+                        <Plus className="size-4" aria-hidden /> Lägg till {member.guardianForName} i
+                        truppen och godkänn
+                      </Button>
+                    )}
                 </div>
+                {squad.length === 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Truppen är tom. Du kan godkänna nu och koppla barnet till truppen senare.
+                  </p>
+                )}
+
               </li>
             ))}
           </ul>
