@@ -79,7 +79,14 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     }
     setBusy(true);
     try {
-      await updateProfile({ guardian_for_name: childName.trim(), account_kind: "guardian" });
+      const { data: auth } = await supabase.auth.getUser();
+      if (auth.user) {
+        await updateProfile({
+          id: auth.user.id,
+          guardian_for_name: childName.trim(),
+          account_kind: "guardian",
+        });
+      }
       const result = await joinTeamWithCode(code, "guardian");
       try {
         window.localStorage.removeItem(PENDING_INVITE_KEY);
