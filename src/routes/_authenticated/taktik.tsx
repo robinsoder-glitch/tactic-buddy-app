@@ -131,6 +131,11 @@ function TacticPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Börja med en tom plan – dra ut spelare och boll själv och bygg din taktik.
       </p>
+      {preset.formatLabel && (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Planen är förvald för {preset.formatLabel} – lagets spelform. Du kan byta plan i tavlan.
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button size="sm" variant="secondary" asChild>
           <Link to="/planera-match">Koppla en taktik till en match</Link>
