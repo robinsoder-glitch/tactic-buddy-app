@@ -26,6 +26,8 @@ import {
   teamCodeFromToken,
 } from "@/lib/invite-links";
 import { friendlyError } from "@/lib/user-errors";
+import { FlowDiagram } from "@/components/FlowDiagram";
+import { familyFlowSteps } from "@/lib/invite-flow";
 
 export const Route = createFileRoute("/inbjudan/$token")({
   head: () => ({
@@ -102,6 +104,12 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
   const teamName = preview.data?.name ?? team.data?.name ?? "Laget";
   const status = sent ?? membership.data ?? null;
+  const flow = familyFlowSteps({
+    signedIn: signedIn === true,
+    joined: status === "pending" || status === "approved",
+    approved: status === "approved",
+    guardianOnly: preview.data?.guardian_only !== false,
+  });
 
   async function join() {
     if (!childName.trim()) {
@@ -151,6 +159,10 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
             ? "Spelaren eller en vårdnadshavare skapar kontot. Sedan ser ni kalender och kallelser och kan svara."
             : "Du som vårdnadshavare skapar kontot och skriver barnets namn. Sedan ser ni kalender och kallelser och kan svara."}
         </p>
+      </div>
+
+      <div className="mt-4">
+        <FlowDiagram steps={flow} />
       </div>
 
       {preview.isSuccess && !preview.data && (

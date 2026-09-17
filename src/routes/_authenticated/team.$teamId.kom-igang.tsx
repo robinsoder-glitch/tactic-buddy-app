@@ -29,6 +29,8 @@ import {
   type StartProgressInput,
 } from "@/lib/team-onboarding";
 import { friendlyError } from "@/lib/user-errors";
+import { FlowDiagram } from "@/components/FlowDiagram";
+import { coachFlowSteps } from "@/lib/invite-flow";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
   head: () => ({
@@ -221,6 +223,8 @@ function StartPage() {
         </p>
         <p className="mt-2 text-sm font-semibold text-primary">{startProgressText(progress)}</p>
       </div>
+
+      <FlowDiagram steps={coachFlowSteps(done)} title="Så går det till – hela kedjan" />
 
       <StepCard step={1} title="Lägg in truppen" done={done.squad} active={active === "squad"}>
         <p className="mt-1 text-sm text-muted-foreground">
