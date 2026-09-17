@@ -133,6 +133,32 @@ export async function fetchAllSessionItems(): Promise<CoachSessionItem[]> {
   return (data ?? []) as unknown as CoachSessionItem[];
 }
 
+/** Hämtar de sparade träningspass som hör till ett bestämt lag. RLS kräver tränarroll. */
+export async function fetchTeamCoachSessions(teamId: string): Promise<CoachSession[]> {
+  const { data, error } = await supabase
+    .from("coach_sessions")
+    .select(SESSION_COLUMNS)
+    .eq("team_id", teamId)
+    .order("session_date", { ascending: true, nullsFirst: false })
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as CoachSession[];
+}
+
+/** Hämtar passdelarna för lagets träningspass utan att blanda in andra lag. */
+export async function fetchTeamSessionItems(sessionIds: string[]): Promise<CoachSessionItem[]> {
+  if (sessionIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from("coach_session_items")
+    .select(ITEM_COLUMNS)
+    .in("session_id", sessionIds)
+    .order("sort_order")
+    .order("created_at")
+    .order("id");
+  if (error) throw error;
+  return (data ?? []) as unknown as CoachSessionItem[];
+}
+
 /** Skapar ett nytt personligt träningspass. Ägaren sätts av databasen. */
 export async function createCoachSession(
   draft: SessionDraft,
@@ -360,4 +386,16 @@ export function ownSessions(list: CoachSession[], userId: string | null): CoachS
 /** Lagets delade träningar som någon annan tränare har skapat. */
 export function sharedSessions(list: CoachSession[], userId: string | null): CoachSession[] {
   return list.filter((session) => session.user_id !== userId && session.team_id);
+}
+
+/** Ordnar lagets pass med kommande datum först och odaterade pass sist. */
+export function teamSessionsForDisplay(list: CoachSession[], teamId: string): CoachSession[] {
+  return list
+    .filter((session) => session.team_id === teamId && !session.is_template)
+    .sort((a, b) => {
+      if (a.session_date && b.session_date) return a.session_date.localeCompare(b.session_date);
+      if (a.session_date) return -1;
+      if (b.session_date) return 1;
+      return b.updated_at.localeCompare(a.updated_at);
+    });
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
+import { Check, Dumbbell, Pencil, Plus, Trash2, UserRound, Users, X } from "lucide-react";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   deleteTeamPlayer,
@@ -38,8 +38,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/components/ConfirmDelete";
+import { TeamTrainingShowcase } from "@/components/TeamTrainingShowcase";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/trupp")({
+  head: () => ({
+    meta: [
+      { title: "Trupp och övningar – Fotbollsrummet" },
+      {
+        name: "description",
+        content: "Se lagets spelare och visa träningsövningar inför träningen.",
+      },
+      { property: "og:title", content: "Trupp och övningar – Fotbollsrummet" },
+      { property: "og:description", content: "Lagets trupp och träningsövningar på samma sida." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: SquadPage,
 });
 
@@ -279,89 +294,116 @@ function SquadPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-2xl font-bold">Truppen</h2>
+      <Tabs defaultValue="players">
         {isCoach && (
-          <Button size="sm" onClick={openNew}>
-            <Plus className="size-4" /> Spelare
-          </Button>
+          <TabsList className="mb-5 grid h-11 w-full grid-cols-2 sm:w-auto">
+            <TabsTrigger value="players" className="gap-2">
+              <Users className="size-4" /> Spelare
+            </TabsTrigger>
+            <TabsTrigger value="drills" className="gap-2">
+              <Dumbbell className="size-4" /> Övningar
+            </TabsTrigger>
+          </TabsList>
         )}
-      </div>
 
-      {isCoach && (
-        <Link
-          to="/team/$teamId/lamnade"
-          params={{ teamId }}
-          className="mt-2 inline-block text-sm text-primary underline"
-        >
-          Spelare som lämnat laget
-        </Link>
-      )}
+        <TabsContent value="players" className="mt-0">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl font-bold">Truppen</h2>
+            {isCoach && (
+              <Button size="sm" onClick={openNew}>
+                <Plus className="size-4" /> Spelare
+              </Button>
+            )}
+          </div>
 
-      <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-        {players.data?.length === 0 && (
-          <li className="p-6 text-center text-sm text-muted-foreground">
-            Inga spelare i truppen än.
-          </li>
-        )}
-        {players.data?.map((player) => (
-          <li key={player.id} className="flex items-center gap-3 p-3">
-            <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary">
-              {player.photoUrl ? (
-                <img src={player.photoUrl} alt={player.name} className="size-full object-cover" />
-              ) : (
-                <UserRound className="size-5 text-muted-foreground" />
-              )}
-            </div>
+          {isCoach && (
             <Link
-              to="/team/$teamId/player/$playerId"
-              params={{ teamId, playerId: player.id }}
-              className="min-w-0 flex-1 text-left"
+              to="/team/$teamId/lamnade"
+              params={{ teamId }}
+              className="mt-2 inline-block text-sm text-primary underline"
             >
-              <p className="truncate font-medium">
-                {player.number != null && (
-                  <span className="mr-2 text-primary">#{player.number}</span>
-                )}
-                {player.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {[
-                  player.is_goalkeeper ? "Målvakt" : null,
-                  player.gender && player.gender !== "none" ? GENDER_LABELS[player.gender] : null,
-                  birthLabel(player.birth_date),
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+              Spelare som lämnat laget
             </Link>
-            {isCoach && (
-              <Button
-                size="icon"
-                variant="ghost"
-                aria-label="Redigera spelare"
-                onClick={() => openEdit(player)}
-              >
-                <Pencil className="size-4" />
-              </Button>
+          )}
+
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+            {players.data?.length === 0 && (
+              <li className="p-6 text-center text-sm text-muted-foreground">
+                Inga spelare i truppen än.
+              </li>
             )}
-            {isCoach && (
-              <Button
-                size="icon"
-                variant="ghost"
-                aria-label="Radera spelare"
-                onClick={() => {
-                  void confirm({
-                    title: "Radera spelare",
-                    description: `${player.name} tas bort från lagets trupp permanent.`,
-                  }).then((ok) => ok && remove.mutate(player.id));
-                }}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            )}
-          </li>
-        ))}
-      </ul>
+            {players.data?.map((player) => (
+              <li key={player.id} className="flex items-center gap-3 p-3">
+                <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary">
+                  {player.photoUrl ? (
+                    <img
+                      src={player.photoUrl}
+                      alt={player.name}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <UserRound className="size-5 text-muted-foreground" />
+                  )}
+                </div>
+                <Link
+                  to="/team/$teamId/player/$playerId"
+                  params={{ teamId, playerId: player.id }}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <p className="truncate font-medium">
+                    {player.number != null && (
+                      <span className="mr-2 text-primary">#{player.number}</span>
+                    )}
+                    {player.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {[
+                      player.is_goalkeeper ? "Målvakt" : null,
+                      player.gender && player.gender !== "none"
+                        ? GENDER_LABELS[player.gender]
+                        : null,
+                      birthLabel(player.birth_date),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </Link>
+                {isCoach && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Redigera spelare"
+                    onClick={() => openEdit(player)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                )}
+                {isCoach && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Radera spelare"
+                    onClick={() => {
+                      void confirm({
+                        title: "Radera spelare",
+                        description: `${player.name} tas bort från lagets trupp permanent.`,
+                      }).then((ok) => ok && remove.mutate(player.id));
+                    }}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </TabsContent>
+
+        {isCoach && (
+          <TabsContent value="drills" className="mt-0">
+            <TeamTrainingShowcase teamId={teamId} />
+          </TabsContent>
+        )}
+      </Tabs>
 
       <Dialog open={duplicates.length > 0} onOpenChange={(value) => !value && setDuplicates([])}>
         <DialogContent>

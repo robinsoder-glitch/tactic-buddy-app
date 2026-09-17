@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { copyTitle, moveItem, nextSortOrder, templateItems, totalMinutes } from "./coach-sessions";
+import {
+  copyTitle,
+  moveItem,
+  nextSortOrder,
+  teamSessionsForDisplay,
+  templateItems,
+  totalMinutes,
+  type CoachSession,
+} from "./coach-sessions";
 import type { TrainingSessionCard } from "./taktikbank";
 
 const items = [
@@ -67,5 +75,43 @@ describe("ordning med dubbletter", () => {
   it("lägger samma övning sist utan att krocka", () => {
     expect(nextSortOrder(duplicates)).toBe(1);
     expect(nextSortOrder([...duplicates, { id: "d", sort_order: 4, minutes: 5 }])).toBe(5);
+  });
+});
+
+describe("lagets träningspass i truppen", () => {
+  const session = (patch: Partial<CoachSession>): CoachSession => ({
+    id: "session",
+    user_id: "coach",
+    title: "Träning",
+    session_date: null,
+    age_group: null,
+    game_format: null,
+    theme: null,
+    goal: null,
+    notes: null,
+    status: "draft",
+    template_id: null,
+    team_id: "team-1",
+    is_template: false,
+    visibility: "private",
+    source_session_id: null,
+    created_at: "2026-09-01T10:00:00Z",
+    updated_at: "2026-09-01T10:00:00Z",
+    ...patch,
+  });
+
+  it("visar bara rätt lags vanliga pass med daterade först", () => {
+    const result = teamSessionsForDisplay(
+      [
+        session({ id: "utan-datum", updated_at: "2026-09-17T10:00:00Z" }),
+        session({ id: "senare", session_date: "2026-09-20" }),
+        session({ id: "tidigare", session_date: "2026-09-18" }),
+        session({ id: "mall", is_template: true }),
+        session({ id: "annat-lag", team_id: "team-2" }),
+      ],
+      "team-1",
+    );
+
+    expect(result.map((item) => item.id)).toEqual(["tidigare", "senare", "utan-datum"]);
   });
 });
