@@ -19,8 +19,15 @@ describe("statistik efter ålder", () => {
     ]);
   });
 
-  it("okänd ålder behandlas som yngre spelare", () => {
-    expect(isYoungPlayer(null)).toBe(true);
-    expect(statFieldsForAge(null)).toEqual(["matches"]);
+  it("okänd ålder döljer inte redan sparad statistik", () => {
+    expect(isYoungPlayer(null)).toBe(false);
+    expect(statFieldsForAge(null)).toEqual([
+      "matches",
+      "goals",
+      "assists",
+      "yellow_cards",
+      "red_cards",
+      "points",
+    ]);
   });
 });
