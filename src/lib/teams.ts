@@ -282,7 +282,7 @@ export async function fetchMyMemberships() {
   const { data, error } = await supabase
     .from("team_members")
     .select(
-      "id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender, created_by)",
+      "id, team_id, role, status, can_manage_attendance, teams(id, name, age_group, gender, created_by, game_format, home_ground)",
     )
     .eq("user_id", uid)
     .order("created_at", { ascending: false });
@@ -303,6 +303,8 @@ export async function fetchMyMemberships() {
           age_group: string | null;
           gender: string;
           created_by?: string | null;
+          game_format?: string | null;
+          home_ground?: string | null;
         } | null;
       }
     ).teams,
