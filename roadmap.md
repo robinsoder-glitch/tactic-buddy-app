@@ -256,4 +256,4 @@
 ## Övningar i truppen 2026-09-17
 - [x] Lägg till tränarläge för övningar under Trupp
 - [x] Visa lagets sparade träningspass och lättlästa passdelar
-- [ ] Testa filtrering, tomläge och tränarbehörighet på mobil och dator
+- [x] Testa filtrering, tomläge och tränarbehörighet på mobil och dator
