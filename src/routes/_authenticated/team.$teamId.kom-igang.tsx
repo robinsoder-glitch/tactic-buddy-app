@@ -224,6 +224,8 @@ function StartPage() {
         <p className="mt-2 text-sm font-semibold text-primary">{startProgressText(progress)}</p>
       </div>
 
+      <FlowDiagram steps={coachFlowSteps(done)} title="Så går det till – hela kedjan" />
+
       <StepCard step={1} title="Lägg in truppen" done={done.squad} active={active === "squad"}>
         <p className="mt-1 text-sm text-muted-foreground">
           Skriv barnens namn, ett i taget. Tröjnummer är valfritt.
