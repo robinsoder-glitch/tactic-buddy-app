@@ -40,7 +40,7 @@ describe("inbjudningslänkar", () => {
   it("skriver roller och källor på svenska", () => {
     expect(inviteRoleLabel("coach")).toBe("Tränare eller ledare");
     expect(inviteRoleLabel("player")).toBe("Spelare eller vårdnadshavare");
-    expect(joinSourceLabel("player_code")).toBe("spelarkod");
+    expect(joinSourceLabel("player_code")).toBe("lagkod");
     expect(joinSourceLabel("coach_code")).toBe("tränarkod");
     expect(joinSourceLabel("invite_link")).toBe("personlig länk");
     expect(joinSourceLabel(null)).toBe("okänd väg");

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { previewTeamByCode } from "@/lib/teams";
+
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,6 +92,11 @@ function AuthPage() {
   // Kommer familjen från lagets inbjudningslänk är lagkoden redan känd –
   // då slipper de skriva in den en gång till.
   const invitedCode = teamCodeFromToken(nextPath?.split("/inbjudan/")[1] ?? null);
+  const invitedTeam = useQuery({
+    queryKey: ["code-preview", invitedCode],
+    enabled: !!invitedCode,
+    queryFn: () => previewTeamByCode(invitedCode as string),
+  });
   const [setup, setSetup] = useState<AccountSetup>({
     role: "coach",
     name: "",
@@ -100,6 +107,16 @@ function AuthPage() {
     ready: true,
     error: null,
   });
+
+  // Kommer man via lagets länk är kontotypen redan given – då behöver
+  // familjen inte välja mellan tränare och spelare i onödan.
+  useEffect(() => {
+    const preview = invitedTeam.data;
+    if (!preview || role) return;
+    const next: AccountRole = preview.join_role === "coach" ? "coach" : "player";
+    setRole(next);
+    setSetup((current) => ({ ...current, role: next }));
+  }, [invitedTeam.data, role]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -418,6 +435,7 @@ function AuthPage() {
                 <AccountSetupFields
                   setup={setup}
                   onChange={patchSetup}
+                  lockCode={!!invitedCode}
                   onCodeStatus={setCodeStatus}
                 />
               )}

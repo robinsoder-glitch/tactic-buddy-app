@@ -3,8 +3,7 @@ import { Check, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { supabase } from "@/integrations/supabase/client";
-import { findTeamByCode, type TeamCodeMatch } from "@/lib/teams";
+import { previewTeamByCode, type TeamCodePreview } from "@/lib/teams";
 import {
   SETUP_ERRORS,
   TEAM_CODE_LENGTH,
@@ -29,6 +28,8 @@ type Props = {
   showCode?: boolean;
   /** Dölj namnfältet när namnet redan är ifyllt någon annanstans. */
   hideName?: boolean;
+  /** Lås koden – används när familjen kommit via lagets inbjudningslänk. */
+  lockCode?: boolean;
   /** Rapporterar om koden är kontrollerad och giltig. */
   onCodeStatus?: (status: CodeStatus) => void;
 };
@@ -38,41 +39,26 @@ export function AccountSetupFields({
   onChange,
   showCode = true,
   hideName = false,
+  lockCode = false,
   onCodeStatus,
 }: Props) {
-  const [match, setMatch] = useState<TeamCodeMatch | null>(null);
+  const [match, setMatch] = useState<TeamCodePreview | null>(null);
   const [checking, setChecking] = useState(false);
   // Sant när kontrollen misslyckades tekniskt – då är det inte samma sak som fel kod.
   const [lookupFailed, setLookupFailed] = useState(false);
-  // Kodslagningen kräver inloggning. Innan kontot finns kontrolleras koden
-  // i stället när anslutningen görs, direkt efter registreringen.
-  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   // Tränare: startar man ett nytt lag eller går man med i ett befintligt via tränarkod?
   const [coachJoins, setCoachJoins] = useState(() => !!setup.code?.trim());
   const code = normalizeTeamCode(setup.code);
   const isCoach = setup.role === "coach";
   const showCodeField = showCode && (!isCoach || coachJoins);
   const complete = code.length === TEAM_CODE_LENGTH;
-  const deferred = signedIn === false;
-
-  useEffect(() => {
-    let active = true;
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (active) setSignedIn(!!data.session);
-      })
-      .catch(() => {
-        if (active) setSignedIn(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  // Lag med bara vårdnadshavarkonton: barnet får inget eget konto, så rollvalet
+  // ska inte ens visas – då slipper familjen välja fel.
+  const guardianOnly = !isCoach && !!match?.guardian_only;
 
   useEffect(() => {
     // Kontrollera aldrig innan sex tecken är ifyllda – annars visas fel i onödan.
-    if (!showCodeField || !complete || signedIn !== true) {
+    if (!showCodeField || !complete) {
       setMatch(null);
       setLookupFailed(false);
       setChecking(false);
@@ -81,7 +67,7 @@ export function AccountSetupFields({
     let active = true;
     setChecking(true);
     const timer = setTimeout(() => {
-      findTeamByCode(code)
+      previewTeamByCode(code)
         .then((row) => {
           if (!active) return;
           setMatch(row);
@@ -101,52 +87,39 @@ export function AccountSetupFields({
       clearTimeout(timer);
       setChecking(false);
     };
-  }, [code, showCodeField, complete, signedIn]);
+  }, [code, showCodeField, complete]);
 
-  const kindError = codeKindError(
-    setup,
-    match ? (match.join_role === "coach" ? "coach" : "player") : null,
-  );
-  const codeError =
-    !showCodeField || deferred
+  // I ett vårdnadshavarlag är kontot alltid vårdnadshavarens.
+  useEffect(() => {
+    if (guardianOnly && !setup.isGuardian) onChange({ isGuardian: true });
+  }, [guardianOnly, setup.isGuardian, onChange]);
+
+  const kindError = codeKindError(setup, match ? match.join_role : null);
+  const codeError = !showCodeField
+    ? null
+    : !complete
       ? null
-      : !complete
+      : checking
         ? null
-        : checking
-          ? null
-          : lookupFailed
-            ? SETUP_ERRORS.codeLookupFailed
-            : !match
-              ? SETUP_ERRORS.codeInvalid
-              : kindError;
+        : lookupFailed
+          ? SETUP_ERRORS.codeLookupFailed
+          : !match
+            ? SETUP_ERRORS.codeInvalid
+            : kindError;
 
   useEffect(() => {
     onCodeStatus?.({
       required: showCodeField,
-      // Utan inloggning går koden inte att slå upp i förväg – då blockeras inte
-      // registreringen, koden kontrolleras i stället vid anslutningen.
-      ready:
-        !showCodeField ||
-        (deferred ? complete : complete && !checking && !!match && !kindError && !lookupFailed),
+      ready: !showCodeField || (complete && !checking && !!match && !kindError && !lookupFailed),
       error: codeError,
     });
-  }, [
-    showCodeField,
-    complete,
-    checking,
-    match,
-    kindError,
-    lookupFailed,
-    codeError,
-    deferred,
-    onCodeStatus,
-  ]);
+  }, [showCodeField, complete, checking, match, kindError, lookupFailed, codeError, onCodeStatus]);
 
   return (
     <div className="space-y-4">
       {!hideName && (
         <div className="space-y-1.5">
-          <Label htmlFor="setup-name">{setup.role === "coach" ? "Ditt namn" : "Ditt namn"}</Label>
+          <Label htmlFor="setup-name">Ditt namn</Label>
           <Input
             id="setup-name"
             value={setup.name}
@@ -175,6 +148,25 @@ export function AccountSetupFields({
             <span>Jag intygar att uppgiften stämmer och att jag är minst 18 år.</span>
           </label>
         </>
+      ) : guardianOnly ? (
+        <div className="space-y-2">
+          <p className="rounded-lg border border-primary/40 bg-primary/10 p-3 text-sm">
+            I det här laget är det vårdnadshavare som har konto. Kontot blir ditt – barnet kopplas
+            till dig av tränaren.
+          </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="setup-player">Barnets namn</Label>
+            <Input
+              id="setup-player"
+              value={setup.playerName ?? ""}
+              onChange={(event) => onChange({ playerName: event.target.value })}
+              placeholder="Förnamn och efternamn"
+            />
+            <p className="text-xs text-muted-foreground">
+              Tränaren kopplar ditt konto till rätt spelare i truppen.
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="space-y-2">
           <p className="text-sm font-medium">Vem gäller kontot?</p>
@@ -206,7 +198,7 @@ export function AccountSetupFields({
           </div>
           {setup.isGuardian ? (
             <div className="space-y-1.5 pt-1">
-              <Label htmlFor="setup-player">Spelarens namn</Label>
+              <Label htmlFor="setup-player">Barnets namn</Label>
               <Input
                 id="setup-player"
                 value={setup.playerName ?? ""}
@@ -265,7 +257,7 @@ export function AccountSetupFields({
           </div>
           {!coachJoins && (
             <p className="text-xs text-muted-foreground">
-              Ingen kod behövs. När kontot är klart skapar du laget och får en spelarkod och en
+              Ingen kod behövs. När kontot är klart skapar du laget och får en lagkod och en
               tränarkod att dela ut.
             </p>
           )}
@@ -274,10 +266,11 @@ export function AccountSetupFields({
 
       {showCodeField && (
         <div className="space-y-1.5">
-          <Label htmlFor="setup-code">{isCoach ? "Tränarkod" : "Spelarkod"}</Label>
+          <Label htmlFor="setup-code">{isCoach ? "Tränarkod" : "Lagkod"}</Label>
           <Input
             id="setup-code"
             value={setup.code ?? ""}
+            readOnly={lockCode}
             onChange={(event) =>
               onChange({ code: normalizeTeamCode(event.target.value).slice(0, TEAM_CODE_LENGTH) })
             }
@@ -286,8 +279,13 @@ export function AccountSetupFields({
             inputMode="text"
             autoCapitalize="characters"
             placeholder="T.ex. A1B2C3"
-            className="font-mono tracking-widest"
+            className={`font-mono tracking-widest ${lockCode ? "bg-muted" : ""}`}
           />
+          {lockCode && (
+            <p className="text-xs text-muted-foreground">
+              Koden kommer från inbjudningslänken – du behöver inte ändra den.
+            </p>
+          )}
           {checking && (
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="size-3 animate-spin" aria-hidden /> Letar efter laget…
@@ -299,23 +297,18 @@ export function AccountSetupFields({
               {match.name}
               {match.age_group ? ` ${match.age_group}` : ""}
               {match.club_name ? ` · ${match.club_name}` : ""} ·{" "}
-              {match.join_role === "coach" ? "tränarkod" : "spelarkod"}
+              {match.join_role === "coach" ? "tränarkod" : "lagkod"}
             </p>
           )}
           {!complete && code.length > 0 && (
             <p className="text-xs text-muted-foreground">Koden är sex tecken.</p>
-          )}
-          {deferred && complete && (
-            <p className="text-xs text-muted-foreground">
-              Vi kontrollerar koden när kontot skapas.
-            </p>
           )}
           {codeError && <p className="text-xs text-destructive">{codeError}</p>}
 
           <p className="text-xs text-muted-foreground">
             {setup.role === "coach"
               ? "Tränarkoden får du av en befintlig tränare i laget. En tränare i laget godkänner dig."
-              : "Koden får du av din tränare. Tränaren godkänner dig innan du kommer in i laget."}
+              : "Lagkoden får du av tränaren. Tränaren godkänner dig innan du kommer in i laget."}
           </p>
         </div>
       )}

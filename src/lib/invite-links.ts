@@ -99,7 +99,7 @@ export function buildTeamInviteUrl(origin: string, code: string): string {
 /** Var ansökan kom ifrån, skrivet så en tränare förstår. */
 export function joinSourceLabel(value: string | null | undefined): string {
   if (value === "coach_code") return "tränarkod";
-  if (value === "player_code") return "spelarkod";
+  if (value === "player_code") return "lagkod";
   if (value === "invite_link") return "personlig länk";
   return "okänd väg";
 }

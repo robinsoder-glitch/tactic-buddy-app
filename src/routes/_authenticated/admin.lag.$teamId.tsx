@@ -239,7 +239,7 @@ function AdminTeamDetail() {
           </label>
         </div>
         <p className="text-xs text-muted-foreground">
-          Spelarkod <span className="font-mono">{codes.data?.join_code ?? "······"}</span> ·
+          Lagkod <span className="font-mono">{codes.data?.join_code ?? "······"}</span> ·
           Ledarkod <span className="font-mono">{codes.data?.coach_join_code ?? "······"}</span>
         </p>
         <div className="flex flex-wrap gap-2">

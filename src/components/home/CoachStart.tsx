@@ -169,7 +169,7 @@ export function CoachStart({ userId }: { userId: string }) {
               placeholder="Sex tecken"
             />
             <p className="text-xs text-muted-foreground">
-              Koden får du av en ledare i laget. Spelarkoden fungerar inte här.
+              Koden får du av en tränare i laget. Lagkoden fungerar inte här.
             </p>
           </div>
           <Button className="w-full" disabled={busy} onClick={() => join.mutate()}>

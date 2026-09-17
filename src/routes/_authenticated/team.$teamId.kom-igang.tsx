@@ -177,6 +177,31 @@ function StartPage() {
     onError: (error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
   });
 
+  // Barnet står ofta inte i truppen när familjen ansöker – då skapar vi
+  // spelaren från namnet familjen angav och kopplar kontot direkt.
+  const addAndApprove = useMutation({
+    mutationFn: async ({ memberId, playerName }: { memberId: string; playerName: string }) => {
+      if (!userId) throw new Error("Du måste vara inloggad.");
+      const playerId = await saveTeamPlayer({
+        teamId,
+        userId,
+        name: playerName.trim(),
+        number: null,
+        birth_date: null,
+        gender: null,
+        is_goalkeeper: false,
+        photo_path: null,
+      });
+      await approveTeamJoinRequest(memberId, playerId);
+    },
+    onSuccess: async () => {
+      toast.success("Godkänd och kopplad till truppen.");
+      await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
+      await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
+    },
+    onError: (error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
+  });
+
   if (!isCoach) {
     return (
       <section className="space-y-3">
@@ -266,9 +291,13 @@ function StartPage() {
         <p className="mt-2 text-xs text-muted-foreground">
           Lagkod: <span className="font-mono">{codes.data?.join_code ?? "······"}</span>
         </p>
-        {families.length > 0 && (
+        {families.length > 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
             {families.length} {families.length === 1 ? "familj har" : "familjer har"} använt länken.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm font-semibold text-destructive">
+            Ingen familj har använt länken ännu. Dela den i lagchatten eller via SMS.
           </p>
         )}
       </StepCard>
@@ -302,7 +331,7 @@ function StartPage() {
                       setPick((prev) => ({ ...prev, [member.id]: event.target.value }))
                     }
                   >
-                    <option value="">Välj spelare i truppen…</option>
+                    <option value="">Koppla till spelare senare</option>
                     {squad.map((player) => (
                       <option key={player.id} value={player.id}>
                         {player.number != null ? `#${player.number} ` : ""}
@@ -312,17 +341,44 @@ function StartPage() {
                   </select>
                   <Button
                     size="sm"
-                    disabled={!pick[member.id] || approve.isPending}
+                    disabled={approve.isPending}
                     onClick={() =>
                       approve.mutate({
                         memberId: member.id,
-                        playerId: pick[member.id] ?? null,
+                        playerId: pick[member.id] || null,
                       })
                     }
                   >
                     Godkänn
                   </Button>
+                  {/* Står barnet inte i truppen ännu slipper tränaren byta sida för att lägga in det. */}
+                  {member.guardianForName &&
+                    !squad.some(
+                      (player) =>
+                        player.name.trim().toLowerCase() ===
+                        member.guardianForName?.trim().toLowerCase(),
+                    ) && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={approve.isPending || addAndApprove.isPending}
+                        onClick={() =>
+                          addAndApprove.mutate({
+                            memberId: member.id,
+                            playerName: member.guardianForName as string,
+                          })
+                        }
+                      >
+                        <Plus className="size-4" aria-hidden /> Lägg till {member.guardianForName} i
+                        truppen och godkänn
+                      </Button>
+                    )}
                 </div>
+                {squad.length === 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Truppen är tom. Du kan godkänna nu och koppla barnet till truppen senare.
+                  </p>
+                )}
               </li>
             ))}
           </ul>

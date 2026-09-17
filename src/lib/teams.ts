@@ -409,6 +409,29 @@ export async function findTeamByCode(code: string): Promise<TeamCodeMatch | null
   return rows[0] ?? null;
 }
 
+/** Vad den som klickat på en inbjudningslänk får se – även utan konto. */
+export type TeamCodePreview = {
+  name: string;
+  club_name: string | null;
+  age_group: string | null;
+  join_role: "coach" | "player";
+  guardian_only: boolean;
+};
+
+/**
+ * Lagets namn utifrån koden, utan inloggning. Visar bara lagnamn, klubb,
+ * åldersgrupp och vilken sorts kod det är – inga id:n eller personuppgifter.
+ */
+export async function previewTeamByCode(code: string): Promise<TeamCodePreview | null> {
+  const { data, error } = await supabase.rpc("preview_team_by_code", {
+    _code: code.trim().toUpperCase(),
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as TeamCodePreview[];
+  return rows[0] ?? null;
+}
+
+
 /** Ansluter inloggad användare till laget som spelare eller tränare beroende på koden. */
 export async function joinTeamWithCode(
   code: string,
