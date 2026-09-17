@@ -177,6 +177,32 @@ function StartPage() {
     onError: (error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
   });
 
+  // Barnet står ofta inte i truppen när familjen ansöker – då skapar vi
+  // spelaren från namnet familjen angav och kopplar kontot direkt.
+  const addAndApprove = useMutation({
+    mutationFn: async ({ memberId, playerName }: { memberId: string; playerName: string }) => {
+      if (!userId) throw new Error("Du måste vara inloggad.");
+      const player = await saveTeamPlayer({
+        teamId,
+        userId,
+        name: playerName.trim(),
+        number: null,
+        birth_date: null,
+        gender: null,
+        is_goalkeeper: false,
+        photo_path: null,
+      });
+      await approveTeamJoinRequest(memberId, player.id);
+    },
+    onSuccess: async () => {
+      toast.success("Godkänd och kopplad till truppen.");
+      await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
+      await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
+    },
+    onError: (error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
+  });
+
+
   if (!isCoach) {
     return (
       <section className="space-y-3">
