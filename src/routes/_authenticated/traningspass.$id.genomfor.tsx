@@ -384,7 +384,7 @@ function RunSession() {
           </p>
         )}
         <div className="text-left">
-          <ExerciseGuide guide={current?.details} />
+          <ExerciseGuide guide={current?.details ?? null} />
         </div>
         {current?.resource_id && current.kind === "drill" && (
           <Link

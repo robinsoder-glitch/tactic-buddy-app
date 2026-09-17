@@ -6,6 +6,7 @@ import {
   storeDraft,
   type DraftKind,
 } from "@/lib/training-draft";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 /** Sökparametrar som håller ihop resan mellan planeringen och Träningsbanken. */
 export type PickSearch = {
@@ -34,11 +35,17 @@ export function isPickMode(search: PickSearch): boolean {
 /** Lägger övningen i träningens utkast. Returnerar false om den redan finns. */
 export function addPickToDraft(
   eventId: string,
-  item: { kind: DraftKind; resourceId: string; title: string; minutes: number | null },
+  item: {
+    kind: DraftKind;
+    resourceId: string;
+    title: string;
+    minutes: number | null;
+    details?: ExerciseGuideData;
+  },
   options: { allowDuplicate?: boolean } = {},
 ): boolean {
   const draft = loadDraft(eventId) ?? emptyDraft(eventId);
   if (!options.allowDuplicate && hasResource(draft, item.resourceId)) return false;
-  storeDraft(addDraftItem(draft, { ...item, note: null }));
+  storeDraft(addDraftItem(draft, { ...item, details: item.details ?? {}, note: null }));
   return true;
 }

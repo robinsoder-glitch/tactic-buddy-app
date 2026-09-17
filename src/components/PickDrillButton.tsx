@@ -73,7 +73,7 @@ export function PickDrillButton({
           resource_id: resourceId,
           minutes: Number(minutes) || defaultMinutes,
           note: null,
-          details,
+          details: details ?? {},
         });
         // Passets innehåll måste hämtas om, annars ser tränaren en gammal lista.
         await queryClient.invalidateQueries({ queryKey: ["coach-session-items", sessionId] });
@@ -142,7 +142,7 @@ export function PickDrillButton({
         title={title}
         defaultMinutes={defaultMinutes}
         size={size}
-        details={details}
+        details={details ?? {}}
       />
     );
   }

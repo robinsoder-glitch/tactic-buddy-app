@@ -112,7 +112,7 @@ export function AddToTrainingButton({
           resourceId,
           minutes: Number(minutes) || null,
           note,
-          details,
+          details: details ?? {},
         });
         return;
       }
@@ -129,7 +129,7 @@ export function AddToTrainingButton({
         resource_id: resourceId,
         minutes: Number(minutes) || defaultMinutes,
         note: note.trim() || null,
-        details,
+        details: details ?? {},
       });
     },
     onSuccess: () => {

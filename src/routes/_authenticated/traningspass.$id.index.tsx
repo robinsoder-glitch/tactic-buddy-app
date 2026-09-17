@@ -167,6 +167,8 @@ function SessionBuilder() {
     if (items.length > 0 && totalMinutes(items) === 0)
       problems.push("Ingen tid är satt på delarna.");
     if (!session.data?.session_date) problems.push("Datum saknas.");
+    if (focusAreasWithLegacy(session.data?.focus_areas ?? [], session.data?.theme ?? null).length === 0)
+      problems.push("Träningsfokus saknas.");
     if (!session.data?.goal?.trim()) problems.push("Målsättningen är tom.");
     return problems;
   })();
