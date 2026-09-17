@@ -29,6 +29,8 @@ import {
   type StartProgressInput,
 } from "@/lib/team-onboarding";
 import { friendlyError } from "@/lib/user-errors";
+import { FlowDiagram } from "@/components/FlowDiagram";
+import { coachFlowSteps } from "@/lib/invite-flow";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
   head: () => ({
