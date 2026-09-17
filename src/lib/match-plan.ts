@@ -39,17 +39,28 @@ export const FORMAT_LABELS: Record<string, string> = {
 
 export const FORMAT_IDS = Object.keys(FORMAT_PLAYERS);
 
+/** Tillgängliga uppställningar inom en spelform. */
+export function formationOptions(format: string) {
+  return FORMATIONS.filter((formation) => formation.id.startsWith(`${format}-`));
+}
+
+/** Positioner för en bestämd uppställning. */
+export function slotsForFormation(formationId: string): LineupSlot[] {
+  const formation = FORMATIONS.find((item) => item.id === formationId);
+  const base = formation?.slots ?? [];
+  return base.map((slot, index) => ({
+    slot: index + 1,
+    player_id: null,
+    x: slot.x,
+    y: slot.y,
+    ...(slot.gk ? { gk: true } : {}),
+  }));
+}
+
 /** Standardpositioner för ett format (första formationen i formationsbiblioteket). */
 export function defaultSlots(format: string): LineupSlot[] {
-  const formation = FORMATIONS.find((f) => f.id.startsWith(`${format}-`));
-  const base = formation?.slots ?? [];
-  return base.map((s, i) => ({
-    slot: i + 1,
-    player_id: null,
-    x: s.x,
-    y: s.y,
-    ...(s.gk ? { gk: true } : {}),
-  }));
+  const formation = formationOptions(format)[0];
+  return formation ? slotsForFormation(formation.id) : [];
 }
 
 /** Startspelare = positioner med spelare, i slotordning. */
