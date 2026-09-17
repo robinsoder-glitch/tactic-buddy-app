@@ -233,7 +233,8 @@ function PlanTrainingPage() {
         const details = detailsFor(row.kind, row.resource_id);
         return {
           key: row.id,
-          kind: row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
+          kind:
+            row.kind === "session" ? "session" : row.kind === "goalkeeper" ? "goalkeeper" : "drill",
           resourceId: row.resource_id,
           title: titleFor(row.kind, row.resource_id),
           minutes: row.minutes,
