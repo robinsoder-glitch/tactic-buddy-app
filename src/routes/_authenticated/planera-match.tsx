@@ -848,8 +848,19 @@ function MatchPlanner({
                 <Input
                   id="mp-location"
                   value={location}
+                  placeholder={team?.home_ground ?? "T.ex. Långholmens IP"}
                   onChange={(e) => setLocation(e.target.value)}
                 />
+                {/* Hemmaplanen från laget ska gå att klicka in direkt. */}
+                {team?.home_ground && location.trim() !== team.home_ground && (
+                  <button
+                    type="button"
+                    onClick={() => setLocation(team.home_ground as string)}
+                    className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                  >
+                    Hemmaplan: {team.home_ground}
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
