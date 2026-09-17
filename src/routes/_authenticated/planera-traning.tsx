@@ -56,6 +56,7 @@ import { eventTitleLine } from "@/lib/event-labels";
 import { CoachOnly } from "@/components/CoachOnly";
 import { isLeaderRole } from "@/lib/team-roles";
 import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { TrainingFocusSelector, TrainingFocusSummary } from "@/components/TrainingFocusSelector";
 import { drillGuide, lines, type ExerciseGuideData } from "@/lib/training-outcomes";
 
 const EQUIPMENT_SUGGESTIONS = ["Koner", "Mål"] as const;
@@ -231,6 +232,8 @@ function PlanTrainingPage() {
     const initial: TrainingDraft = {
       eventId,
       notes: plan.data?.notes ?? "",
+      focusAreas: plan.data?.focus_areas ?? [],
+      goal: plan.data?.goal ?? "",
       items: publishedRows.map((row) => {
         const details = detailsFor(row.kind, row.resource_id);
         return {
@@ -267,6 +270,8 @@ function PlanTrainingPage() {
         eventId: selected.id,
         teamId: selected.team_id,
         notes: draft.notes,
+        focusAreas: draft.focusAreas,
+        goal: draft.goal,
         items: draftPayload(draft),
       });
     },
@@ -722,6 +727,28 @@ function PlanTrainingPage() {
                   <p className="mt-3 text-sm font-semibold">
                     Total träningstid: {draft ? draftMinutes(draft) : 0} minuter
                   </p>
+
+                  <div className="mt-4 space-y-3">
+                    <TrainingFocusSelector
+                      value={draft?.focusAreas ?? []}
+                      onChange={(focusAreas) => draft && update({ ...draft, focusAreas })}
+                    />
+                    <div className="space-y-1.5">
+                      <Label htmlFor="plan-goal">Vad ska spelarna kunna efter träningen?</Label>
+                      <Textarea
+                        id="plan-goal"
+                        rows={2}
+                        value={draft?.goal ?? ""}
+                        onChange={(event) => draft && update({ ...draft, goal: event.target.value })}
+                      />
+                      {!draft?.goal.trim() && (
+                        <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive">
+                          Skriv ett tydligt resultat för att träningen ska vara färdigplanerad.
+                        </p>
+                      )}
+                    </div>
+                    <TrainingFocusSummary areas={draft?.focusAreas ?? []} />
+                  </div>
 
                   <div className="mt-3 space-y-1.5">
                     <Label htmlFor="plan-notes">Anteckningar</Label>

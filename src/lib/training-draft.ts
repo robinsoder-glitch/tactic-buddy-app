@@ -25,11 +25,13 @@ export type DraftItem = {
 export type TrainingDraft = {
   eventId: string;
   notes: string;
+  focusAreas: string[];
+  goal: string;
   items: DraftItem[];
 };
 
 export function emptyDraft(eventId: string): TrainingDraft {
-  return { eventId, notes: "", items: [] };
+  return { eventId, notes: "", focusAreas: [], goal: "", items: [] };
 }
 
 export function draftKey(): string {
@@ -108,7 +110,13 @@ export function loadDraft(eventId: string): TrainingDraft | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as TrainingDraft;
     if (!parsed || !Array.isArray(parsed.items)) return null;
-    return { eventId, notes: parsed.notes ?? "", items: parsed.items };
+    return {
+      eventId,
+      notes: parsed.notes ?? "",
+      focusAreas: Array.isArray(parsed.focusAreas) ? parsed.focusAreas : [],
+      goal: parsed.goal ?? "",
+      items: parsed.items,
+    };
   } catch {
     return null;
   }
