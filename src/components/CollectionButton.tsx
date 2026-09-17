@@ -64,7 +64,7 @@ export function CollectionButton({ kind, resourceId, title }: Props) {
     },
     onSuccess: () => {
       setName("");
-      toast.success("Samlingen är skapad.");
+      toast.success("Övningssamlingen är skapad.");
       refresh();
     },
     onError: (error: Error) => toast.error(error.message),
