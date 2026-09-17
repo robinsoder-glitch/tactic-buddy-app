@@ -167,6 +167,7 @@ function StartPage() {
       });
     },
     onSuccess: async () => {
+      void trackFlowEvent("coach_player_added", { teamId, role: "coach" });
       setName("");
       setNumber("");
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -178,6 +179,7 @@ function StartPage() {
     mutationFn: ({ memberId, playerId }: { memberId: string; playerId: string | null }) =>
       approveTeamJoinRequest(memberId, playerId),
     onSuccess: async () => {
+      void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
       toast.success("Godkänd och kopplad.");
       await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -203,6 +205,7 @@ function StartPage() {
       await approveTeamJoinRequest(memberId, playerId);
     },
     onSuccess: async () => {
+      void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
       toast.success("Godkänd och kopplad till truppen.");
       await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
@@ -288,6 +291,7 @@ function StartPage() {
             disabled={!inviteUrl}
             onClick={async () => {
               const ok = await copyText(inviteUrl);
+              if (ok) void trackFlowEvent("coach_invite_copied", { teamId, role: "coach" });
               toast[ok ? "success" : "error"](
                 ok
                   ? "Inbjudningslänken är kopierad"
