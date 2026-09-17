@@ -167,10 +167,40 @@ function AboutPage() {
     <section className="space-y-4">
       <h2 className="font-display text-2xl font-bold">Om laget</h2>
 
+      <div className="rounded-xl border border-border bg-card p-4">
+        <p className="font-display text-lg font-bold">Bjud in familjerna</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Dela den här länken i lagchatten eller via SMS. Den som klickar skapar konto, skriver
+          barnets namn och hamnar hos dig för godkännande.
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <code className="max-w-full truncate rounded-md bg-muted px-2 py-1 text-xs">
+            {inviteUrl || "Hämtar länk…"}
+          </code>
+          <Button size="sm" variant="secondary" disabled={!inviteUrl} onClick={copyInviteLink}>
+            <Copy className="size-4" aria-hidden /> Kopiera länk
+          </Button>
+        </div>
+        <label className="mt-3 flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1 size-4"
+            checked={guardianOnly}
+            onChange={(event) => saveGuardianOnly(event.target.checked)}
+          />
+          <span>
+            Bara vårdnadshavarkonton i det här laget
+            <span className="block text-xs text-muted-foreground">
+              {guardianOnlyExplanation(guardianOnly)}
+            </span>
+          </span>
+        </label>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs tracking-wide text-muted-foreground">
-            Lagkod för spelare och föräldrar
+            Lagkod för spelare och vårdnadshavare
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="font-mono text-2xl tracking-widest">
