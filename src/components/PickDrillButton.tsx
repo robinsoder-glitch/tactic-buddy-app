@@ -157,7 +157,7 @@ export function PickDrillButton({
   function add(allowDuplicate: boolean) {
     const added = addPickToDraft(
       eventId,
-      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes, details },
+      { kind, resourceId, title, minutes: Number(minutes) || defaultMinutes, details: details ?? {} },
       { allowDuplicate },
     );
     if (!added) {
