@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { template as matchInvitationTemplate } from './match-invitation'
+import { template as contactMessageTemplate } from './contact-message'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -16,4 +17,5 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'match-invitation': matchInvitationTemplate,
+  'contact-message': contactMessageTemplate,
 }

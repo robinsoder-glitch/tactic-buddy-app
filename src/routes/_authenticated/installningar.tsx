@@ -7,6 +7,7 @@ import {
   KeyRound,
   Lock,
   LogOut,
+  MailQuestion,
   Palette,
   Shield,
   SlidersHorizontal,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
+import { ContactDialog } from "@/components/ContactDialog";
 import { useAccount } from "@/hooks/useAccount";
 import { useServerFn } from "@tanstack/react-start";
 import { updateProfile, leaveTeam, TEAM_GENDER_LABELS } from "@/lib/teams";
@@ -265,6 +267,23 @@ function SettingsPage() {
       </section>
 
       {isCoach ? <NotificationSettingsCard userId={userId} /> : null}
+
+      <section className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-4">
+        <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+          <MailQuestion className="size-4 text-primary" /> Kontakta oss
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Har du en fråga eller har hittat något som inte fungerar? Skicka ett meddelande så
+          svarar vi till den e-postadress som är kopplad till ditt konto.
+        </p>
+        <ContactDialog
+          trigger={
+            <Button type="button" variant="outline" className="w-full sm:w-auto">
+              <MailQuestion className="mr-2 size-4" aria-hidden /> Skicka meddelande
+            </Button>
+          }
+        />
+      </section>
 
       <section className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
