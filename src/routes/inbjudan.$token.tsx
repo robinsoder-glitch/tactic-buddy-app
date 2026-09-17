@@ -118,6 +118,12 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     guardianOnly: preview.data?.guardian_only !== false,
   });
 
+  // Trasiga länkar ska synas i statistiken, inte bara hos familjen.
+  const linkBroken = preview.isSuccess && !preview.data;
+  useEffect(() => {
+    if (linkBroken) void trackFlowEvent("invite_link_invalid", { teamCode: code });
+  }, [linkBroken, code]);
+
   async function join() {
     if (!childName.trim()) {
       toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
