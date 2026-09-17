@@ -464,8 +464,41 @@ function MatchPlanner({
 
   async function saveAll() {
     if (!event || !team) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      toast.error("Välj ett datum för matchen.");
+      setStep(0);
+      return;
+    }
+    const isTime = (v: string) => /^\d{2}:\d{2}$/.test(v);
+    if (!isTime(startTime)) {
+      toast.error("Välj både timme och minut för matchstart.");
+      setStep(0);
+      return;
+    }
+    if (meetTime && !isTime(meetTime)) {
+      toast.error("Samlingstiden är ofullständig. Välj både timme och minut.");
+      setStep(0);
+      return;
+    }
+    if (endTime && !isTime(endTime)) {
+      toast.error("Sluttiden är ofullständig. Välj både timme och minut.");
+      setStep(0);
+      return;
+    }
+    const startDate = new Date(`${date}T${startTime}`);
+    if (Number.isNaN(startDate.getTime())) {
+      toast.error("Datum eller tid är felaktig. Kontrollera matchstart.");
+      setStep(0);
+      return;
+    }
     const meetIso = meetTime ? new Date(`${date}T${meetTime}`).toISOString() : null;
-    const startIso = new Date(`${date}T${startTime}`).toISOString();
+    const startIso = startDate.toISOString();
+    const endDate = endTime ? new Date(`${date}T${endTime}`) : null;
+    if (endDate && endDate.getTime() <= startDate.getTime()) {
+      toast.error("Sluttiden måste vara efter matchstart.");
+      setStep(0);
+      return;
+    }
     const meetError = validateMeetBeforeStart(meetIso, startIso);
     if (meetError) {
       toast.error(meetError);
