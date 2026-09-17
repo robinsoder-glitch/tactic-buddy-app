@@ -252,3 +252,8 @@
 - [x] Klicktesta publika och inloggade huvudflöden
 - [x] Kontrollera mobilvy och behörigheter
 - [x] Rätta och verifiera upptäckta fel
+
+## Övningar i truppen 2026-09-17
+- [ ] Lägg till tränarläge för övningar under Trupp
+- [ ] Visa lagets sparade träningspass och lättlästa passdelar
+- [ ] Testa filtrering, tomläge och tränarbehörighet på mobil och dator
