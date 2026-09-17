@@ -75,6 +75,14 @@ function OnboardingPage() {
     }
   }, [user]);
 
+  // Är kontot redan klart hör man inte hemma här – gå direkt till appen
+  // i stället för att visa "Välj kontotyp" igen.
+  useEffect(() => {
+    if (!busy && account.accountReady && !account.needsOnboarding) {
+      navigate({ to: search.next ?? "/", replace: true });
+    }
+  }, [busy, account.accountReady, account.needsOnboarding, navigate, search.next]);
+
   function chooseRole(next: AccountRole) {
     setRole(next);
     setSetup((current) => ({ ...current, role: next }));
