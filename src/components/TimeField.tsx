@@ -1,12 +1,15 @@
+import { useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
  * Tidsval med två tydliga listor (timme och minut) i stället för ett
  * webbläsarfält där halvifyllda tider ser ifyllda ut men saknar värde.
- * Värdet är alltid "HH:MM" eller tom sträng.
+ * Värdet är alltid "HH:MM" eller tom sträng. Halvifyllda val hålls kvar
+ * lokalt och visas med en tydlig text om vad som saknas.
  */
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-const BASE_MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
 
 function split(value: string): { hour: string; minute: string } {
   const match = /^(\d{1,2}):(\d{2})/.exec(value.trim());
@@ -31,59 +34,84 @@ export function TimeField({
   disabled?: boolean;
   className?: string;
 }) {
-  const { hour, minute } = split(value);
-  const minutes =
-    minute && !BASE_MINUTES.includes(minute) ? [...BASE_MINUTES, minute].sort() : BASE_MINUTES;
+  const parsed = split(value);
+  const [draft, setDraft] = useState(parsed);
+
+  // Håll fältet i synk när värdet ändras utifrån (t.ex. när matchen laddas).
+  useEffect(() => {
+    setDraft((prev) => {
+      if (prev.hour === parsed.hour && prev.minute === parsed.minute) return prev;
+      if (!parsed.hour && !parsed.minute && (prev.hour || prev.minute) && value === "") {
+        // Behåll ett halvifyllt val i stället för att nolla det.
+        return prev.hour && prev.minute ? { hour: "", minute: "" } : prev;
+      }
+      return parsed;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const hour = draft.hour;
+  const minute = draft.minute;
+  const incomplete = Boolean(hour) !== Boolean(minute);
 
   const selectClass = cn(
     "h-11 w-full rounded-lg border bg-background px-2 text-sm disabled:opacity-60",
-    invalid ? "border-destructive" : "border-border",
+    invalid || incomplete ? "border-destructive" : "border-border",
   );
 
   const emit = (nextHour: string, nextMinute: string) => {
-    if (!nextHour && !nextMinute) {
-      onChange("");
+    setDraft({ hour: nextHour, minute: nextMinute });
+    if (nextHour && nextMinute) {
+      onChange(`${nextHour}:${nextMinute}`);
       return;
     }
-    onChange(`${nextHour || "00"}:${nextMinute || "00"}`);
+    // Ofullständig tid räknas som ingen tid alls.
+    if (value !== "") onChange("");
   };
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <select
-        id={id}
-        name={name ? `${name}-hour` : undefined}
-        aria-label="Timme"
-        className={selectClass}
-        disabled={disabled}
-        value={hour}
-        onChange={(event) => emit(event.target.value, minute)}
-      >
-        <option value="">Tim</option>
-        {HOURS.map((h) => (
-          <option key={h} value={h}>
-            {h}
-          </option>
-        ))}
-      </select>
-      <span aria-hidden className="text-muted-foreground">
-        :
-      </span>
-      <select
-        name={name ? `${name}-minute` : undefined}
-        aria-label="Minut"
-        className={selectClass}
-        disabled={disabled}
-        value={minute}
-        onChange={(event) => emit(hour, event.target.value)}
-      >
-        <option value="">Min</option>
-        {minutes.map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
-      </select>
+    <div className={cn("space-y-1", className)}>
+      <div className="flex items-center gap-2">
+        <select
+          id={id}
+          name={name ? `${name}-hour` : undefined}
+          aria-label="Timme"
+          className={selectClass}
+          disabled={disabled}
+          value={hour}
+          onChange={(event) => emit(event.target.value, minute)}
+        >
+          <option value="">Tim</option>
+          {HOURS.map((h) => (
+            <option key={h} value={h}>
+              {h}
+            </option>
+          ))}
+        </select>
+        <span aria-hidden className="text-muted-foreground">
+          :
+        </span>
+        <select
+          name={name ? `${name}-minute` : undefined}
+          aria-label="Minut"
+          className={selectClass}
+          disabled={disabled}
+          value={minute}
+          onChange={(event) => emit(hour, event.target.value)}
+        >
+          <option value="">Min</option>
+          {MINUTES.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+      </div>
+      {incomplete ? (
+        <p className="text-xs font-medium text-destructive">
+          {hour ? "Välj minuter också." : "Välj timme också."}
+        </p>
+      ) : null}
     </div>
   );
 }
