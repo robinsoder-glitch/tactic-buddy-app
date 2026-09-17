@@ -19,6 +19,8 @@ import {
   uploadTeamMedia,
 } from "@/lib/teams";
 import { friendlyError } from "@/lib/user-errors";
+import { buildTeamInviteUrl } from "@/lib/invite-links";
+import { guardianOnlyExplanation, isGuardianOnlyTeam } from "@/lib/team-age";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,6 +80,29 @@ function AboutPage() {
   async function copyCode(code: string | undefined) {
     await navigator.clipboard.writeText(code ?? "");
     toast.success("Kod kopierad");
+  }
+
+  const inviteUrl =
+    codes.data?.join_code && typeof window !== "undefined"
+      ? buildTeamInviteUrl(window.location.origin, codes.data.join_code)
+      : "";
+  const guardianOnly = isGuardianOnlyTeam(team.data);
+
+  async function copyInviteLink() {
+    await navigator.clipboard.writeText(inviteUrl);
+    toast.success("Inbjudningslänken är kopierad");
+  }
+
+  async function saveGuardianOnly(value: boolean) {
+    try {
+      await updateTeam(teamId, { guardian_only: value });
+      await queryClient.invalidateQueries({ queryKey: ["team", teamId] });
+      toast.success(
+        value ? "Laget har nu bara vårdnadshavarkonton." : "Laget kan ha spelarkonton igen.",
+      );
+    } catch (error) {
+      toast.error(friendlyError(error, "Kunde inte spara inställningen"));
+    }
   }
 
   async function toggleArchive() {
