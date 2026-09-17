@@ -78,8 +78,10 @@ function AboutPage() {
   }
 
   async function copyCode(code: string | undefined) {
-    await navigator.clipboard.writeText(code ?? "");
-    toast.success("Kod kopierad");
+    const ok = await copyText(code ?? "");
+    toast[ok ? "success" : "error"](
+      ok ? "Kod kopierad" : "Kopieringen gick inte – markera koden och kopiera den själv.",
+    );
   }
 
   const inviteUrl =
