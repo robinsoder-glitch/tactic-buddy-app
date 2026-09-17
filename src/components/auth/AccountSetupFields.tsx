@@ -113,16 +113,7 @@ export function AccountSetupFields({
       ready: !showCodeField || (complete && !checking && !!match && !kindError && !lookupFailed),
       error: codeError,
     });
-  }, [
-    showCodeField,
-    complete,
-    checking,
-    match,
-    kindError,
-    lookupFailed,
-    codeError,
-    onCodeStatus,
-  ]);
+  }, [showCodeField, complete, checking, match, kindError, lookupFailed, codeError, onCodeStatus]);
 
   return (
     <div className="space-y-4">

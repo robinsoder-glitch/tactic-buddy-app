@@ -226,7 +226,6 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
   );
 }
 
-
 /** Personlig engångslänk, används framför allt för nya ledare. */
 function PersonalInvite() {
   const { token } = useParams({ from: "/inbjudan/$token" });

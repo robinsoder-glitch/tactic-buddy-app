@@ -193,7 +193,6 @@ function StartPage() {
         photo_path: null,
       });
       await approveTeamJoinRequest(memberId, playerId);
-
     },
     onSuccess: async () => {
       toast.success("Godkänd och kopplad till truppen.");
@@ -202,7 +201,6 @@ function StartPage() {
     },
     onError: (error) => toast.error(friendlyError(error, "Kunde inte godkänna ansökan")),
   });
-
 
   if (!isCoach) {
     return (
@@ -302,7 +300,6 @@ function StartPage() {
             Ingen familj har använt länken ännu. Dela den i lagchatten eller via SMS.
           </p>
         )}
-
       </StepCard>
 
       <StepCard
@@ -382,7 +379,6 @@ function StartPage() {
                     Truppen är tom. Du kan godkänna nu och koppla barnet till truppen senare.
                   </p>
                 )}
-
               </li>
             ))}
           </ul>

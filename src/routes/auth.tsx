@@ -118,7 +118,6 @@ function AuthPage() {
     setSetup((current) => ({ ...current, role: next }));
   }, [invitedTeam.data, role]);
 
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: nextPath ?? "/" });
@@ -440,7 +439,6 @@ function AuthPage() {
                   onCodeStatus={setCodeStatus}
                 />
               )}
-
 
               <div className="space-y-1.5">
                 <Label htmlFor="email">E-post</Label>
