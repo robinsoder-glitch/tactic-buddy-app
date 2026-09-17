@@ -17,11 +17,14 @@ export function GuardianLinks({
   teamId,
   userId,
   canEdit,
+  guardianOnly = false,
 }: {
   playerId: string;
   teamId: string;
   userId: string | null;
   canEdit: boolean;
+  /** Sant i yngre lag där barnen aldrig har egna konton. */
+  guardianOnly?: boolean;
 }) {
   const queryClient = useQueryClient();
   const [picked, setPicked] = useState("");
