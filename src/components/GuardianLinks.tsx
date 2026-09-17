@@ -73,17 +73,20 @@ export function GuardianLinks({
 
   return (
     <div className="mt-4 rounded-xl border border-border bg-card p-4">
-      <h3 className="font-display text-lg font-bold">Kopplade konton</h3>
+      <h3 className="font-display text-lg font-bold">Familj och konton</h3>
       <p className="text-xs text-muted-foreground">
-        Kopplade vårdnadshavare kan se och svara på spelarens kallelser.
+        {guardianOnly
+          ? "I det här laget har barnen inga egna konton. Kopplade vårdnadshavare ser och svarar på kallelserna."
+          : "Kopplade vårdnadshavare kan se och svara på spelarens kallelser."}
       </p>
 
       {!hasActiveGuardian && (
-        <p className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <p className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-base font-semibold text-destructive">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden />
           <span>
-            Ingen vårdnadshavare är kopplad. Ingen vårdnadshavare kan se eller svara på spelarens
-            kallelser.
+            {guardianOnly
+              ? "Ingen vårdnadshavare är kopplad – barnet får inga kallelser."
+              : "Ingen vårdnadshavare är kopplad. Ingen vårdnadshavare kan se eller svara på spelarens kallelser."}
           </span>
         </p>
       )}
