@@ -19,6 +19,7 @@ import { parsePickSearch } from "@/lib/training-pick";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/hooks/useAccount";
 import { CoachOnly } from "@/components/CoachOnly";
+import { drillGuide } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/ovningsbank/$drillId")({
   validateSearch: (search: Record<string, unknown>) => parsePickSearch(search),
@@ -139,6 +140,7 @@ function DrillPage() {
           resourceId={drill.data.id}
           title={drill.data.title}
           defaultMinutes={drillDefaultMinutes(drill.data)}
+          details={drillGuide(drill.data)}
         />
         <CollectionButton kind="drill" resourceId={drill.data.id} title={drill.data.title} />
       </div>

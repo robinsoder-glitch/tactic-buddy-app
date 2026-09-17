@@ -47,6 +47,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { TrainingFocusSummary } from "@/components/TrainingFocusSelector";
+import { focusAreasWithLegacy } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/genomfor")({
   head: () => ({
@@ -356,6 +359,9 @@ function RunSession() {
           Moment {Math.min(active.current_index + 1, list.length)} av {list.length}
           {paused ? " · Pausad" : ""}
         </p>
+        <div className="mt-3">
+          <TrainingFocusSummary areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)} />
+        </div>
       </header>
 
       <section className="mt-5 rounded-2xl border border-border bg-card p-5 text-center">
@@ -377,6 +383,9 @@ function RunSession() {
             {current.note}
           </p>
         )}
+        <div className="text-left">
+          <ExerciseGuide guide={current?.details ?? null} />
+        </div>
         {current?.resource_id && current.kind === "drill" && (
           <Link
             to="/ovningsbank/$drillId"

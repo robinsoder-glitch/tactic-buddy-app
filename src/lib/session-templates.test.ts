@@ -16,6 +16,7 @@ function session(patch: Partial<CoachSession> & { id: string }): CoachSession {
     age_group: "P10",
     game_format: "5v5",
     theme: "Spelbarhet",
+    focus_areas: ["Spelbarhet och rörelse"],
     goal: null,
     notes: null,
     status: "draft",
@@ -37,6 +38,7 @@ function item(sessionId: string, minutes: number, index: number): CoachSessionIt
     minutes,
     note: null,
     sort_order: index,
+    details: {},
   };
 }
 

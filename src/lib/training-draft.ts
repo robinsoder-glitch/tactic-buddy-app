@@ -1,3 +1,5 @@
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
+
 /**
  * Utkast för en träningsplanering.
  * Övningar hamnar först i utkastet – den publicerade planen ändras först vid Spara.
@@ -17,6 +19,7 @@ export type DraftItem = {
   instruction?: string | null;
   /** Utrustning som behövs, särskilt för egna övningar. */
   equipment?: string | null;
+  details?: ExerciseGuideData;
 };
 
 export type TrainingDraft = {
@@ -81,6 +84,7 @@ export function draftPayload(draft: TrainingDraft) {
     resource_id: item.resourceId,
     minutes: item.minutes,
     note: item.note,
+    details: item.details ?? {},
   }));
 }
 
@@ -91,6 +95,7 @@ export function draftPayloadItem(item: DraftItem) {
     resource_id: item.resourceId,
     minutes: item.minutes,
     note: item.note,
+    details: item.details ?? {},
   };
 }
 

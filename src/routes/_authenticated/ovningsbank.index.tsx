@@ -25,6 +25,7 @@ import {
 import { drillMeta, filterDrills, filterGoalkeeperCards, filterSessions } from "@/lib/ovningsbank";
 import { drillDefaultMinutes, drillDurationLabel } from "@/lib/drill-duration";
 import { formatLabelFor } from "@/lib/rules-presentation";
+import { drillGuide, goalkeeperGuide } from "@/lib/training-outcomes";
 import { fetchKnowledgeArticles } from "@/lib/knowledge";
 import { buildCatalog, fetchContentLinks, relatedSections } from "@/lib/content-links";
 import { RelatedContent } from "@/components/RelatedContent";
@@ -454,6 +455,7 @@ function OvningsbankPage() {
                       resourceId={drill.id}
                       title={drill.title}
                       defaultMinutes={drillDefaultMinutes(drill)}
+                      details={drillGuide(drill)}
                       size="sm"
                     />
                   </div>
@@ -521,6 +523,7 @@ function OvningsbankPage() {
                   kind="goalkeeper"
                   resourceId={card.id}
                   title={card.title}
+                  details={goalkeeperGuide(card)}
                   size="sm"
                 />
               </div>

@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { PlannableEvent } from "@/lib/event-planning";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 /** Kommande aktiviteter av en viss typ, hämtade ur lagets befintliga kalender. */
 export function upcomingOfType(
@@ -120,6 +121,7 @@ export type EventResourceRow = {
   minutes: number | null;
   note: string | null;
   sort_order: number;
+  details: ExerciseGuideData;
 };
 
 /** Planerat innehåll för en eller flera aktiviteter. */
@@ -127,7 +129,7 @@ export async function fetchEventResources(eventIds: string[]): Promise<EventReso
   if (eventIds.length === 0) return [];
   const { data, error } = await supabase
     .from("event_resources")
-    .select("id, event_id, kind, resource_id, minutes, note, sort_order")
+    .select("id, event_id, kind, resource_id, minutes, note, sort_order, details")
     .in("event_id", eventIds)
     // Sekundär sortering gör att två rader med samma plats (till exempel samma
     // övning tillagd två gånger) alltid visas i samma ordning.

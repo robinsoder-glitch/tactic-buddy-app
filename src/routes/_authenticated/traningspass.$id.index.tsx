@@ -31,6 +31,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TrainingFocusSelector } from "@/components/TrainingFocusSelector";
+import { ExerciseGuide } from "@/components/ExerciseGuide";
+import { focusAreasWithLegacy } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/traningspass/$id/")({
   head: () => ({
@@ -81,8 +84,8 @@ function SessionBuilder() {
 
   useEffect(() => {
     if (session.data && !draft) {
-      const { title, session_date, age_group, game_format, theme, goal, notes } = session.data;
-      setDraft({ title, session_date, age_group, game_format, theme, goal, notes });
+      const { title, session_date, age_group, game_format, theme, focus_areas, goal, notes } = session.data;
+      setDraft({ title, session_date, age_group, game_format, theme, focus_areas, goal, notes });
     }
   }, [session.data, draft]);
 
@@ -164,6 +167,8 @@ function SessionBuilder() {
     if (items.length > 0 && totalMinutes(items) === 0)
       problems.push("Ingen tid är satt på delarna.");
     if (!session.data?.session_date) problems.push("Datum saknas.");
+    if (focusAreasWithLegacy(session.data?.focus_areas ?? [], session.data?.theme ?? null).length === 0)
+      problems.push("Träningsfokus saknas.");
     if (!session.data?.goal?.trim()) problems.push("Målsättningen är tom.");
     return problems;
   })();
@@ -312,14 +317,23 @@ function SessionBuilder() {
                 />
               </div>
             </div>
+            <TrainingFocusSelector
+              value={draft.focus_areas}
+              onChange={(focus_areas) => set({ focus_areas })}
+            />
             <div className="space-y-1">
-              <Label htmlFor="edit-goal">Målsättning</Label>
+              <Label htmlFor="edit-goal">Vad ska spelarna kunna efter passet?</Label>
               <Textarea
                 id="edit-goal"
                 rows={2}
                 value={draft.goal ?? ""}
                 onChange={(event) => set({ goal: event.target.value || null })}
               />
+              {!draft.goal?.trim() && (
+                <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive">
+                  Skriv ett tydligt resultat för att färdigplanera träningen.
+                </p>
+              )}
             </div>
             <div className="space-y-1">
               <Label htmlFor="edit-notes">Tränarens anteckningar</Label>
@@ -496,6 +510,7 @@ function SessionBuilder() {
                   />
                 </div>
               </div>
+              <ExerciseGuide guide={item.details} compact />
             </li>
           ))}
         </ol>

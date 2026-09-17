@@ -204,6 +204,7 @@ export type Database = {
           coach_focus: string | null
           created_at: string
           equipment: string | null
+          guide: Json
           id: string
           in_library: boolean
           instruction: string | null
@@ -218,6 +219,7 @@ export type Database = {
           coach_focus?: string | null
           created_at?: string
           equipment?: string | null
+          guide?: Json
           id?: string
           in_library?: boolean
           instruction?: string | null
@@ -232,6 +234,7 @@ export type Database = {
           coach_focus?: string | null
           created_at?: string
           equipment?: string | null
+          guide?: Json
           id?: string
           in_library?: boolean
           instruction?: string | null
@@ -255,6 +258,7 @@ export type Database = {
       coach_session_items: {
         Row: {
           created_at: string
+          details: Json
           id: string
           kind: string
           minutes: number
@@ -268,6 +272,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          details?: Json
           id?: string
           kind: string
           minutes?: number
@@ -281,6 +286,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          details?: Json
           id?: string
           kind?: string
           minutes?: number
@@ -306,6 +312,7 @@ export type Database = {
         Row: {
           age_group: string | null
           created_at: string
+          focus_areas: string[]
           game_format: string | null
           goal: string | null
           id: string
@@ -325,6 +332,7 @@ export type Database = {
         Insert: {
           age_group?: string | null
           created_at?: string
+          focus_areas?: string[]
           game_format?: string | null
           goal?: string | null
           id?: string
@@ -344,6 +352,7 @@ export type Database = {
         Update: {
           age_group?: string | null
           created_at?: string
+          focus_areas?: string[]
           game_format?: string | null
           goal?: string | null
           id?: string
@@ -806,6 +815,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          details: Json
           event_id: string
           id: string
           kind: string
@@ -819,6 +829,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by: string
+          details?: Json
           event_id: string
           id?: string
           kind?: string
@@ -832,6 +843,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          details?: Json
           event_id?: string
           id?: string
           kind?: string
@@ -1855,6 +1867,7 @@ export type Database = {
       session_run_items: {
         Row: {
           actual_seconds: number
+          details: Json
           id: string
           item_id: string | null
           kind: string
@@ -1868,6 +1881,7 @@ export type Database = {
         }
         Insert: {
           actual_seconds?: number
+          details?: Json
           id?: string
           item_id?: string | null
           kind?: string
@@ -1881,6 +1895,7 @@ export type Database = {
         }
         Update: {
           actual_seconds?: number
+          details?: Json
           id?: string
           item_id?: string | null
           kind?: string
@@ -2976,6 +2991,7 @@ export type Database = {
         }
         Returns: {
           actual_seconds: number
+          details: Json
           id: string
           item_id: string | null
           kind: string

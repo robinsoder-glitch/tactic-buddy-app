@@ -46,6 +46,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CoachOnly } from "@/components/CoachOnly";
+import { TrainingFocusSelector } from "@/components/TrainingFocusSelector";
+import { drillGuide } from "@/lib/training-outcomes";
 
 export const Route = createFileRoute("/_authenticated/traningspass/")({
   head: () => ({
@@ -330,6 +332,7 @@ function CreateSessionDialog({
             title: drill.title,
             resource_id: drill.id,
             minutes: drill.default_minutes ?? 10,
+            details: drillGuide(drill),
           });
         }
       }
@@ -417,8 +420,12 @@ function CreateSessionDialog({
               onChange={(event) => set({ theme: event.target.value || null })}
             />
           </div>
+          <TrainingFocusSelector
+            value={draft.focus_areas}
+            onChange={(focus_areas) => set({ focus_areas })}
+          />
           <div className="space-y-1">
-            <Label htmlFor="new-goal">Målsättning</Label>
+            <Label htmlFor="new-goal">Vad ska spelarna kunna efter passet?</Label>
             <Textarea
               id="new-goal"
               rows={2}

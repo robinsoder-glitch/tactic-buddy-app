@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { ExerciseGuideData } from "@/lib/training-outcomes";
 
 /** Ett pågående eller avslutat genomförande av ett träningspass. */
 export type SessionRun = {
@@ -29,6 +30,7 @@ export type SessionRunItem = {
   status: "pending" | "done" | "skipped";
   note: string | null;
   sort_order: number;
+  details: ExerciseGuideData;
 };
 
 export type RunAttendanceStatus = "present" | "partial" | "absent";
@@ -39,7 +41,7 @@ export type RunPlayerNote = { player_id: string; note: string };
 const RUN_COLUMNS =
   "id, session_id, team_id, event_id, coach_id, status, started_at, ended_at, paused_at, paused_seconds, adjust_seconds, current_index, general_note";
 const RUN_ITEM_COLUMNS =
-  "id, run_id, item_id, kind, title, resource_id, planned_minutes, actual_seconds, status, note, sort_order";
+  "id, run_id, item_id, kind, title, resource_id, planned_minutes, actual_seconds, status, note, sort_order, details";
 
 /* ---------- Rena hjälpfunktioner (testbara utan databas) ---------- */
 
