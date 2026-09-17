@@ -418,9 +418,11 @@ function AuthPage() {
                 <AccountSetupFields
                   setup={setup}
                   onChange={patchSetup}
+                  lockCode={!!invitedCode}
                   onCodeStatus={setCodeStatus}
                 />
               )}
+
 
               <div className="space-y-1.5">
                 <Label htmlFor="email">E-post</Label>
