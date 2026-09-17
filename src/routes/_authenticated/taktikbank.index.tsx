@@ -88,6 +88,14 @@ function TaktikbankPage() {
     () => Array.from(new Set((tactics.data ?? []).map((card) => card.format))),
     [tactics.data],
   );
+
+  // Lagets spelform är förvald så tränaren slipper filtrera om varje gång.
+  useEffect(() => {
+    if (presetApplied.current) return;
+    if (!preset.format || formats.length === 0) return;
+    presetApplied.current = true;
+    if (formats.includes(preset.format)) setFormat(preset.format);
+  }, [preset.format, formats]);
   const moments = useMemo(
     () =>
       Array.from(
