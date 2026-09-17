@@ -141,7 +141,15 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
       }
       await queryClient.invalidateQueries();
       setSent(result.status);
+      void trackFlowEvent(
+        result.status === "approved" ? "invite_join_approved" : "invite_join_pending",
+        { teamCode: code, teamId: result.teamId ?? null, role: "guardian" },
+      );
     } catch (caught) {
+      void trackFlowEvent("invite_join_failed", {
+        teamCode: code,
+        details: { message: friendlyError(caught, "Kunde inte gå med i laget") },
+      });
       toast.error(friendlyError(caught, "Kunde inte gå med i laget"));
     } finally {
       setBusy(false);
