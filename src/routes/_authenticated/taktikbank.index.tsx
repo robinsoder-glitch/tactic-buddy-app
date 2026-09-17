@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, ChevronRight, Search, Star } from "lucide-react";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/taktikbank";
 import { useAccount } from "@/hooks/useAccount";
 import { useAuth } from "@/hooks/useAuth";
+import { useTeamPreset } from "@/hooks/useTeamPreset";
 import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { AddToTrainingButton } from "@/components/AddToTrainingDialog";
@@ -46,6 +47,8 @@ export const Route = createFileRoute("/_authenticated/taktikbank/")({
 function TaktikbankPage() {
   const { isCoach, isAdmin, loading } = useAccount();
   const { user } = useAuth();
+  const preset = useTeamPreset();
+  const presetApplied = useRef(false);
   const queryClient = useQueryClient();
 
   const [query, setQuery] = useState("");
@@ -88,6 +91,14 @@ function TaktikbankPage() {
     () => Array.from(new Set((tactics.data ?? []).map((card) => card.format))),
     [tactics.data],
   );
+
+  // Lagets spelform är förvald så tränaren slipper filtrera om varje gång.
+  useEffect(() => {
+    if (presetApplied.current) return;
+    if (!preset.format || formats.length === 0) return;
+    presetApplied.current = true;
+    if (formats.includes(preset.format)) setFormat(preset.format);
+  }, [preset.format, formats]);
   const moments = useMemo(
     () =>
       Array.from(

@@ -7,6 +7,7 @@ import { TacticEditor } from "@/components/TacticEditor";
 import { useConfirm } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useTeamPreset } from "@/hooks/useTeamPreset";
 import { deleteAllTactics, deleteTactic, fetchTactics, openBlankTactic } from "@/lib/db";
 import { fetchTacticCards, label, PHASE_LABELS } from "@/lib/taktikbank";
 import { formatLabelFor } from "@/lib/rules-presentation";
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/taktik")({
 
 function TacticPage() {
   const { user } = useAuth();
+  const preset = useTeamPreset();
   const queryClient = useQueryClient();
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -57,7 +59,8 @@ function TacticPage() {
   useEffect(() => {
     if (!user || blankId) return;
     let cancelled = false;
-    openBlankTactic(user.id)
+    // Planen och formationerna följer lagets spelform direkt.
+    openBlankTactic(user.id, "Tom tavla", preset.pitchType ?? "full")
       .then((id) => {
         if (!cancelled) setBlankId(id);
       })
@@ -67,7 +70,7 @@ function TacticPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, blankId]);
+  }, [user, blankId, preset.pitchType]);
 
   const activeId = openId ?? blankId;
 
@@ -128,6 +131,11 @@ function TacticPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Börja med en tom plan – dra ut spelare och boll själv och bygg din taktik.
       </p>
+      {preset.formatLabel && (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Planen är förvald för {preset.formatLabel} – lagets spelform. Du kan byta plan i tavlan.
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button size="sm" variant="secondary" asChild>
           <Link to="/planera-match">Koppla en taktik till en match</Link>

@@ -262,6 +262,7 @@ function MatchPlanner({
   const [playerIds, setPlayerIds] = useState<string[]>([]);
   const [format, setFormat] = useState("7v7");
   const [formationId, setFormationId] = useState("7v7-2-3-1");
+  const [showFormatPicker, setShowFormatPicker] = useState(false);
   const [slots, setSlots] = useState<LineupSlot[]>([]);
   const [bench, setBench] = useState<string[]>([]);
   const [tacticId, setTacticId] = useState<string | null>(null);
@@ -848,8 +849,19 @@ function MatchPlanner({
                 <Input
                   id="mp-location"
                   value={location}
+                  placeholder={team?.home_ground ?? "T.ex. Långholmens IP"}
                   onChange={(e) => setLocation(e.target.value)}
                 />
+                {/* Hemmaplanen från laget ska gå att klicka in direkt. */}
+                {team?.home_ground && location.trim() !== team.home_ground && (
+                  <button
+                    type="button"
+                    onClick={() => setLocation(team.home_ground as string)}
+                    className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                  >
+                    Hemmaplan: {team.home_ground}
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
@@ -1002,19 +1014,37 @@ function MatchPlanner({
           {step === 3 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
               <h2 className="font-medium">Formation och avbytare</h2>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
-                {Object.keys(FORMAT_PLAYERS).map((f) => (
-                  <Button
-                    key={f}
+              {/* Spelformen laget valdes med är förvald – den behöver bara ändras
+                  i undantagsfall, t.ex. vid en cup med annan spelform. */}
+              {!showFormatPicker && team?.game_format && format === team.game_format ? (
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="rounded-full bg-secondary px-3 py-1 font-medium">
+                    {FORMAT_LABELS[format] ?? format}
+                  </span>
+                  <span className="text-muted-foreground">förvalt från laget</span>
+                  <button
                     type="button"
-                    variant={format === f ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => changeFormat(f)}
+                    onClick={() => setShowFormatPicker(true)}
+                    className="text-xs text-primary underline-offset-4 hover:underline"
                   >
-                    {FORMAT_LABELS[f]}
-                  </Button>
-                ))}
-              </div>
+                    Byt spelform
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Spelform">
+                  {Object.keys(FORMAT_PLAYERS).map((f) => (
+                    <Button
+                      key={f}
+                      type="button"
+                      variant={format === f ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => changeFormat(f)}
+                    >
+                      {FORMAT_LABELS[f]}
+                    </Button>
+                  ))}
+                </div>
+              )}
               {formationOptions(format).length > 1 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Välj uppställning</p>

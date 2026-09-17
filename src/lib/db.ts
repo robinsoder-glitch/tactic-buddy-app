@@ -145,7 +145,11 @@ export async function createTactic(
  * innehåll städas bort, så att påbörjat arbete i ett annat utkast aldrig
  * försvinner. Utkastet syns aldrig i "Mina taktiker" förrän användaren sparar.
  */
-export async function openBlankTactic(userId: string, name = "Tom tavla"): Promise<string> {
+export async function openBlankTactic(
+  userId: string,
+  name = "Tom tavla",
+  pitchType: PitchType = "full",
+): Promise<string> {
   const { data, error } = await supabase
     .from("tactics")
     .select("id")
@@ -172,7 +176,7 @@ export async function openBlankTactic(userId: string, name = "Tom tavla"): Promi
     }
   }
 
-  return createTactic(userId, name, "full", null, { draft: true });
+  return createTactic(userId, name, pitchType, null, { draft: true });
 }
 
 /** Sant när rutan innehåller något användaren skulle sakna. */
