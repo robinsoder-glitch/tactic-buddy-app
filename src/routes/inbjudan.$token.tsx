@@ -234,10 +234,13 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
         <FlowDiagram steps={flow} />
       </div>
 
-      {preview.isSuccess && !preview.data && (
-        <p className="mt-4 text-sm text-destructive">
-          Länken hör inte till något lag längre. Be tränaren skicka en ny länk.
-        </p>
+      {problemKind && (
+        <InviteProblemCard
+          info={inviteProblemInfo(problemKind)}
+          onRetry={() => void preview.refetch()}
+          retrying={preview.isFetching}
+          attempts={preview.errorUpdateCount}
+        />
       )}
 
       {signedIn === false && (
