@@ -104,6 +104,12 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
   const teamName = preview.data?.name ?? team.data?.name ?? "Laget";
   const status = sent ?? membership.data ?? null;
+  const flow = familyFlowSteps({
+    signedIn: signedIn === true,
+    joined: status === "pending" || status === "approved",
+    approved: status === "approved",
+    guardianOnly: preview.data?.guardian_only !== false,
+  });
 
   async function join() {
     if (!childName.trim()) {
