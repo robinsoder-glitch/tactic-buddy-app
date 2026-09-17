@@ -2,22 +2,32 @@ import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Copy, Plus, Users } from "lucide-react";
+import { CalendarPlus, Check, Copy, MailCheck, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
   approveTeamJoinRequest,
+  fetchEvents,
   fetchTeam,
   fetchTeamCodes,
   fetchTeamMembers,
   fetchTeamPlayers,
+  formatDateTime,
   saveTeamPlayer,
 } from "@/lib/teams";
+import { fetchTeamInviteCounts } from "@/lib/invitations";
 import { buildTeamInviteUrl, shareOrigin } from "@/lib/invite-links";
 import { copyText } from "@/lib/copy-text";
 import { isGuardianOnlyTeam } from "@/lib/team-age";
+import {
+  nextStartStep,
+  responsesText,
+  startProgressText,
+  startStepsDone,
+  type StartProgressInput,
+} from "@/lib/team-onboarding";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
@@ -26,16 +36,47 @@ export const Route = createFileRoute("/_authenticated/team/$teamId/kom-igang")({
       { title: "Kom igång med laget – Fotbollsrummet" },
       {
         name: "description",
-        content: "Lägg in truppen, dela inbjudan och godkänn familjerna i tre steg.",
+        content:
+          "Trupp, inbjudan, godkännanden, första aktiviteten och svaren på kallelsen – i fem steg.",
       },
       { property: "og:title", content: "Kom igång med laget – Fotbollsrummet" },
-      { property: "og:description", content: "Trupp, inbjudan och godkännanden i tre steg." },
+      {
+        property: "og:description",
+        content: "Från tom trupp till spelad match med svar från familjerna.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: StartPage,
 });
+
+function StepCard({
+  step,
+  title,
+  done,
+  active,
+  children,
+}: {
+  step: number;
+  title: string;
+  done: boolean;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-4 ${
+        active ? "border-primary bg-card" : "border-border bg-card"
+      }`}
+    >
+      <p className="font-display text-lg font-bold">
+        Steg {step} · {title} {done && <Check className="inline size-5 text-primary" aria-hidden />}
+      </p>
+      {children}
+    </div>
+  );
+}
 
 function StartPage() {
   const { teamId } = useParams({ from: "/_authenticated/team/$teamId/kom-igang" });
@@ -57,6 +98,16 @@ function StartPage() {
     queryFn: () => fetchTeamMembers(teamId),
     enabled: isCoach,
   });
+  const events = useQuery({
+    queryKey: ["team-events", teamId],
+    queryFn: () => fetchEvents(teamId),
+    enabled: isCoach,
+  });
+  const inviteCounts = useQuery({
+    queryKey: ["team-invite-counts", teamId],
+    queryFn: () => fetchTeamInviteCounts(teamId),
+    enabled: isCoach,
+  });
 
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -64,10 +115,33 @@ function StartPage() {
 
   const guardianOnly = isGuardianOnlyTeam(team.data);
   const squad = players.data ?? [];
-  const pending = (members.data ?? []).filter((member) => member.status === "pending");
+  const allMembers = members.data ?? [];
+  const families = allMembers.filter(
+    (member) => member.role === "guardian" || member.role === "player",
+  );
+  const pending = allMembers.filter((member) => member.status === "pending");
   const inviteUrl = codes.data?.join_code
     ? buildTeamInviteUrl(shareOrigin(), codes.data.join_code)
     : "";
+
+  const now = Date.now();
+  const upcoming = (events.data ?? [])
+    .filter((event) => !event.cancelled_at && new Date(event.starts_at).getTime() >= now)
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+  const counts = Object.values(inviteCounts.data ?? {});
+  const invitesTotal = counts.reduce((sum, item) => sum + item.total, 0);
+  const invitesAnswered = counts.reduce((sum, item) => sum + item.answered, 0);
+
+  const progress: StartProgressInput = {
+    players: squad.length,
+    families: families.length,
+    approvedFamilies: families.filter((member) => member.status === "approved").length,
+    upcomingEvents: upcoming.length,
+    invitesTotal,
+    invitesAnswered,
+  };
+  const done = startStepsDone(progress);
+  const active = nextStartStep(progress);
 
   const addPlayer = useMutation({
     mutationFn: async () => {
@@ -117,15 +191,13 @@ function StartPage() {
       <div>
         <h2 className="font-display text-2xl font-bold">Kom igång med laget</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Tre steg. Du kan hoppa över och fortsätta senare – sidan finns kvar under Översikt.
+          Fem steg – från tom trupp till spelad match med svar från familjerna. Du kan hoppa över
+          och fortsätta senare; sidan finns kvar under Översikt.
         </p>
+        <p className="mt-2 text-sm font-semibold text-primary">{startProgressText(progress)}</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <p className="font-display text-lg font-bold">
-          Steg 1 · Lägg in truppen{" "}
-          {squad.length > 0 && <Check className="inline size-5 text-primary" aria-hidden />}
-        </p>
+      <StepCard step={1} title="Lägg in truppen" done={done.squad} active={active === "squad"}>
         <p className="mt-1 text-sm text-muted-foreground">
           Skriv barnens namn, ett i taget. Tröjnummer är valfritt.
         </p>
@@ -163,10 +235,9 @@ function StartPage() {
             {squad.length > 8 ? " …" : ""}
           </p>
         )}
-      </div>
+      </StepCard>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <p className="font-display text-lg font-bold">Steg 2 · Dela inbjudan</p>
+      <StepCard step={2} title="Dela inbjudan" done={done.invite} active={active === "invite"}>
         <p className="mt-1 text-sm text-muted-foreground">
           {guardianOnly
             ? "Skicka länken till vårdnadshavarna. Barnen behöver inga egna konton."
@@ -195,13 +266,24 @@ function StartPage() {
         <p className="mt-2 text-xs text-muted-foreground">
           Lagkod: <span className="font-mono">{codes.data?.join_code ?? "······"}</span>
         </p>
-      </div>
+        {families.length > 0 && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            {families.length} {families.length === 1 ? "familj har" : "familjer har"} använt länken.
+          </p>
+        )}
+      </StepCard>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <p className="font-display text-lg font-bold">Steg 3 · Godkänn</p>
+      <StepCard
+        step={3}
+        title="Godkänn familjerna"
+        done={done.approve}
+        active={active === "approve"}
+      >
         {pending.length === 0 ? (
           <p className="mt-1 text-sm text-muted-foreground">
-            Inga ansökningar just nu. De dyker upp här när familjerna har klickat på länken.
+            {done.approve
+              ? "Alla ansökningar är godkända."
+              : "Inga ansökningar just nu. De dyker upp här när familjerna har klickat på länken."}
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -245,7 +327,89 @@ function StartPage() {
             ))}
           </ul>
         )}
-      </div>
+      </StepCard>
+
+      <StepCard
+        step={4}
+        title="Planera första träningen eller matchen"
+        done={done.plan}
+        active={active === "plan"}
+      >
+        <p className="mt-1 text-sm text-muted-foreground">
+          Lägg in tid, samling och plats. Familjerna ser aktiviteten i kalendern direkt.
+        </p>
+        {upcoming.length === 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <Link to="/team/$teamId/training" params={{ teamId }}>
+                <CalendarPlus className="size-4" aria-hidden /> Ny träning
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="secondary">
+              <Link to="/team/$teamId/matches" params={{ teamId }}>
+                <CalendarPlus className="size-4" aria-hidden /> Ny match
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {upcoming.slice(0, 3).map((event) => (
+              <li
+                key={event.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm"
+              >
+                <span>
+                  <span className="font-medium">
+                    {event.title ??
+                      (event.type === "match"
+                        ? `${event.home_team ?? "Hemmalag"} – ${event.away_team ?? "Bortalag"}`
+                        : "Träning")}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {formatDateTime(event.starts_at)}
+                    {event.location ? ` · ${event.location}` : ""}
+                  </span>
+                </span>
+                <Button asChild size="sm" variant="secondary">
+                  <Link to="/team/$teamId/event/$eventId" params={{ teamId, eventId: event.id }}>
+                    Öppna
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </StepCard>
+
+      <StepCard
+        step={5}
+        title="Skicka kallelsen och följ svaren"
+        done={done.responses}
+        active={active === "responses"}
+      >
+        <p className="mt-1 text-sm text-muted-foreground">
+          {guardianOnly
+            ? "Vårdnadshavarna svarar för sina barn, i appen och via mejl."
+            : "Spelarna och vårdnadshavarna svarar i appen och via mejl."}
+        </p>
+        <p
+          className={`mt-2 text-sm ${
+            invitesTotal === 0 ? "font-semibold text-destructive" : "text-muted-foreground"
+          }`}
+        >
+          {responsesText(invitesTotal, invitesAnswered)}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="secondary">
+            <Link to="/team/$teamId/calendar" params={{ teamId }}>
+              <MailCheck className="size-4" aria-hidden /> Till aktiviteterna
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost">
+            <Link to="/kalender/kallelser">Alla kallelser och svar</Link>
+          </Button>
+        </div>
+      </StepCard>
 
       <Button asChild variant="secondary">
         <Link to="/team/$teamId/trupp" params={{ teamId }}>

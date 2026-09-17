@@ -81,8 +81,7 @@ export function teamCodeFromToken(token: string | null | undefined): string | nu
 export const PUBLIC_APP_ORIGIN = "https://fotbollsrummet.app";
 
 export function shareOrigin(host?: string): string {
-  const hostname =
-    host ?? (typeof window !== "undefined" ? window.location.hostname : "") ?? "";
+  const hostname = host ?? (typeof window !== "undefined" ? window.location.hostname : "") ?? "";
   const internal =
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
