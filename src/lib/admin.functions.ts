@@ -54,6 +54,11 @@ export type AdminAccount = {
   teams: { teamId: string; teamName: string; role: string; status: string }[];
 };
 
+async function removeAccount(db: Awaited<ReturnType<typeof admin>>, userId: string) {
+  const { error } = await db.auth.admin.deleteUser(userId);
+  if (error) throw new Error(error.message);
+}
+
 /** Alla konton med e-post, roller och lagtillhörighet. Endast för plattformsadmin. */
 export const listAccounts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -147,14 +152,7 @@ export const deleteAccount = createServerFn({ method: "POST" })
     if (data.userId === context.userId) throw new Error("Du kan inte radera ditt eget konto här.");
     const db = await admin();
 
-    await db.from("team_members").delete().eq("user_id", data.userId);
-    await db.from("user_roles").delete().eq("user_id", data.userId);
-    await db.from("player_guardians").delete().eq("guardian_user_id", data.userId);
-    await db.from("players").update({ member_user_id: null }).eq("member_user_id", data.userId);
-    await db.from("app_notifications").delete().eq("user_id", data.userId);
-
-    const { error } = await db.auth.admin.deleteUser(data.userId);
-    if (error) throw new Error(error.message);
+    await removeAccount(db, data.userId);
 
     await log(context.userId, "delete_account", "user", data.userId);
     return { ok: true as const };
@@ -189,41 +187,8 @@ async function purgePlayers(db: AdminDb, playerIds: string[]) {
 /** Raderar ett lag med allt innehåll. */
 async function purgeTeam(db: AdminDb, teamId: string) {
   const { data: team } = await db.from("teams").select("name").eq("id", teamId).maybeSingle();
-  const { data: events } = await db.from("events").select("id").eq("team_id", teamId);
-  const eventIds = (events ?? []).map((e) => e.id);
-
-  if (eventIds.length) {
-    for (const table of [
-      "event_attendance",
-      "event_coaches",
-      "event_invitations",
-      "event_plans",
-      "event_resources",
-      "event_squad",
-      "match_lineups",
-      "match_shares",
-    ] as const) {
-      await db.from(table).delete().in("event_id", eventIds);
-    }
-  }
-
-  for (const table of [
-    "player_observations",
-    "player_focus_areas",
-    "player_stats",
-    "team_chat_messages",
-    "team_photos",
-    "team_invites",
-    "team_periods",
-    "coach_sessions",
-    "team_members",
-  ] as const) {
-    await db.from(table).delete().eq("team_id", teamId);
-  }
-  await db.from("events").delete().eq("team_id", teamId);
-  await db.from("players").delete().eq("team_id", teamId);
-  await db.from("tactics").update({ team_id: null }).eq("team_id", teamId);
-
+  // Databasens foreign keys ansvarar för att allt laginnehåll tas bort eller kopplas loss.
+  // Det gör att även nya innehållstyper följer med utan en skör, manuell tabellista här.
   const { error } = await db.from("teams").delete().eq("id", teamId);
   if (error) throw new Error(error.message);
   return team?.name ?? null;
@@ -311,13 +276,7 @@ export const deleteAccounts = createServerFn({ method: "POST" })
     let deleted = 0;
     for (const userId of data.userIds) {
       if (userId === context.userId) continue;
-      await db.from("team_members").delete().eq("user_id", userId);
-      await db.from("user_roles").delete().eq("user_id", userId);
-      await db.from("player_guardians").delete().eq("guardian_user_id", userId);
-      await db.from("players").update({ member_user_id: null }).eq("member_user_id", userId);
-      await db.from("app_notifications").delete().eq("user_id", userId);
-      const { error } = await db.auth.admin.deleteUser(userId);
-      if (error) throw new Error(error.message);
+      await removeAccount(db, userId);
       await log(context.userId, "delete_account", "user", userId);
       deleted += 1;
     }
