@@ -26,6 +26,8 @@ import {
   teamCodeFromToken,
 } from "@/lib/invite-links";
 import { friendlyError } from "@/lib/user-errors";
+import { FlowDiagram } from "@/components/FlowDiagram";
+import { familyFlowSteps } from "@/lib/invite-flow";
 
 export const Route = createFileRoute("/inbjudan/$token")({
   head: () => ({
