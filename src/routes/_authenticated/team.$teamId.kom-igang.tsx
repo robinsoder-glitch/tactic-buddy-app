@@ -181,8 +181,12 @@ function StartPage() {
             variant="secondary"
             disabled={!inviteUrl}
             onClick={async () => {
-              await navigator.clipboard.writeText(inviteUrl);
-              toast.success("Inbjudningslänken är kopierad");
+              const ok = await copyText(inviteUrl);
+              toast[ok ? "success" : "error"](
+                ok
+                  ? "Inbjudningslänken är kopierad"
+                  : "Kopieringen gick inte – markera länken och kopiera den själv.",
+              );
             }}
           >
             <Copy className="size-4" aria-hidden /> Kopiera länk
