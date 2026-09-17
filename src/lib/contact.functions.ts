@@ -58,7 +58,7 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       idempotencyKey: data.clientId
         ? `contact-${data.clientId}`
         : `contact-${context.userId}-${Date.now()}`,
-      replyTo: senderEmail ?? undefined,
+      ...(senderEmail ? { replyTo: senderEmail } : {}),
       templateData: {
         senderName: profile?.display_name ?? undefined,
         senderEmail: senderEmail ?? undefined,
