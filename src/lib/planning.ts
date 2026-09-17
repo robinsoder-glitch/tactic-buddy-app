@@ -37,12 +37,14 @@ export type EventPlan = {
   team_id: string;
   notes: string | null;
   planning_done: boolean;
+  focus_areas: string[];
+  goal: string | null;
 };
 
 export async function fetchEventPlan(eventId: string): Promise<EventPlan | null> {
   const { data, error } = await supabase
     .from("event_plans")
-    .select("event_id, team_id, notes, planning_done")
+    .select("event_id, team_id, notes, planning_done, focus_areas, goal")
     .eq("event_id", eventId)
     .maybeSingle();
   if (error) throw error;
@@ -54,7 +56,7 @@ export async function fetchEventPlans(eventIds: string[]): Promise<EventPlan[]> 
   if (eventIds.length === 0) return [];
   const { data, error } = await supabase
     .from("event_plans")
-    .select("event_id, team_id, notes, planning_done")
+    .select("event_id, team_id, notes, planning_done, focus_areas, goal")
     .in("event_id", eventIds);
   if (error) throw error;
   return (data ?? []) as EventPlan[];
@@ -197,12 +199,16 @@ export async function saveTrainingPlan(input: {
   eventId: string;
   teamId: string;
   notes: string;
+  focusAreas: string[];
+  goal: string;
   items: { kind: string; resource_id: string; minutes: number | null; note: string | null }[];
 }) {
-  const { error } = await supabase.rpc("save_training_plan", {
+  const { error } = await supabase.rpc("save_training_plan_v2", {
     _event_id: input.eventId,
     _team_id: input.teamId,
     _notes: input.notes,
+    _focus_areas: input.focusAreas,
+    _goal: input.goal,
     _items: input.items,
   });
   if (error) throw new Error(error.message);
