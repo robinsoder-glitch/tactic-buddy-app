@@ -74,7 +74,7 @@ export function teamCodeToken(code: string): string {
 export function teamCodeFromToken(token: string | null | undefined): string | null {
   if (!token) return null;
   const match = token.trim().match(/^kod-([A-Za-z0-9]{6})$/);
-  return match ? match[1].toUpperCase() : null;
+  return match?.[1] ? match[1].toUpperCase() : null;
 }
 
 /** Full adress till lagets gemensamma inbjudan. */
