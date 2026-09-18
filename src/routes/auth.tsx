@@ -222,9 +222,16 @@ function AuthPage() {
       return;
     }
     if (codeStatus.required && !codeStatus.ready) {
-      toast.error(codeStatus.error ?? SETUP_ERRORS.codeInvalid);
+      // Utan eget felmeddelande pågår kontrollen fortfarande – säg det rakt ut.
+      toast.error(
+        codeStatus.error ??
+          (setup.code?.trim()
+            ? "Vi kontrollerar lagkoden just nu. Försök igen om ett ögonblick."
+            : "Ange lagkoden du fått av din tränare."),
+      );
       return;
     }
+
     if (password.length < 6) {
       toast.error(SETUP_ERRORS.weakPassword);
       return;
