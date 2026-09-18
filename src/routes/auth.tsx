@@ -463,13 +463,12 @@ function AuthPage() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={busy || (mode === "signup" && codeStatus.required && !codeStatus.ready)}
-              >
+              {/* Knappen får aldrig vara låst utan förklaring – saknas lagkoden
+                  ska man få ett tydligt besked när man trycker. */}
+              <Button type="submit" className="w-full" disabled={busy}>
                 {mode === "signin" ? "Logga in" : "Skapa konto"}
               </Button>
+
             </form>
 
             {mode === "signin" && (
