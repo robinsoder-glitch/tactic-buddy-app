@@ -10,10 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   acceptTeamInvite,
   findTeamByCode,
-  joinTeamWithCode,
+  joinTeamWithProfile,
   previewTeamByCode,
   previewTeamInvite,
-  updateProfile,
 } from "@/lib/teams";
 
 import {
@@ -91,6 +90,8 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
   const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [childName, setChildName] = useState("");
+  // I lag där spelarkonton är tillåtna väljer den inloggade själv roll.
+  const [accountRole, setAccountRole] = useState<"guardian" | "player">("guardian");
   const [busy, setBusy] = useState(false);
   // Sätts när ansökan just skickats, så familjen får ett tydligt besked
   // i stället för att slussas in på en tom lagsida.
@@ -131,12 +132,15 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user || !team.data) return null;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("team_members")
         .select("status")
         .eq("team_id", team.data.id)
         .eq("user_id", auth.user.id)
         .maybeSingle();
+      // Ett tekniskt fel får aldrig se ut som att medlemskap saknas – då skulle
+      // familjen få ett nytt formulär trots att ansökan kanske redan finns.
+      if (error) throw error;
       return data?.status ?? null;
     },
   });
@@ -171,23 +175,26 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
     }
   }, [preview.isError, preview.error, code]);
 
+  // Spelarvägen finns bara i lag där spelarkonton är tillåtna (inte guardian-only).
+  const playerChoiceAllowed = preview.data?.guardian_only === false;
+  const joiningAsPlayer = playerChoiceAllowed && accountRole === "player";
+
   async function join() {
-    if (!childName.trim()) {
+    if (!joiningAsPlayer && !childName.trim()) {
       toast.error("Skriv barnets namn så tränaren vet vem du hör ihop med.");
       return;
     }
     setBusy(true);
-    void trackFlowEvent("invite_join_submitted", { teamCode: code, role: "guardian" });
+    const role = joiningAsPlayer ? "player" : "guardian";
+    void trackFlowEvent("invite_join_submitted", { teamCode: code, role });
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      if (auth.user) {
-        await updateProfile({
-          id: auth.user.id,
-          guardian_for_name: childName.trim(),
-          account_kind: "guardian",
-        });
-      }
-      const result = await joinTeamWithCode(code, "guardian");
+      // Profiluppgifter och anslutning sker atomärt på servern – ett fel
+      // lämnar varken profilen eller medlemskapet halvändrat.
+      const result = await joinTeamWithProfile(
+        code,
+        role,
+        joiningAsPlayer ? null : childName.trim(),
+      );
       try {
         window.localStorage.removeItem(PENDING_INVITE_KEY);
       } catch {
@@ -197,7 +204,7 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
       setSent(result.status);
       void trackFlowEvent(
         result.status === "approved" ? "invite_join_approved" : "invite_join_pending",
-        { teamCode: code, teamId: result.teamId ?? null, role: "guardian" },
+        { teamCode: code, teamId: result.teamId ?? null, role },
       );
     } catch (caught) {
       void trackFlowEvent("invite_join_failed", {
@@ -279,7 +286,16 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
 
       {!problemKind && signedIn && (
         <div className="mt-6 grid gap-3 text-left">
-          {status ? (
+          {membership.isError ? (
+            // Okänt läge: vi vet inte om ansökan redan finns – visa
+            // återförsök i stället för ett nytt anslutningsformulär.
+            <InviteProblemCard
+              info={inviteProblemInfo("network")}
+              onRetry={() => void membership.refetch()}
+              retrying={membership.isFetching}
+              attempts={membership.errorUpdateCount}
+            />
+          ) : status ? (
             <div className="rounded-xl border border-primary/40 bg-primary/10 p-4">
               <p className="font-semibold">
                 {status === "approved"
@@ -301,20 +317,52 @@ function TeamCodeInvite({ token, code }: { token: string; code: string }) {
             </div>
           ) : (
             <>
-              <div className="space-y-1.5">
-                <Label htmlFor="child-name">Barnets namn</Label>
-                <Input
-                  id="child-name"
-                  value={childName}
-                  onChange={(event) => setChildName(event.target.value)}
-                  placeholder="Förnamn och efternamn"
-                />
+              {playerChoiceAllowed && (
+                <div className="grid gap-2">
+                  <span className="text-sm font-medium">Vem är du?</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={accountRole === "guardian" ? "default" : "outline"}
+                      onClick={() => setAccountRole("guardian")}
+                    >
+                      Vårdnadshavare
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={accountRole === "player" ? "default" : "outline"}
+                      onClick={() => setAccountRole("player")}
+                    >
+                      Spelare
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {!joiningAsPlayer && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="child-name">Barnets namn</Label>
+                  <Input
+                    id="child-name"
+                    value={childName}
+                    onChange={(event) => setChildName(event.target.value)}
+                    placeholder="Förnamn och efternamn"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Tränaren kopplar ditt konto till rätt spelare i truppen.
+                  </p>
+                </div>
+              )}
+              {joiningAsPlayer && (
                 <p className="text-xs text-muted-foreground">
-                  Tränaren kopplar ditt konto till rätt spelare i truppen.
+                  Tränaren kopplar ditt konto till dig i truppen.
                 </p>
-              </div>
+              )}
               <Button onClick={join} disabled={busy}>
-                {busy ? "Skickar…" : "Gå med som vårdnadshavare"}
+                {busy
+                  ? "Skickar…"
+                  : joiningAsPlayer
+                    ? "Gå med som spelare"
+                    : "Gå med som vårdnadshavare"}
               </Button>
             </>
           )}

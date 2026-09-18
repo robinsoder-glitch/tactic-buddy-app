@@ -174,6 +174,7 @@ function EventPage() {
       planStatus({
         type: event.data?.type ?? "training",
         planSaved: !!plan.data,
+        planningDone: plan.data?.planning_done,
         resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic").length,
         playerCount: (eventSquad.data ?? []).length,
         coachCount: (planCoaches.data ?? []).length,
@@ -405,6 +406,7 @@ function EventPage() {
               status={planStatus({
                 type: event.data?.type ?? "training",
                 planSaved: !!plan.data,
+                planningDone: plan.data?.planning_done,
                 resourceCount: (planResources.data ?? []).filter((row) => row.kind !== "tactic")
                   .length,
                 playerCount: (eventSquad.data ?? []).length,

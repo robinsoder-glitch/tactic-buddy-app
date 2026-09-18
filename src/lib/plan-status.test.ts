@@ -47,6 +47,35 @@ describe("planStatus", () => {
     expect(planStatusLabel("done")).toBe("Planerad");
     expect(planStatusLabel("todo")).toBe("Ej planerad");
   });
+
+  // Databasens planning_done är auktoritativ när planraden är hämtad.
+  it("planning_done styr träningsstatusen även utan övning", () => {
+    expect(
+      planStatus({ type: "training", planSaved: true, planningDone: true, resourceCount: 0 }),
+    ).toBe("done");
+  });
+
+  it("ofullständig sparad träning (planning_done=false) är Ej planerad trots övning", () => {
+    expect(
+      planStatus({ type: "training", planSaved: true, planningDone: false, resourceCount: 3 }),
+    ).toBe("todo");
+  });
+
+  it("ofullständig sparad match (planning_done=false) är Ej planerad trots spelare", () => {
+    expect(
+      planStatus({
+        type: "match",
+        planSaved: true,
+        planningDone: false,
+        playerCount: 7,
+        coachCount: 2,
+      }),
+    ).toBe("todo");
+  });
+
+  it("osparad plan är alltid Ej planerad", () => {
+    expect(planStatus({ type: "training", planSaved: false, planningDone: true })).toBe("todo");
+  });
 });
 
 describe("träningsutkast", () => {

@@ -1037,6 +1037,65 @@ export async function approveTeamJoinRequest(
   return { role: row?.member_role ?? "player", linkedPlayerId: row?.linked_player_id ?? null };
 }
 
+/**
+ * Profiluppgifter (barnets namn, kontotyp) och laganslutningen skrivs i samma
+ * databastransaktion. Misslyckas anslutningen lämnas profilen orörd, och ett
+ * förnyat försök ger samma resultat utan dubbletter.
+ */
+export async function joinTeamWithProfile(
+  code: string,
+  accountKind: "player" | "guardian",
+  childName: string | null,
+): Promise<{
+  teamId: string;
+  teamName: string;
+  role: "coach" | "player" | "guardian";
+  status: "pending" | "approved";
+}> {
+  const { data, error } = await supabase.rpc("join_team_with_profile", {
+    _code: code.trim().toUpperCase(),
+    _account_kind: accountKind,
+    // Tom sträng behåller befintligt namn i databasen (nullif + coalesce).
+    _child_name: childName ?? "",
+  });
+  if (error) throw new Error(error.message);
+  const row = (
+    (data ?? []) as {
+      team_id: string;
+      team_name: string;
+      member_role: "coach" | "player" | "guardian";
+      member_status: "pending" | "approved";
+    }[]
+  )[0];
+  if (!row) throw new Error("Koden stämmer inte. Kontrollera de sex tecknen med din tränare.");
+  return {
+    teamId: row.team_id,
+    teamName: row.team_name,
+    role: row.member_role,
+    status: row.member_status,
+  };
+}
+
+/**
+ * Skapar spelaren, kopplar kontot och godkänner ansökan i en transaktion.
+ * Misslyckas något steg lämnas inga halvfärdiga rader, och ett förnyat försök
+ * återanvänder den spelare som redan kopplats – aldrig en dubblett.
+ */
+export async function approveJoinWithNewPlayer(
+  memberId: string,
+  playerName: string,
+): Promise<{ role: string; linkedPlayerId: string | null }> {
+  const { data, error } = await supabase.rpc("approve_join_with_new_player", {
+    _member_id: memberId,
+    _player_name: playerName,
+  });
+  if (error) throw new Error(error.message);
+  const row = (
+    (data ?? []) as { member_role: string; linked_player_id: string | null }[]
+  )[0];
+  return { role: row?.member_role ?? "player", linkedPlayerId: row?.linked_player_id ?? null };
+}
+
 /* ---------------- archive & delete ---------------- */
 
 export async function setTeamArchived(teamId: string, archived: boolean) {
