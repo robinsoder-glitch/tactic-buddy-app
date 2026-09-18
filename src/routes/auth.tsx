@@ -222,9 +222,16 @@ function AuthPage() {
       return;
     }
     if (codeStatus.required && !codeStatus.ready) {
-      toast.error(codeStatus.error ?? SETUP_ERRORS.codeInvalid);
+      // Utan eget felmeddelande pågår kontrollen fortfarande – säg det rakt ut.
+      toast.error(
+        codeStatus.error ??
+          (setup.code?.trim()
+            ? "Vi kontrollerar lagkoden just nu. Försök igen om ett ögonblick."
+            : "Ange lagkoden du fått av din tränare."),
+      );
       return;
     }
+
     if (password.length < 6) {
       toast.error(SETUP_ERRORS.weakPassword);
       return;
@@ -463,13 +470,12 @@ function AuthPage() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={busy || (mode === "signup" && codeStatus.required && !codeStatus.ready)}
-              >
+              {/* Knappen får aldrig vara låst utan förklaring – saknas lagkoden
+                  ska man få ett tydligt besked när man trycker. */}
+              <Button type="submit" className="w-full" disabled={busy}>
                 {mode === "signin" ? "Logga in" : "Skapa konto"}
               </Button>
+
             </form>
 
             {mode === "signin" && (
