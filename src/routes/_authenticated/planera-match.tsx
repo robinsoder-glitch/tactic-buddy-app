@@ -168,6 +168,7 @@ function MatchPlanningPage() {
                 const status = planStatus({
                   type: "match",
                   planSaved: planDone.get(event.id) ?? false,
+                  planningDone: planDone.get(event.id) ?? false,
                   playerCount: squadCounts.get(event.id) ?? 0,
                   coachCount: coachCounts.get(event.id) ?? 0,
                 });
@@ -709,6 +710,7 @@ function MatchPlanner({
                 status={planStatus({
                   type: "match",
                   planSaved,
+                  planningDone: planSaved,
                   playerCount: playerIds.length,
                   coachCount: coachIds.length,
                 })}

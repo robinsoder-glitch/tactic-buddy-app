@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTeamRole } from "@/hooks/useTeamRole";
 import {
+  approveJoinWithNewPlayer,
   approveTeamJoinRequest,
   fetchEvents,
   fetchTeam,
@@ -178,9 +179,15 @@ function StartPage() {
   const approve = useMutation({
     mutationFn: ({ memberId, playerId }: { memberId: string; playerId: string | null }) =>
       approveTeamJoinRequest(memberId, playerId),
-    onSuccess: async () => {
+    onSuccess: async (result, variables) => {
       void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
-      toast.success("Godkänd och kopplad.");
+      // Texten ska spegla vad som faktiskt hände – ingen koppling valdes
+      // när ledaren lämnade "Koppla till spelare senare".
+      toast.success(
+        variables.playerId || result.linkedPlayerId
+          ? "Godkänd och kopplad."
+          : "Godkänd. Koppla spelaren till kontot senare.",
+      );
       await queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
       await queryClient.invalidateQueries({ queryKey: ["team-players", teamId] });
     },
@@ -190,20 +197,10 @@ function StartPage() {
   // Barnet står ofta inte i truppen när familjen ansöker – då skapar vi
   // spelaren från namnet familjen angav och kopplar kontot direkt.
   const addAndApprove = useMutation({
-    mutationFn: async ({ memberId, playerName }: { memberId: string; playerName: string }) => {
-      if (!userId) throw new Error("Du måste vara inloggad.");
-      const playerId = await saveTeamPlayer({
-        teamId,
-        userId,
-        name: playerName.trim(),
-        number: null,
-        birth_date: null,
-        gender: null,
-        is_goalkeeper: false,
-        photo_path: null,
-      });
-      await approveTeamJoinRequest(memberId, playerId);
-    },
+    // Atomärt på servern: misslyckas godkännandet skapas ingen spelare,
+    // och ett förnyat försök återanvänder samma spelarpost.
+    mutationFn: ({ memberId, playerName }: { memberId: string; playerName: string }) =>
+      approveJoinWithNewPlayer(memberId, playerName),
     onSuccess: async () => {
       void trackFlowEvent("coach_family_approved", { teamId, role: "coach" });
       toast.success("Godkänd och kopplad till truppen.");
@@ -334,7 +331,11 @@ function StartPage() {
               <li key={member.id} className="rounded-lg border border-border p-3 text-sm">
                 <p className="font-medium">{member.displayName ?? "Nytt konto"}</p>
                 <p className="text-xs text-muted-foreground">
-                  {member.role === "guardian" ? "Vårdnadshavare" : "Spelare"}
+                  {member.role === "guardian"
+                    ? "Vårdnadshavare"
+                    : member.role === "player"
+                      ? "Spelare"
+                      : "Tränare"}
                   {member.guardianForName ? ` till ${member.guardianForName}` : ""}
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">

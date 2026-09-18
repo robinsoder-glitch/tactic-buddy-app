@@ -96,9 +96,11 @@ function CalendarOverview() {
 
   /** Samma statusregel som i Planera match och Planera träning. */
   function statusFor(event: { id: string; type?: string | null }) {
+    const plan = (plans.data ?? []).find((row) => row.event_id === event.id);
     return planStatus({
       type: event.type ?? "training",
-      planSaved: (plans.data ?? []).some((row) => row.event_id === event.id),
+      planSaved: Boolean(plan),
+      planningDone: plan?.planning_done,
       resourceCount: (resources.data ?? []).filter(
         (row) => row.event_id === event.id && row.kind !== "tactic",
       ).length,

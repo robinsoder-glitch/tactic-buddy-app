@@ -80,11 +80,14 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
     if (active.length === 0) return { sent: 0, skipped: 0, failed: 0 };
 
     const playerIds = active.map((row) => row.player_id as string);
-    const { data: guardianRows } = await db
+    const { data: guardianRows, error: guardianError } = await db
       .from("player_guardians")
       .select("player_id, guardian_user_id")
       .in("player_id", playerIds)
       .eq("is_active", true);
+    // Ett läsfel får aldrig se ut som att mottagare saknas – då avbryter vi
+    // hellre hela utskicket än skickar till en ofullständig mottagarlista.
+    if (guardianError) throw new Error("Kunde inte hämta kopplade vårdnadshavare.");
 
     const guardiansByPlayer = new Map<string, string[]>();
     for (const row of guardianRows ?? []) {
@@ -95,13 +98,16 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const emailCache = new Map<string, string | null>();
-    async function emailFor(userId: string): Promise<string | null> {
-      if (emailCache.has(userId)) return emailCache.get(userId) ?? null;
-      const { data: user } = await supabaseAdmin.auth.admin.getUserById(userId);
-      const email = user?.user?.email ?? null;
-      emailCache.set(userId, email);
-      return email;
+    // Uppslagningsfel skiljs från verklig avsaknad av e-post: felet räknas
+    // som failed så tränaren ser att något gick snett, inte "skipped".
+    const emailCache = new Map<string, { email: string | null; error: boolean }>();
+    async function emailFor(userId: string): Promise<{ email: string | null; error: boolean }> {
+      const cached = emailCache.get(userId);
+      if (cached) return cached;
+      const { data: user, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const entry = { email: error ? null : (user?.user?.email ?? null), error: Boolean(error) };
+      emailCache.set(userId, entry);
+      return entry;
     }
 
     const matchTitle =
@@ -116,21 +122,28 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
     for (const invitation of active) {
       const player = (invitation as unknown as { players: { name: string | null } | null }).players;
       const recipients = new Set<string>();
+      let lookupFailed = false;
       const memberUserId = (
         invitation as unknown as { players: { member_user_id: string | null } | null }
       ).players?.member_user_id;
       if (memberUserId) {
-        const email = await emailFor(memberUserId);
-        if (email) recipients.add(email);
+        const result = await emailFor(memberUserId);
+        if (result.error) lookupFailed = true;
+        else if (result.email) recipients.add(result.email);
       }
       for (const guardianId of guardiansByPlayer.get(invitation.player_id as string) ?? []) {
-        const email = await emailFor(guardianId);
-        if (email) recipients.add(email);
+        const result = await emailFor(guardianId);
+        if (result.error) lookupFailed = true;
+        else if (result.email) recipients.add(result.email);
       }
       if (recipients.size === 0) {
-        skipped += 1;
+        // Verklig avsaknad av mottagare är skipped – tekniskt fel är failed.
+        if (lookupFailed) failed += 1;
+        else skipped += 1;
         continue;
       }
+      // Spårbart delresultat: vissa mottagare nåddes, andra gick inte att slå upp.
+      if (lookupFailed) failed += 1;
 
       for (const recipient of recipients) {
         try {

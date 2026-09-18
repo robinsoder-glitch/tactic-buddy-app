@@ -2984,6 +2984,13 @@ export type Database = {
         }[]
       }
       announcement_team: { Args: { _announcement_id: string }; Returns: string }
+      approve_join_with_new_player: {
+        Args: { _member_id: string; _player_name: string }
+        Returns: {
+          linked_player_id: string
+          member_role: string
+        }[]
+      }
       approve_team_join_request: {
         Args: { _member_id: string; _player_id?: string }
         Returns: {
@@ -3154,6 +3161,15 @@ export type Database = {
       }
       join_team_with_code: {
         Args: { _account_kind: string; _code: string }
+        Returns: {
+          member_role: string
+          member_status: string
+          team_id: string
+          team_name: string
+        }[]
+      }
+      join_team_with_profile: {
+        Args: { _account_kind: string; _child_name: string; _code: string }
         Returns: {
           member_role: string
           member_status: string

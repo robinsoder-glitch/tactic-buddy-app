@@ -204,11 +204,16 @@ function PlanTrainingPage() {
   // Går underlaget inte att hämta säger vi "okänd" i stället för "ej klar".
   const statusFailed = [plans, resources].some((query) => query.isError);
 
-  /** Gemensam statusregel: klar när planen är sparad och innehåller minst en övning. */
+  /** Gemensam statusregel: databasens planning_done avgör, samma i alla vyer. */
   function statusFor(id: string) {
-    const saved = (plans.data ?? []).some((row) => row.event_id === id);
+    const plan = (plans.data ?? []).find((row) => row.event_id === id);
     const count = (resources.data ?? []).filter((row) => row.event_id === id).length;
-    return planStatus({ type: "training", planSaved: saved, resourceCount: count });
+    return planStatus({
+      type: "training",
+      planSaved: Boolean(plan),
+      planningDone: plan?.planning_done,
+      resourceCount: count,
+    });
   }
 
   // ---------- utkast ----------
