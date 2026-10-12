@@ -516,21 +516,23 @@ export function EventManager({
                   <option key={place} value={place} />
                 ))}
               </datalist>
-              {places.length > 0 && (
+              <HomeGroundOption homeGround={homeGround} value={location} onChange={setLocation} />
+              {places.filter((place) => place !== homeGround).length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {places.slice(0, 4).map((place) => (
-                    <button
+                  {places.filter((place) => place !== homeGround).slice(0, 4).map((place) => (
+                    <Button
                       key={place}
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => setLocation(place)}
-                      className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                      className="h-8 px-2.5 text-xs"
                     >
                       {place}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               )}
-              <HomeGroundOption homeGround={homeGround} value={location} onChange={setLocation} />
             </div>
 
             <div className="space-y-1.5">

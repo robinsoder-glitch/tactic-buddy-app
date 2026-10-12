@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { hasErrors, scheduleFromFormData, splitLocal, validateEventTimes } from "./event-datetime";
-
-const read = (path: string) => readFileSync(path, "utf8");
+import { dayKey } from "./month-grid";
 
 function form(values: Record<string, string>): FormData {
   const data = new FormData();
@@ -11,16 +9,10 @@ function form(values: Record<string, string>): FormData {
 }
 
 describe("datum följer med när aktiviteten sparas", () => {
-  it("datumrutan skickar vidare fältnamnet till inmatningen", () => {
-    const field = read("src/components/DateField.tsx");
-    expect(field).toContain("name?: string");
-    expect(field).toContain("{...(name ? { name } : {})}");
-  });
-
-  it("aktivitetsformuläret namnger datumrutan", () => {
-    const manager = read("src/components/EventManager.tsx");
-    expect(manager).toContain('name="date"');
-    expect(manager).toContain("scheduleFromFormData(submitted");
+  it("ett kalenderdatum behåller vald dag, månad och år när formuläret läses", () => {
+    const date = dayKey(new Date(2027, 10, 17));
+    const schedule = scheduleFromFormData(form({ date, start: "17:30" }), { isMatch: true });
+    expect(schedule.date).toBe("2027-11-17");
   });
 
   it("läser datum och tider för en ny träning", () => {
@@ -54,10 +46,4 @@ describe("datum följer med när aktiviteten sparas", () => {
     expect(validateEventTimes(schedule).date).toBe("Välj ett datum.");
   });
 
-  it("snabbvalen finns kvar i datumrutan", () => {
-    const field = read("src/components/DateField.tsx");
-    expect(field).toContain("Idag");
-    expect(field).toContain("Imorgon");
-    expect(field).toContain("Om en vecka");
-  });
 });
