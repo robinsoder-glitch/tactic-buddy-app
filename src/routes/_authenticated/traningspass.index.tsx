@@ -43,6 +43,7 @@ import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/DateField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CoachOnly } from "@/components/CoachOnly";
@@ -404,12 +405,7 @@ function CreateSessionDialog({
           </div>
           <div className="space-y-1">
             <Label htmlFor="new-date">Datum (frivilligt)</Label>
-            <Input
-              id="new-date"
-              type="date"
-              value={draft.session_date ?? ""}
-              onChange={(event) => set({ session_date: event.target.value || null })}
-            />
+            <DateField id="new-date" value={draft.session_date ?? ""} onChange={(value) => set({ session_date: value || null })} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="new-theme">Träningens tema</Label>
