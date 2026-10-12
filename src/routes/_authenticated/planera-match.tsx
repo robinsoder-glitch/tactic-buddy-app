@@ -687,7 +687,7 @@ function MatchPlanner({
       {mode === "read" ? (
         <div className="space-y-5">
           <div className="rounded-xl border bg-card p-4">
-            <h2 className="font-display text-lg font-semibold">Kallelse</h2>
+            <h2 className="font-display text-xl font-semibold">Kallelse</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Kallelser går aldrig ut automatiskt – du bestämmer när de skickas. De når spelarna i
               truppen och de vuxna som är kopplade till dem, och visas bara i appen. Träningar har
@@ -708,7 +708,7 @@ function MatchPlanner({
           </div>
           <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-lg font-semibold">
+              <h1 className="font-display text-3xl font-bold">
                 {event.home_team && event.away_team
                   ? `${event.home_team} – ${event.away_team}`
                   : (event.title ?? "Match")}
@@ -789,7 +789,7 @@ function MatchPlanner({
           </section>
 
           <section className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-medium">Laguppställning</h2>
+            <h2 className="font-display text-xl font-semibold">Laguppställning</h2>
             <LineupPitch slots={slots} players={playersById} />
             {bench.length > 0 && (
               <p className="text-sm text-muted-foreground">
@@ -826,7 +826,7 @@ function MatchPlanner({
 
           {step === 0 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Matchuppgifter</h2>
+              <h2 className="font-display text-xl font-semibold">Matchuppgifter</h2>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium" htmlFor="mp-opponent">
                   Motståndare
@@ -911,7 +911,7 @@ function MatchPlanner({
 
           {step === 1 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Ansvariga ledare</h2>
+              <h2 className="font-display text-xl font-semibold">Ansvariga ledare</h2>
               <p className="text-sm text-muted-foreground">
                 Minst en ledare krävs för status Klar.
               </p>
@@ -965,7 +965,7 @@ function MatchPlanner({
 
           {step === 2 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Uttagna spelare</h2>
+              <h2 className="font-display text-xl font-semibold">Uttagna spelare</h2>
               <p className="text-sm text-muted-foreground">
                 {playerIds.length} valda · {required} startspelare krävs för {FORMAT_LABELS[format]}
                 .
@@ -1018,7 +1018,7 @@ function MatchPlanner({
 
           {step === 3 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Formation och avbytare</h2>
+              <h2 className="font-display text-xl font-semibold">Formation och avbytare</h2>
               {/* Spelformen laget valdes med är förvald – den behöver bara ändras
                   i undantagsfall, t.ex. vid en cup med annan spelform. */}
               {!showFormatPicker && team?.game_format && format === team.game_format ? (
@@ -1113,7 +1113,7 @@ function MatchPlanner({
 
           {step === 4 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Granska och spara</h2>
+              <h2 className="font-display text-xl font-semibold">Granska och spara</h2>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div>
                   <dt className="text-muted-foreground">Motståndare</dt>
