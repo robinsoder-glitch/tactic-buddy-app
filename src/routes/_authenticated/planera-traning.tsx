@@ -5,6 +5,7 @@ import { BookOpen, CalendarPlus, ClipboardList, MapPin, Plus, Trash2 } from "luc
 import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
+import { TrainingContentPicker } from "@/components/TrainingContentPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,6 +119,7 @@ function PlanTrainingPage() {
   const search = Route.useSearch();
   const eventId = search.eventId ?? null;
   const [view, setView] = useState<"start" | "book">("start");
+  const [contentOpen, setContentOpen] = useState(false);
 
   const coachTeams = memberships.filter(
     (item) => item.status === "approved" && isLeaderRole(item.role),
@@ -407,7 +409,7 @@ function PlanTrainingPage() {
   };
 
   return (
-    <main className="mx-auto max-w-4xl px-4 pb-28 pt-6 md:pt-20">
+    <main className="mx-auto max-w-4xl px-4 pb-28 pt-8 md:pt-20">
       <h1 className="font-display text-3xl font-bold">Planera träning</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Boka ett träningstillfälle i lagets kalender och fyll det sedan med övningar.
@@ -616,19 +618,11 @@ function PlanTrainingPage() {
                       Skriv en egen övning direkt i den här träningen.
                     </span>
                   </button>
-                  <Link
-                    to="/ovningsbank"
-                    search={{ eventId: selected.id, teamId: selected.team_id }}
-                    className="rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary"
-                  >
+                  <Button variant="outline" onClick={() => setContentOpen(true)} className="h-auto min-h-32 flex-col items-start justify-center whitespace-normal p-5 text-left">
                     <BookOpen className="size-6 text-primary" aria-hidden />
-                    <span className="mt-3 block font-display text-lg font-semibold">
-                      Hämta från Träningsbanken
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      Plocka färdiga övningar. Du kommer tillbaka hit efteråt.
-                    </span>
-                  </Link>
+                    <span className="mt-2 font-display text-lg font-semibold">Koppla träningspass eller övning</span>
+                    <span className="text-sm font-normal text-muted-foreground">Mina träningspass och övningar</span>
+                  </Button>
                 </div>
               </div>
 
@@ -783,6 +777,13 @@ function PlanTrainingPage() {
           )}
         </section>
       )}
+
+      <TrainingContentPicker open={contentOpen} onOpenChange={setContentOpen} userId={user?.id ?? null} onSelect={(choice) => {
+        if (!draft || choice.kind === "tactic" || choice.kind === "article") return;
+        update(addDraftItem(draft, { kind: choice.kind, resourceId: choice.resourceId, title: choice.title, minutes: choice.minutes, note: null, details: choice.details }));
+        setContentOpen(false);
+        toast.success(`${choice.title} lades till i träningen.`);
+      }} />
 
       <Dialog open={ownOpen} onOpenChange={setOwnOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">

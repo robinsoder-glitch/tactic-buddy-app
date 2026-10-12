@@ -33,6 +33,7 @@ export function DateField({
   value,
   onChange,
   quickPicks = true,
+  disabled = false,
 }: {
   id?: string;
   /** Fältnamn så att datumet följer med när formuläret läses av. */
@@ -40,6 +41,7 @@ export function DateField({
   value: string;
   onChange: (value: string) => void;
   quickPicks?: boolean;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const selected = value ? new Date(`${value}T12:00:00`) : undefined;
@@ -51,13 +53,13 @@ export function DateField({
       {name && <input type="hidden" name={name} value={value} />}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button id={id} type="button" variant="outline" className="h-12 w-full justify-between gap-2 text-base font-normal" aria-label={validSelected ? `Datum: ${value}` : "Välj datum"}>
+          <Button disabled={disabled} id={id} type="button" variant="outline" className="h-12 w-full justify-between gap-2 text-base font-normal" aria-label={validSelected ? `Datum: ${value}` : "Välj datum"}>
             <span className="min-w-0 truncate">{validSelected ? validSelected.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" }) : "Välj datum"}</span>
             <CalendarIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-auto max-w-[calc(100vw-2rem)] p-0">
-          <Calendar mode="single" locale={sv} weekStartsOn={1} captionLayout="dropdown" startMonth={new Date(1900, 0)} endMonth={new Date(2100, 11)} defaultMonth={validSelected} selected={validSelected} className="[--cell-size:2.5rem]" onSelect={(date) => {
+          <Calendar mode="single" locale={sv} weekStartsOn={1} captionLayout="dropdown" startMonth={new Date(1900, 0)} endMonth={new Date(2100, 11)} defaultMonth={validSelected ?? new Date()} selected={validSelected} required className="[--cell-size:2.5rem]" onSelect={(date) => {
             if (!date) return;
             onChange(dayKey(date));
             setOpen(false);
@@ -68,6 +70,7 @@ export function DateField({
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
+            disabled={disabled}
             onClick={() => onChange(todayValue())}
             variant="outline" size="sm" className="h-8 px-3 text-xs"
           >
@@ -75,6 +78,7 @@ export function DateField({
           </Button>
           <Button
             type="button"
+            disabled={disabled}
             onClick={() => onChange(todayValue(1))}
             variant="outline" size="sm" className="h-8 px-3 text-xs"
           >
@@ -82,6 +86,7 @@ export function DateField({
           </Button>
           <Button
             type="button"
+            disabled={disabled}
             onClick={() => onChange(todayValue(7))}
             variant="outline" size="sm" className="h-8 px-3 text-xs"
           >

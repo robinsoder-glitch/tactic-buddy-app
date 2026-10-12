@@ -43,7 +43,7 @@ export function TrainingContentPicker({ open, onOpenChange, userId, onSelect, pe
   const parts = useQuery({ queryKey: ["coach-session-items", preview?.resourceId], queryFn: () => fetchSessionItems(preview?.resourceId ?? ""), enabled: open && Boolean(preview?.ownSession) });
   const groups: Record<string, Preview[]> = {
     "Mina träningspass": ownSessions(sessions.data ?? [], userId).map((row) => ({ kind: "session", resourceId: row.id, title: row.title, minutes: null, details: {}, ownSession: true, summary: [row.goal, row.theme, row.notes].filter(Boolean).join(" · ") })),
-    "Träningspass ur banken": (bank.data ?? []).map((row) => ({ kind: "session", resourceId: row.id, title: row.title, minutes: row.total_minutes, details: {}, summary: row.theme, blocks: [...row.data.blocks].sort((a, b) => a.order - b.order).map((block) => ({ title: block.activity, minutes: block.minutes, note: block.focus })) })),
+    "Träningspass ur banken": (bank.data ?? []).map((row) => ({ kind: "session", resourceId: row.id, title: row.title, minutes: row.total_minutes, details: {}, summary: row.theme, blocks: [...row.data.blocks].sort((a, b) => a.order - b.order).map((block) => ({ title: block.activity, minutes: block.minutes, note: block.focus ?? null })) })),
     "Övningar": [
       ...(own.data ?? []).filter((row) => row.in_library).map((row): Preview => ({ kind: "drill", resourceId: row.id, title: row.title, minutes: row.minutes, details: { ...row.guide, purpose: row.guide?.purpose ?? row.purpose ?? undefined, execution: row.guide?.execution?.length ? row.guide.execution : row.instruction ? [row.instruction] : undefined, equipment: row.guide?.equipment?.length ? row.guide.equipment : row.equipment?.split(",") }, summary: row.coach_focus })),
       ...(drills.data ?? []).map((row): Preview => ({ kind: "drill", resourceId: row.id, title: row.title, minutes: drillDefaultMinutes(row), details: drillGuide(row) })),
@@ -67,7 +67,7 @@ export function TrainingContentPicker({ open, onOpenChange, userId, onSelect, pe
             {preview.ownSession && parts.isPending && <p className="text-sm text-muted-foreground">Hämtar passets innehåll…</p>}
             {preview.ownSession && parts.isError && <div role="alert" className="text-sm text-destructive">Passets innehåll kunde inte hämtas. <Button variant="outline" size="sm" onClick={() => void parts.refetch()}>Försök igen</Button></div>}
             {minutes != null && <p className="text-sm font-semibold">{minutes} minuter{blocks ? ` · ${blocks.length} passdelar` : ""}</p>}
-            {blocks && <ol className="divide-y divide-border">{blocks.map((block, index) => <li key={index} className="py-4"><h3 className="font-display font-semibold">{index + 1}. {block.title} · {block.minutes} min</h3>{block.note && <p className="mt-1 whitespace-pre-line text-sm">{block.note}</p>}<ExerciseGuide guide={block.details} /></li>)}</ol>}
+            {blocks && <ol className="divide-y divide-border">{blocks.map((block, index) => <li key={index} className="py-4"><h3 className="font-display font-semibold">{index + 1}. {block.title} · {block.minutes} min</h3>{block.note && <p className="mt-1 whitespace-pre-line text-sm">{block.note}</p>}<ExerciseGuide guide={block.details ?? null} /></li>)}</ol>}
             {blocks?.length === 0 && previewReady && <p className="text-sm text-muted-foreground">Passet har inga sparade övningar ännu.</p>}
             <ExerciseGuide guide={preview.details} />
           </div>

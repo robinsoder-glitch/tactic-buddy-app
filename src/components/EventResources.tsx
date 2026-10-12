@@ -106,7 +106,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
   const add = useMutation({
     mutationFn: (input: TrainingContentChoice) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      return addEventResource({ eventId, teamId, userId, kind: input.kind, resourceId: input.resourceId, minutes: input.minutes });
+      return addEventResource({ eventId, teamId, userId, kind: input.kind, resourceId: input.resourceId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-resources", eventId] });
