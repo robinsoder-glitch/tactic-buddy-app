@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { EventResources } from "@/components/EventResources";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { HomeGroundOption } from "@/components/HomeGroundOption";
 import { TimeField } from "@/components/TimeField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -529,15 +530,7 @@ export function EventManager({
                   ))}
                 </div>
               )}
-              {homeGround && location !== homeGround && (
-                <button
-                  type="button"
-                  onClick={() => setLocation(homeGround)}
-                  className="text-xs text-primary underline-offset-4 hover:underline"
-                >
-                  Använd hemmaplan: {homeGround}
-                </button>
-              )}
+              <HomeGroundOption homeGround={homeGround} value={location} onChange={setLocation} />
             </div>
 
             <div className="space-y-1.5">

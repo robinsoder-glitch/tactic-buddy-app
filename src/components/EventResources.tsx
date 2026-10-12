@@ -16,7 +16,7 @@ import { fetchCoachSessions } from "@/lib/coach-sessions";
 import { fetchCoachDrills } from "@/lib/coach-drills";
 import { fetchTactics } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { TrainingContentPicker, type TrainingContentChoice } from "@/components/TrainingContentPicker";
 
 type Props = {
   eventId: string;
@@ -104,8 +104,10 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
   }
 
   const add = useMutation({
-    mutationFn: (input: { kind: EventResourceKind; resourceId: string }) =>
-      addEventResource({ eventId, teamId, userId: userId!, ...input }),
+    mutationFn: (input: TrainingContentChoice) => {
+      if (!userId) throw new Error("Du måste vara inloggad.");
+      return addEventResource({ eventId, teamId, userId, kind: input.kind, resourceId: input.resourceId, minutes: input.minutes });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-resources", eventId] });
       setOpen(false);
@@ -199,51 +201,7 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
         </p>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Koppla innehåll till träningen</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Button variant="secondary" className="w-full" asChild>
-              <Link to="/traningspass">
-                <Plus className="size-4" /> Skapa ett nytt träningspass
-              </Link>
-            </Button>
-
-            {(
-              [
-                ["Mina träningspass", "session", coachSessions.data ?? []],
-                ["Träningspass ur banken", "session", sessions.data ?? []],
-                ["Övningar", "drill", drills.data ?? []],
-                ["Taktikkort", "tactic", tactics.data ?? []],
-              ] as [string, EventResourceKind, { id: string; title: string }[]][]
-            ).map(([heading, kind, list]) => (
-              <section key={heading}>
-                <h3 className="font-display text-sm tracking-wide text-muted-foreground">
-                  {heading}
-                </h3>
-                <ul className="mt-1 space-y-1">
-                  {list.length === 0 && (
-                    <li className="text-xs text-muted-foreground">Inget att välja här ännu.</li>
-                  )}
-                  {list.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        className="w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:border-primary"
-                        onClick={() => add.mutate({ kind, resourceId: item.id })}
-                      >
-                        {item.title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TrainingContentPicker open={open} onOpenChange={setOpen} userId={userId} pending={add.isPending} includeTactics onSelect={(choice) => add.mutate(choice)} />
     </div>
   );
 }

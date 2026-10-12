@@ -10,6 +10,8 @@ import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { HomeGroundOption } from "@/components/HomeGroundOption";
+import { dayKey } from "@/lib/month-grid";
 import { TimeField } from "@/components/TimeField";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -85,6 +87,10 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
         name: "description",
         content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar.",
       },
+      { property: "og:title", content: "Planera match – Fotbollsrummet" },
+      { property: "og:description", content: "Planera matchuppgifter, ledare, spelare och laguppställning." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
@@ -147,7 +153,7 @@ function MatchPlanningPage() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-28 pt-8 md:pt-20">
         {!selected && (
           <>
             <div className="space-y-1">
@@ -358,7 +364,7 @@ function MatchPlanner({
         setHomeAway(ev.home_team === t.name ? "hemma" : "borta");
         setLocation(ev.location ?? "");
         const start = new Date(ev.starts_at);
-        setDate(start.toISOString().slice(0, 10));
+        setDate(dayKey(start));
         setStartTime(ev.starts_at ? timeOnly(ev.starts_at) : "");
         setEndTime(ev.ends_at ? timeOnly(ev.ends_at) : "");
         setMeetTime(ev.meet_at ? timeOnly(ev.meet_at) : "");
@@ -838,7 +844,12 @@ function MatchPlanner({
                     type="button"
                     variant={homeAway === v ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setHomeAway(v)}
+                    role="radio"
+                    aria-checked={homeAway === v}
+                    onClick={() => {
+                      setHomeAway(v);
+                      if (v === "hemma" && !location.trim() && team?.home_ground) setLocation(team.home_ground);
+                    }}
                   >
                     {v === "hemma" ? "Hemma" : "Borta"}
                   </Button>
@@ -854,18 +865,9 @@ function MatchPlanner({
                   placeholder={team?.home_ground ?? "T.ex. Långholmens IP"}
                   onChange={(e) => setLocation(e.target.value)}
                 />
-                {/* Hemmaplanen från laget ska gå att klicka in direkt. */}
-                {team?.home_ground && location.trim() !== team.home_ground && (
-                  <button
-                    type="button"
-                    onClick={() => setLocation(team.home_ground as string)}
-                    className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
-                  >
-                    Hemmaplan: {team.home_ground}
-                  </button>
-                )}
+                <HomeGroundOption homeGround={team?.home_ground} value={location} onChange={setLocation} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium" htmlFor="mp-date">
                     Datum
