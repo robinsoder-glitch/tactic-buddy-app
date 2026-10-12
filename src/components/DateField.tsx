@@ -1,6 +1,10 @@
-import { useRef } from "react";
-import { Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { sv } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { dayKey } from "@/lib/month-grid";
 
 /** Skriver dagens datum som åååå-mm-dd i lokal tid. */
 export function todayValue(offsetDays = 0): string {
@@ -37,61 +41,52 @@ export function DateField({
   onChange: (value: string) => void;
   quickPicks?: boolean;
 }) {
-  const ref = useRef<HTMLInputElement>(null);
-
-  function openPicker() {
-    const el = ref.current as (HTMLInputElement & { showPicker?: () => void }) | null;
-    try {
-      el?.showPicker?.();
-    } catch {
-      // Vissa webbläsare tillåter inte showPicker – då används fältet som vanligt.
-    }
-  }
-
+  const [open, setOpen] = useState(false);
+  const selected = value ? new Date(`${value}T12:00:00`) : undefined;
+  const validSelected = selected && !Number.isNaN(selected.getTime()) ? selected : undefined;
   const label = readable(value);
 
   return (
     <div className="space-y-1.5">
-      <div className="relative">
-        <Input
-          id={id}
-          {...(name ? { name } : {})}
-          ref={ref}
-          type="date"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          onFocus={openPicker}
-          onClick={openPicker}
-          className="h-12 pr-10 text-base"
-        />
-        <Calendar
-          className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden
-        />
-      </div>
+      {name && <input type="hidden" name={name} value={value} />}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button id={id} type="button" variant="outline" className="h-12 w-full justify-between gap-2 text-base font-normal" aria-label={validSelected ? `Datum: ${value}` : "Välj datum"}>
+            <span className="min-w-0 truncate">{validSelected ? validSelected.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" }) : "Välj datum"}</span>
+            <CalendarIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto max-w-[calc(100vw-2rem)] p-0">
+          <Calendar mode="single" locale={sv} weekStartsOn={1} captionLayout="dropdown" startMonth={new Date(1900, 0)} endMonth={new Date(2100, 11)} defaultMonth={validSelected} selected={validSelected} className="[--cell-size:2.5rem]" onSelect={(date) => {
+            if (!date) return;
+            onChange(dayKey(date));
+            setOpen(false);
+          }} />
+        </PopoverContent>
+      </Popover>
       {quickPicks && (
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={() => onChange(todayValue())}
-            className="rounded-full border border-border px-3 py-1 text-xs hover:border-primary"
+            variant="outline" size="sm" className="h-8 px-3 text-xs"
           >
             Idag
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => onChange(todayValue(1))}
-            className="rounded-full border border-border px-3 py-1 text-xs hover:border-primary"
+            variant="outline" size="sm" className="h-8 px-3 text-xs"
           >
             Imorgon
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => onChange(todayValue(7))}
-            className="rounded-full border border-border px-3 py-1 text-xs hover:border-primary"
+            variant="outline" size="sm" className="h-8 px-3 text-xs"
           >
             Om en vecka
-          </button>
+          </Button>
           {label && <span className="text-xs text-muted-foreground">{label}</span>}
         </div>
       )}
