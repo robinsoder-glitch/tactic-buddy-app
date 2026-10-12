@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateCalendar } from "@/lib/calendar-cache";
-import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { PlanStatusBadge, planStatusBar } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
 import { EventCoaches } from "@/components/EventCoaches";
 import { LineupPitch, type LineupPlayerInfo } from "@/components/LineupPitch";
@@ -156,12 +156,12 @@ function MatchPlanningPage() {
       <main className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-28 pt-8 md:pt-20">
         {!selected && (
           <>
-            <div className="space-y-1">
+            <header className="space-y-1">
               <h1 className="font-display text-3xl font-bold">Planera match</h1>
               <p className="text-sm text-muted-foreground">
                 Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning.
               </p>
-            </div>
+            </header>
             <NewMatchCreator onChanged={() => setReloadKey((n) => n + 1)} />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
@@ -183,10 +183,11 @@ function MatchPlanningPage() {
                     <button
                       type="button"
                       onClick={() => setEventId(event.id)}
-                      className="w-full rounded-xl border bg-card p-4 text-left shadow-sm transition-colors hover:bg-accent/40"
+                      className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/60"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
+                        <span className={`h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium">{eventDisplayTitle(event)}</p>
                           <p className="text-sm text-muted-foreground">
                             {event.team_name} · {formatDateTime(event.starts_at)}

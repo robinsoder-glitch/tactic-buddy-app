@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, CalendarPlus, ClipboardList, MapPin, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, CalendarPlus, ClipboardList, MapPin, Plus, Trash2 } from "lucide-react";
 import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
@@ -410,10 +410,12 @@ function PlanTrainingPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-8 md:pt-20">
+      <header>
       <h1 className="font-display text-3xl font-bold">Planera träning</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Boka ett träningstillfälle i lagets kalender och fyll det sedan med övningar.
       </p>
+      </header>
 
       {!eventId && view === "start" && (
         <>
@@ -555,9 +557,9 @@ function PlanTrainingPage() {
 
       {eventId && (
         <section className="mt-6 space-y-6">
-          <Button variant="ghost" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/planera-traning" search={{}}>
-              ← Tillbaka till alla träningstillfällen
+              <ArrowLeft className="size-4" /> Alla träningstillfällen
             </Link>
           </Button>
 
