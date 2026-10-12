@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { EventResources } from "@/components/EventResources";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { HomeGroundOption } from "@/components/HomeGroundOption";
 import { TimeField } from "@/components/TimeField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -515,28 +516,22 @@ export function EventManager({
                   <option key={place} value={place} />
                 ))}
               </datalist>
-              {places.length > 0 && (
+              <HomeGroundOption homeGround={homeGround} value={location} onChange={setLocation} />
+              {places.filter((place) => place !== homeGround).length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {places.slice(0, 4).map((place) => (
-                    <button
+                  {places.filter((place) => place !== homeGround).slice(0, 4).map((place) => (
+                    <Button
                       key={place}
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => setLocation(place)}
-                      className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
+                      className="h-8 px-2.5 text-xs"
                     >
                       {place}
-                    </button>
+                    </Button>
                   ))}
                 </div>
-              )}
-              {homeGround && location !== homeGround && (
-                <button
-                  type="button"
-                  onClick={() => setLocation(homeGround)}
-                  className="text-xs text-primary underline-offset-4 hover:underline"
-                >
-                  Använd hemmaplan: {homeGround}
-                </button>
               )}
             </div>
 

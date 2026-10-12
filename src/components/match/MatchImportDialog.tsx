@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TimeField } from "@/components/TimeField";
+import { DateField } from "@/components/DateField";
 import {
   Dialog,
   DialogContent,
@@ -339,13 +340,7 @@ export function MatchImportDialog({ teamId, teamName, userId, onCreated }: Props
                         aria-label={`Ta med matchen ${row.date}`}
                       />
                       <div className="grid w-full gap-2 sm:grid-cols-2">
-                        <Input
-                          type="date"
-                          value={row.date}
-                          aria-label="Datum"
-                          disabled={locked(index)}
-                          onChange={(event) => update(index, { date: event.target.value })}
-                        />
+                        <DateField value={row.date} disabled={locked(index)} quickPicks={false} onChange={(value) => update(index, { date: value })} />
                         <TimeField
                           value={row.time}
                           disabled={locked(index)}

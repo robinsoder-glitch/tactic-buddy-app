@@ -29,6 +29,7 @@ import { BackIconButton } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/DateField";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TrainingFocusSelector } from "@/components/TrainingFocusSelector";
@@ -283,12 +284,7 @@ function SessionBuilder() {
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <Label htmlFor="edit-date">Datum</Label>
-                <Input
-                  id="edit-date"
-                  type="date"
-                  value={draft.session_date ?? ""}
-                  onChange={(event) => set({ session_date: event.target.value || null })}
-                />
+                <DateField id="edit-date" value={draft.session_date ?? ""} onChange={(value) => set({ session_date: value || null })} />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="edit-age">Åldersgrupp</Label>

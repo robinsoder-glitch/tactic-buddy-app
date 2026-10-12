@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateCalendar } from "@/lib/calendar-cache";
-import { PlanStatusBadge } from "@/components/PlanStatusBadge";
+import { PlanStatusBadge, planStatusBar } from "@/components/PlanStatusBadge";
 import { EventManager } from "@/components/EventManager";
 import { EventCoaches } from "@/components/EventCoaches";
 import { LineupPitch, type LineupPlayerInfo } from "@/components/LineupPitch";
@@ -10,6 +10,8 @@ import { MatchLineupEditor } from "@/components/MatchLineupEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateField } from "@/components/DateField";
+import { HomeGroundOption } from "@/components/HomeGroundOption";
+import { dayKey } from "@/lib/month-grid";
 import { TimeField } from "@/components/TimeField";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -85,6 +87,10 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
         name: "description",
         content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar.",
       },
+      { property: "og:title", content: "Planera match – Fotbollsrummet" },
+      { property: "og:description", content: "Planera matchuppgifter, ledare, spelare och laguppställning." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
@@ -147,15 +153,15 @@ function MatchPlanningPage() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-4 pb-28 pt-8 md:pt-20">
         {!selected && (
           <>
-            <div className="space-y-1">
+            <header className="space-y-1">
               <h1 className="font-display text-3xl font-bold">Planera match</h1>
               <p className="text-sm text-muted-foreground">
                 Välj en match och gör den klar: uppgifter, ledare, spelare och laguppställning.
               </p>
-            </div>
+            </header>
             <NewMatchCreator onChanged={() => setReloadKey((n) => n + 1)} />
             {loading && <p className="text-sm text-muted-foreground">Hämtar matcher…</p>}
             {!loading && (events?.length ?? 0) === 0 && (
@@ -177,10 +183,11 @@ function MatchPlanningPage() {
                     <button
                       type="button"
                       onClick={() => setEventId(event.id)}
-                      className="w-full rounded-xl border bg-card p-4 text-left shadow-sm transition-colors hover:bg-accent/40"
+                      className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/60"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
+                        <span className={`h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium">{eventDisplayTitle(event)}</p>
                           <p className="text-sm text-muted-foreground">
                             {event.team_name} · {formatDateTime(event.starts_at)}
@@ -358,7 +365,7 @@ function MatchPlanner({
         setHomeAway(ev.home_team === t.name ? "hemma" : "borta");
         setLocation(ev.location ?? "");
         const start = new Date(ev.starts_at);
-        setDate(start.toISOString().slice(0, 10));
+        setDate(dayKey(start));
         setStartTime(ev.starts_at ? timeOnly(ev.starts_at) : "");
         setEndTime(ev.ends_at ? timeOnly(ev.ends_at) : "");
         setMeetTime(ev.meet_at ? timeOnly(ev.meet_at) : "");
@@ -680,7 +687,7 @@ function MatchPlanner({
       {mode === "read" ? (
         <div className="space-y-5">
           <div className="rounded-xl border bg-card p-4">
-            <h2 className="font-display text-lg font-semibold">Kallelse</h2>
+            <h2 className="font-display text-xl font-semibold">Kallelse</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Kallelser går aldrig ut automatiskt – du bestämmer när de skickas. De når spelarna i
               truppen och de vuxna som är kopplade till dem, och visas bara i appen. Träningar har
@@ -701,7 +708,7 @@ function MatchPlanner({
           </div>
           <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-lg font-semibold">
+              <h1 className="font-display text-3xl font-bold">
                 {event.home_team && event.away_team
                   ? `${event.home_team} – ${event.away_team}`
                   : (event.title ?? "Match")}
@@ -782,7 +789,7 @@ function MatchPlanner({
           </section>
 
           <section className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="font-medium">Laguppställning</h2>
+            <h2 className="font-display text-xl font-semibold">Laguppställning</h2>
             <LineupPitch slots={slots} players={playersById} />
             {bench.length > 0 && (
               <p className="text-sm text-muted-foreground">
@@ -819,7 +826,7 @@ function MatchPlanner({
 
           {step === 0 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Matchuppgifter</h2>
+              <h2 className="font-display text-xl font-semibold">Matchuppgifter</h2>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium" htmlFor="mp-opponent">
                   Motståndare
@@ -838,7 +845,12 @@ function MatchPlanner({
                     type="button"
                     variant={homeAway === v ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setHomeAway(v)}
+                    role="radio"
+                    aria-checked={homeAway === v}
+                    onClick={() => {
+                      setHomeAway(v);
+                      if (v === "hemma" && !location.trim() && team?.home_ground) setLocation(team.home_ground);
+                    }}
                   >
                     {v === "hemma" ? "Hemma" : "Borta"}
                   </Button>
@@ -854,18 +866,9 @@ function MatchPlanner({
                   placeholder={team?.home_ground ?? "T.ex. Långholmens IP"}
                   onChange={(e) => setLocation(e.target.value)}
                 />
-                {/* Hemmaplanen från laget ska gå att klicka in direkt. */}
-                {team?.home_ground && location.trim() !== team.home_ground && (
-                  <button
-                    type="button"
-                    onClick={() => setLocation(team.home_ground as string)}
-                    className="rounded-full border border-border px-2.5 py-1 text-xs hover:bg-secondary"
-                  >
-                    Hemmaplan: {team.home_ground}
-                  </button>
-                )}
+                <HomeGroundOption homeGround={team?.home_ground} value={location} onChange={setLocation} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium" htmlFor="mp-date">
                     Datum
@@ -908,7 +911,7 @@ function MatchPlanner({
 
           {step === 1 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Ansvariga ledare</h2>
+              <h2 className="font-display text-xl font-semibold">Ansvariga ledare</h2>
               <p className="text-sm text-muted-foreground">
                 Minst en ledare krävs för status Klar.
               </p>
@@ -962,7 +965,7 @@ function MatchPlanner({
 
           {step === 2 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Uttagna spelare</h2>
+              <h2 className="font-display text-xl font-semibold">Uttagna spelare</h2>
               <p className="text-sm text-muted-foreground">
                 {playerIds.length} valda · {required} startspelare krävs för {FORMAT_LABELS[format]}
                 .
@@ -1015,7 +1018,7 @@ function MatchPlanner({
 
           {step === 3 && (
             <section className="space-y-4 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Formation och avbytare</h2>
+              <h2 className="font-display text-xl font-semibold">Formation och avbytare</h2>
               {/* Spelformen laget valdes med är förvald – den behöver bara ändras
                   i undantagsfall, t.ex. vid en cup med annan spelform. */}
               {!showFormatPicker && team?.game_format && format === team.game_format ? (
@@ -1110,7 +1113,7 @@ function MatchPlanner({
 
           {step === 4 && (
             <section className="space-y-3 rounded-xl border bg-card p-4">
-              <h2 className="font-medium">Granska och spara</h2>
+              <h2 className="font-display text-xl font-semibold">Granska och spara</h2>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div>
                   <dt className="text-muted-foreground">Motståndare</dt>

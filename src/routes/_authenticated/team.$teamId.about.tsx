@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/about")({
+  head: () => ({ meta: [{"title": "Lagöversikt – Fotbollsrummet"}, {"name": "description", "content": "Se lagets uppgifter, hemmaplan och ledare i Fotbollsrummet."}, {"property": "og:title", "content": "Lagöversikt – Fotbollsrummet"}, {"property": "og:description", "content": "Se lagets uppgifter, hemmaplan och ledare i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: AboutPage,
 });
 

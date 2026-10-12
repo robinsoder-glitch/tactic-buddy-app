@@ -7,6 +7,7 @@ import { downloadIcs } from "@/lib/ics";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/calendar")({
+  head: () => ({ meta: [{"title": "Lagets kalender – Fotbollsrummet"}, {"name": "description", "content": "Se lagets matcher och träningar i Fotbollsrummet."}, {"property": "og:title", "content": "Lagets kalender – Fotbollsrummet"}, {"property": "og:description", "content": "Se lagets matcher och träningar i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: CalendarPage,
 });
 

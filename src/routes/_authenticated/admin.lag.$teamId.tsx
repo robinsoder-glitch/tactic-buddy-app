@@ -12,6 +12,7 @@ import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/lag/$teamId")({
+  head: () => ({ meta: [{"title": "Administrera lag – Fotbollsrummet"}, {"name": "description", "content": "Granska laguppgifter och medlemmar i Fotbollsrummet."}, {"property": "og:title", "content": "Administrera lag – Fotbollsrummet"}, {"property": "og:description", "content": "Granska laguppgifter och medlemmar i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: AdminTeamDetail,
 });
 

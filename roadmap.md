@@ -1,5 +1,12 @@
 # Roadmap – granskning 2026-08-30
 
+## Enhetliga planeringsvyer 2026-10-12
+- [x] Granska vyernas enhetlighet med fokus på Planera och matchplanering
+- [x] Gemensam kalender som väljer hela datumet med ett klick
+- [x] Samma klickbara hemmaplan i träning och match
+- [x] Förhandsvisa sparade pass och övningar före Välj eller Tillbaka
+- [x] Verifiera datumval och koppling i inloggat läge
+
 ## Adminradering 2026-09-17
 - [x] Rätta radering av klubbar och deras laginnehåll
 - [x] Rätta radering av konton med skapade aktiviteter och historik
