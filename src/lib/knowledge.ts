@@ -94,6 +94,7 @@ export type KnowledgeFilter = {
   language?: string;
   source?: string;
   onlyFeatured?: boolean;
+  kind?: string;
 };
 
 export function knowledgeCategories(articles: KnowledgeArticleListItem[]): string[] {
@@ -135,6 +136,8 @@ export function filterKnowledge<T extends KnowledgeArticleListItem>(
 ): T[] {
   return articles.filter((article) => {
     if (filter.onlyFeatured && !article.featured) return false;
+    if (filter.kind && filter.kind !== "all" && knowledgeKind(article) !== filter.kind)
+      return false;
     if (filter.category && filter.category !== "all" && article.category !== filter.category)
       return false;
     if (
@@ -190,20 +193,40 @@ export function knowledgeFormatLabel(article: KnowledgeArticleListItem): string 
   return parts.length ? parts.join(", ") : null;
 }
 
-export type KnowledgeKind = "Artikel" | "Forskning" | "Resursbank" | "Verktyg";
+export const KNOWLEDGE_KINDS = [
+  "Artikel",
+  "Forskning",
+  "Forskningsreferat",
+  "Riktlinjer",
+  "Utbildning",
+  "Träningsmaterial",
+  "Resursbank",
+  "Verktyg",
+  "Podd",
+] as const;
+export type KnowledgeKind = (typeof KNOWLEDGE_KINDS)[number];
 
 /** Skiljer en vanlig artikel från forskning, portalsidor och verktyg. */
 export function knowledgeKind(article: KnowledgeArticleListItem): KnowledgeKind {
-  const text = `${article.content_type ?? ""} ${article.source_type ?? ""}`.toLowerCase();
-  if (text.includes("verktyg") || text.includes("app")) return "Verktyg";
-  if (text.includes("resursbank") || text.includes("resursarkiv") || text.includes("dokumentarkiv"))
-    return "Resursbank";
+  const text = (article.content_type ?? "").toLowerCase();
+  if (/^verktyg$|\bapp\b/.test(text)) return "Verktyg";
+  if (/resursbank|resursarkiv|dokumentarkiv|exempelbank/.test(text)) return "Resursbank";
+  if (/forskningssammanfattning/.test(text)) return "Forskningsreferat";
   if (
-    text.includes("vetenskap") ||
-    text.includes("systematisk") ||
-    text.includes("forskning") ||
-    text.includes("medicinsk")
+    /vetenskap|systematisk|forskningsöversikt|kunskapsöversikt/.test(text) ||
+    /vetenskaplig/.test((article.source_type ?? "").toLowerCase())
   )
     return "Forskning";
+  if (/podd/.test(text)) return "Podd";
+  if (/riktlinj|regelverk|regelöversikt|uppförandekod|safeguarding|utbildningsplan/.test(text))
+    return "Riktlinjer";
+  if (/mikroutbildning|digital utbildning|kursöversikt|utbildningsöversikt/.test(text))
+    return "Utbildning";
+  if (
+    /träningspass|sexveckorsprogram|passerie|övningsexempel|övningsprogram|aktivitetsguide|verktygslåda|nedladdningsbart/.test(
+      text,
+    )
+  )
+    return "Träningsmaterial";
   return "Artikel";
 }

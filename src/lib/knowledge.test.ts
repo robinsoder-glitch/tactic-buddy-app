@@ -3,6 +3,7 @@ import {
   filterKnowledge,
   knowledgeAgeLabel,
   knowledgeCategories,
+  knowledgeKind,
   type KnowledgeArticle,
 } from "./knowledge";
 
@@ -67,5 +68,34 @@ describe("kunskapsbanken", () => {
   it("visar svenska åldersetiketter", () => {
     expect(knowledgeAgeLabel(base)).toBe("5–7 år");
     expect(knowledgeCategories([base, other])).toEqual(["Målvakt", "Spelförståelse och taktik"]);
+  });
+});
+
+describe("kunskapsbankens innehållstyper", () => {
+  it.each([
+    ["Medicinsk guide", "Nationellt fotbollförbund", "Artikel"],
+    ["Medicinska riktlinjer", "Nationellt fotbollförbund", "Riktlinjer"],
+    ["Forskningssammanfattning", "Nationellt förbund", "Forskningsreferat"],
+    ["Systematisk forskningsöversikt", "Vetenskaplig publikation", "Forskning"],
+    ["Vetenskaplig teoriartikel", "Vetenskaplig tidskrift", "Forskning"],
+    ["Resursarkiv", "Nationellt förbund", "Resursbank"],
+    ["Verktygslåda", "Nationellt förbund", "Träningsmaterial"],
+    ["Verktyg", "Nationellt förbund", "Verktyg"],
+    ["Mikroutbildning", "Nationellt förbund", "Utbildning"],
+    ["Poddavsnitt", "Nationellt förbund", "Podd"],
+  ])("klassar %s efter vad materialet är", (content_type, source_type, expected) => {
+    expect(knowledgeKind({ ...base, content_type, source_type })).toBe(expected);
+  });
+
+  it("kombinerar innehållstyp med ämne och sökning", () => {
+    const study = { ...base, id: "study", content_type: "Vetenskaplig originalstudie" };
+    expect(
+      filterKnowledge([base, study], {
+        kind: "Forskning",
+        category: base.category,
+        query: "småspel",
+      }).map((row) => row.id),
+    ).toEqual(["study"]);
+    expect(filterKnowledge([base, study], { kind: "all" })).toHaveLength(2);
   });
 });
