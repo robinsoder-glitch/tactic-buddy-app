@@ -76,9 +76,10 @@ export function sourceCheck(article: KnowledgeArticle): Array<[string, string]> 
   const rows: Array<[string, string]> = [];
   if (article.source_name) rows.push(["Källa", article.source_name]);
   if (article.source_type) rows.push(["Typ av källa", article.source_type]);
+  if (article.content_type) rows.push(["Innehåll", article.content_type]);
   if (article.evidence_level) rows.push(["Underlag", article.evidence_level]);
   if (article.language) rows.push(["Språk i original", article.language]);
-  if (article.checked_date) rows.push(["Kontrollerad", article.checked_date]);
+  if (article.checked_date) rows.push(["Källkontroll registrerad", article.checked_date]);
   return rows;
 }
 

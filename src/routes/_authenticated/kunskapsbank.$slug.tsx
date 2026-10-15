@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock, ExternalLink, Star } from "lucide-react";
 import { toast } from "sonner";
-import { fetchKnowledgeArticle, knowledgeFormatLabel, knowledgeKind } from "@/lib/knowledge";
+import { fetchKnowledgeArticle, knowledgeKind } from "@/lib/knowledge";
+import { KnowledgeArticleBody } from "@/components/KnowledgeArticleBody";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/taktikbank";
 import { useAuth } from "@/hooks/useAuth";
 import { useRelatedContent } from "@/hooks/useRelatedContent";
@@ -35,25 +36,6 @@ export const Route = createFileRoute("/_authenticated/kunskapsbank/$slug")({
     </CoachOnly>
   ),
 });
-
-/** "Passar dig som tränar barn och spelar 5 mot 5." */
-function fitsYouText(data: Parameters<typeof knowledgeFormatLabel>[0]): string {
-  const format = knowledgeFormatLabel(data);
-  if (format) return `Passar dig som tränar barn och spelar ${format}.`;
-  return "Passar dig som tränar barn i fotboll.";
-}
-
-/** En sammanhängande text i stället för flera korta stycken. */
-function summaryText(data: {
-  summary_sv: string;
-  learn_sv?: string | null;
-  coach_value?: string | null;
-}): string {
-  return [data.summary_sv, data.learn_sv, data.coach_value]
-    .map((part) => (part ?? "").trim())
-    .filter(Boolean)
-    .join("\n\n");
-}
 
 function KnowledgeArticlePage() {
   const { slug } = Route.useParams();
@@ -97,7 +79,13 @@ function KnowledgeArticlePage() {
 
       {article.isLoading && <p className="mt-6 text-sm text-muted-foreground">Laddar artikeln…</p>}
 
-      {!article.isLoading && !data && (
+      {article.isError && (
+        <p role="alert" className="mt-6 text-sm text-destructive">
+          Artikeln kunde inte hämtas. Försök igen om en stund.
+        </p>
+      )}
+
+      {!article.isLoading && !article.isError && !data && (
         <div className="mt-6 rounded-xl border border-dashed border-border p-8 text-center">
           <p className="font-display text-lg font-semibold">Artikeln hittades inte</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -149,19 +137,12 @@ function KnowledgeArticlePage() {
             )}
             {data.reading_minutes ? (
               <span className="inline-flex items-center gap-1">
-                <Clock className="size-3.5" /> {data.reading_minutes} min
+                <Clock className="size-3.5" /> ca {data.reading_minutes} min
               </span>
             ) : null}
           </div>
 
-          <p className="mt-4 text-sm font-semibold">{fitsYouText(data)}</p>
-
-          <section className="mt-4 rounded-xl border border-border bg-card p-4">
-            <h2 className="font-display text-sm tracking-[0.2em] text-muted-foreground">
-              Sammanfattning
-            </h2>
-            <p className="mt-2 whitespace-pre-line text-sm">{summaryText(data)}</p>
-          </section>
+          <KnowledgeArticleBody article={data} />
 
           <a
             href={data.original_url}
@@ -172,10 +153,7 @@ function KnowledgeArticlePage() {
             Läs originalkällan <ExternalLink className="size-4" />
           </a>
           {data.source_name && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Källa: {data.source_name}
-              {data.checked_date ? ` · källgranskad ${data.checked_date}` : ""}
-            </p>
+            <p className="mt-2 text-xs text-muted-foreground">Källa: {data.source_name}</p>
           )}
 
           <RelatedContent sections={sections} />

@@ -1,0 +1,1014 @@
+{
+  "date": "2026-10-15",
+  "scope": "Metadata och prioriterad sakgranskning; ej fullständig originalgranskning",
+  "articles": [
+    {
+      "id": "KB001",
+      "title": "Guide för dig som är ny tränare",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/bli-tranare/guide-ny-tranare/",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB002",
+      "title": "Svensk fotbolls spelarutbildningsplan",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/spelarutbildning/spelarutbildningsplan/",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB003",
+      "title": "Fotbollens spela, lek och lär",
+      "source_url": "https://aktiva.svenskfotboll.se/forening/tryggfotboll/fotbollens-spela-lek-och-lar/",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB004",
+      "title": "Skapa en rolig, trygg och effektiv träning",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/jene-general-principles-1.php",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB005",
+      "title": "Planera med Play–Practice–Play",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/an-introduction-to-play-practice-play.php",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Undvik en fast 55-minutersmall för hela åldersspannet 4–8 år."
+    },
+    {
+      "id": "KB006",
+      "title": "Få ut mer av en träning i veckan",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/sessions-for-once-a-week-training.php",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB007",
+      "title": "Planera med Global–Analytical–Global",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/coaching-with-the-global-analytical-global-model.php",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ersätt ett omotiverat generellt filmförbud med ett konkret pedagogiskt råd."
+    },
+    {
+      "id": "KB008",
+      "title": "Så strukturerar du ett träningspass",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2023/How-to-structure-a-training-session",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB009",
+      "title": "Skapa tidseffektiva träningar",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/tidseffektivatraningar/",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB010",
+      "title": "Roliga och effektiva uppvärmningar",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/creating-fun-and-effective-warm-ups.php",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB011",
+      "title": "Bollkontroll för yngre barn",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/coaching-children-to-master-ball-control.php",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Språkrättning."
+    },
+    {
+      "id": "KB012",
+      "title": "Dribbling som en positiv start",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/jene-3-dribbling-as-a-positive-start.php",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB013",
+      "title": "Utveckla skottfärdigheter",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/developing-shooting-skills.php",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB014",
+      "title": "Skapa flera sätt att göra mål",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/creating-different-ways-to-score.php",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB015",
+      "title": "Hjälp barn att utveckla bollfärdigheter",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2023/How-to-help-5-11s-develop-their-skills-on-the-ball",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB016",
+      "title": "Sex veckor: passning och mottagning",
+      "source_url": "https://learn.englandfootball.com/sessions/resources/2025/Session-programme-passing-and-receiving-to-score",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB017",
+      "title": "Sex veckor: driva boll och vända",
+      "source_url": "https://learn.englandfootball.com/sessions/resources/2025/Session-programme-moving-with-the-ball-and-turning-to-attack",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB018",
+      "title": "Bygg förståelse för ytor",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/building-spatial-awareness-in-young-players.php",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB019",
+      "title": "Lär genom numeriska progressionsspel",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/grassroots-and-youth-football-essentials/grassroots-coaching-essentials/learning-through-numeric-progression-games.php",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB020",
+      "title": "Träningsdesign med två mål",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2022/practice-design-in-football-two-goal-games",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB021",
+      "title": "Sex veckor: press och täckning",
+      "source_url": "https://learn.englandfootball.com/sessions/resources/2025/Session-programme-pressing-and-covering-to-stop-goals",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB022",
+      "title": "Fotbollens nationella spelformer",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/spelformer/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB023",
+      "title": "Frågor och svar om spelformerna",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/spelformer/fragor-svar/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB024",
+      "title": "Spelregler och planmått",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/spelformer/spelregler/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB025",
+      "title": "Så spelar och leder du 5 mot 5",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2025/How-to-play-and-manage-5v5-games",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB026",
+      "title": "Vakta målet",
+      "source_url": "https://learn.englandfootball.com/sessions/resources/2022/Guarding-the-goal",
+      "category_before": "Målvakt",
+      "category_proposed": "Målvakt",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB027",
+      "title": "Utbildningsvägen för målvaktstränare",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/tranarutbildning/malvaktstranarutbildning/",
+      "category_before": "Målvakt",
+      "category_proposed": "Målvakt",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB028",
+      "title": "Målvaktens principer i försvarsspelet",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/mikroutbildning-malvaktsspel/",
+      "category_before": "Målvakt",
+      "category_proposed": "Målvakt",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB029",
+      "title": "Så får laget fler målvakter",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/flermalvakter/",
+      "category_before": "Målvakt",
+      "category_proposed": "Målvakt",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB030",
+      "title": "Fotbollsfys för 3 mot 3 och 5 mot 5",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/mikroutbildning-fotbollsfys/",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB031",
+      "title": "Utveckla spelarnas rörelsefärdigheter",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2025/How-to-develop-your-players-movement-skills",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB032",
+      "title": "Bygg fysisk litteracitet från grunden",
+      "source_url": "https://icoachkids.org/the-hub/physical-development/developing-safe-and-efficient-movers-building-physical-literacy-from-the-ground-up",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB033",
+      "title": "Styrketräning för barn – vad tränare behöver veta",
+      "source_url": "https://icoachkids.org/the-hub/physical-development/developing-strength-in-kids-what-coaches-and-parents-need-to-know",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB034",
+      "title": "Tillväxt och mognad",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/tillvaxtochmognad/",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB035",
+      "title": "Skadeförebyggande program för barnfotboll",
+      "source_url": "https://aktiva.svenskfotboll.se/spelare/halsa/skadeforebyggande-program/",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Forskningsstöd för ett program får inte antydas gälla ett godtyckligt urval av tre övningar."
+    },
+    {
+      "id": "KB036",
+      "title": "Skapa relationer och ge feedback",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/mikroutbildning-fotbollspsykologi/",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB037",
+      "title": "Forskningsbaserade tips till barntränare",
+      "source_url": "https://aktiva.svenskfotboll.se/nyheter/2023/07/forksningsstudie-del4-tips-till-barn-och-ungdomstranare/",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB038",
+      "title": "Tio frågor om toppning",
+      "source_url": "https://aktiva.svenskfotboll.se/nyheter/2021/04/10-fragor-om-toppning/",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB039",
+      "title": "Hjälp spelare hantera vinst och förlust",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2022/how-to-help-players-handle-winning-and-losing",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB040",
+      "title": "Motivera barn i idrott",
+      "source_url": "https://icoachkids.org/the-hub/motivation/motivating-kids-in-sport-what-coaches-need-to-know",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB041",
+      "title": "Utveckla spelarnas sociala färdigheter",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2025/How-to-develop-your-players-social-skills",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB042",
+      "title": "Samarbeta med föräldrar i idrotten",
+      "source_url": "https://icoachkids.org/the-hub/personal-development/working-with-parents-in-sport",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB043",
+      "title": "Fem tips till dig som är föräldratränare",
+      "source_url": "https://aktiva.svenskfotboll.se/nyheter/2025/04/podd-foraldratranare/",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Sammanfatta endast den verifierbara presentationssidan; podden har inte avlyssnats och längden är inte verifierad."
+    },
+    {
+      "id": "KB044",
+      "title": "Fotbollsföräldern och matchklimatet",
+      "source_url": "https://aktiva.svenskfotboll.se/nyheter/2024/09/matchklimathelg-fotbollsforaldern/",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB045",
+      "title": "Kost och vätska för fotbollsspelare",
+      "source_url": "https://aktiva.svenskfotboll.se/spelare/halsa/kost-och-vatska/",
+      "category_before": "Kost, vätska och återhämtning",
+      "category_proposed": "Kost, vätska och återhämtning",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB046",
+      "title": "Det här är Trygg fotboll",
+      "source_url": "https://aktiva.svenskfotboll.se/forening/tryggfotboll/det-har-ar-trygg-fotboll/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB047",
+      "title": "Att leda spelare med NPF",
+      "source_url": "https://aktiva.svenskfotboll.se/tranare/mikroutbildningar/npf/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB048",
+      "title": "FIFA 11+ Kids – systematisk forskningsöversikt",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11264619/",
+      "category_before": "Fördjupning och forskning",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Översikten är ingen metaanalys. Flytta till ämnet skadeprevention och beskriv studiernas målgrupp och begränsningar."
+    },
+    {
+      "id": "KB049",
+      "title": "Studie om motivation och ledarskap",
+      "source_url": "https://aktiva.svenskfotboll.se/nyheter/2023/07/forskningsstudie-del-1-studie-om-motivation-och-ledarskap/",
+      "category_before": "Fördjupning och forskning",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Forskningsreferat ska hittas under sitt ämne och skiljas från originalstudier."
+    },
+    {
+      "id": "KB050",
+      "title": "Smålagsspel och fysisk utveckling hos 8–10-åringar",
+      "source_url": "https://bjsm.bmj.com/content/52/4/254",
+      "category_before": "Fördjupning och forskning",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "403 automatiskt; separat kontroll krävs",
+      "decision": "Placera originalstudien under fysisk utveckling, där den hör hemma."
+    },
+    {
+      "id": "KB051",
+      "title": "Kanadas filosofi för barn- och breddfotboll",
+      "source_url": "https://canadasoccer.com/play/grassroots-soccer/",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB052",
+      "title": "Tränarutbildning för Active Start och FUNdamentals",
+      "source_url": "https://canadasoccer.com/coach/grassroots-coach-education/",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Sidan är en översikt över tränarutbildning."
+    },
+    {
+      "id": "KB053",
+      "title": "Tränarverktyg för Active Start",
+      "source_url": "https://canadasoccer.com/play/canada-soccer-ecosystem/",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Direktlänk till Active Start-manualen hittad från Canada Soccers resurssida."
+    },
+    {
+      "id": "KB054",
+      "title": "Kanadas resursarkiv för spelarutveckling",
+      "source_url": "https://canadasoccer.com/?resource_collection=canada-soccer-pathway-resources",
+      "category_before": "Fördjupning och forskning",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ett resursarkiv är inte forskning; behåll typ och sortera efter ämne."
+    },
+    {
+      "id": "KB055",
+      "title": "Ålderskarakteristika för unga spelare",
+      "source_url": "https://www.knvb.nl/assist-trainers/training-wedstrijd-en-team/het-team/kenmerken-per-leeftijdscategorie",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB056",
+      "title": "Vad vill och kan en spelare i U8–U9?",
+      "source_url": "https://www.knvb.nl/assist-trainers/training-wedstrijd-en-team/het-team/kenmerken-per-leeftijdscategorie/o9-speler",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB057",
+      "title": "Så förbereder du en fotbollsträning",
+      "source_url": "https://www.knvb.nl/assist-trainers/training-wedstrijd-en-team/de-training/hoe-bereid-ik-een-training-voor",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB058",
+      "title": "Lekfullt lärande och inre motivation",
+      "source_url": "https://www.knvb.nl/assist-trainers/jeugdvoetbalbeleidsplan/de-inhoud-voetballen/individuele-ontwikkelgesprekken/spelersdoelgroepen",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB059",
+      "title": "U9: förbättra positionsspel i uppspelsfasen",
+      "source_url": "https://rinus.knvb.nl/nl/training/id/425965",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB060",
+      "title": "Lekfull försvarsträning för U8–U9",
+      "source_url": "https://rinus.knvb.nl/nl/training/id/517023",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB061",
+      "title": "Tysk träningsfilosofi för barnfotboll",
+      "source_url": "https://www.dfb-akademie.de/trainingsphilosophie-deutschland/-/id-11011532",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB062",
+      "title": "Strukturen för ett effektivt träningspass",
+      "source_url": "https://www.dfb-akademie.de/beste-trainingseinheit/-/id-11011533",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB063",
+      "title": "Praktiska spelformer för anfall, försvar och omställning",
+      "source_url": "https://www.dfb-akademie.de/trainingspraxis/-/id-11011534",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB064",
+      "title": "Gatufotbollens principer i organiserad träning",
+      "source_url": "https://www.dfb-akademie.de/downloads/-/id-11011289",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Direktlänk till rätt häfte i DFB:s nedladdningsarkiv."
+    },
+    {
+      "id": "KB065",
+      "title": "Vad en utbildad barntränare behöver kunna",
+      "source_url": "https://www.dfb-akademie.de/kindertrainerin-zertifikat/-/id-11009621",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB066",
+      "title": "Tränarresurser med enkla färdiga pass",
+      "source_url": "https://footballaustralia.com.au/coaching-resources",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Sidan samlar andra resurser och ska kunna filtreras som resursbank."
+    },
+    {
+      "id": "KB067",
+      "title": "Så genomför du din första träning",
+      "source_url": "https://playfootball.com.au/coach/run-training-session",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB068",
+      "title": "MiniRoos aktivitetsguide för 5–11 år",
+      "source_url": "https://playfootball.com.au/miniroos/kick-off-resources",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB069",
+      "title": "Discovery Phase: träning för yngre barn",
+      "source_url": "https://playfootball.com.au/coach/discovery-phase-sessions",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB070",
+      "title": "Träna en kärnfärdighet i tvåveckorsblock",
+      "source_url": "https://playfootball.com.au/coach/skill-acquisition-phase-sessions",
+      "category_before": "Teknik med boll",
+      "category_proposed": "Teknik med boll",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB071",
+      "title": "En uppvärmning som förbereder kropp och tanke",
+      "source_url": "https://footballaustralia.com.au/training-health/warm-up",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB072",
+      "title": "Riktlinjer för träningsmängd och återhämtning",
+      "source_url": "https://footballaustralia.com.au/youth-training-guidelines",
+      "category_before": "Kost, vätska och återhämtning",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Avgränsa råd för talangspelare med flera träningsmiljöer från generell barnfotboll."
+    },
+    {
+      "id": "KB073",
+      "title": "Fundamentals+: lekfull rörelse och skadeprevention",
+      "source_url": "https://footballaustralia.com.au/performance/football-australia-fundamentals",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB074",
+      "title": "Åldersanpassad smålagssfotboll i Wales",
+      "source_url": "https://faw.cymru/small-sided-football/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Skilj inspiration till träningsspel från regler för svensk match."
+    },
+    {
+      "id": "KB075",
+      "title": "Skapa en positiv miljö för spelarna",
+      "source_url": "https://faw.cymru/safeguarding/create-a-positive-environment-for-your-players/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB076",
+      "title": "Tränarens beteende och ansvar mot barn",
+      "source_url": "https://faw.cymru/safeguarding/your-coach/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB077",
+      "title": "Ditt ansvar för trygghet och signaler på utsatthet",
+      "source_url": "https://faw.cymru/safeguarding/your-responsibility-to-safeguarding/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB078",
+      "title": "Uppförandekod för föräldrar och åskådare",
+      "source_url": "https://faw.cymru/safeguarding/code-of-conducts-for-your-members/",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB079",
+      "title": "Frågor och svar om lika speltid",
+      "source_url": "https://faw.cymru/safeguarding/frequently-asked-questions/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB080",
+      "title": "Positivt beteende bakom sidlinjen",
+      "source_url": "https://faw.cymru/safeguarding/behind-the-line-behind-the-team-campaign/",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB081",
+      "title": "CoachMate: planera pass och led laget",
+      "source_url": "https://www.nzfootball.co.nz/community/coaching-1/community-coaching",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB082",
+      "title": "Spelarresan från fem år",
+      "source_url": "https://www.scottishfa.co.uk/en/play-football/children-youth-football/player-journey",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB083",
+      "title": "Grundkompetens för tränare 5–12 år",
+      "source_url": "https://www.scottishfa.co.uk/en/coaching/coaching-pathway/grassroots-pathway/childrens-pathway/childrens-coaching-certificate",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB084",
+      "title": "Planera och skapa en träningsmiljö för lärande",
+      "source_url": "https://learning.ussoccer.com/articles/coaching/article/plan-and-create-a-training-session",
+      "category_before": "Träningsplanering",
+      "category_proposed": "Träningsplanering",
+      "link_check": "404 automatiskt; artikel läst i webbläsare",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB085",
+      "title": "Designa övningar för beslut och scanning",
+      "source_url": "https://learning.ussoccer.com/articles/coaching/article/grassroots-coaching-activity-design-considerations-for-player-learning-and-scanning",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "404 automatiskt; artikel läst i webbläsare",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB086",
+      "title": "Praktiska verktyg för inkluderande fotbollsträning",
+      "source_url": "https://learning.ussoccer.com/articles/coaching/article/practical-tools-and-strategies-for-inclusive-soccer-coaching",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "404 automatiskt; artikel läst i webbläsare",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB087",
+      "title": "U.S. Soccers filosofi för lärande och undervisning",
+      "source_url": "https://learning.ussoccer.com/articles/coaching/article/u-s-soccer-s-philosophy-on-learning-and-teaching",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "404 automatiskt; artikel läst i webbläsare",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB088",
+      "title": "US Youth Soccers guider om smålagsspel",
+      "source_url": "https://www.usyouthsoccer.org/bylaws-policies-and-documents/",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB089",
+      "title": "TOPSoccer: fotboll för barn med olika funktionsförmågor",
+      "source_url": "https://www.usyouthsoccer.org/topsoccer/",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB090",
+      "title": "Riktlinjer för barn- och ungdomsidrott",
+      "source_url": "https://www.rf.se/rf-arbetar-med/barn--och-ungdomsidrott/riktlinjer-for-barn--och-ungdomsidrott",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB091",
+      "title": "Introduktion för tränare: Jag och träningen",
+      "source_url": "https://kunskapsarenan.se/idrottsovergripande/introduktionsutbildning-for-tranare/jag-traningen",
+      "category_before": "Börja som tränare",
+      "category_proposed": "Börja som tränare",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB092",
+      "title": "Hjärntrappan: stegvis återgång efter hjärnskakning",
+      "source_url": "https://www.folksam.se/forsakringar/idrottsforsakring/idrottsforskning/hjarntrappan",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB093",
+      "title": "Lär dig upptäcka och agera vid hjärnskakning",
+      "source_url": "https://www.cdc.gov/heads-up/training/youth-sports.html",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "403 automatiskt; separat kontroll krävs",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB094",
+      "title": "Sex steg tillbaka till idrott efter hjärnskakning",
+      "source_url": "https://www.cdc.gov/heads-up/guidelines/returning-to-sports.html",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "403 automatiskt; separat kontroll krävs",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB095",
+      "title": "Skydda barn vid träning i värme",
+      "source_url": "https://www.healthychildren.org/English/health-issues/injuries-emergencies/sports-injuries/Pages/Exercise-Related-Heat-Illness.aspx",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB096",
+      "title": "Vatten som grund för god vätskebalans",
+      "source_url": "https://www.healthychildren.org/English/healthy-living/nutrition/Pages/Choose-Water-for-Healthy-Hydration.aspx",
+      "category_before": "Kost, vätska och återhämtning",
+      "category_proposed": "Kost, vätska och återhämtning",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB097",
+      "title": "Varför barn inte behöver prestationshöjande kosttillskott",
+      "source_url": "https://www.healthychildren.org/English/healthy-living/sports/Pages/Performance-Enhancing-Substances.aspx",
+      "category_before": "Kost, vätska och återhämtning",
+      "category_proposed": "Kost, vätska och återhämtning",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB098",
+      "title": "Fråga barnen vad de vill få ut av idrotten",
+      "source_url": "https://projectplay.org/youth-sports/playbook/ask-kids-what-they-want",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB099",
+      "title": "Varför barn bör få lika speltid",
+      "source_url": "https://projectplay.org/news/2018/1/11/why-project-play-recommends-equal-playing-time-for-kids",
+      "category_before": "Match och spelformer",
+      "category_proposed": "Match och spelformer",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB100",
+      "title": "Föräldra-checklista för idrott 6–12 år",
+      "source_url": "https://projectplay.org/parent-checklists/ages-6-12-playing-sports",
+      "category_before": "Laget, relationer och föräldrar",
+      "category_proposed": "Laget, relationer och föräldrar",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB101",
+      "title": "Lugnt ledarskap, spelglädje och mod i en mot en",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/global-grassroots-insights/polonia-warsaw-quiet-coaching-joy-and-1v1-development.php",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB102",
+      "title": "Framtidens beslutsfattare – orientering och spel under press",
+      "source_url": "https://www.fifatrainingcentre.com/en/practice/grassroots/global-grassroots-insights/legia-warsaw-the-decision-makers-of-tomorrow.php",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB103",
+      "title": "Hur beslutsfattande bäst utvecklas i fotboll",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41842699/",
+      "category_before": "Fördjupning och forskning",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "203 automatiskt; abstract läst via PubMed",
+      "decision": "Undvik ordet bäst; kartläggande översikt fastställer ingen universellt bästa metod."
+    },
+    {
+      "id": "KB104",
+      "title": "Neuromuskulär uppvärmning och skador hos unga fotbollsspelare",
+      "source_url": "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2026.1853354/full",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Förtydliga målgruppen 8–18 år och att fotledsresultatet med exponeringsdata kommer från en studie."
+    },
+    {
+      "id": "KB105",
+      "title": "Spelbaserad träning kan stärka lärande och beslutsfattande",
+      "source_url": "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2026.1889606/full",
+      "category_before": "Spelförståelse och taktik",
+      "category_proposed": "Spelförståelse och taktik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Rubrik och sammanfattning ska visa att den föreslagna mekanismen är en teori."
+    },
+    {
+      "id": "KB106",
+      "title": "Så kan fotbollsklubbar skapa plats för alla",
+      "source_url": "https://footballaustralia.com.au/news/club-changer-month-august-2026",
+      "category_before": "Trygghet och inkludering",
+      "category_proposed": "Trygghet och inkludering",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB107",
+      "title": "Fotboll som kombinerad rörelse- och hälsoutbildning",
+      "source_url": "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2026.1765167/full",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Redovisa 10–11 veckor, olika scheman och avsaknad av egentlig kontrollgrupp; skilj riktningsförändring från ren snabbhet."
+    },
+    {
+      "id": "KB108",
+      "title": "Skador, tidig specialisering och utbrändhet i ungdomsfotboll",
+      "source_url": "https://www.sportsmed.org/membership/sports-medicine-update/summer-2026/the-challenge-of-successfully-rearing-the-next-world-cup-champion",
+      "category_before": "Skador och skadeprevention",
+      "category_proposed": "Skador och skadeprevention",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB109",
+      "title": "Utveckla din självinsikt som tränare",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2026/How-to-develop-self-awareness-as-a-coach",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB110",
+      "title": "Använd självreflektion i ditt ledarskap",
+      "source_url": "https://learn.englandfootball.com/articles-and-resources/coaching/resources/2026/How-to-use-self-reflection-in-your-coaching",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB111",
+      "title": "Evolution, inte revolution – programmet som förändrar Italiens spelarutbildning",
+      "source_url": "https://www.fifatrainingcentre.com/en/environment/good-practice/high-performance/train/how-italian-football-is-rebuilding-its-youth-football-methodology.php",
+      "category_before": "Ledarskap och pedagogik",
+      "category_proposed": "Ledarskap och pedagogik",
+      "link_check": "200; rätt sidtitel",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    },
+    {
+      "id": "KB112",
+      "title": "Träningsglädje, exekutiva funktioner och motorisk förmåga hos unga fotbollsspelare",
+      "source_url": "https://doi.org/10.3390/children13091204",
+      "category_before": "Fysik och motorik",
+      "category_proposed": "Fysik och motorik",
+      "link_check": "403 automatiskt; separat kontroll krävs",
+      "decision": "Ingen prioriterad ändring i denna omgång."
+    }
+  ]
+}

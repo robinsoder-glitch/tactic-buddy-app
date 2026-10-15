@@ -144,6 +144,8 @@ function KunskapsbankPage() {
       setEditing(null);
       setFormErrors([]);
       queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-article"] });
       toast.success("Artikeln sparades");
     },
     onError: (error) =>
@@ -159,6 +161,7 @@ function KunskapsbankPage() {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-articles"] });
       const parts = [`${result.created} artiklar importerades`];
       if (result.duplicates) parts.push(`${result.duplicates} dubbletter hoppades över`);
       if (result.invalid.length) parts.push(`${result.invalid.length} hade fel och lästes inte in`);
@@ -170,7 +173,11 @@ function KunskapsbankPage() {
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteArticle(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["kb-articles"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kb-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-article"] });
+    },
     onError: () => toast.error("Kunde inte radera artikeln"),
   });
 
@@ -230,7 +237,8 @@ function KunskapsbankPage() {
 
       <p className="mt-4 text-sm text-muted-foreground">
         Fördjupning för dig som tränar barn, särskilt 5–10 år. Här förklaras varför vi tränar som vi
-        gör – med källa och granskning.
+        gör. Välj ämne och typ för att hitta artiklar, utbildningar, träningsmaterial och forskning.
+        Under varje post framgår vilken källa och vilket underlag den bygger på.
       </p>
 
       <KnowledgeLibrary />

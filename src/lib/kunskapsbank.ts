@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
+import { KNOWLEDGE_TOPICS, knowledgeTopicId, knowledgeTopicLabel } from "./knowledge-taxonomy";
 
 export const KB_CATEGORIES = [
+  "getting_started",
+  "planning",
   "coaching",
   "technique",
   "game_understanding",
@@ -8,6 +11,7 @@ export const KB_CATEGORIES = [
   "nutrition",
   "goalkeeper",
   "team_environment",
+  "inclusion",
   "injury",
   "rules_formats",
   "research",
@@ -15,18 +19,7 @@ export const KB_CATEGORIES = [
 
 export type KbCategory = (typeof KB_CATEGORIES)[number];
 
-export const KB_CATEGORY_LABELS: Record<string, string> = {
-  coaching: "Tränarskap och pedagogik",
-  technique: "Teknik",
-  game_understanding: "Spelförståelse och taktik",
-  physical: "Fysik och motorik",
-  nutrition: "Kost och återhämtning",
-  goalkeeper: "Målvakt",
-  team_environment: "Laget och trygg miljö",
-  injury: "Skador och belastning",
-  rules_formats: "Regler och spelformer",
-  research: "Fördjupning och forskning",
-};
+export const KB_CATEGORY_LABELS: Record<string, string> = KNOWLEDGE_TOPICS;
 
 export const KB_LEVELS = ["basic", "intermediate", "advanced"] as const;
 export type KbLevel = (typeof KB_LEVELS)[number];
@@ -71,35 +64,6 @@ export type KbArticle = {
  */
 const KNOWLEDGE_COLUMNS =
   "id, title_sv, summary_sv, coach_value, category, level, source_name, original_url, checked_date, is_published, age_5_7, age_8_9, age_10";
-
-const CATEGORY_TO_SV: Record<string, string> = {
-  coaching: "Ledarskap och pedagogik",
-  technique: "Teknik med boll",
-  game_understanding: "Spelförståelse och taktik",
-  physical: "Fysik och motorik",
-  nutrition: "Kost, vätska och återhämtning",
-  goalkeeper: "Målvakt",
-  team_environment: "Laget, relationer och föräldrar",
-  injury: "Skador och skadeprevention",
-  rules_formats: "Match och spelformer",
-  research: "Fördjupning och forskning",
-};
-
-const SV_TO_CATEGORY: Record<string, string> = {
-  "Börja som tränare": "coaching",
-  "Ledarskap och pedagogik": "coaching",
-  Träningsplanering: "coaching",
-  "Teknik med boll": "technique",
-  "Spelförståelse och taktik": "game_understanding",
-  "Fysik och motorik": "physical",
-  "Kost, vätska och återhämtning": "nutrition",
-  Målvakt: "goalkeeper",
-  "Laget, relationer och föräldrar": "team_environment",
-  "Trygghet och inkludering": "team_environment",
-  "Skador och skadeprevention": "injury",
-  "Match och spelformer": "rules_formats",
-  "Fördjupning och forskning": "research",
-};
 
 const LEVEL_TO_SV: Record<string, string> = {
   basic: "Grund",
@@ -155,7 +119,7 @@ function toArticle(row: KnowledgeRow): KbArticle {
     title: row.title_sv,
     summary: row.summary_sv,
     coach_value: row.coach_value,
-    category: SV_TO_CATEGORY[row.category] ?? "coaching",
+    category: knowledgeTopicId(row.category),
     level: SV_TO_LEVEL[row.level ?? ""] ?? "basic",
     source_name: row.source_name,
     source_url: row.original_url || null,
@@ -185,7 +149,7 @@ function toRow(input: ArticleInput) {
     title_sv: input.title.trim(),
     summary_sv: (input.summary ?? "").trim(),
     coach_value: input.coach_value?.trim() || null,
-    category: CATEGORY_TO_SV[input.category] ?? "Ledarskap och pedagogik",
+    category: knowledgeTopicLabel(input.category),
     level: LEVEL_TO_SV[input.level] ?? "Grund",
     source_name: input.source_name?.trim() || null,
     original_url: (input.source_url ?? "").trim(),

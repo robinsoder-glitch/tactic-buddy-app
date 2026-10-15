@@ -11,6 +11,7 @@ import {
   knowledgeCategories,
   knowledgeKind,
   knowledgeLevels,
+  KNOWLEDGE_KINDS,
 } from "@/lib/knowledge";
 
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ export function KnowledgeLibrary() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [level, setLevel] = useState("all");
+  const [kind, setKind] = useState("all");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -84,30 +86,47 @@ export function KnowledgeLibrary() {
   const levels = useMemo(() => knowledgeLevels(all), [all]);
   const list = useMemo(
     () =>
-      filterKnowledge(all, { query, category, level }).filter(
+      filterKnowledge(all, { query, category, level, kind }).filter(
         (article) => !onlyFavorites || favoriteSet.has(article.id),
       ),
-    [all, query, category, level, onlyFavorites, favoriteSet],
+    [all, query, category, level, kind, onlyFavorites, favoriteSet],
   );
   useEffect(() => {
     setVisible(PAGE_SIZE);
-  }, [query, category, level, onlyFavorites]);
+  }, [query, category, level, kind, onlyFavorites]);
   const shown = list.slice(0, visible);
 
   return (
-    <section aria-label="Granskade artiklar" className="mt-4">
+    <section aria-label="Kunskapsmaterial" className="mt-4">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="pl-9"
-          placeholder="Sök bland granskade artiklar"
-          aria-label="Sök bland granskade artiklar"
+          placeholder="Sök bland artiklar och resurser"
+          aria-label="Sök bland artiklar och resurser"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
       </div>
 
       <div className="mt-3 space-y-2">
+        <label className="flex flex-wrap items-center gap-2 text-sm">
+          Typ av innehåll
+          <select
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            value={kind}
+            onChange={(event) => setKind(event.target.value)}
+          >
+            <option value="all">Alla typer</option>
+            {KNOWLEDGE_KINDS.filter((item) =>
+              all.some((article) => knowledgeKind(article) === item),
+            ).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
         <Chips
           label="Kategori"
           value={category}
@@ -142,8 +161,17 @@ export function KnowledgeLibrary() {
         </button>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        {articles.isLoading ? "Laddar artiklar…" : `${list.length} av ${all.length} artiklar`}
+      {articles.isError && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          Kunskapsmaterialet kunde inte hämtas. Försök igen om en stund.
+        </p>
+      )}
+      <p className="mt-3 text-xs text-muted-foreground" aria-live="polite">
+        {articles.isLoading
+          ? "Laddar kunskapsmaterial…"
+          : articles.isError
+            ? ""
+            : `${list.length} av ${all.length} poster`}
       </p>
 
       <div className="mt-2 space-y-3">
@@ -186,10 +214,13 @@ export function KnowledgeLibrary() {
               </p>
               <h3 className="mt-1 font-display text-lg font-semibold">{article.title_sv}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{article.summary_sv}</p>
+              {article.source_name && (
+                <p className="mt-2 text-xs text-muted-foreground">Källa: {article.source_name}</p>
+              )}
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {article.reading_minutes ? (
                   <span className="inline-flex items-center gap-1">
-                    <Clock className="size-3.5" /> {article.reading_minutes} min
+                    <Clock className="size-3.5" /> ca {article.reading_minutes} min
                   </span>
                 ) : null}
               </div>
@@ -209,7 +240,7 @@ export function KnowledgeLibrary() {
           </button>
         )}
 
-        {!articles.isLoading && list.length === 0 && (
+        {!articles.isLoading && !articles.isError && list.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <BookOpen className="mx-auto size-8 text-primary" />
             <p className="mt-3 text-sm text-muted-foreground">Inga artiklar matchar filtren.</p>
