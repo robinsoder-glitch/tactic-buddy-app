@@ -9,7 +9,16 @@ import { useAccount } from "@/hooks/useAccount";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/konton")({
-  head: () => ({ meta: [{"title": "Administrera konton – Fotbollsrummet"}, {"name": "description", "content": "Hantera konton och behörigheter i Fotbollsrummet."}, {"property": "og:title", "content": "Administrera konton – Fotbollsrummet"}, {"property": "og:description", "content": "Hantera konton och behörigheter i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Administrera konton – Fotbollsrummet" },
+      { name: "description", content: "Hantera konton och behörigheter i Fotbollsrummet." },
+      { property: "og:title", content: "Administrera konton – Fotbollsrummet" },
+      { property: "og:description", content: "Hantera konton och behörigheter i Fotbollsrummet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminAccounts,
 });
 

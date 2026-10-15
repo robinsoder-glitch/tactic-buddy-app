@@ -405,7 +405,11 @@ function CreateSessionDialog({
           </div>
           <div className="space-y-1">
             <Label htmlFor="new-date">Datum (frivilligt)</Label>
-            <DateField id="new-date" value={draft.session_date ?? ""} onChange={(value) => set({ session_date: value || null })} />
+            <DateField
+              id="new-date"
+              value={draft.session_date ?? ""}
+              onChange={(value) => set({ session_date: value || null })}
+            />
           </div>
           <div className="space-y-1">
             <Label htmlFor="new-theme">Träningens tema</Label>

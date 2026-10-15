@@ -1,14 +1,14 @@
-import type { ComponentType } from 'react'
-import { template as matchInvitationTemplate } from './match-invitation'
-import { template as contactMessageTemplate } from './contact-message'
+import type { ComponentType } from "react";
+import { template as matchInvitationTemplate } from "./match-invitation";
+import { template as contactMessageTemplate } from "./contact-message";
 
 export interface TemplateEntry {
-  component: ComponentType<any>
-  subject: string | ((data: Record<string, any>) => string)
-  displayName?: string
-  previewData?: Record<string, any>
+  component: ComponentType<Record<string, string | undefined>>;
+  subject: string | ((data: Record<string, string | undefined>) => string);
+  displayName?: string;
+  previewData?: Record<string, string | undefined>;
   /** Fixed recipient — overrides caller-provided recipientEmail when set. */
-  to?: string
+  to?: string;
 }
 
 /**
@@ -16,6 +16,6 @@ export interface TemplateEntry {
  * Import and register new templates here after creating them in this directory.
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  'match-invitation': matchInvitationTemplate,
-  'contact-message': contactMessageTemplate,
-}
+  "match-invitation": matchInvitationTemplate,
+  "contact-message": contactMessageTemplate,
+};

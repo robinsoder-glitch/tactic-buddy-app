@@ -7,7 +7,16 @@ import { downloadIcs } from "@/lib/ics";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/calendar")({
-  head: () => ({ meta: [{"title": "Lagets kalender – Fotbollsrummet"}, {"name": "description", "content": "Se lagets matcher och träningar i Fotbollsrummet."}, {"property": "og:title", "content": "Lagets kalender – Fotbollsrummet"}, {"property": "og:description", "content": "Se lagets matcher och träningar i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Lagets kalender – Fotbollsrummet" },
+      { name: "description", content: "Se lagets matcher och träningar i Fotbollsrummet." },
+      { property: "og:title", content: "Lagets kalender – Fotbollsrummet" },
+      { property: "og:description", content: "Se lagets matcher och träningar i Fotbollsrummet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: CalendarPage,
 });
 
@@ -38,6 +47,10 @@ function CalendarPage() {
         </Button>
       </div>
       <div>
+        <p className="text-xs text-muted-foreground">
+          Kalenderfilen är en engångsexport. Senare ändringar synkroniseras inte automatiskt.
+          Inställda aktiviteter följer med som avbokade.
+        </p>
         <ul className="mt-3 space-y-2">
           {upcoming.length === 0 && (
             <li className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">

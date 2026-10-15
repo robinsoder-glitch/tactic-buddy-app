@@ -316,9 +316,9 @@ export function revokedText(input: {
   return `Återkallad av ${input.name ?? "en ledare"} ${stamp}`;
 }
 
-/** Externa kanaler saknas – var ärlig om det. */
+/** Skilj publicering i appen från det valfria mejlutskicket. */
 export const EXTERNAL_CHANNELS_TEXT =
-  "E-post och push är inte aktiverat – kallelsen finns bara i appen.";
+  "Kallelsen finns i appen. E-post skickas om du väljer en mejlkopia. Pushnotiser skickas inte.";
 
 export const PUBLISH_BUTTON_TEXT = "Publicera kallelse i Fotbollsrummet";
 

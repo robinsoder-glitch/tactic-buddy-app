@@ -12,7 +12,19 @@ import { ConfirmDeleteDialog } from "@/components/admin/ConfirmDeleteDialog";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/lag/$teamId")({
-  head: () => ({ meta: [{"title": "Administrera lag – Fotbollsrummet"}, {"name": "description", "content": "Granska laguppgifter och medlemmar i Fotbollsrummet."}, {"property": "og:title", "content": "Administrera lag – Fotbollsrummet"}, {"property": "og:description", "content": "Granska laguppgifter och medlemmar i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Administrera lag – Fotbollsrummet" },
+      { name: "description", content: "Granska laguppgifter och medlemmar i Fotbollsrummet." },
+      { property: "og:title", content: "Administrera lag – Fotbollsrummet" },
+      {
+        property: "og:description",
+        content: "Granska laguppgifter och medlemmar i Fotbollsrummet.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminTeamDetail,
 });
 
@@ -240,8 +252,8 @@ function AdminTeamDetail() {
           </label>
         </div>
         <p className="text-xs text-muted-foreground">
-          Lagkod <span className="font-mono">{codes.data?.join_code ?? "······"}</span> ·
-          Ledarkod <span className="font-mono">{codes.data?.coach_join_code ?? "······"}</span>
+          Lagkod <span className="font-mono">{codes.data?.join_code ?? "······"}</span> · Ledarkod{" "}
+          <span className="font-mono">{codes.data?.coach_join_code ?? "······"}</span>
         </p>
         <div className="flex flex-wrap gap-2">
           <button

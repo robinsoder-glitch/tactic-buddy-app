@@ -3,7 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPlatformStats } from "@/lib/admin-data";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  head: () => ({ meta: [{"title": "Administration – Fotbollsrummet"}, {"name": "description", "content": "Översikt över Fotbollsrummets lag, konton och innehåll."}, {"property": "og:title", "content": "Administration – Fotbollsrummet"}, {"property": "og:description", "content": "Översikt över Fotbollsrummets lag, konton och innehåll."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Administration – Fotbollsrummet" },
+      { name: "description", content: "Översikt över Fotbollsrummets lag, konton och innehåll." },
+      { property: "og:title", content: "Administration – Fotbollsrummet" },
+      {
+        property: "og:description",
+        content: "Översikt över Fotbollsrummets lag, konton och innehåll.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminOverview,
 });
 

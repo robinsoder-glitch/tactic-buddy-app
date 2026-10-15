@@ -16,7 +16,10 @@ import { fetchCoachSessions } from "@/lib/coach-sessions";
 import { fetchCoachDrills } from "@/lib/coach-drills";
 import { fetchTactics } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import { TrainingContentPicker, type TrainingContentChoice } from "@/components/TrainingContentPicker";
+import {
+  TrainingContentPicker,
+  type TrainingContentChoice,
+} from "@/components/TrainingContentPicker";
 
 type Props = {
   eventId: string;
@@ -106,7 +109,13 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
   const add = useMutation({
     mutationFn: (input: TrainingContentChoice) => {
       if (!userId) throw new Error("Du måste vara inloggad.");
-      return addEventResource({ eventId, teamId, userId, kind: input.kind, resourceId: input.resourceId });
+      return addEventResource({
+        eventId,
+        teamId,
+        userId,
+        kind: input.kind,
+        resourceId: input.resourceId,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event-resources", eventId] });
@@ -201,7 +210,14 @@ export function EventResources({ eventId, teamId, userId, isCoach }: Props) {
         </p>
       )}
 
-      <TrainingContentPicker open={open} onOpenChange={setOpen} userId={userId} pending={add.isPending} includeTactics onSelect={(choice) => add.mutate(choice)} />
+      <TrainingContentPicker
+        open={open}
+        onOpenChange={setOpen}
+        userId={userId}
+        pending={add.isPending}
+        includeTactics
+        onSelect={(choice) => add.mutate(choice)}
+      />
     </div>
   );
 }

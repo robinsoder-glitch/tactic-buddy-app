@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  buildFunnel,
-  FLOW_EVENT_LABELS,
-  type FlowEvent,
-} from "@/lib/flow-tracking";
+import { buildFunnel, FLOW_EVENT_LABELS, type FlowEvent } from "@/lib/flow-tracking";
 import { formatDateTime } from "@/lib/teams";
 
 export const Route = createFileRoute("/_authenticated/admin/flode")({

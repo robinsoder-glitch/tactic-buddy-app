@@ -141,7 +141,9 @@ function SessionView() {
             .join(" · ")}
         </p>
         <div className="mt-3">
-          <TrainingFocusSummary areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)} />
+          <TrainingFocusSummary
+            areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)}
+          />
         </div>
         {session.data.goal && (
           <p className="mt-3 rounded-lg border border-border bg-card p-3 text-sm">

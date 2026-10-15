@@ -85,7 +85,8 @@ function SessionBuilder() {
 
   useEffect(() => {
     if (session.data && !draft) {
-      const { title, session_date, age_group, game_format, theme, focus_areas, goal, notes } = session.data;
+      const { title, session_date, age_group, game_format, theme, focus_areas, goal, notes } =
+        session.data;
       setDraft({ title, session_date, age_group, game_format, theme, focus_areas, goal, notes });
     }
   }, [session.data, draft]);
@@ -168,7 +169,10 @@ function SessionBuilder() {
     if (items.length > 0 && totalMinutes(items) === 0)
       problems.push("Ingen tid är satt på delarna.");
     if (!session.data?.session_date) problems.push("Datum saknas.");
-    if (focusAreasWithLegacy(session.data?.focus_areas ?? [], session.data?.theme ?? null).length === 0)
+    if (
+      focusAreasWithLegacy(session.data?.focus_areas ?? [], session.data?.theme ?? null).length ===
+      0
+    )
       problems.push("Träningsfokus saknas.");
     if (!session.data?.goal?.trim()) problems.push("Målsättningen är tom.");
     return problems;
@@ -284,7 +288,11 @@ function SessionBuilder() {
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <Label htmlFor="edit-date">Datum</Label>
-                <DateField id="edit-date" value={draft.session_date ?? ""} onChange={(value) => set({ session_date: value || null })} />
+                <DateField
+                  id="edit-date"
+                  value={draft.session_date ?? ""}
+                  onChange={(value) => set({ session_date: value || null })}
+                />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="edit-age">Åldersgrupp</Label>

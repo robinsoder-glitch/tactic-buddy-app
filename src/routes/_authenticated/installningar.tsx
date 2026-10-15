@@ -273,8 +273,8 @@ function SettingsPage() {
           <MailQuestion className="size-4 text-primary" /> Kontakta oss
         </h2>
         <p className="text-sm text-muted-foreground">
-          Har du en fråga eller har hittat något som inte fungerar? Skicka ett meddelande så
-          svarar vi till den e-postadress som är kopplad till ditt konto.
+          Har du en fråga eller har hittat något som inte fungerar? Skicka ett meddelande så svarar
+          vi till den e-postadress som är kopplad till ditt konto.
         </p>
         <ContactDialog
           trigger={

@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, CalendarPlus, ClipboardList, MapPin, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  CalendarPlus,
+  ClipboardList,
+  MapPin,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { invalidateCalendar } from "@/lib/calendar-cache";
 import { toast } from "sonner";
 import { EventManager } from "@/components/EventManager";
@@ -397,7 +405,12 @@ function PlanTrainingPage() {
     purpose: form.purpose.trim() || undefined,
     area: form.area.trim() || undefined,
     players: form.players.trim() || undefined,
-    equipment: form.equipment.trim() ? form.equipment.split(",").map((item) => item.trim()).filter(Boolean) : undefined,
+    equipment: form.equipment.trim()
+      ? form.equipment
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : undefined,
     organisation: lines(form.organisation),
     execution: lines(form.execution || form.instruction),
     coachingPoints: lines(form.focus),
@@ -411,10 +424,10 @@ function PlanTrainingPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-8 md:pt-20">
       <header>
-      <h1 className="font-display text-3xl font-bold">Planera träning</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Boka ett träningstillfälle i lagets kalender och fyll det sedan med övningar.
-      </p>
+        <h1 className="font-display text-3xl font-bold">Planera träning</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Boka ett träningstillfälle i lagets kalender och fyll det sedan med övningar.
+        </p>
       </header>
 
       {!eventId && view === "start" && (
@@ -620,10 +633,18 @@ function PlanTrainingPage() {
                       Skriv en egen övning direkt i den här träningen.
                     </span>
                   </button>
-                  <Button variant="outline" onClick={() => setContentOpen(true)} className="h-auto min-h-32 flex-col items-start justify-center whitespace-normal p-5 text-left">
+                  <Button
+                    variant="outline"
+                    onClick={() => setContentOpen(true)}
+                    className="h-auto min-h-32 flex-col items-start justify-center whitespace-normal p-5 text-left"
+                  >
                     <BookOpen className="size-6 text-primary" aria-hidden />
-                    <span className="mt-2 font-display text-lg font-semibold">Koppla träningspass eller övning</span>
-                    <span className="text-sm font-normal text-muted-foreground">Mina träningspass och övningar</span>
+                    <span className="mt-2 font-display text-lg font-semibold">
+                      Koppla träningspass eller övning
+                    </span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      Mina träningspass och övningar
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -740,7 +761,9 @@ function PlanTrainingPage() {
                         id="plan-goal"
                         rows={2}
                         value={draft?.goal ?? ""}
-                        onChange={(event) => draft && update({ ...draft, goal: event.target.value })}
+                        onChange={(event) =>
+                          draft && update({ ...draft, goal: event.target.value })
+                        }
                       />
                       {!draft?.goal.trim() && (
                         <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive">
@@ -780,12 +803,26 @@ function PlanTrainingPage() {
         </section>
       )}
 
-      <TrainingContentPicker open={contentOpen} onOpenChange={setContentOpen} userId={user?.id ?? null} onSelect={(choice) => {
-        if (!draft || choice.kind === "tactic" || choice.kind === "article") return;
-        update(addDraftItem(draft, { kind: choice.kind, resourceId: choice.resourceId, title: choice.title, minutes: choice.minutes, note: null, details: choice.details }));
-        setContentOpen(false);
-        toast.success(`${choice.title} lades till i träningen.`);
-      }} />
+      <TrainingContentPicker
+        open={contentOpen}
+        onOpenChange={setContentOpen}
+        userId={user?.id ?? null}
+        onSelect={(choice) => {
+          if (!draft || choice.kind === "tactic" || choice.kind === "article") return;
+          update(
+            addDraftItem(draft, {
+              kind: choice.kind,
+              resourceId: choice.resourceId,
+              title: choice.title,
+              minutes: choice.minutes,
+              note: null,
+              details: choice.details,
+            }),
+          );
+          setContentOpen(false);
+          toast.success(`${choice.title} lades till i träningen.`);
+        }}
+      />
 
       <Dialog open={ownOpen} onOpenChange={setOwnOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
@@ -889,14 +926,20 @@ function PlanTrainingPage() {
                   rows={key === "area" || key === "players" || key === "safety" ? 2 : 3}
                   placeholder={placeholder}
                   value={form[key as keyof typeof form] as string}
-                  onChange={(event) => setForm((state) => ({ ...state, [key as string]: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((state) => ({ ...state, [key as string]: event.target.value }))
+                  }
                 />
               </div>
             ))}
             <section className="rounded-lg border border-border p-3">
               <h3 className="font-semibold">Förhandsgranskning</h3>
               <ExerciseGuide guide={ownGuide} />
-              {!Object.values(ownGuide).some(Boolean) && <p className="mt-2 text-sm text-muted-foreground">Fyll i valfria detaljer för att se guiden.</p>}
+              {!Object.values(ownGuide).some(Boolean) && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Fyll i valfria detaljer för att se guiden.
+                </p>
+              )}
             </section>
             <label className="flex items-center gap-2 text-sm">
               <input

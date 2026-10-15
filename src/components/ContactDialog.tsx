@@ -51,7 +51,9 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
       // Nytt id så nästa meddelande inte slås ihop med det som just skickades.
       setClientId(crypto.randomUUID());
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kunde inte skicka meddelandet. Försök igen.");
+      toast.error(
+        error instanceof Error ? error.message : "Kunde inte skicka meddelandet. Försök igen.",
+      );
     } finally {
       setSending(false);
     }
@@ -95,12 +97,7 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
               {message.length}/{CONTACT_MESSAGE_MAX}
             </p>
           </div>
-          <Button
-            type="button"
-            className="w-full"
-            disabled={sending}
-            onClick={() => void submit()}
-          >
+          <Button type="button" className="w-full" disabled={sending} onClick={() => void submit()}>
             <Send className="mr-2 size-4" aria-hidden />
             {sending ? "Skickar…" : "Skicka meddelande"}
           </Button>

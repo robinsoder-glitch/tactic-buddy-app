@@ -26,7 +26,6 @@ import {
 } from "@/lib/account-setup";
 import type { CodeStatus } from "@/components/auth/AccountSetupFields";
 import { friendlyError } from "@/lib/user-errors";
-import { checkEmailExists } from "@/lib/auth.functions";
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND_NAME } from "@/lib/brand";
 import { safeNextPath, teamCodeFromToken } from "@/lib/invite-links";
@@ -173,19 +172,13 @@ function AuthPage() {
     }
     setBusy(true);
     try {
-      const { exists } = await checkEmailExists({ data: { email: trimmedEmail } });
-      if (!exists) {
-        toast.error("Det finns inget konto med den här e-postadressen.");
-        return;
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password,
       });
       if (error) {
         if (/invalid login credentials|invalid_credentials/i.test(error.message)) {
-          toast.error("Fel lösenord. Försök igen.");
+          toast.error("E-postadressen eller lösenordet stämmer inte. Försök igen.");
         } else {
           throw error;
         }
@@ -475,7 +468,6 @@ function AuthPage() {
               <Button type="submit" className="w-full" disabled={busy}>
                 {mode === "signin" ? "Logga in" : "Skapa konto"}
               </Button>
-
             </form>
 
             {mode === "signin" && (

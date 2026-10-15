@@ -151,7 +151,6 @@ function StartPage() {
     if (isCoach) void trackFlowEvent("coach_start_opened", { teamId, role: "coach" });
   }, [isCoach, teamId]);
 
-
   const addPlayer = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error("Du måste vara inloggad.");

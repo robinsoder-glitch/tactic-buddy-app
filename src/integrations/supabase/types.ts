@@ -3072,6 +3072,20 @@ export type Database = {
         }
       }
       gen_team_code: { Args: never; Returns: string }
+      transfer_team_ownership: {
+        Args: { _team_id: string; _new_owner_id: string }
+        Returns: undefined
+      }
+      save_event_details: {
+        Args: {
+          _event_id: string
+          _starts_at: string
+          _ends_at: string | null
+          _meet_at: string | null
+          _location: string | null
+        }
+        Returns: undefined
+      }
       get_my_day_summary: { Args: never; Returns: Json }
       get_player_private: {
         Args: { _player_id: string }

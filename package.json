@@ -12,7 +12,9 @@
     "format": "prettier --write .",
     "test:e2e": "python3 e2e/onboarding-flow.py",
     "cap:sync": "capacitor sync ios",
-    "cap:open": "capacitor open ios"
+    "cap:open": "capacitor open ios",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -88,6 +90,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
+    "@electric-sql/pglite": "0.3.14",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.25.3",
     "@types/node": "^22.16.5",

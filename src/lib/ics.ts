@@ -44,14 +44,19 @@ export function buildIcs(events: TeamEvent[], teamName: string) {
         ? parsed
         : new Date(start.getTime() + 90 * 60 * 1000);
     const title = event.title ?? (event.type === "training" ? "Träning" : "Match");
+    const cancelled = Boolean(event.cancelled_at);
     lines.push(
       "BEGIN:VEVENT",
       `UID:${event.id}@taktiktavlan`,
       `DTSTAMP:${toIcsDate(new Date())}`,
       `DTSTART:${toIcsDate(start)}`,
       `DTEND:${toIcsDate(end)}`,
-      `SUMMARY:${escape(`${teamName} – ${title}`)}`,
+      `SUMMARY:${escape(`${cancelled ? "INSTÄLLD: " : ""}${teamName} – ${title}`)}`,
+      `STATUS:${cancelled ? "CANCELLED" : "CONFIRMED"}`,
     );
+    if (event.cancelled_at) {
+      lines.push(`LAST-MODIFIED:${toIcsDate(new Date(event.cancelled_at))}`);
+    }
     if (event.location) lines.push(`LOCATION:${escape(event.location)}`);
     if (event.notes) lines.push(`DESCRIPTION:${escape(event.notes)}`);
     lines.push("END:VEVENT");

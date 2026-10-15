@@ -46,7 +46,10 @@ export function TrainingFocusSummary({ areas }: { areas: string[] }) {
   return (
     <div className="flex flex-wrap gap-2" aria-label="Träningens fokus">
       {areas.map((area) => (
-        <span key={area} className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+        <span
+          key={area}
+          className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary"
+        >
           {area}
         </span>
       ))}
