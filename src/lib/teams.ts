@@ -265,7 +265,14 @@ export async function updateTeam(
   patch: Partial<
     Pick<
       Team,
-      "name" | "age_group" | "game_format" | "guardian_only" | "gender" | "about" | "home_ground" | "photo_path"
+      | "name"
+      | "age_group"
+      | "game_format"
+      | "guardian_only"
+      | "gender"
+      | "about"
+      | "home_ground"
+      | "photo_path"
     >
   >,
 ) {
@@ -432,7 +439,6 @@ export async function previewTeamByCode(code: string): Promise<TeamCodePreview |
   const rows = (data ?? []) as TeamCodePreview[];
   return rows[0] ?? null;
 }
-
 
 /** Ansluter inloggad användare till laget som spelare eller tränare beroende på koden. */
 export async function joinTeamWithCode(
@@ -1090,9 +1096,7 @@ export async function approveJoinWithNewPlayer(
     _player_name: playerName,
   });
   if (error) throw new Error(error.message);
-  const row = (
-    (data ?? []) as { member_role: string; linked_player_id: string | null }[]
-  )[0];
+  const row = ((data ?? []) as { member_role: string; linked_player_id: string | null }[])[0];
   return { role: row?.member_role ?? "player", linkedPlayerId: row?.linked_player_id ?? null };
 }
 
@@ -1170,11 +1174,10 @@ export async function ensureOwnerMembership(teamId: string, userId: string) {
 
 /** Överlåt lagägarskapet till en annan godkänd ledare. */
 export async function transferTeamOwnership(teamId: string, newOwnerUserId: string) {
-  await ensureOwnerMembership(teamId, newOwnerUserId);
-  const { error } = await supabase
-    .from("teams")
-    .update({ created_by: newOwnerUserId })
-    .eq("id", teamId);
+  const { error } = await supabase.rpc("transfer_team_ownership", {
+    _team_id: teamId,
+    _new_owner_id: newOwnerUserId,
+  });
   if (error) throw error;
 }
 

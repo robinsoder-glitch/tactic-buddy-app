@@ -21,7 +21,7 @@ import {
   validateEventTimes,
   type EventTimeErrors,
 } from "@/lib/event-datetime";
-import { changeReceipt, diffEvent, logEventChange } from "@/lib/event-changes";
+import { changeReceipt, diffEvent } from "@/lib/event-changes";
 import { recentLocations } from "@/lib/locations";
 import { fetchEvents, type TeamEvent } from "@/lib/teams";
 
@@ -82,9 +82,14 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
       const changes = diffEvent(event, patch);
       if (changes.length === 0) return changes;
 
-      const { error } = await supabase.from("events").update(patch).eq("id", event.id);
+      const { error } = await supabase.rpc("save_event_details", {
+        _event_id: event.id,
+        _starts_at: patch.starts_at,
+        _ends_at: patch.ends_at,
+        _meet_at: patch.meet_at,
+        _location: patch.location,
+      });
       if (error) throw error;
-      await logEventChange(event.id, changes);
       return changes;
     },
     onSuccess: async (changes) => {

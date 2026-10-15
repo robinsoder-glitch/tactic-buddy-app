@@ -7,13 +7,21 @@ function GuideList({ title, items }: { title: string; items: string[] | undefine
     <section>
       <h4 className="font-semibold text-foreground">{title}</h4>
       <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
-        {items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+        {items.map((item, index) => (
+          <li key={`${item}-${index}`}>{item}</li>
+        ))}
       </ul>
     </section>
   );
 }
 
-export function ExerciseGuide({ guide, compact = false }: { guide?: ExerciseGuideData | null; compact?: boolean }) {
+export function ExerciseGuide({
+  guide,
+  compact = false,
+}: {
+  guide?: ExerciseGuideData | null;
+  compact?: boolean;
+}) {
   if (!guideHasContent(guide)) return null;
   const facts = [
     guide?.area ? ["Yta", guide.area] : null,
@@ -23,12 +31,18 @@ export function ExerciseGuide({ guide, compact = false }: { guide?: ExerciseGuid
 
   return (
     <div className={compact ? "mt-3 space-y-3" : "mt-4 space-y-4"}>
-      {guide?.purpose && <p className="text-sm"><span className="font-semibold">Syfte: </span>{guide.purpose}</p>}
+      {guide?.purpose && (
+        <p className="text-sm">
+          <span className="font-semibold">Syfte: </span>
+          {guide.purpose}
+        </p>
+      )}
       {facts.length > 0 && (
         <dl className="grid gap-2 text-sm sm:grid-cols-3">
           {facts.map(([term, value]) => (
             <div key={term} className="rounded-lg bg-secondary/60 px-3 py-2">
-              <dt className="text-xs text-muted-foreground">{term}</dt><dd className="font-medium">{value}</dd>
+              <dt className="text-xs text-muted-foreground">{term}</dt>
+              <dd className="font-medium">{value}</dd>
             </div>
           ))}
         </dl>
@@ -42,7 +56,12 @@ export function ExerciseGuide({ guide, compact = false }: { guide?: ExerciseGuid
         <GuideList title="Försvåra" items={guide?.challenge} />
         <GuideList title="Tecken på att övningen fungerar" items={guide?.successSigns} />
       </div>
-      {guide?.safety && <p className="rounded-lg border border-border p-3 text-sm"><span className="font-semibold">Säkerhet: </span>{guide.safety}</p>}
+      {guide?.safety && (
+        <p className="rounded-lg border border-border p-3 text-sm">
+          <span className="font-semibold">Säkerhet: </span>
+          {guide.safety}
+        </p>
+      )}
     </div>
   );
 }

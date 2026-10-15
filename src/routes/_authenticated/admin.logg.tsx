@@ -4,7 +4,16 @@ import { fetchAuditLog } from "@/lib/admin-data";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/logg")({
-  head: () => ({ meta: [{"title": "Administrationslogg – Fotbollsrummet"}, {"name": "description", "content": "Följ administrativa ändringar i Fotbollsrummet."}, {"property": "og:title", "content": "Administrationslogg – Fotbollsrummet"}, {"property": "og:description", "content": "Följ administrativa ändringar i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Administrationslogg – Fotbollsrummet" },
+      { name: "description", content: "Följ administrativa ändringar i Fotbollsrummet." },
+      { property: "og:title", content: "Administrationslogg – Fotbollsrummet" },
+      { property: "og:description", content: "Följ administrativa ändringar i Fotbollsrummet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminLog,
 });
 

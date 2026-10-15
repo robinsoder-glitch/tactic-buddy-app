@@ -14,7 +14,8 @@ export async function copyText(value: string): Promise<boolean> {
     /* faller tillbaka nedan */
   }
   if (typeof document === "undefined" || !document.body) return false;
-  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const previousFocus =
+    document.activeElement instanceof HTMLElement ? document.activeElement : null;
   const field = document.createElement("textarea");
   try {
     field.value = value;

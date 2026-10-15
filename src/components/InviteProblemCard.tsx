@@ -55,7 +55,8 @@ export function InviteProblemCard({
           </Button>
           {attempts > 1 && !retrying && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Vi har försökt {attempts} gånger utan att lyckas. Be gärna tränaren skicka länken igen.
+              Vi har försökt {attempts} gånger utan att lyckas. Be gärna tränaren skicka länken
+              igen.
             </p>
           )}
         </div>

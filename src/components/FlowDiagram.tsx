@@ -5,7 +5,13 @@ import { currentFlowStep, type FlowStep } from "@/lib/invite-flow";
  * Enkel flödesskiss: alla steg i ordning, med tydlig markering av var man är
  * och vad som händer härnäst.
  */
-export function FlowDiagram({ steps, title = "Så går det till" }: { steps: FlowStep[]; title?: string }) {
+export function FlowDiagram({
+  steps,
+  title = "Så går det till",
+}: {
+  steps: FlowStep[];
+  title?: string;
+}) {
   const current = currentFlowStep(steps);
 
   return (

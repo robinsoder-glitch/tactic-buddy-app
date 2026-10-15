@@ -45,5 +45,4 @@ describe("datum följer med när aktiviteten sparas", () => {
     expect(schedule.date).toBe("");
     expect(validateEventTimes(schedule).date).toBe("Välj ett datum.");
   });
-
 });

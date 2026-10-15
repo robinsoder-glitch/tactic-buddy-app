@@ -1,11 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
-import {
-  contactMessageSchema,
-  nextContactRateBucket,
-  type ContactRateBucket,
-} from "@/lib/contact";
+import { contactMessageSchema, nextContactRateBucket, type ContactRateBucket } from "@/lib/contact";
 
 // Bästa möjliga-minnesgräns per worker-instans; den riktiga spärren är
 // Lovables server-spärrar, men det här stoppar uppenbart missbruk.

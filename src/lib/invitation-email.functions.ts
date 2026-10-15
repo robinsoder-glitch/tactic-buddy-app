@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
+import type { InvitationEmailResult } from "@/lib/invitation-delivery";
 
 /** Svensk datum- och tidstext, t.ex. "lördag 20 september kl. 11:00". */
 function formatDateTime(value: string | null): string | undefined {
@@ -32,12 +33,6 @@ function formatDate(value: string | null): string | undefined {
   }).format(date);
 }
 
-export type InvitationEmailResult = {
-  sent: number;
-  skipped: number;
-  failed: number;
-};
-
 /**
  * Skickar kallelsen som mejl till spelarens eget konto och till kopplade
  * vårdnadshavare. Bara en ledare i laget får göra det. Mejlet är en kopia –
@@ -45,7 +40,15 @@ export type InvitationEmailResult = {
  */
 export const sendInvitationEmails = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ eventId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        eventId: z.string().uuid(),
+        playerIds: z.array(z.string().uuid()).min(1).max(200),
+        operationId: z.string().uuid(),
+      })
+      .parse(data),
+  )
   .handler(async ({ data, context }): Promise<InvitationEmailResult> => {
     const db = context.supabase;
 
@@ -68,12 +71,17 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
     if (coachError) throw new Error(coachError.message);
     if (!isCoach) throw new Error("Bara lagets ledare kan skicka mejlkallelser.");
 
-    const { data: team } = await db.from("teams").select("name").eq("id", event.team_id).maybeSingle();
+    const { data: team } = await db
+      .from("teams")
+      .select("name")
+      .eq("id", event.team_id)
+      .maybeSingle();
 
     const { data: invitations, error: inviteError } = await db
       .from("event_invitations")
       .select("id, player_id, message, respond_by, revoked_at, players(name, member_user_id)")
-      .eq("event_id", data.eventId);
+      .eq("event_id", data.eventId)
+      .in("player_id", data.playerIds);
     if (inviteError) throw new Error(inviteError.message);
 
     const active = (invitations ?? []).filter((row) => !row.revoked_at);
@@ -111,9 +119,7 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
     }
 
     const matchTitle =
-      event.title ||
-      [event.home_team, event.away_team].filter(Boolean).join(" – ") ||
-      "Match";
+      event.title || [event.home_team, event.away_team].filter(Boolean).join(" – ") || "Match";
 
     let sent = 0;
     let skipped = 0;
@@ -148,7 +154,7 @@ export const sendInvitationEmails = createServerFn({ method: "POST" })
       for (const recipient of recipients) {
         try {
           const result = await sendTemplateEmail("match-invitation", recipient, {
-            idempotencyKey: `match-invitation-${invitation.id}-${recipient}`,
+            idempotencyKey: `match-invitation-${data.operationId}-${invitation.id}-${recipient}`,
             templateData: {
               playerName: player?.name ?? undefined,
               teamName: team?.name ?? undefined,

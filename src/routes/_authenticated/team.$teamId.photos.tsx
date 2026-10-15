@@ -12,7 +12,16 @@ import { Label } from "@/components/ui/label";
 import { useConfirm } from "@/components/ConfirmDelete";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/photos")({
-  head: () => ({ meta: [{"title": "Lagets bilder – Fotbollsrummet"}, {"name": "description", "content": "Se lagets delade bilder i Fotbollsrummet."}, {"property": "og:title", "content": "Lagets bilder – Fotbollsrummet"}, {"property": "og:description", "content": "Se lagets delade bilder i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Lagets bilder – Fotbollsrummet" },
+      { name: "description", content: "Se lagets delade bilder i Fotbollsrummet." },
+      { property: "og:title", content: "Lagets bilder – Fotbollsrummet" },
+      { property: "og:description", content: "Se lagets delade bilder i Fotbollsrummet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PhotosPageGuarded,
 });
 

@@ -112,8 +112,7 @@ const INFO: Record<InviteProblemKind, Omit<InviteProblemInfo, "kind">> = {
   },
   "pasted-url": {
     title: "Adressen ser dubbel ut",
-    message:
-      "Det ser ut som att en hel webbadress hamnat inuti länken. Då hittar vi inte laget.",
+    message: "Det ser ut som att en hel webbadress hamnat inuti länken. Då hittar vi inte laget.",
     hint: "Öppna länken direkt från meddelandet, eller skriv in lagkoden här nedanför.",
     canRetry: false,
     canEnterCode: true,

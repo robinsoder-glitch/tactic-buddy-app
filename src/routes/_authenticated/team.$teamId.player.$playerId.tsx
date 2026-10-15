@@ -51,7 +51,22 @@ import { PlayerDevelopment } from "@/components/PlayerDevelopment";
 import { BackIconButton } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playerId")({
-  head: () => ({ meta: [{"title": "Spelarprofil – Fotbollsrummet"}, {"name": "description", "content": "Se spelarens uppgifter och tillåtna statistik i Fotbollsrummet."}, {"property": "og:title", "content": "Spelarprofil – Fotbollsrummet"}, {"property": "og:description", "content": "Se spelarens uppgifter och tillåtna statistik i Fotbollsrummet."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Spelarprofil – Fotbollsrummet" },
+      {
+        name: "description",
+        content: "Se spelarens uppgifter och tillåtna statistik i Fotbollsrummet.",
+      },
+      { property: "og:title", content: "Spelarprofil – Fotbollsrummet" },
+      {
+        property: "og:description",
+        content: "Se spelarens uppgifter och tillåtna statistik i Fotbollsrummet.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PlayerPage,
 });
 
@@ -353,9 +368,7 @@ function PlayerPage() {
         </div>
       )}
 
-      {!guardianOnly && (
-        <PlayerAccountLink playerId={playerId} teamId={teamId} canEdit={isCoach} />
-      )}
+      {!guardianOnly && <PlayerAccountLink playerId={playerId} teamId={teamId} canEdit={isCoach} />}
       <GuardianLinks
         playerId={playerId}
         teamId={teamId}

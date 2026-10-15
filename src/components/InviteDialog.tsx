@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import {
+  emailDeliveryReceipt,
+  invitationEmailTargets,
+  saveWithEmail,
+} from "@/lib/invitation-delivery";
 import { sendInvitationEmails } from "@/lib/invitation-email.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +19,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  EXTERNAL_CHANNELS_TEXT,
   PUBLISH_BUTTON_TEXT,
   REACH_LABELS,
   fetchGuardedPlayerIds,
@@ -73,6 +77,7 @@ export function InviteDialog({
   const [message, setMessage] = useState("");
   const [respondBy, setRespondBy] = useState("");
   const [notify, setNotify] = useState(true);
+  const [emailCopy, setEmailCopy] = useState(true);
   const [search, setSearch] = useState("");
   const [review, setReview] = useState(false);
   // Ett id per verklig användarhandling: dubbelklick ger inga dubbletter,
@@ -104,6 +109,7 @@ export function InviteDialog({
     setMessage(snap.meta?.message ?? "");
     setRespondBy(snap.meta?.respond_by ?? suggestRespondBy(snap.startsAt));
     setNotify(true);
+    setEmailCopy(true);
     setSearch("");
     setReview(false);
     operationId.current = crypto.randomUUID();
@@ -152,43 +158,53 @@ export function InviteDialog({
 
   const save = useMutation({
     mutationFn: async () => {
-      const result = await saveInvitationPlan({
-        eventId,
-        hasExisting,
-        newPlayerIds: selected,
-        message: message.trim() || null,
-        respondBy: respondBy || null,
-        notify: hasExisting && notify,
-        operationId: operationId.current,
+      const requestId = operationId.current;
+      const targets = invitationEmailTargets({
+        selected,
+        active: activeInvitations.map((invitation) => invitation.player_id),
+        notifyExisting: hasExisting && notify,
       });
-      // Mejlet är en kopia av kallelsen i appen. Misslyckas det får kallelsen ändå stå kvar.
-      try {
-        await sendEmails({ data: { eventId } });
-      } catch (error) {
-        console.error("Kunde inte skicka mejlkallelser", error);
-      }
-      return result;
+      return saveWithEmail(
+        () =>
+          saveInvitationPlan({
+            eventId,
+            hasExisting,
+            newPlayerIds: selected,
+            message: message.trim() || null,
+            respondBy: respondBy || null,
+            notify: hasExisting && notify,
+            operationId: requestId,
+          }),
+        emailCopy && targets.length > 0
+          ? () =>
+              sendEmails({
+                data: {
+                  eventId,
+                  playerIds: targets,
+                  operationId: requestId,
+                },
+              })
+          : null,
+      );
     },
-    onSuccess: (result) => {
+    onSuccess: ({ plan: result, delivery }) => {
       queryClient.invalidateQueries({ queryKey: ["invitations", eventId] });
       queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
       onOpenChange(false);
-      if (result.published) {
-        toast.success(
-          publishResultText({
+      const appReceipt = result.published
+        ? publishResultText({
             selected: result.published.selected,
             account: result.published.reachable_account,
             guardian: result.published.reachable_guardian,
             none: result.published.unreachable,
-          }),
-        );
-      } else {
-        toast.success(
-          notify
-            ? "Kallelsen är uppdaterad och de kallade har fått en notis."
-            : "Kallelsen är uppdaterad. Ingen notis skickades.",
-        );
-      }
+          })
+        : notify
+          ? "Kallelsen är uppdaterad och de kallade har fått en notis i appen."
+          : "Kallelsen är uppdaterad. Ingen ändringsnotis skickades.";
+      const email = emailDeliveryReceipt(delivery);
+      const receipt = `${appReceipt} ${email.text}`;
+      if (email.warning) toast.warning(receipt, { duration: 8000 });
+      else toast.success(receipt);
     },
     onError: (error: Error) =>
       toast.error(error.message || "Kunde inte spara kallelsen. Försök igen."),
@@ -234,7 +250,11 @@ export function InviteDialog({
                 })}
               </ul>
               <p className="text-xs text-muted-foreground">
-                {respondByText(respondBy)}. {EXTERNAL_CHANNELS_TEXT}
+                {respondByText(respondBy)}.{" "}
+                {emailCopy
+                  ? "En mejlkopia skickas till de valda mottagarnas konton och kopplade vårdnadshavare."
+                  : "Ingen mejlkopia skickas."}{" "}
+                Pushnotiser skickas inte.
               </p>
             </div>
           ) : (
@@ -268,9 +288,23 @@ export function InviteDialog({
                     checked={notify}
                     onChange={(event) => setNotify(event.target.checked)}
                   />
-                  <span>Vill du meddela de kallade om ändringen?</span>
+                  <span>
+                    Meddela de redan kallade om ändringen i appen och med eventuell mejlkopia.
+                  </span>
                 </label>
               )}
+
+              <label className="flex items-start gap-3 rounded-xl border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 size-5"
+                  checked={emailCopy}
+                  onChange={(event) => setEmailCopy(event.target.checked)}
+                />
+                <span>
+                  Skicka även en mejlkopia till mottagarnas konton och kopplade vårdnadshavare.
+                </span>
+              </label>
 
               {invitations.length > 0 && (
                 <section>

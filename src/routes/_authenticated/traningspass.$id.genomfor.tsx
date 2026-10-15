@@ -360,7 +360,9 @@ function RunSession() {
           {paused ? " · Pausad" : ""}
         </p>
         <div className="mt-3">
-          <TrainingFocusSummary areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)} />
+          <TrainingFocusSummary
+            areas={focusAreasWithLegacy(session.data.focus_areas, session.data.theme)}
+          />
         </div>
       </header>
 

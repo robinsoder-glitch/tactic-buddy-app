@@ -5,7 +5,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/user-errors";
 
 export const Route = createFileRoute("/_authenticated/admin/innehall")({
-  head: () => ({ meta: [{"title": "Administrera innehåll – Fotbollsrummet"}, {"name": "description", "content": "Hantera Fotbollsrummets artiklar, övningar och träningspass."}, {"property": "og:title", "content": "Administrera innehåll – Fotbollsrummet"}, {"property": "og:description", "content": "Hantera Fotbollsrummets artiklar, övningar och träningspass."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
+  head: () => ({
+    meta: [
+      { title: "Administrera innehåll – Fotbollsrummet" },
+      {
+        name: "description",
+        content: "Hantera Fotbollsrummets artiklar, övningar och träningspass.",
+      },
+      { property: "og:title", content: "Administrera innehåll – Fotbollsrummet" },
+      {
+        property: "og:description",
+        content: "Hantera Fotbollsrummets artiklar, övningar och träningspass.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminContent,
 });
 

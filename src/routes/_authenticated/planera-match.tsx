@@ -88,7 +88,10 @@ export const Route = createFileRoute("/_authenticated/planera-match")({
         content: "Planera matcher: spelare, ledare, formation, laguppställning och anteckningar.",
       },
       { property: "og:title", content: "Planera match – Fotbollsrummet" },
-      { property: "og:description", content: "Planera matchuppgifter, ledare, spelare och laguppställning." },
+      {
+        property: "og:description",
+        content: "Planera matchuppgifter, ledare, spelare och laguppställning.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -186,7 +189,10 @@ function MatchPlanningPage() {
                       className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/60"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <span className={`h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`} aria-hidden />
+                        <span
+                          className={`h-10 w-1.5 shrink-0 rounded-full ${planStatusBar(status)}`}
+                          aria-hidden
+                        />
                         <div className="min-w-0 flex-1">
                           <p className="font-medium">{eventDisplayTitle(event)}</p>
                           <p className="text-sm text-muted-foreground">
@@ -849,7 +855,8 @@ function MatchPlanner({
                     aria-checked={homeAway === v}
                     onClick={() => {
                       setHomeAway(v);
-                      if (v === "hemma" && !location.trim() && team?.home_ground) setLocation(team.home_ground);
+                      if (v === "hemma" && !location.trim() && team?.home_ground)
+                        setLocation(team.home_ground);
                     }}
                   >
                     {v === "hemma" ? "Hemma" : "Borta"}
@@ -866,7 +873,11 @@ function MatchPlanner({
                   placeholder={team?.home_ground ?? "T.ex. Långholmens IP"}
                   onChange={(e) => setLocation(e.target.value)}
                 />
-                <HomeGroundOption homeGround={team?.home_ground} value={location} onChange={setLocation} />
+                <HomeGroundOption
+                  homeGround={team?.home_ground}
+                  value={location}
+                  onChange={setLocation}
+                />
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">

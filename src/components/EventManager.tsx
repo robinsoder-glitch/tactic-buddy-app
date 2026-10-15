@@ -519,18 +519,21 @@ export function EventManager({
               <HomeGroundOption homeGround={homeGround} value={location} onChange={setLocation} />
               {places.filter((place) => place !== homeGround).length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {places.filter((place) => place !== homeGround).slice(0, 4).map((place) => (
-                    <Button
-                      key={place}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setLocation(place)}
-                      className="h-8 px-2.5 text-xs"
-                    >
-                      {place}
-                    </Button>
-                  ))}
+                  {places
+                    .filter((place) => place !== homeGround)
+                    .slice(0, 4)
+                    .map((place) => (
+                      <Button
+                        key={place}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setLocation(place)}
+                        className="h-8 px-2.5 text-xs"
+                      >
+                        {place}
+                      </Button>
+                    ))}
                 </div>
               )}
             </div>
