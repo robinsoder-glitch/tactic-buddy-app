@@ -275,3 +275,6 @@
 - [x] Lägg till tränarläge för övningar under Trupp
 - [x] Visa lagets sparade träningspass och lättlästa passdelar
 - [x] Testa filtrering, tomläge och tränarbehörighet på mobil och dator
+
+## Fem databasfynd 2026-10-19
+- [x] A–E: en ny migration med regressionsprov för inbjudningar, ägarskydd, påminnelser, ledarräkning och klubbstädning.

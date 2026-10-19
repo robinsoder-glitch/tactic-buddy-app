@@ -12,3 +12,6 @@
 ## Planning UI
 - Use DateField for scheduling dates and HomeGroundOption for team home-ground suggestions so booking and editing behave identically.
 - Use TrainingContentPicker for direct event attachments and training-plan drafts; previewing is read-only and selection uses the existing persistence path.
+
+## Database regression tests
+- Run database fixes against isolated PGlite fixtures and the actual migration SQL so permission checks and multi-call transactions are tested without touching user data.
