@@ -77,6 +77,7 @@ import { Route as AuthenticatedTeamTeamIdTruppRouteImport } from './routes/_auth
 import { Route as AuthenticatedTraningspassIdIndexRouteImport } from './routes/_authenticated/traningspass.$id.index'
 import { Route as AuthenticatedTraningspassIdGenomforRouteImport } from './routes/_authenticated/traningspass.$id.genomfor'
 import { Route as AuthenticatedTraningspassIdVisaRouteImport } from './routes/_authenticated/traningspass.$id.visa'
+import { Route as ApiPublicCronMaintenanceRouteImport } from './routes/api/public/cron/maintenance'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as AuthenticatedTeamTeamIdEventEventIdRouteImport } from './routes/_authenticated/team.$teamId.event.$eventId'
 import { Route as AuthenticatedTeamTeamIdPlayerPlayerIdRouteImport } from './routes/_authenticated/team.$teamId.player.$playerId'
@@ -465,6 +466,12 @@ const AuthenticatedTraningspassIdVisaRoute =
     path: '/visa',
     getParentRoute: () => AuthenticatedTraningspassIdRoute,
   } as any)
+const ApiPublicCronMaintenanceRoute =
+  ApiPublicCronMaintenanceRouteImport.update({
+    id: '/api/public/cron/maintenance',
+    path: '/api/public/cron/maintenance',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -549,6 +556,7 @@ export interface FileRoutesByFullPath {
   '/team/$teamId/trupp': typeof AuthenticatedTeamTeamIdTruppRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/api/public/cron/maintenance': typeof ApiPublicCronMaintenanceRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
@@ -617,6 +625,7 @@ export interface FileRoutesByTo {
   '/team/$teamId/trupp': typeof AuthenticatedTeamTeamIdTruppRoute
   '/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/api/public/cron/maintenance': typeof ApiPublicCronMaintenanceRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/lag': typeof AuthenticatedAdminLagIndexRoute
   '/team/$teamId': typeof AuthenticatedTeamTeamIdIndexRoute
@@ -691,6 +700,7 @@ export interface FileRoutesById {
   '/_authenticated/team/$teamId/trupp': typeof AuthenticatedTeamTeamIdTruppRoute
   '/_authenticated/traningspass/$id/genomfor': typeof AuthenticatedTraningspassIdGenomforRoute
   '/_authenticated/traningspass/$id/visa': typeof AuthenticatedTraningspassIdVisaRoute
+  '/api/public/cron/maintenance': typeof ApiPublicCronMaintenanceRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/lag/': typeof AuthenticatedAdminLagIndexRoute
   '/_authenticated/team/$teamId/': typeof AuthenticatedTeamTeamIdIndexRoute
@@ -765,6 +775,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/trupp'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/api/public/cron/maintenance'
     | '/lovable/email/transactional/preview'
     | '/admin/lag/'
     | '/team/$teamId/'
@@ -833,6 +844,7 @@ export interface FileRouteTypes {
     | '/team/$teamId/trupp'
     | '/traningspass/$id/genomfor'
     | '/traningspass/$id/visa'
+    | '/api/public/cron/maintenance'
     | '/lovable/email/transactional/preview'
     | '/admin/lag'
     | '/team/$teamId'
@@ -906,6 +918,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team/$teamId/trupp'
     | '/_authenticated/traningspass/$id/genomfor'
     | '/_authenticated/traningspass/$id/visa'
+    | '/api/public/cron/maintenance'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/lag/'
     | '/_authenticated/team/$teamId/'
@@ -922,6 +935,7 @@ export interface RootRouteChildren {
   DeladMatchTokenRoute: typeof DeladMatchTokenRoute
   InbjudanTokenRoute: typeof InbjudanTokenRoute
   TShareIdRoute: typeof TShareIdRoute
+  ApiPublicCronMaintenanceRoute: typeof ApiPublicCronMaintenanceRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -1403,6 +1417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraningspassIdVisaRouteImport
       parentRoute: typeof AuthenticatedTraningspassIdRoute
     }
+    '/api/public/cron/maintenance': {
+      id: '/api/public/cron/maintenance'
+      path: '/api/public/cron/maintenance'
+      fullPath: '/api/public/cron/maintenance'
+      preLoaderRoute: typeof ApiPublicCronMaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -1626,6 +1647,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeladMatchTokenRoute: DeladMatchTokenRoute,
   InbjudanTokenRoute: InbjudanTokenRoute,
   TShareIdRoute: TShareIdRoute,
+  ApiPublicCronMaintenanceRoute: ApiPublicCronMaintenanceRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
