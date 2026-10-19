@@ -82,13 +82,16 @@ export function EventEditDialog({ open, onOpenChange, event }: Props) {
       const changes = diffEvent(event, patch);
       if (changes.length === 0) return changes;
 
+      // Databasfunktionen tar emot NULL för att rensa sluttid, samling och
+      // plats, men de genererade typerna beskriver bara textvärden – därför
+      // den här överbryggningen.
       const { error } = await supabase.rpc("save_event_details", {
         _event_id: event.id,
         _starts_at: patch.starts_at,
         _ends_at: patch.ends_at,
         _meet_at: patch.meet_at,
         _location: patch.location,
-      });
+      } as never);
       if (error) throw error;
       return changes;
     },
