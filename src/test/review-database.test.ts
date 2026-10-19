@@ -194,9 +194,7 @@ describe.sequential("behörigheter och atomisk planering i PostgreSQL", () => {
       const row = (
         await db.query<{ starts_at: Date }>("SELECT starts_at FROM events WHERE id=$1", [match])
       ).rows[0];
-      expect(row).toBeDefined();
-      if (!row) throw new Error("Matchen saknas i testunderlaget.");
-      expect(new Date(row.starts_at).toISOString()).toBe("2026-10-20T17:00:00.000Z");
+      expect(new Date(row?.starts_at ?? "").toISOString()).toBe("2026-10-20T17:00:00.000Z");
     } finally {
       await db.exec("ALTER TABLE event_change_log DROP CONSTRAINT test_log_failure;");
     }
