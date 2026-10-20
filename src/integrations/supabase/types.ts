@@ -1592,6 +1592,57 @@ export type Database = {
           },
         ]
       }
+      player_homework: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          done_at: string | null
+          due_date: string | null
+          id: string
+          player_id: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          player_id: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          player_id?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_homework_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_homework_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_observations: {
         Row: {
           created_at: string
