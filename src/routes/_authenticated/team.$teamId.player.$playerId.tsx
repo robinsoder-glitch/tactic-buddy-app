@@ -48,6 +48,7 @@ import { useConfirm } from "@/components/ConfirmDelete";
 import { GuardianLinks } from "@/components/GuardianLinks";
 import { PlayerAccountLink } from "@/components/PlayerAccountLink";
 import { PlayerDevelopment } from "@/components/PlayerDevelopment";
+import { PlayerHomework } from "@/components/PlayerHomework";
 import { BackIconButton } from "@/components/BackLink";
 
 export const Route = createFileRoute("/_authenticated/team/$teamId/player/$playerId")({
@@ -376,6 +377,7 @@ function PlayerPage() {
         canEdit={isCoach}
         guardianOnly={guardianOnly}
       />
+      <PlayerHomework teamId={teamId} playerId={playerId} canEdit={isCoach} />
       <PlayerDevelopment teamId={teamId} playerId={playerId} canEdit={isCoach} />
 
       <div className="mt-6 flex items-center justify-between">
